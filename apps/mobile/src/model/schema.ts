@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb'
 
 export const mySchema = appSchema({
-    version: 1,
+    version: 2, // Increment version
     tables: [
         tableSchema({
             name: 'vehicles',
@@ -9,9 +9,9 @@ export const mySchema = appSchema({
                 { name: 'plate', type: 'string' },
                 { name: 'model', type: 'string' },
                 { name: 'brand', type: 'string' },
-                { name: 'status', type: 'string' }, // AVAILABLE, IN_USE, etc.
+                { name: 'status', type: 'string' },
                 { name: 'current_km', type: 'number' },
-                { name: 'updated_at', type: 'number' }, // For sync
+                { name: 'updated_at', type: 'number' },
             ],
         }),
         tableSchema({
@@ -19,16 +19,16 @@ export const mySchema = appSchema({
             columns: [
                 { name: 'vehicle_id', type: 'string' },
                 { name: 'driver_id', type: 'string' },
-                { name: 'status', type: 'string' }, // IN_PROGRESS, COMPLETED, SYNCED
+                { name: 'status', type: 'string' },
                 { name: 'start_km', type: 'number' },
                 { name: 'end_km', type: 'number', isOptional: true },
                 { name: 'start_time', type: 'number' },
                 { name: 'end_time', type: 'number', isOptional: true },
-                { name: 'backend_id', type: 'string', isOptional: true }, // ID in Postgres
+                { name: 'backend_id', type: 'string', isOptional: true },
+                { name: 'start_photo_url', type: 'string', isOptional: true },
                 { name: 'updated_at', type: 'number' },
             ],
         }),
-        // User info mainly for caching driver name but Auth handled separately usually
         tableSchema({
             name: 'user_profile',
             columns: [

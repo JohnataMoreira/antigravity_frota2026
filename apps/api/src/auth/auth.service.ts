@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/co
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { RegisterDto, LoginDto } from './dto';
+import { RegisterDto, LoginDto, RegisterOrgDto } from './dto';
 
 @Injectable()
 export class AuthService {

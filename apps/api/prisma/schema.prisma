@@ -40,6 +40,19 @@ enum ChecklistType {
   CHECKIN
 }
 
+enum MaintenanceType {
+  OIL
+  TIRES
+  INSPECTION
+  OTHER
+}
+
+enum MaintenanceStatus {
+  PENDING
+  COMPLETED
+  CANCELED
+}
+
 model Organization {
   id        String   @id @default(uuid())
   name      String
@@ -50,6 +63,7 @@ model Organization {
   users     User[]
   vehicles  Vehicle[]
   journeys  Journey[]
+  maintenances Maintenance[]
 }
 
 model User {
@@ -86,6 +100,7 @@ model Vehicle {
 
   organization   Organization  @relation(fields: [organizationId], references: [id])
   journeys       Journey[]
+  maintenances   Maintenance[]
 
   @@unique([organizationId, plate])
 }
@@ -127,4 +142,26 @@ model Checklist {
   createdAt DateTime      @default(now())
 
   journey   Journey       @relation(fields: [journeyId], references: [id])
+}
+
+model Maintenance {
+  id             String            @id @default(uuid())
+  organizationId String
+  vehicleId      String
+
+  type           MaintenanceType
+  lastKm         Int               @default(0)
+  nextDueKm      Int
+
+  status         MaintenanceStatus @default(PENDING)
+  performedAt    DateTime?
+  
+  notes          String?
+  cost           Float?
+
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  organization   Organization      @relation(fields: [organizationId], references: [id])
+  vehicle        Vehicle           @relation(fields: [vehicleId], references: [id])
 }

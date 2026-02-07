@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, Truck, Users, Map, Settings, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Truck, Users, Map, Wrench, LogOut, Menu, X } from 'lucide-react';
 
 export function DashboardLayout() {
     const { user, logout } = useAuth();
@@ -14,7 +14,7 @@ export function DashboardLayout() {
         { name: 'Vehicles', href: '/vehicles', icon: Truck },
         { name: 'Drivers', href: '/drivers', icon: Users },
         { name: 'Journeys', href: '/journeys', icon: Map },
-        { name: 'Settings', href: '/settings', icon: Settings },
+        { name: 'Maintenance', href: '/maintenance', icon: Wrench },
     ];
 
     const handleLogout = () => {
@@ -39,8 +39,8 @@ export function DashboardLayout() {
                                 key={item.name}
                                 to={item.href}
                                 className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${isActive
-                                        ? 'bg-blue-50 text-blue-700 dark:bg-gray-700 dark:text-blue-400'
-                                        : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700'
+                                    ? 'bg-blue-50 text-blue-700 dark:bg-gray-700 dark:text-blue-400'
+                                    : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700'
                                     }`}
                             >
                                 <item.icon className="w-5 h-5 mr-3" />

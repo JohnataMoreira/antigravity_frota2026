@@ -29,7 +29,7 @@ export class StorageService {
         });
     }
 
-    async upload(file: Express.Multer.File, folder: string = 'uploads'): Promise<string> {
+    async upload(file: any, folder: string = 'uploads'): Promise<string> {
         const fileId = uuidv4();
         const extension = file.originalname.split('.').pop();
         const fileName = `${folder}/${fileId}.${extension}`;

@@ -132,4 +132,16 @@ export class JourneysService {
             include: { vehicle: true }
         });
     }
+
+    async findAll(organizationId: string) {
+        return this.prisma.journey.findMany({
+            where: { organizationId },
+            include: {
+                vehicle: true,
+                driver: true,
+                checklists: true
+            },
+            orderBy: { startTime: 'desc' }
+        });
+    }
 }

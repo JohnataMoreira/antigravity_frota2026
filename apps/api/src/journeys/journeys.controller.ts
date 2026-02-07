@@ -20,4 +20,9 @@ export class JourneysController {
     findActive(@Request() req: any) {
         return this.journeysService.findActive(req.user.organizationId, req.user.userId);
     }
+
+    @Get()
+    findAll(@Request() req: any) {
+        return this.journeysService.findAll(req.user.organizationId);
+    }
 }

@@ -12,5 +12,6 @@ export default class Journey extends Model {
     @date('start_time') startTime!: number
     @date('end_time') endTime?: number
     @field('backend_id') backendId?: string
+    @field('start_photo_url') startPhotoUrl?: string
     @readonly @date('updated_at') updatedAt!: number
 }

@@ -1,12 +1,24 @@
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useEffect, useState } from 'react';
 import { database } from '../../src/model/database';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 // import { Q } from '@nozbe/watermelondb'; // Not used yet
 
 export default function VehiclesScreen() {
     const [vehicles, setVehicles] = useState<any[]>([]);
     const router = useRouter();
+
+    const params = useLocalSearchParams();
+
+    useEffect(() => {
+        if (params.photoPath && params.vehicleId) {
+            // Logic to start journey after photo
+            const vehicle = vehicles.find(v => v.id === params.vehicleId);
+            if (vehicle) {
+                handleStartJourney(vehicle, params.photoPath as string);
+            }
+        }
+    }, [params.photoPath, params.vehicleId]);
 
     useEffect(() => {
         const fetchVehicles = async () => {
@@ -42,11 +54,11 @@ export default function VehiclesScreen() {
         fetchVehicles();
     }, []);
 
-    const handleStartJourney = async (vehicle: any) => {
+    const handleStartJourney = async (vehicle: any, photoPath?: string) => {
         // 1. Confirm
         Alert.alert(
             'Start Journey',
-            `Start journey with ${vehicle.plate}? Current KM: ${vehicle.currentKm}`,
+            `Start journey with ${vehicle.plate}? ${photoPath ? '(Photo Checked)' : ''}`,
             [
                 { text: 'Cancel', style: 'cancel' },
                 {
@@ -57,10 +69,11 @@ export default function VehiclesScreen() {
                                 const journeys = database.get('journeys');
                                 await journeys.create((j: any) => {
                                     j.vehicleId = vehicle.id;
-                                    j.driverId = 'LOCAL_USER'; // Should come from Auth
+                                    j.driverId = 'LOCAL_USER';
                                     j.status = 'IN_PROGRESS';
                                     j.startKm = vehicle.currentKm;
                                     j.startTime = Date.now();
+                                    j.startPhotoUrl = photoPath;
                                 });
 
                                 // Update Vehicle Status
@@ -70,7 +83,7 @@ export default function VehiclesScreen() {
                             });
 
                             // Navigate to Active Journey
-                            router.push('/(tabs)/journey');
+                            router.replace('/(tabs)/journey');
                         } catch (e) {
                             Alert.alert('Error', 'Failed to start journey');
                         }
@@ -97,8 +110,11 @@ export default function VehiclesScreen() {
                         <Text style={styles.km}>{item.currentKm} km</Text>
 
                         {item.status === 'AVAILABLE' && (
-                            <TouchableOpacity style={styles.button} onPress={() => handleStartJourney(item)}>
-                                <Text style={styles.buttonText}>Start Journey</Text>
+                            <TouchableOpacity style={styles.button} onPress={() => {
+                                // Go to Camera first
+                                router.push({ pathname: '/camera', params: { vehicleId: item.id } });
+                            }}>
+                                <Text style={styles.buttonText}>Inspect & Start</Text>
                             </TouchableOpacity>
                         )}
                     </View>

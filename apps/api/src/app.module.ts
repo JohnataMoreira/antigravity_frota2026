@@ -10,6 +10,8 @@ import { JourneysModule } from './journeys/journeys.module';
 import { StorageModule } from './storage/storage.module';
 import { SyncModule } from './sync/sync.module';
 import { ReportsModule } from './reports/reports.module';
+import { LocationsModule } from './locations/locations.module';
+import { MaintenanceModule } from './maintenance/maintenance.module';
 
 
 @Module({
@@ -23,6 +25,8 @@ import { ReportsModule } from './reports/reports.module';
         StorageModule,
         SyncModule,
         ReportsModule,
+        LocationsModule,
+        MaintenanceModule,
     ],
     providers: [
         {

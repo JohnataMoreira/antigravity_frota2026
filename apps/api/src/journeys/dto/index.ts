@@ -15,7 +15,11 @@ export class StartJourneyDto {
     lat?: number;
 
     @IsOptional()
+    @IsNumber()
     lng?: number;
+
+    @IsOptional()
+    checklistItems?: any[]; // Simplified for MVP
 }
 
 export class EndJourneyDto {

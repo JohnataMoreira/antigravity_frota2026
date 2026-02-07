@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useEffect, useState } from 'react';
 import { database } from '../../src/model/database';
 import { Q } from '@nozbe/watermelondb';
+import { locationService } from '../../src/services/location';
 
 export default function JourneyScreen() {
     const [activeJourney, setActiveJourney] = useState<any>(null);
@@ -21,9 +22,13 @@ export default function JourneyScreen() {
                 const vCollection = database.get('vehicles');
                 const v = await vCollection.find(journey.vehicleId);
                 setVehicle(v);
+
+                // START TRACKING
+                locationService.startEmitting(v.id, '123');
             } else {
                 setActiveJourney(null);
                 setVehicle(null);
+                locationService.stopEmitting();
             }
         } catch (e) {
             // console.error(e);
