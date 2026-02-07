@@ -1,0 +1,130 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  DRIVER
+}
+
+enum VehicleType {
+  CAR
+  TRUCK
+  MOTORCYCLE
+  MACHINE
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  IN_USE
+  MAINTENANCE
+  CRITICAL_ISSUE
+}
+
+enum JourneyStatus {
+  IN_PROGRESS
+  COMPLETED
+  CANCELED
+}
+
+enum ChecklistType {
+  CHECKOUT
+  CHECKIN
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  document  String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users     User[]
+  vehicles  Vehicle[]
+  journeys  Journey[]
+}
+
+model User {
+  id             String       @id @default(uuid())
+  organizationId String
+  email          String
+  passwordHash   String
+  role           Role         @default(DRIVER)
+  name           String
+  licenseNumber  String?
+  active         Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  journeys       Journey[]    @relation("DriverJourneys")
+
+  @@unique([organizationId, email])
+}
+
+model Vehicle {
+  id             String        @id @default(uuid())
+  organizationId String
+  plate          String
+  model          String
+  brand          String?
+  year           Int?
+  type           VehicleType
+  currentKm      Int
+  status         VehicleStatus @default(AVAILABLE)
+  photoUrl       String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  organization   Organization  @relation(fields: [organizationId], references: [id])
+  journeys       Journey[]
+
+  @@unique([organizationId, plate])
+}
+
+model Journey {
+  id             String        @id @default(uuid())
+  organizationId String
+  driverId       String
+  vehicleId      String
+  status         JourneyStatus @default(IN_PROGRESS)
+  
+  startKm        Int
+  endKm          Int?
+  
+  startTime      DateTime      @default(now())
+  endTime        DateTime?
+  
+  // Stored as JSON: { lat: number, lng: number, address?: string }
+  startLocation  Json?
+  endLocation    Json?
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  organization   Organization  @relation(fields: [organizationId], references: [id])
+  driver         User          @relation("DriverJourneys", fields: [driverId], references: [id])
+  vehicle        Vehicle       @relation(fields: [vehicleId], references: [id])
+  checklists     Checklist[]
+}
+
+model Checklist {
+  id        String        @id @default(uuid())
+  journeyId String
+  type      ChecklistType
+  
+  // Stored as JSON array: [{ itemId: string, status: "OK" | "ISSUE", notes?: string, photoUrl?: string }]
+  items     Json
+  
+  createdAt DateTime      @default(now())
+
+  journey   Journey       @relation(fields: [journeyId], references: [id])
+}
