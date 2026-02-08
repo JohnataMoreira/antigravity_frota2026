@@ -21,13 +21,12 @@ RUN npm install --legacy-peer-deps
 # Copy rest of the API code
 COPY apps/api ./apps/api
 
-# Generate Prisma Client and Build
-WORKDIR /app/apps/api
-RUN npx prisma generate
-RUN npm run build
+# Generate Prisma Client (AT ROOT LEVEL) and Build
+# Running from root ensures client goes to /app/node_modules/@prisma/client
+RUN npx prisma generate --schema=apps/api/prisma/schema.prisma
+RUN npm run build -w api
 
 # Prune to production only
-WORKDIR /app
 RUN npm prune --production --legacy-peer-deps
 
 # Stage 2: Production
@@ -37,10 +36,13 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-# Copy prepared production node_modules and code
+# Copy prepared production node_modules (now including root Prisma Client)
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/api/dist ./dist
 COPY --from=builder /app/apps/api/prisma ./prisma
+
+# Sanity check for Prisma Client
+RUN ls node_modules/@prisma/client || (echo "ERROR: Prisma Client not found in node_modules" && exit 1)
 
 EXPOSE 3000
 
