@@ -1,4 +1,5 @@
-version: '3.8'
+# Docker Compose for VPS Deployment
+# Uses .env file for secrets
 
 services:
   postgres:
