@@ -13,7 +13,7 @@ RUN npm install
 # Copy source code
 COPY apps/web ./apps/web
 COPY tsconfig.json ./
-COPY apps/web/tsconfig*.json ./apps/web/
+COPY apps/web/tsconfig.json ./apps/web/tsconfig.json
 COPY apps/web/vite.config.ts ./apps/web/vite.config.ts
 
 # Build application
