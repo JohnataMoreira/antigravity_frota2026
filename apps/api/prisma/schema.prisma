@@ -69,10 +69,12 @@ model Organization {
 model User {
   id             String       @id @default(uuid())
   organizationId String
-  email          String
+  email          String       @unique
   passwordHash   String
   role           Role         @default(DRIVER)
   name           String
+  firstName      String?
+  lastName       String?
   licenseNumber  String?
   active         Boolean      @default(true)
   createdAt      DateTime     @default(now())
@@ -80,8 +82,6 @@ model User {
 
   organization   Organization @relation(fields: [organizationId], references: [id])
   journeys       Journey[]    @relation("DriverJourneys")
-
-  @@unique([organizationId, email])
 }
 
 model Vehicle {

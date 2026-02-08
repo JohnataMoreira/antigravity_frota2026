@@ -12,18 +12,26 @@ export class AuthService {
     ) { }
 
     async registerOrg(dto: RegisterOrgDto) {
-        // Check if org document already exists
-        const existingOrg = await this.prisma.organization.findUnique({
-            where: { document: dto.document },
+        // Check if user email already exists (global unique)
+        const existingUser = await this.prisma.user.findUnique({
+            where: { email: dto.email },
         });
-        if (existingOrg) throw new ConflictException('Organization already exists');
+        if (existingUser) throw new ConflictException('User email already exists');
+
+        // Check if org document already exists if provided
+        if (dto.document) {
+            const existingOrg = await this.prisma.organization.findUnique({
+                where: { document: dto.document },
+            });
+            if (existingOrg) throw new ConflictException('Organization already exists');
+        }
 
         // Transaction to create Org + Admin User
         const { org, user } = await this.prisma.$transaction(async (tx) => {
             const org = await tx.organization.create({
                 data: {
                     name: dto.orgName,
-                    document: dto.document,
+                    document: dto.document || `TEMP-${Date.now()}`,
                 },
             });
 
@@ -33,8 +41,10 @@ export class AuthService {
             const user = await tx.user.create({
                 data: {
                     organizationId: org.id,
-                    email: dto.adminEmail,
-                    name: dto.adminName,
+                    email: dto.email,
+                    name: `${dto.firstName} ${dto.lastName}`,
+                    firstName: dto.firstName,
+                    lastName: dto.lastName,
                     passwordHash,
                     role: 'ADMIN',
                 },
@@ -47,29 +57,14 @@ export class AuthService {
     }
 
     async login(dto: LoginDto) {
-        // 1. Find the organization by Document
-        const org = await this.prisma.organization.findUnique({
-            where: { document: dto.document },
-        });
-
-        if (!org) {
-            // Use generic error message for security
-            throw new UnauthorizedException('Credentials incorrect');
-        }
-
-        // 2. Find the user within that organization
+        // 1. Find the user by email globally
         const user = await this.prisma.user.findUnique({
-            where: {
-                organizationId_email: {
-                    organizationId: org.id,
-                    email: dto.email,
-                },
-            },
+            where: { email: dto.email },
         });
 
         if (!user) throw new UnauthorizedException('Credentials incorrect');
 
-        // 3. Verify password
+        // 2. Verify password
         const pwMatches = await bcrypt.compare(dto.password, user.passwordHash);
         if (!pwMatches) throw new UnauthorizedException('Credentials incorrect');
 

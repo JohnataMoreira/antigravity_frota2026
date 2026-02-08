@@ -6,8 +6,7 @@ import { Login } from './pages/Login';
 import { DashboardLayout } from './layouts/DashboardLayout';
 import { VehiclesList } from './pages/Vehicles';
 import { VehicleForm } from './pages/Vehicles/VehicleForm';
-import { DriversList } from './pages/Drivers';
-import { DriverForm } from './pages/Drivers/DriverForm';
+import { Drivers } from './pages/Drivers';
 import { JourneysList } from './pages/Journeys';
 import { MaintenanceList } from './pages/Maintenance';
 import { LiveMap } from './components/LiveMap';
@@ -108,8 +107,7 @@ function AppRoutes() {
                 </Route>
 
                 <Route path="drivers">
-                    <Route index element={<DriversList />} />
-                    <Route path="new" element={<DriverForm />} />
+                    <Route index element={<Drivers />} />
                 </Route>
 
                 <Route path="journeys" element={<JourneysList />} />
