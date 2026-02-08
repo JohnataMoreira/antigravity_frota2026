@@ -12,7 +12,7 @@ export function DashboardLayout() {
     const navigation = [
         { name: 'Painel', href: '/dashboard', icon: LayoutDashboard },
         { name: 'Veículos', href: '/vehicles', icon: Truck },
-        { name: 'Motoristas', href: '/drivers', icon: Users },
+        { name: 'Funcionários', href: '/drivers', icon: Users },
         { name: 'Jornadas', href: '/journeys', icon: Map },
         { name: 'Manutenção', href: '/maintenance', icon: Wrench },
     ];

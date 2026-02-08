@@ -32,11 +32,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
             root.classList.add('dark');
         } else if (theme === 'paraopeba') {
             root.setAttribute('data-theme', 'paraopeba');
-            // Check if user prefers dark mode for Paraopeba dark variant
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (prefersDark) {
-                root.classList.add('dark');
-            }
+            // Paraopeba has its own color scheme, don't apply dark mode
         }
 
         // Persist to localStorage

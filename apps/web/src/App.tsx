@@ -59,7 +59,7 @@ function Dashboard() {
                     icon={<Truck className="w-8 h-8" />}
                 />
                 <StatCard
-                    label="Total de Motoristas"
+                    label="Total de Funcionários"
                     value={stats?.totalDrivers || 0}
                     icon={<Users className="w-8 h-8" />}
                 />
