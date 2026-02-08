@@ -12,10 +12,16 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-# Configurações
-POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-$(openssl rand -base64 32 | tr -d '\n')}"
-JWT_SECRET="${JWT_SECRET:-$(openssl rand -base64 64 | tr -d '\n')}"
-MINIO_PASSWORD="${MINIO_PASSWORD:-MinioSecure2024!}"
+# Carregar variáveis existentes para manter as senhas
+if [ -f .env ]; then
+    echo -e "${YELLOW}ℹ️ Carregando variáveis existentes do .env...${NC}"
+    export $(grep -v '^#' .env | xargs)
+fi
+
+# Configurações (Gera apenas se não existir)
+POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-$(openssl rand -base64 24 | tr -d '\n')}"
+JWT_SECRET="${JWT_SECRET:-$(openssl rand -base64 48 | tr -d '\n')}"
+MINIO_ROOT_PASSWORD="${MINIO_ROOT_PASSWORD:-MinioSecure2024!}"
 
 echo -e "${BLUE}📦 Instalando dependências...${NC}"
 if ! command -v docker &> /dev/null; then
@@ -43,7 +49,7 @@ JWT_SECRET=$JWT_SECRET
 STORAGE_BUCKET=frota-uploads
 STORAGE_REGION=us-east-1
 MINIO_ROOT_USER=minioadmin
-MINIO_ROOT_PASSWORD=$MINIO_PASSWORD
+MINIO_ROOT_PASSWORD=$MINIO_ROOT_PASSWORD
 
 # API
 PORT=3000
@@ -61,15 +67,20 @@ echo -e "${BLUE}🏗️  Building containers...${NC}"
 docker-compose -f docker-compose.vps.yml build --no-cache
 
 echo -e "${BLUE}🚀 Iniciando serviços...${NC}"
-docker-compose -f docker-compose.vps.yml up -d
+if ! docker-compose -f docker-compose.vps.yml up -d; then
+    echo -e "${RED}❌ Erro ao subir os containers!${NC}"
+    docker-compose -f docker-compose.vps.yml logs
+    exit 1
+fi
 
 echo -e "${YELLOW}⏳ Aguardando PostgreSQL iniciar...${NC}"
 sleep 10
 
 echo -e "${BLUE}🔄 Executando migrações...${NC}"
 docker-compose -f docker-compose.vps.yml exec -T api npx prisma migrate deploy || {
-    echo -e "${YELLOW}⚠️  Tentando caminho alternativo...${NC}"
-    docker-compose -f docker-compose.vps.yml exec -T api sh -c "cd apps/api && npx prisma migrate deploy"
+    echo -e "${YELLOW}⚠️ Falha nas migrações. Verificando logs da API...${NC}"
+    docker-compose -f docker-compose.vps.yml logs api
+    exit 1
 }
 
 echo ""
