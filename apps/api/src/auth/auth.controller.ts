@@ -1,11 +1,13 @@
 import { Body, Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterOrgDto } from './dto';
+import { Public } from './public.decorator';
 
 @Controller('auth')
 export class AuthController {
     constructor(private authService: AuthService) { }
 
+    @Public()
     @Post('login')
     @HttpCode(HttpStatus.OK)
     login(@Body() dto: LoginDto) {
@@ -13,6 +15,7 @@ export class AuthController {
     }
 
     // Endpoint to bootstrap the first organization
+    @Public()
     @Post('register-org')
     @HttpCode(HttpStatus.CREATED)
     registerOrg(@Body() dto: RegisterOrgDto) {
