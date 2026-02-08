@@ -1,9 +1,9 @@
 # Stage 1: Build
-FROM node:20-bookworm-slim AS builder
+FROM node:20 AS builder
 
 WORKDIR /app
 
-# Copy EVERYTHING except node_modules
+# [11/10 STRATEGY] Copy EVERYTHING except node_modules
 COPY . .
 
 # Clean install all dependencies
