@@ -64,7 +64,7 @@ services:
       - dokploy-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frota-api.rule=Host(`api.johnatamoreira.com.br`)"
+      - "traefik.http.routers.frota-api.rule=Host(`api.johnatamoreira.com.br`) || (Host(`johnatamoreira.com.br`) && PathPrefix(`/api`))"
       - "traefik.http.routers.frota-api.entrypoints=websecure"
       - "traefik.http.routers.frota-api.tls.certresolver=letsencrypt"
       - "traefik.http.services.frota-api.loadbalancer.server.port=3000"
