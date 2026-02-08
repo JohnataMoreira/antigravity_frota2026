@@ -1,4 +1,4 @@
-# Stage 1: Build (Fat image for a stable build environment)
+# Stage 1: Build (Stable fat image)
 FROM node:20 AS builder
 
 WORKDIR /app
@@ -7,38 +7,39 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 # [11/10 STRATEGY] Copy EVERYTHING except node_modules
-# This prevents incomplete monorepo workspace resolution
 COPY . .
 
-# Clean install all dependencies at root
+# [11/10 STRATEGY] Sync all dependencies at ROOT
+# Since we added prisma/@prisma/client to root package.json, this installs them here
 RUN npm install --legacy-peer-deps
 
 # [11/10 STRATEGY] Generate Prisma from ROOT
-# This forces the client into /app/node_modules/@prisma/client instead of local apps/api/node_modules
+# Using npx from root now finds the hoisted prisma binary instantly
 RUN npx prisma generate --schema=apps/api/prisma/schema.prisma
 
 # Build the API
 RUN npm run build -w api
 
-# Prune to production only
+# Prune to production only at the root
 RUN npm prune --production --legacy-peer-deps
 
-# Stage 2: Production (Slim image for efficiency)
+# Stage 2: Production (Slim image)
 FROM node:20-bookworm-slim
 
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-# Copy prepared production node_modules (including hoisted Prisma Client)
+# [11/10 STRATEGY] Copy the entire production node_modules from root
 COPY --from=builder /app/node_modules ./node_modules
-# Copy API artifacts (dist is located in apps/api/dist after build -w api)
+# Copy API artifacts
 COPY --from=builder /app/apps/api/dist ./dist
 COPY --from=builder /app/apps/api/prisma ./prisma
 COPY --from=builder /app/package.json ./package.json
 
-# [11/10 STRATEGY] FINAL SANITY CHECK
-# If Node can't find Prisma Client here, the build WILL fail right now
+# [11/10 STRATEGY] ULTIMATE SANITY CHECK
+# This command MUST pass for the image to be created.
+# It proves that Node + Prisma Client are correctly linked in the production image.
 RUN node -e "require('@prisma/client')"
 
 EXPOSE 3000

@@ -3,10 +3,10 @@ FROM node:20 AS builder
 
 WORKDIR /app
 
-# [11/10 STRATEGY] Copy EVERYTHING except node_modules
+# [11/10 STRATEGY] Copy EVERYTHING
 COPY . .
 
-# Clean install all dependencies
+# [11/10 STRATEGY] Sync all dependencies at ROOT
 RUN npm install --legacy-peer-deps
 
 # Build the Web app
