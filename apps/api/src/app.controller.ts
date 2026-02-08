@@ -8,4 +8,14 @@ export class AppController {
     healthCheck() {
         return { status: 'ok', timestamp: new Date().toISOString() };
     }
+
+    @Public()
+    @Get()
+    root() {
+        return {
+            message: 'Frota2026 API is running',
+            health: '/api/health',
+            timestamp: new Date().toISOString()
+        };
+    }
 }
