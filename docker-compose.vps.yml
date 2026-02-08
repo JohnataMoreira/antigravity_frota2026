@@ -67,7 +67,7 @@ services:
       - "traefik.http.routers.frota-api-sub.rule=Host(`api.johnatamoreira.com.br`)"
       - "traefik.http.routers.frota-api-sub.entrypoints=websecure"
       - "traefik.http.routers.frota-api-sub.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.frota-api-path.rule=Host(`johnatamoreira.com.br`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.frota-api-path.rule=(Host(`johnatamoreira.com.br`) || Host(`frota.johnatamoreira.com.br`)) && PathPrefix(`/api`)"
       - "traefik.http.routers.frota-api-path.entrypoints=websecure"
       - "traefik.http.routers.frota-api-path.tls.certresolver=letsencrypt"
       - "traefik.http.routers.frota-api-path.priority=100"
