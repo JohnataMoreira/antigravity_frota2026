@@ -1,41 +1,50 @@
 # Stage 1: Build
-FROM node:20-alpine AS builder
+FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
 
-# Copy root configurations
+# Install build dependencies (needed for some native modules if they crop up)
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+
+# Copy root configurations (needed for workspace install)
 COPY package*.json ./
 COPY apps/api/package*.json ./apps/api/
 COPY apps/api/prisma ./apps/api/prisma
 COPY tsconfig.json ./
 COPY apps/api/tsconfig.json ./apps/api/
 
-# Install ALL dependencies
+# Install ALL dependencies (monorepo install)
 RUN npm install
 
-# Copy source and build
+# Copy source code
 COPY apps/api ./apps/api
-RUN npx prisma generate --schema=./apps/api/prisma/schema.prisma
-RUN npm run build -w api
+
+# Generate Prisma and Build
+WORKDIR /app/apps/api
+RUN npx prisma generate
+RUN npm run build
 
 # Stage 2: Production
-# We treat the API as a standalone app here to avoid monorepo path hell
-FROM node:20-alpine
+FROM node:20-bookworm-slim
 
 WORKDIR /app
+
+# Install openssl (Prisma requirement)
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 # Copy ONLY the API package file
 COPY apps/api/package*.json ./
 
-# Install production dependencies + prisma CLI (needed for the generator)
+# Install production dependencies
+# We also install prisma cli to ensure npx prisma works in production
 RUN npm install --omit=dev && npm install prisma@5.10.2
 
-# Copy Prisma schema and build artifacts
-COPY apps/api/prisma ./prisma
+# Copy Prisma schema and build artifacts from Stage 1
+COPY --from=builder /app/apps/api/prisma ./prisma
 COPY --from=builder /app/apps/api/dist ./dist
 
-# Generate client in the production container
-RUN npx prisma generate
+# Generate client in the production container (Standalone mode)
+RUN npx prisma generate --schema=./prisma/schema.prisma
 
 EXPOSE 3000
 
@@ -44,5 +53,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
     CMD node -e "require('http').get('http://localhost:3000/health', (r) => r.statusCode === 200 ? process.exit(0) : process.exit(1))"
 
 # Start application
-# We know it's in dist/main.js because of our tsconfig change
 CMD ["node", "dist/main.js"]
