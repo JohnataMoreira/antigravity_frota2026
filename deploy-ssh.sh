@@ -90,7 +90,7 @@ echo -e "${BLUE}🏗️  Building containers...${NC}"
 $COMPOSE_CMD -f docker-compose.vps.yml build --no-cache
 
 echo -e "${BLUE}🚀 Iniciando serviços...${NC}"
-if ! $COMPOSE_CMD -f docker-compose.vps.yml up -d; then
+if ! $COMPOSE_CMD -f docker-compose.vps.yml up -d --force-recreate; then
     echo -e "${RED}❌ Erro ao subir os containers!${NC}"
     $COMPOSE_CMD -f docker-compose.vps.yml logs
     exit 1

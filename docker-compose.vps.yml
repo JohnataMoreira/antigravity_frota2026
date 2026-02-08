@@ -88,12 +88,12 @@ services:
     # Healthcheck removed temporarily to diagnose 502
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frota-web.rule=Host(`johnatamoreira.com.br`)"
-      - "traefik.http.routers.frota-web.entrypoints=websecure"
-      - "traefik.http.routers.frota-web.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.frota-web.priority=10"
-      - "traefik.http.routers.frota-web.service=frota-web"
-      - "traefik.http.services.frota-web.loadbalancer.server.port=80"
+      - "traefik.http.routers.frota-web-root.rule=Host(`johnatamoreira.com.br`)"
+      - "traefik.http.routers.frota-web-root.entrypoints=websecure"
+      - "traefik.http.routers.frota-web-root.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.frota-web-root.priority=1"
+      - "traefik.http.routers.frota-web-root.service=frota-web-root"
+      - "traefik.http.services.frota-web-root.loadbalancer.server.port=80"
       - "traefik.docker.network=dokploy-network"
 
 volumes:
