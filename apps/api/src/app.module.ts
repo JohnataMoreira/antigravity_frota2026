@@ -12,9 +12,11 @@ import { SyncModule } from './sync/sync.module';
 import { ReportsModule } from './reports/reports.module';
 import { LocationsModule } from './locations/locations.module';
 import { MaintenanceModule } from './maintenance/maintenance.module';
+import { AppController } from './app.controller';
 
 
 @Module({
+    controllers: [AppController],
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
         PrismaModule,
