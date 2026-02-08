@@ -1,4 +1,5 @@
 # Stage 1: Build
+# VERSION: 1.0.1 - DEF_BOOKWORM
 FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
