@@ -83,7 +83,7 @@ if [ "$FORCE_RESET" = true ]; then
     echo -e "${RED}⚠️  Senha alterada! Resetando volumes para aplicar novas credenciais...${NC}"
     $COMPOSE_CMD -f docker-compose.vps.yml down -v --remove-orphans 2>/dev/null || true
 else
-    $COMPOSE_CMD -f docker-compose.vps.yml down 2>/dev/null || true
+    $COMPOSE_CMD -f docker-compose.vps.yml down --remove-orphans 2>/dev/null || true
 fi
 
 echo -e "${BLUE}🏗️  Building containers...${NC}"
