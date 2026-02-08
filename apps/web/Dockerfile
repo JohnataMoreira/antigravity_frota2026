@@ -1,29 +1,29 @@
 # Stage 1: Build
-FROM node:20-alpine AS builder
+FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Copy root configs
 COPY package*.json ./
 COPY apps/web/package*.json ./apps/web/
-
-# Install dependencies
-RUN npm install
-
-# Copy source code
-COPY apps/web ./apps/web
 COPY tsconfig.json ./
 
-# Build application
+# Install dependencies (Clean slate)
+RUN npm install --legacy-peer-deps
+
+# Copy code
+COPY apps/web ./apps/web
+
+# Build
 RUN npm run build -w web
 
-# Stage 2: Production with Nginx
+# Stage 2: Production
 FROM nginx:alpine
 
 # Copy built files
 COPY --from=builder /app/apps/web/dist /usr/share/nginx/html
 
-# Custom Nginx configuration for SPA
+# Custom nginx config for SPA
 RUN echo 'server { \
     listen 80; \
     location / { \
