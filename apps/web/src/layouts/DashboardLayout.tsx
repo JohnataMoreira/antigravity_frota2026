@@ -10,11 +10,11 @@ export function DashboardLayout() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const navigation = [
-        { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-        { name: 'Vehicles', href: '/vehicles', icon: Truck },
-        { name: 'Drivers', href: '/drivers', icon: Users },
-        { name: 'Journeys', href: '/journeys', icon: Map },
-        { name: 'Maintenance', href: '/maintenance', icon: Wrench },
+        { name: 'Painel', href: '/dashboard', icon: LayoutDashboard },
+        { name: 'Veículos', href: '/vehicles', icon: Truck },
+        { name: 'Motoristas', href: '/drivers', icon: Users },
+        { name: 'Jornadas', href: '/journeys', icon: Map },
+        { name: 'Manutenção', href: '/maintenance', icon: Wrench },
     ];
 
     const handleLogout = () => {
@@ -56,7 +56,7 @@ export function DashboardLayout() {
                         className="flex items-center w-full px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-gray-700 rounded-lg transition-colors"
                     >
                         <LogOut className="w-5 h-5 mr-3" />
-                        Logout
+                        Sair
                     </button>
                 </div>
             </aside>
@@ -83,7 +83,7 @@ export function DashboardLayout() {
                                 {item.name}
                             </Link>
                         ))}
-                        <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-red-600">Logout</button>
+                        <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-red-600">Sair</button>
                     </div>
                 )}
 
