@@ -99,9 +99,9 @@ fi
 echo -e "${YELLOW}⏳ Aguardando PostgreSQL iniciar...${NC}"
 sleep 10
 
-echo -e "${BLUE}🔄 Executando migrações...${NC}"
-$COMPOSE_CMD -f docker-compose.vps.yml exec -T api npx prisma migrate deploy || {
-    echo -e "${YELLOW}⚠️ Falha nas migrações. Verificando logs da API...${NC}"
+echo -e "${BLUE}🔄 Sincronizando esquema do banco (db push)...${NC}"
+$COMPOSE_CMD -f docker-compose.vps.yml exec -T api npx prisma db push --accept-data-loss || {
+    echo -e "${YELLOW}⚠️ Falha na sincronização do banco. Verificando logs da API...${NC}"
     $COMPOSE_CMD -f docker-compose.vps.yml logs api
     exit 1
 }
