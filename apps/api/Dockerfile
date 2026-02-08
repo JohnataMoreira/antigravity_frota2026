@@ -10,33 +10,32 @@ COPY apps/api/prisma ./apps/api/prisma
 COPY tsconfig.json ./
 COPY apps/api/tsconfig.json ./apps/api/
 
-# Install dependencies (incl. devDeps)
+# Install ALL dependencies
 RUN npm install
 
 # Copy source and build
 COPY apps/api ./apps/api
+RUN npx prisma generate --schema=./apps/api/prisma/schema.prisma
 RUN npm run build -w api
 
 # Stage 2: Production
+# We treat the API as a standalone app here to avoid monorepo path hell
 FROM node:20-alpine
 
 WORKDIR /app
 
-# Install production dependencies
-COPY package*.json ./
-COPY apps/api/package*.json ./apps/api/
-# Prisma needs to generate the client, so keeping it in dependencies was correct
-RUN npm install --production
+# Copy ONLY the API package file
+COPY apps/api/package*.json ./
 
-# Copy Prisma schema and generate client in the production stage
-COPY apps/api/prisma ./apps/api/prisma
-RUN npx prisma generate --schema=./apps/api/prisma/schema.prisma
+# Install production dependencies + prisma CLI (needed for the generator)
+RUN npm install --omit=dev && npm install prisma@5.10.2
 
-# Copy only the compiled JS from builder
+# Copy Prisma schema and build artifacts
+COPY apps/api/prisma ./prisma
 COPY --from=builder /app/apps/api/dist ./dist
 
-# Final check: Ensure main.js exists in the expected place
-RUN ls -la dist/
+# Generate client in the production container
+RUN npx prisma generate
 
 EXPOSE 3000
 
@@ -45,4 +44,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
     CMD node -e "require('http').get('http://localhost:3000/health', (r) => r.statusCode === 200 ? process.exit(0) : process.exit(1))"
 
 # Start application
+# We know it's in dist/main.js because of our tsconfig change
 CMD ["node", "dist/main.js"]
