@@ -34,7 +34,7 @@ COPY apps/api/package*.json ./apps/api/
 RUN npm install --production
 
 # Copy built files and Prisma
-COPY --from=builder /app/apps/api/dist ./dist
+COPY --from=builder /app/dist/apps/api ./dist
 COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
@@ -47,4 +47,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
     CMD node -e "require('http').get('http://localhost:3000/health', (r) => r.statusCode === 200 ? process.exit(0) : process.exit(1))"
 
 # Start application
-CMD ["node", "dist/main.js"]
+# We try both paths in case NestJS nested the output inside src/
+CMD ["sh", "-c", "if [ -f dist/src/main.js ]; then node dist/src/main.js; else node dist/main.js; fi"]
