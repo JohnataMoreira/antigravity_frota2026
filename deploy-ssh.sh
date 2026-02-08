@@ -19,8 +19,8 @@ if [ -f .env ]; then
 fi
 
 # Configurações (Gera apenas se não existir)
-POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-$(openssl rand -base64 24 | tr -d '\n')}"
-JWT_SECRET="${JWT_SECRET:-$(openssl rand -base64 48 | tr -d '\n')}"
+POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-$(openssl rand -hex 24)}"
+JWT_SECRET="${JWT_SECRET:-$(openssl rand -hex 48)}"
 MINIO_ROOT_PASSWORD="${MINIO_ROOT_PASSWORD:-MinioSecure2024!}"
 
 echo -e "${BLUE}📦 Instalando dependências...${NC}"
