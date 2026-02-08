@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from './_layout';
 
 // Config
-const API_URL = 'http://localhost:3000'; // Android emulator needs 10.0.2.2 usually, but with Expo host... use machine IP
+const API_URL = 'https://api.johnatamoreira.com.br'; // Production API URL
 // NOTE: For real device, use machine IP.
 
 export default function LoginScreen() {

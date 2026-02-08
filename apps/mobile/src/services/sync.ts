@@ -1,7 +1,7 @@
 import { synchronize } from '@nozbe/watermelondb/sync';
 import { database } from '../model/database';
 
-const API_URL = 'http://localhost:3000/sync'; // Change to machine IP
+const API_URL = 'https://api.johnatamoreira.com.br/sync'; // Production API URL
 
 export async function sync() {
     await synchronize({
