@@ -8,4 +8,18 @@ export class AppController {
     healthCheck() {
         return { status: 'ok', timestamp: new Date().toISOString() };
     }
+
+    @Public()
+    @Get('health/debug')
+    async debugCheck() {
+        // Test bcrypt
+        const bcrypt = require('bcrypt');
+        const hash = await bcrypt.hash('test', 10);
+
+        return {
+            status: 'ok',
+            bcrypt: !!hash,
+            timestamp: new Date().toISOString()
+        };
+    }
 }
