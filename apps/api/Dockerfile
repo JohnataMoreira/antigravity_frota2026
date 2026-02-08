@@ -36,6 +36,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/api/dist ./dist
 COPY --from=builder /app/apps/api/prisma ./prisma
 COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/apps/api/verify-internal.js ./verify-internal.js
 
 # [11/10 STRATEGY] MULTI-MODULE SANITY CHECK
 # This command MUST pass for the image to be created.
