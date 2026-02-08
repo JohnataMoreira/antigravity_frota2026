@@ -1,6 +1,7 @@
 {
   "name": "frota2026",
   "private": true,
+  "packageManager": "npm@10.8.2",
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",

@@ -11,6 +11,7 @@ import { DriverForm } from './pages/Drivers/DriverForm';
 import { JourneysList } from './pages/Journeys';
 import { MaintenanceList } from './pages/Maintenance';
 import { LiveMap } from './components/LiveMap';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const queryClient = new QueryClient();
 
@@ -51,7 +52,9 @@ function Dashboard() {
 
             <div className="mt-8">
                 <h2 className="text-xl font-bold mb-4">Live Tracking</h2>
-                <LiveMap />
+                <ErrorBoundary>
+                    <LiveMap />
+                </ErrorBoundary>
             </div>
         </div>
     );

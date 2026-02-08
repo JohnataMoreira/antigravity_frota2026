@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const isProd = !window.location.host.includes('localhost');
 export const api = axios.create({
-    baseURL: isProd ? '/api' : 'http://localhost:3000',
+    baseURL: isProd ? 'https://api.johnatamoreira.com.br/api' : 'http://localhost:3000/api',
 });
 
 api.interceptors.request.use((config) => {

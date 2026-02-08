@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/co
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { RegisterDto, LoginDto, RegisterOrgDto } from './dto';
+import { LoginDto, RegisterOrgDto } from './dto';
 
 @Injectable()
 export class AuthService {
@@ -47,12 +47,29 @@ export class AuthService {
     }
 
     async login(dto: LoginDto) {
-        const user = await this.prisma.user.findFirst({
-            where: { email: dto.email },
+        // 1. Find the organization by Document
+        const org = await this.prisma.organization.findUnique({
+            where: { document: dto.document },
+        });
+
+        if (!org) {
+            // Use generic error message for security
+            throw new UnauthorizedException('Credentials incorrect');
+        }
+
+        // 2. Find the user within that organization
+        const user = await this.prisma.user.findUnique({
+            where: {
+                organizationId_email: {
+                    organizationId: org.id,
+                    email: dto.email,
+                },
+            },
         });
 
         if (!user) throw new UnauthorizedException('Credentials incorrect');
 
+        // 3. Verify password
         const pwMatches = await bcrypt.compare(dto.password, user.passwordHash);
         if (!pwMatches) throw new UnauthorizedException('Credentials incorrect');
 
@@ -71,8 +88,20 @@ export class AuthService {
             secret: process.env.JWT_SECRET,
         });
 
+        // Return user details as well
+        // We need to fetch the user name to be complete, but for now let's reuse what we have
+        // ideally login passes the user object here, but let's just return what we have in payload 
+        // plus maybe name if we fetch it. 
+        // To keep it simple and efficient, let's just return the essential info.
+
         return {
             access_token: token,
+            user: {
+                id: userId,
+                email,
+                role,
+                organizationId: orgId
+            }
         };
     }
 }

@@ -7,6 +7,10 @@ export class LoginDto {
     @IsNotEmpty()
     @IsString()
     password!: string;
+
+    @IsNotEmpty()
+    @IsString()
+    document!: string;
 }
 
 export class RegisterDto {

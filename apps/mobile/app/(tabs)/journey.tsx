@@ -1,8 +1,7 @@
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useEffect, useState } from 'react';
-import { database } from '../../src/model/database';
-import { Q } from '@nozbe/watermelondb';
 import { locationService } from '../../src/services/location';
+import { api } from '../../src/services/api';
 
 export default function JourneyScreen() {
     const [activeJourney, setActiveJourney] = useState<any>(null);
@@ -10,35 +9,29 @@ export default function JourneyScreen() {
 
     const fetchActive = async () => {
         try {
-            const journeys = database.get('journeys');
-            // Find IN_PROGRESS
-            const active = await journeys.query(Q.where('status', 'IN_PROGRESS')).fetch();
+            const journey = await api.getActiveJourney();
 
-            if (active.length > 0) {
-                const journey = active[0];
+            if (journey) {
                 setActiveJourney(journey);
-
-                // Get vehicle
-                const vCollection = database.get('vehicles');
-                const v = await vCollection.find(journey.vehicleId);
-                setVehicle(v);
+                setVehicle(journey.vehicle);
 
                 // START TRACKING
-                locationService.startEmitting(v.id, '123');
+                // We'd use the real vehicle ID here
+                locationService.startEmitting(journey.vehicleId, '123');
             } else {
                 setActiveJourney(null);
                 setVehicle(null);
                 locationService.stopEmitting();
             }
         } catch (e) {
-            // console.error(e);
+            console.error(e);
         }
     };
 
-    // Poll for updates (WatermelonDB has observables, but simple interval is easier for MVP)
+    // Poll for updates
     useEffect(() => {
         fetchActive();
-        const interval = setInterval(fetchActive, 2000);
+        const interval = setInterval(fetchActive, 5000); // Poll slower for API
         return () => clearInterval(interval);
     }, []);
 
@@ -46,31 +39,24 @@ export default function JourneyScreen() {
         if (!activeJourney || !vehicle) return;
 
         Alert.alert(
-            'End Journey',
-            'Finish this journey?',
+            'Finalizar Viagem',
+            'Deseja realmente finalizar esta viagem?',
             [
-                { text: 'Cancel', style: 'cancel' },
+                { text: 'Cancelar', style: 'cancel' },
                 {
-                    text: 'Finish', onPress: async () => {
+                    text: 'Finalizar', onPress: async () => {
                         try {
-                            await database.write(async () => {
-                                // For simplicity, add random KM
-                                const endKm = activeJourney.startKm + 10;
+                            // For simplicity, add random KM if not provided by user input
+                            // In real app we'd ask user for odometer reading
+                            const endKm = activeJourney.startKm + 10;
 
-                                await activeJourney.update((j: any) => {
-                                    j.status = 'COMPLETED';
-                                    j.endKm = endKm;
-                                    j.endTime = Date.now();
-                                });
+                            await api.endJourney(activeJourney.id, endKm);
 
-                                await vehicle.update((v: any) => {
-                                    v.status = 'AVAILABLE';
-                                    v.currentKm = endKm;
-                                });
-                            });
+                            // Refresh immediately
                             fetchActive();
-                        } catch (e) {
-                            Alert.alert('Error', 'Failed to end journey');
+                            Alert.alert('Sucesso', 'Viagem finalizada com sucesso');
+                        } catch (e: any) {
+                            Alert.alert('Erro', e.message || 'Falha ao finalizar viagem');
                         }
                     }
                 }

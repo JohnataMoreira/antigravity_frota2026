@@ -4,6 +4,7 @@ import { database } from '../../src/model/database';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../_layout';
 import { sync } from '../../src/services/sync';
+import { api } from '../../src/services/api';
 
 export default function VehiclesScreen() {
     const [vehicles, setVehicles] = useState<any[]>([]);
@@ -62,24 +63,13 @@ export default function VehiclesScreen() {
                 {
                     text: 'Iniciar', onPress: async () => {
                         try {
-                            await database.write(async () => {
-                                const journeys = database.get('journeys');
-                                await journeys.create((j: any) => {
-                                    j.vehicleId = vehicle.id;
-                                    j.driverId = 'LOCAL_USER';
-                                    j.status = 'IN_PROGRESS';
-                                    j.startKm = vehicle.currentKm;
-                                    j.startTime = Date.now();
-                                    j.startPhotoUrl = photoPath;
-                                });
+                            // api.startJourney(vehicleId: string, startKm: number, photoPath?: string)
+                            await api.startJourney(vehicle.id, vehicle.currentKm, photoPath);
 
-                                await vehicle.update((v: any) => {
-                                    v.status = 'IN_USE';
-                                });
-                            });
+                            // Navigate to journey tab
                             router.replace('/(tabs)/journey');
-                        } catch (e) {
-                            Alert.alert('Erro', 'Falha ao iniciar viagem');
+                        } catch (e: any) {
+                            Alert.alert('Erro', e.message || 'Falha ao iniciar viagem');
                         }
                     }
                 }

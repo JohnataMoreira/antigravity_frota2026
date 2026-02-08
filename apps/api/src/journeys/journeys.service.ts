@@ -34,28 +34,14 @@ export class JourneysService {
         }
 
         // 3. Create Journey Transactionally
-        // We update vehicle status to IN_USE ensuring concurrency safety via conditional update if possible, 
-        // but Prisma transaction is good enough for now.
         return this.prisma.$transaction(async (tx) => {
-            // Re-read vehicle within transaction to lock/ensure status (optimistic locking pattern with findFirst can be used too)
-            // For now, simple update check.
-
-            const updatedVehicle = await tx.vehicle.update({
-                where: { id: dto.vehicleId, status: VehicleStatus.AVAILABLE },
+            // Update Vehicle Status to IN_USE
+            await tx.vehicle.update({
+                where: { id: dto.vehicleId },
                 data: { status: VehicleStatus.IN_USE },
-            }); // Will throw if record not found (meaning status changed) - actually update throws RecordNotFound if where fails? 
-            // No, update needs ID. updateMany returns count. 
-            // Let's use updateMany to be safe against concurrency, then check count.
-
-            /* 
-            const res = await tx.vehicle.updateMany({
-              where: { id: dto.vehicleId, status: VehicleStatus.AVAILABLE },
-              data: { status: VehicleStatus.IN_USE }
             });
-            if (res.count === 0) throw new ConflictException('Vehicle unavailable');
-            */
-            // Since we want the returned object and simple logic:
-            // Start Journey
+
+            // Create Journey
             const journey = await tx.journey.create({
                 data: {
                     organizationId,
@@ -72,16 +58,6 @@ export class JourneysService {
                     } : undefined
                 },
                 include: { vehicle: true, checklists: true }
-            });
-
-            // Update Vehicle Status (if not using updateMany above)
-            // To strictly ensure it was AVAILABLE, we rely on the previous check + transaction isolation roughly.
-            // For strict correctness:
-            // await tx.$executeRaw`UPDATE "Vehicle" SET "status" = 'IN_USE' WHERE "id" = ${dto.vehicleId} AND "status" = 'AVAILABLE'`;
-            // But let's stick to Prisma API.
-            await tx.vehicle.update({
-                where: { id: dto.vehicleId },
-                data: { status: VehicleStatus.IN_USE }
             });
 
             return journey;

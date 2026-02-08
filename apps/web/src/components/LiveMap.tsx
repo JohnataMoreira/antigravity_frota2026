@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import L from 'leaflet';
 
 // Fix Leaflet icons
-// @ts-ignore
+// @ts-expect-error Leaflet prototype fix
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -33,7 +33,10 @@ export function LiveMap() {
 
     useEffect(() => {
         // Connect to namespace
-        const socket = io('http://localhost:3000/locations', {
+        const isProd = !window.location.host.includes('localhost');
+        const SOCKET_URL = isProd ? 'https://api.johnatamoreira.com.br' : 'http://localhost:3000';
+
+        const socket = io(`${SOCKET_URL}/locations`, {
             // auth: { token }
         });
 

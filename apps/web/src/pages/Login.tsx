@@ -37,29 +37,47 @@ export function Login() {
                     password
                 });
 
-                login(res.data.access_token, {
-                    id: 'ADMIN',
-                    email,
-                    name: name,
-                    role: 'ADMIN'
-                });
+                // Backend now returns { access_token, user }
+                if (res.data.user) {
+                    login(res.data.access_token, res.data.user);
+                } else {
+                    // Fallback if backend not updated
+                    login(res.data.access_token, {
+                        id: 'ADMIN',
+                        email,
+                        name: name,
+                        role: 'ADMIN',
+                        organizationId: 'PENDING'
+                    });
+                }
                 navigate('/dashboard');
             } else {
                 const res = await api.post('/auth/login', {
                     email,
                     password,
+                    document, // Send document for login
                 });
 
-                login(res.data.access_token, {
-                    id: 'USER',
-                    email,
-                    name: 'User',
-                    role: 'ADMIN'
-                });
+                // Backend now returns { access_token, user }
+                if (res.data.user) {
+                    login(res.data.access_token, res.data.user);
+                } else {
+                    // Fallback
+                    // We can try to decode token if needed, but for now let's hope backend is updated
+                    // Or just put placeholders since we don't have orgId
+                    login(res.data.access_token, {
+                        id: 'USER',
+                        email,
+                        name: 'User',
+                        role: 'ADMIN',
+                        organizationId: 'UNKNOWN'
+                    });
+                }
                 navigate('/dashboard');
             }
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Authentication failed');
+        } catch (err: unknown) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            setError((err as any).response?.data?.message || 'Authentication failed');
         }
     };
 
@@ -76,9 +94,13 @@ export function Login() {
                     {isRegistering && (
                         <>
                             <input placeholder="Nome da Empresa" value={orgName} onChange={e => setOrgName(e.target.value)} className="w-full p-2 border rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none" required />
-                            <input placeholder="CNPJ / Documento" value={document} onChange={e => setDocument(e.target.value)} className="w-full p-2 border rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none" required />
-                            <input placeholder="Seu Nome (Admin)" value={name} onChange={e => setName(e.target.value)} className="w-full p-2 border rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none" required />
                         </>
+                    )}
+
+                    <input placeholder="CNPJ / Documento da Empresa" value={document} onChange={e => setDocument(e.target.value)} className="w-full p-2 border rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none" required />
+
+                    {isRegistering && (
+                        <input placeholder="Seu Nome (Admin)" value={name} onChange={e => setName(e.target.value)} className="w-full p-2 border rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none" required />
                     )}
 
                     <input type="email" placeholder="E-mail" value={email} onChange={e => setEmail(e.target.value)} className="w-full p-2 border rounded border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none" required />

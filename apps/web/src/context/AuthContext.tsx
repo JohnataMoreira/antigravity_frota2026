@@ -6,6 +6,7 @@ interface User {
     email: string;
     name: string;
     role: 'ADMIN' | 'DRIVER';
+    organizationId: string;
 }
 
 interface AuthContextType {
@@ -41,6 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const login = (token: string, userData: User) => {
+        console.log('AuthContext: login chamado', userData);
         localStorage.setItem('token', token);
         setUser(userData);
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;

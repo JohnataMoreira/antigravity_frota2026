@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from './_layout';
+import { api } from '../src/services/api';
 
 // Config
 const API_URL = 'https://api.johnatamoreira.com.br'; // Production API URL
@@ -10,41 +11,24 @@ const API_URL = 'https://api.johnatamoreira.com.br'; // Production API URL
 export default function LoginScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [orgId, setOrgId] = useState('');
+    const [document, setDocument] = useState('');
     const { login } = useAuth();
     const router = useRouter();
 
     const handleLogin = async () => {
-        if (!email || !password) {
+        if (!email || !password || !document) {
             Alert.alert('Erro', 'Por favor, preencha todos os campos');
             return;
         }
 
         try {
-            const response = await fetch(`${API_URL}/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email,
-                    password,
-                }),
-            });
+            const data = await api.login(email, password, document);
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                Alert.alert('Erro no Login', data.message || 'Credenciais inválidas');
-                return;
-            }
-
-            // data.access_token contains the JWT
-            // We store the token and mock user for now (decoding JWT later if needed)
-            login({ email }, data.access_token);
+            api.setToken(data.access_token);
+            login(data.user, data.access_token);
             router.replace('/(tabs)');
-        } catch (e) {
-            Alert.alert('Erro de Conexão', 'Não foi possível conectar ao servidor. Verifique sua internet.');
+        } catch (e: any) {
+            Alert.alert('Erro no Login', e.message || 'Falha ao conectar');
         }
     };
 
@@ -54,9 +38,10 @@ export default function LoginScreen() {
 
             <TextInput
                 style={styles.input}
-                placeholder="Organization ID"
-                value={orgId}
-                onChangeText={setOrgId}
+                placeholder="CNPJ/CPF da Organização"
+                value={document}
+                onChangeText={setDocument}
+                keyboardType="numeric"
             />
 
             <TextInput
@@ -65,18 +50,19 @@ export default function LoginScreen() {
                 value={email}
                 onChangeText={setEmail}
                 autoCapitalize="none"
+                keyboardType="email-address"
             />
 
             <TextInput
                 style={styles.input}
-                placeholder="Password"
+                placeholder="Senha"
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
             />
 
             <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                <Text style={styles.buttonText}>Sign In</Text>
+                <Text style={styles.buttonText}>Entrar</Text>
             </TouchableOpacity>
         </View>
     );
