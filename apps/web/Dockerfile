@@ -5,13 +5,16 @@ WORKDIR /app
 
 # Copy root configs
 COPY package*.json ./
-COPY apps/web/package*.json ./apps/web/
 COPY tsconfig.json ./
+
+# Copy Web workspace configs
+COPY apps/web/package*.json ./apps/web/
+COPY apps/web/tsconfig.json ./apps/web/
 
 # Install dependencies (Clean slate)
 RUN npm install --legacy-peer-deps
 
-# Copy code
+# Copy Web code
 COPY apps/web ./apps/web
 
 # Build

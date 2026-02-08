@@ -6,22 +6,24 @@ WORKDIR /app
 # Install system dependencies
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-# Copy only package files first for better caching
+# Copy root configs
 COPY package*.json ./
+COPY tsconfig.json ./
+
+# Copy API workspace configs
 COPY apps/api/package*.json ./apps/api/
 COPY apps/api/prisma ./apps/api/prisma
-COPY tsconfig.json ./
 COPY apps/api/tsconfig.json ./apps/api/
 
 # Install dependencies (Clean slate)
 RUN npm install --legacy-peer-deps
 
-# Copy rest of the code
+# Copy rest of the API code
 COPY apps/api ./apps/api
 
 # Generate Prisma Client and Build
 WORKDIR /app/apps/api
-RUN ../../node_modules/.bin/prisma generate
+RUN npx prisma generate
 RUN npm run build
 
 # Prune to production only
