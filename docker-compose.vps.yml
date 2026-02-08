@@ -91,6 +91,8 @@ services:
       - "traefik.http.routers.frota-web.rule=Host(`johnatamoreira.com.br`)"
       - "traefik.http.routers.frota-web.entrypoints=websecure"
       - "traefik.http.routers.frota-web.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.frota-web.priority=10"
+      - "traefik.http.routers.frota-web.service=frota-web"
       - "traefik.http.services.frota-web.loadbalancer.server.port=80"
       - "traefik.docker.network=dokploy-network"
 
