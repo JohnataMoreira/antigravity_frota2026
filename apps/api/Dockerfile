@@ -36,9 +36,8 @@ RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 # Copy ONLY the API package file
 COPY apps/api/package*.json ./
 
-# Install production dependencies
-# We also install prisma cli to ensure npx prisma works in production
-RUN npm install --omit=dev && npm install prisma@5.10.2
+# Install production dependencies + prisma CLI (needed for the generator)
+RUN npm install --omit=dev --legacy-peer-deps && npm install prisma@5.10.2 --legacy-peer-deps
 
 # Copy Prisma schema and build artifacts from Stage 1
 COPY --from=builder /app/apps/api/prisma ./prisma
