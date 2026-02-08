@@ -12,6 +12,9 @@ import { JourneysList } from './pages/Journeys';
 import { MaintenanceList } from './pages/Maintenance';
 import { LiveMap } from './components/LiveMap';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { StatCard, GlassCard } from './components/ui/Cards';
+import { ThemeSwitcher } from './components/ThemeSwitcher';
+import { Truck, Users, MapPin, Activity } from 'lucide-react';
 
 const queryClient = new QueryClient();
 
@@ -33,29 +36,47 @@ function Dashboard() {
     });
 
     return (
-        <div>
-            <h1 className="text-2xl font-bold mb-4">Overview</h1>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border">
-                    <h3 className="text-gray-500 text-sm font-medium">Active Journeys</h3>
-                    <p className="text-3xl font-bold mt-2 text-blue-600">{stats?.activeJourneys || 0}</p>
+        <div className="space-y-6">
+            {/* Header with Theme Switcher */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight">Painel de Controle</h1>
+                    <p className="text-muted-foreground mt-1">Visão geral da frota em tempo real</p>
                 </div>
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border">
-                    <h3 className="text-gray-500 text-sm font-medium">Available Vehicles</h3>
-                    <p className="text-3xl font-bold mt-2 text-green-600">{stats?.availableVehicles || 0}</p>
-                </div>
-                <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border">
-                    <h3 className="text-gray-500 text-sm font-medium">Total Drivers</h3>
-                    <p className="text-3xl font-bold mt-2">{stats?.totalDrivers || 0}</p>
-                </div>
+                <ThemeSwitcher />
             </div>
 
-            <div className="mt-8">
-                <h2 className="text-xl font-bold mb-4">Live Tracking</h2>
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <StatCard
+                    label="Jornadas Ativas"
+                    value={stats?.activeJourneys || 0}
+                    icon={<Activity className="w-8 h-8" />}
+                />
+                <StatCard
+                    label="Veículos Disponíveis"
+                    value={stats?.availableVehicles || 0}
+                    icon={<Truck className="w-8 h-8" />}
+                />
+                <StatCard
+                    label="Total de Motoristas"
+                    value={stats?.totalDrivers || 0}
+                    icon={<Users className="w-8 h-8" />}
+                />
+                <StatCard
+                    label="Localização Ativa"
+                    value={stats?.activeJourneys || 0}
+                    icon={<MapPin className="w-8 h-8" />}
+                />
+            </div>
+
+            {/* Live Map Section */}
+            <GlassCard>
+                <h2 className="text-xl font-bold mb-4">Rastreamento em Tempo Real</h2>
                 <ErrorBoundary>
                     <LiveMap />
                 </ErrorBoundary>
-            </div>
+            </GlassCard>
         </div>
     );
 }

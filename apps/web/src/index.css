@@ -3,6 +3,7 @@
 @tailwind utilities;
  
 @layer base {
+  /* Light Theme (Default) */
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
@@ -35,6 +36,7 @@
     --radius: 0.5rem;
   }
  
+  /* Dark Theme */
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
@@ -64,6 +66,74 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 48%;
   }
+
+  /* Paraopeba Theme - Corporate Blue + Construction Orange */
+  [data-theme="paraopeba"] {
+    /* Professional blue base (inspired by construction/industrial sector) */
+    --background: 210 20% 98%;
+    --foreground: 210 24% 16%;
+ 
+    --card: 0 0% 100%;
+    --card-foreground: 210 24% 16%;
+ 
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 24% 16%;
+ 
+    /* Corporate Deep Blue */
+    --primary: 210 100% 34%;
+    --primary-foreground: 0 0% 100%;
+ 
+    /* Construction Orange (Accent for CTAs and highlights) */
+    --secondary: 30 100% 50%;
+    --secondary-foreground: 0 0% 100%;
+ 
+    --muted: 210 20% 96%;
+    --muted-foreground: 210 10% 46%;
+ 
+    /* Orange accent for interactive elements */
+    --accent: 30 95% 55%;
+    --accent-foreground: 0 0% 100%;
+ 
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+ 
+    --border: 210 20% 88%;
+    --input: 210 20% 94%;
+    --ring: 210 100% 34%;
+ 
+    --radius: 0.5rem;
+  }
+
+  [data-theme="paraopeba"].dark {
+    /* Dark variant of Paraopeba theme */
+    --background: 210 30% 8%;
+    --foreground: 210 20% 96%;
+ 
+    --card: 210 25% 12%;
+    --card-foreground: 210 20% 96%;
+ 
+    --popover: 210 25% 12%;
+    --popover-foreground: 210 20% 96%;
+ 
+    --primary: 210 100% 50%;
+    --primary-foreground: 210 30% 8%;
+ 
+    --secondary: 30 100% 55%;
+    --secondary-foreground: 210 30% 8%;
+ 
+    --muted: 210 20% 16%;
+    --muted-foreground: 210 10% 64%;
+ 
+    --accent: 30 95% 60%;
+    --accent-foreground: 210 30% 8%;
+ 
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+ 
+    --border: 210 20% 20%;
+    --input: 210 20% 18%;
+    --ring: 210 100% 50%;
+  }
 }
  
 @layer base {
@@ -72,5 +142,50 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Fluid Typography - Elite Standard */
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  h3 {
+    font-size: clamp(1.25rem, 3vw, 1.875rem);
+    font-weight: 600;
+  }
+}
+
+/* Glassmorphism Utilities - Elite UI */
+@layer utilities {
+  .glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-card {
+    @apply glass shadow-lg rounded-lg;
+  }
+
+  .dark .glass-card {
+    @apply glass-dark;
   }
 }
