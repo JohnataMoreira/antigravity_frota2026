@@ -55,21 +55,21 @@ EOF
 echo -e "${GREEN}✅ Arquivo .env criado${NC}"
 
 echo -e "${BLUE}🐳 Parando containers antigos...${NC}"
-docker compose -f docker-compose.vps.yml down 2>/dev/null || true
+docker-compose -f docker-compose.vps.yml down 2>/dev/null || true
 
 echo -e "${BLUE}🏗️  Building containers...${NC}"
-docker compose -f docker-compose.vps.yml build --no-cache
+docker-compose -f docker-compose.vps.yml build --no-cache
 
 echo -e "${BLUE}🚀 Iniciando serviços...${NC}"
-docker compose -f docker-compose.vps.yml up -d
+docker-compose -f docker-compose.vps.yml up -d
 
 echo -e "${YELLOW}⏳ Aguardando PostgreSQL iniciar...${NC}"
 sleep 10
 
 echo -e "${BLUE}🔄 Executando migrações...${NC}"
-docker compose -f docker-compose.vps.yml exec -T api npx prisma migrate deploy || {
+docker-compose -f docker-compose.vps.yml exec -T api npx prisma migrate deploy || {
     echo -e "${YELLOW}⚠️  Tentando caminho alternativo...${NC}"
-    docker compose -f docker-compose.vps.yml exec -T api sh -c "cd apps/api && npx prisma migrate deploy"
+    docker-compose -f docker-compose.vps.yml exec -T api sh -c "cd apps/api && npx prisma migrate deploy"
 }
 
 echo ""
