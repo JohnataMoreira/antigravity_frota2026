@@ -1,50 +1,46 @@
-# Stage 1: Build
-# VERSION: 1.0.1 - DEF_BOOKWORM
+# Stage 1: Build & Prepare Production State
 FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
 
-# Install build dependencies (needed for some native modules if they crop up)
+# Install build dependencies
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-# Copy root configurations (needed for workspace install)
-COPY package*.json ./
-COPY apps/api/package*.json ./apps/api/
-COPY apps/api/prisma ./apps/api/prisma
-COPY tsconfig.json ./
-COPY apps/api/tsconfig.json ./apps/api/
+# Copy the ENTIRE monorepo (safest for workspaces)
+COPY . .
 
-# Install ALL dependencies (monorepo install)
-RUN npm install
+# Install ALL dependencies (including devDeps for build)
+RUN npm install --legacy-peer-deps
 
-# Copy source code
-COPY apps/api ./apps/api
+# Generate Prisma Client (uses root node_modules/@prisma/client)
+RUN npx prisma generate --schema=apps/api/prisma/schema.prisma
 
-# Generate Prisma and Build
-WORKDIR /app/apps/api
-RUN npx prisma generate
-RUN npm run build
+# Build the API
+RUN npm run build -w api
 
-# Stage 2: Production
+# Prune to production only
+RUN npm prune --production --legacy-peer-deps
+
+# Stage 2: Final Production Image
 FROM node:20-bookworm-slim
 
 WORKDIR /app
 
-# Install openssl (Prisma requirement)
+# Install OpenSSL (Runtime requirement for Prisma)
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-# Copy ONLY the API package file
-COPY apps/api/package*.json ./
+# Copy the PREPARED production node_modules from builder
+# This includes the correctly generated Prisma Client and all dependencies
+COPY --from=builder /app/node_modules ./node_modules
 
-# Install production dependencies + prisma CLI (needed for the generator)
-RUN npm install --omit=dev --legacy-peer-deps && npm install prisma@5.10.2 --legacy-peer-deps
-
-# Copy Prisma schema and build artifacts from Stage 1
-COPY --from=builder /app/apps/api/prisma ./prisma
+# Copy the BUILT code (remembering our tsconfig change to local dist)
 COPY --from=builder /app/apps/api/dist ./dist
 
-# Generate client in the production container (Standalone mode)
-RUN npx prisma generate --schema=./prisma/schema.prisma
+# Copy the prisma folder (needed for migrations in deploy-ssh.sh)
+COPY --from=builder /app/apps/api/prisma ./prisma
+
+# Final safety check: verifying main.js exists
+RUN if [ ! -f dist/main.js ]; then echo "CRITICAL: dist/main.js not found!" && exit 1; fi
 
 EXPOSE 3000
 
@@ -52,5 +48,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
     CMD node -e "require('http').get('http://localhost:3000/health', (r) => r.statusCode === 200 ? process.exit(0) : process.exit(1))"
 
-# Start application
+# Start the application
 CMD ["node", "dist/main.js"]
