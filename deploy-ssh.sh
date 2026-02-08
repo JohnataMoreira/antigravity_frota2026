@@ -28,9 +28,11 @@ fi
 # [12/10 STRATEGY] Validação de Segurança de Senha
 # Se a senha contiver caracteres não-hexadecimais, forçamos a regeneração
 # Isso limpa senhas antigas do "estilo base64" que causavam o erro P1000
+FORCE_RESET=false
 if [[ ! "$POSTGRES_PASSWORD" =~ ^[0-9a-f]+$ ]]; then
     echo -e "${YELLOW}⚠️ Senha antiga ou insegura detectada. Regenerando para formato URL-Safe...${NC}"
     POSTGRES_PASSWORD=$(openssl rand -hex 24)
+    FORCE_RESET=true
 fi
 
 if [[ ! "$JWT_SECRET" =~ ^[0-9a-f]+$ ]]; then
@@ -46,7 +48,7 @@ if ! command -v docker &> /dev/null; then
     sudo usermod -aG docker $USER
 fi
 
-if ! command -v docker-compose &> /dev/null; then
+if ! command -v $COMPOSE_CMD &> /dev/null && [ "$COMPOSE_CMD" == "docker-compose" ]; then
     sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
     sudo chmod +x /usr/local/bin/docker-compose
 fi
@@ -77,7 +79,12 @@ EOF
 echo -e "${GREEN}✅ Arquivo .env criado${NC}"
 
 echo -e "${BLUE}🐳 Parando containers antigos...${NC}"
-$COMPOSE_CMD -f docker-compose.vps.yml down 2>/dev/null || true
+if [ "$FORCE_RESET" = true ]; then
+    echo -e "${RED}⚠️  Senha alterada! Resetando volumes para aplicar novas credenciais...${NC}"
+    $COMPOSE_CMD -f docker-compose.vps.yml down -v --remove-orphans 2>/dev/null || true
+else
+    $COMPOSE_CMD -f docker-compose.vps.yml down 2>/dev/null || true
+fi
 
 echo -e "${BLUE}🏗️  Building containers...${NC}"
 $COMPOSE_CMD -f docker-compose.vps.yml build --no-cache
@@ -110,7 +117,7 @@ echo ""
 echo -e "${YELLOW}📝 Credenciais salvas em .env${NC}"
 echo ""
 echo -e "${BLUE}🔍 Ver logs:${NC}"
-echo "   docker compose -f docker-compose.vps.yml logs -f"
+echo "   $COMPOSE_CMD -f docker-compose.vps.yml logs -f"
 echo ""
 echo -e "${BLUE}🔄 Redeploy:${NC}"
 echo "   git pull && ./deploy-ssh.sh"
