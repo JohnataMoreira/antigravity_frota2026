@@ -14,6 +14,7 @@ RUN npm install
 COPY apps/web ./apps/web
 COPY tsconfig.json ./
 COPY apps/web/tsconfig*.json ./apps/web/
+COPY apps/web/vite.config.ts ./apps/web/vite.config.ts
 
 # Build application
 RUN npm run build -w web
