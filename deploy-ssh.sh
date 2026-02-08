@@ -12,15 +12,31 @@ YELLOW='\033[1;33m'
 RED='\033[0;31m'
 NC='\033[0m'
 
-# Carregar variáveis existentes para manter as senhas
+# Carregar variáveis existentes
 if [ -f .env ]; then
     echo -e "${YELLOW}ℹ️ Carregando variáveis existentes do .env...${NC}"
     export $(grep -v '^#' .env | xargs)
 fi
 
-# Configurações (Gera apenas se não existir)
-POSTGRES_PASSWORD="${POSTGRES_PASSWORD:-$(openssl rand -hex 24)}"
-JWT_SECRET="${JWT_SECRET:-$(openssl rand -hex 48)}"
+# [12/10 STRATEGY] Detectar comando Docker Compose
+if docker compose version >/dev/null 2>&1; then
+    COMPOSE_CMD="docker compose"
+else
+    COMPOSE_CMD="docker-compose"
+fi
+
+# [12/10 STRATEGY] Validação de Segurança de Senha
+# Se a senha contiver caracteres não-hexadecimais, forçamos a regeneração
+# Isso limpa senhas antigas do "estilo base64" que causavam o erro P1000
+if [[ ! "$POSTGRES_PASSWORD" =~ ^[0-9a-f]+$ ]]; then
+    echo -e "${YELLOW}⚠️ Senha antiga ou insegura detectada. Regenerando para formato URL-Safe...${NC}"
+    POSTGRES_PASSWORD=$(openssl rand -hex 24)
+fi
+
+if [[ ! "$JWT_SECRET" =~ ^[0-9a-f]+$ ]]; then
+    JWT_SECRET=$(openssl rand -hex 48)
+fi
+
 MINIO_ROOT_PASSWORD="${MINIO_ROOT_PASSWORD:-MinioSecure2024!}"
 
 echo -e "${BLUE}📦 Instalando dependências...${NC}"
@@ -61,15 +77,15 @@ EOF
 echo -e "${GREEN}✅ Arquivo .env criado${NC}"
 
 echo -e "${BLUE}🐳 Parando containers antigos...${NC}"
-docker-compose -f docker-compose.vps.yml down 2>/dev/null || true
+$COMPOSE_CMD -f docker-compose.vps.yml down 2>/dev/null || true
 
 echo -e "${BLUE}🏗️  Building containers...${NC}"
-docker-compose -f docker-compose.vps.yml build --no-cache
+$COMPOSE_CMD -f docker-compose.vps.yml build --no-cache
 
 echo -e "${BLUE}🚀 Iniciando serviços...${NC}"
-if ! docker-compose -f docker-compose.vps.yml up -d; then
+if ! $COMPOSE_CMD -f docker-compose.vps.yml up -d; then
     echo -e "${RED}❌ Erro ao subir os containers!${NC}"
-    docker-compose -f docker-compose.vps.yml logs
+    $COMPOSE_CMD -f docker-compose.vps.yml logs
     exit 1
 fi
 
@@ -77,9 +93,9 @@ echo -e "${YELLOW}⏳ Aguardando PostgreSQL iniciar...${NC}"
 sleep 10
 
 echo -e "${BLUE}🔄 Executando migrações...${NC}"
-docker-compose -f docker-compose.vps.yml exec -T api npx prisma migrate deploy || {
+$COMPOSE_CMD -f docker-compose.vps.yml exec -T api npx prisma migrate deploy || {
     echo -e "${YELLOW}⚠️ Falha nas migrações. Verificando logs da API...${NC}"
-    docker-compose -f docker-compose.vps.yml logs api
+    $COMPOSE_CMD -f docker-compose.vps.yml logs api
     exit 1
 }
 
