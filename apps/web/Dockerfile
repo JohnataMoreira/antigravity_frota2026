@@ -3,23 +3,13 @@ FROM node:20-bookworm-slim AS builder
 
 WORKDIR /app
 
-# Copy root configs
-COPY package*.json ./
-COPY tsconfig.json ./
+# Copy EVERYTHING except node_modules
+COPY . .
 
-# Copy ALL workspace package.json files for correct dependency resolution
-COPY apps/api/package*.json ./apps/api/
-COPY apps/web/package*.json ./apps/web/
-COPY apps/mobile/package*.json ./apps/mobile/
-
-# Install dependencies (Full monorepo tree)
+# Clean install all dependencies
 RUN npm install --legacy-peer-deps
 
-# Copy Web workspace configs and code
-COPY apps/web/tsconfig.json ./apps/web/
-COPY apps/web ./apps/web
-
-# Build
+# Build the Web app
 RUN npm run build -w web
 
 # Stage 2: Production

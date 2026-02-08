@@ -6,35 +6,20 @@ WORKDIR /app
 # Install system dependencies
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-# Copy root configs
-COPY package*.json ./
-COPY tsconfig.json ./
+# Copy EVERYTHING except node_modules (handled by .dockerignore)
+# This is the most robust way to handle monorepo configurations
+COPY . .
 
-# Copy ALL workspace package.json files for correct dependency resolution
-COPY apps/api/package*.json ./apps/api/
-COPY apps/web/package*.json ./apps/web/
-COPY apps/mobile/package*.json ./apps/mobile/
-
-# Install dependencies (Full monorepo tree)
+# Clean install all dependencies at root
 RUN npm install --legacy-peer-deps
 
-# Copy API workspace configs
-COPY apps/api/prisma ./apps/api/prisma
-COPY apps/api/tsconfig.json ./apps/api/
+# Generate Prisma Client using explicit binary path
+RUN ./node_modules/.bin/prisma generate --schema=apps/api/prisma/schema.prisma
 
-# Generate Prisma Client (AT ROOT LEVEL)
-# Running from root ensures client goes to /app/node_modules/@prisma/client
-RUN npx prisma generate --schema=apps/api/prisma/schema.prisma
-
-# Copy rest of the API code
-COPY apps/api ./apps/api
-
-# Build
-WORKDIR /app/apps/api
-RUN npm run build
+# Build the API (output goes to apps/api/dist)
+RUN npm run build -w api
 
 # Prune to production only
-WORKDIR /app
 RUN npm prune --production --legacy-peer-deps
 
 # Stage 2: Production
@@ -44,15 +29,18 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-# Copy prepared production node_modules (now including root Prisma Client)
+# Copy prepared production node_modules (including Prisma Client)
 COPY --from=builder /app/node_modules ./node_modules
+
+# Copy API artifacts
 COPY --from=builder /app/apps/api/dist ./dist
 COPY --from=builder /app/apps/api/prisma ./prisma
-
-# Sanity check for Prisma Client
-RUN ls node_modules/@prisma/client || (echo "ERROR: Prisma Client not found in node_modules" && exit 1)
+COPY --from=builder /app/package.json ./package.json
 
 EXPOSE 3000
+
+# Final sanity check: Can Node find the Prisma client?
+RUN node -e "require('@prisma/client')"
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
