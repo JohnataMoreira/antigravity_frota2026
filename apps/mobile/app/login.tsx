@@ -15,23 +15,36 @@ export default function LoginScreen() {
     const router = useRouter();
 
     const handleLogin = async () => {
-        // Mock login for offline dev if API not reachable
-        if (email === 'demo' && password === 'demo') {
-            login({ name: 'Demo Driver' });
-            router.replace('/(tabs)');
+        if (!email || !password) {
+            Alert.alert('Erro', 'Por favor, preencha todos os campos');
             return;
         }
 
         try {
-            // TODO: Implement real fetch to API
-            // const res = await fetch(...)
-            // Alert.alert('Error', 'API not implemented in Mobile yet');
+            const response = await fetch(`${API_URL}/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email,
+                    password,
+                }),
+            });
 
-            // Simulating success
-            login({ email });
+            const data = await response.json();
+
+            if (!response.ok) {
+                Alert.alert('Erro no Login', data.message || 'Credenciais inválidas');
+                return;
+            }
+
+            // data.access_token contains the JWT
+            // We store the token and mock user for now (decoding JWT later if needed)
+            login({ email }, data.access_token);
             router.replace('/(tabs)');
         } catch (e) {
-            Alert.alert('Error', 'Login failed');
+            Alert.alert('Erro de Conexão', 'Não foi possível conectar ao servidor. Verifique sua internet.');
         }
     };
 

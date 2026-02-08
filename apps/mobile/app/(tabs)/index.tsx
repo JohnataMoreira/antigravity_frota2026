@@ -1,18 +1,51 @@
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { useEffect, useState } from 'react';
 import { database } from '../../src/model/database';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-// import { Q } from '@nozbe/watermelondb'; // Not used yet
+import { useAuth } from '../_layout';
+import { sync } from '../../src/services/sync';
 
 export default function VehiclesScreen() {
     const [vehicles, setVehicles] = useState<any[]>([]);
+    const [isSyncing, setIsSyncing] = useState(false);
     const router = useRouter();
-
+    const { token, logout } = useAuth();
     const params = useLocalSearchParams();
+
+    const fetchVehicles = async () => {
+        try {
+            const collection = database.get('vehicles');
+            const data = await collection.query().fetch();
+            setVehicles(data);
+
+            if (data.length === 0) {
+                // Initial data if empty - but sync will normally handle this
+            }
+        } catch (e) {
+            console.error('DB Error', e);
+        }
+    };
+
+    useEffect(() => {
+        fetchVehicles();
+    }, []);
+
+    const handleSync = async () => {
+        if (isSyncing) return;
+        setIsSyncing(true);
+        try {
+            await sync(token);
+            await fetchVehicles();
+            Alert.alert('Sucesso', 'Dados sincronizados com o servidor');
+        } catch (e: any) {
+            Alert.alert('Erro na Sincronização', e.message || 'Falha ao conectar');
+        } finally {
+            setIsSyncing(false);
+        }
+    };
 
     useEffect(() => {
         if (params.photoPath && params.vehicleId) {
-            // Logic to start journey after photo
             const vehicle = vehicles.find(v => v.id === params.vehicleId);
             if (vehicle) {
                 handleStartJourney(vehicle, params.photoPath as string);
@@ -20,52 +53,16 @@ export default function VehiclesScreen() {
         }
     }, [params.photoPath, params.vehicleId]);
 
-    useEffect(() => {
-        const fetchVehicles = async () => {
-            try {
-                const collection = database.get('vehicles');
-                const data = await collection.query().fetch();
-                setVehicles(data);
-
-                if (data.length === 0) {
-                    await database.write(async () => {
-                        await collection.create((v: any) => {
-                            v.plate = 'ABC-1234';
-                            v.model = 'Gol';
-                            v.brand = 'VW';
-                            v.status = 'AVAILABLE';
-                            v.currentKm = 50000;
-                        });
-                        await collection.create((v: any) => {
-                            v.plate = 'XYZ-9876';
-                            v.model = 'Actros';
-                            v.brand = 'Mercedez';
-                            v.status = 'AVAILABLE';
-                            v.currentKm = 120000;
-                        });
-                    });
-                    const newData = await collection.query().fetch();
-                    setVehicles(newData);
-                }
-            } catch (e) {
-                console.error('DB Error', e);
-            }
-        };
-        fetchVehicles();
-    }, []);
-
     const handleStartJourney = async (vehicle: any, photoPath?: string) => {
-        // 1. Confirm
         Alert.alert(
-            'Start Journey',
-            `Start journey with ${vehicle.plate}? ${photoPath ? '(Photo Checked)' : ''}`,
+            'Iniciar Viagem',
+            `Deseja iniciar viagem com o veículo ${vehicle.plate}?`,
             [
-                { text: 'Cancel', style: 'cancel' },
+                { text: 'Cancelar', style: 'cancel' },
                 {
-                    text: 'Start', onPress: async () => {
+                    text: 'Iniciar', onPress: async () => {
                         try {
                             await database.write(async () => {
-                                // Create Journey
                                 const journeys = database.get('journeys');
                                 await journeys.create((j: any) => {
                                     j.vehicleId = vehicle.id;
@@ -76,16 +73,13 @@ export default function VehiclesScreen() {
                                     j.startPhotoUrl = photoPath;
                                 });
 
-                                // Update Vehicle Status
                                 await vehicle.update((v: any) => {
                                     v.status = 'IN_USE';
                                 });
                             });
-
-                            // Navigate to Active Journey
                             router.replace('/(tabs)/journey');
                         } catch (e) {
-                            Alert.alert('Error', 'Failed to start journey');
+                            Alert.alert('Erro', 'Falha ao iniciar viagem');
                         }
                     }
                 }
@@ -95,6 +89,22 @@ export default function VehiclesScreen() {
 
     return (
         <View style={styles.container}>
+            <View style={styles.header}>
+                <View>
+                    <Text style={styles.title}>Minha Frota</Text>
+                    <TouchableOpacity onPress={logout}>
+                        <Text style={styles.logoutButton}>Sair</Text>
+                    </TouchableOpacity>
+                </View>
+                <TouchableOpacity onPress={handleSync} disabled={isSyncing}>
+                    {isSyncing ? (
+                        <ActivityIndicator size="small" color="#2563EB" />
+                    ) : (
+                        <Text style={styles.syncButton}>Sincronizar</Text>
+                    )}
+                </TouchableOpacity>
+            </View>
+
             <FlatList
                 data={vehicles}
                 keyExtractor={item => item.id}
@@ -103,7 +113,7 @@ export default function VehiclesScreen() {
                         <View style={styles.row}>
                             <Text style={styles.plate}>{item.plate}</Text>
                             <Text style={[styles.status, { color: item.status === 'AVAILABLE' ? 'green' : 'blue' }]}>
-                                {item.status}
+                                {item.status === 'AVAILABLE' ? 'Disponível' : 'Em Uso'}
                             </Text>
                         </View>
                         <Text style={styles.model}>{item.brand} {item.model}</Text>
@@ -111,14 +121,19 @@ export default function VehiclesScreen() {
 
                         {item.status === 'AVAILABLE' && (
                             <TouchableOpacity style={styles.button} onPress={() => {
-                                // Go to Camera first
                                 router.push({ pathname: '/camera', params: { vehicleId: item.id } });
                             }}>
-                                <Text style={styles.buttonText}>Inspect & Start</Text>
+                                <Text style={styles.buttonText}>Check-out & Iniciar</Text>
                             </TouchableOpacity>
                         )}
                     </View>
                 )}
+                ListEmptyComponent={
+                    <View style={styles.empty}>
+                        <Text>Nenhum veículo encontrado.</Text>
+                        <Text>Toque em Sincronizar para baixar dados.</Text>
+                    </View>
+                }
             />
         </View>
     );
@@ -126,6 +141,10 @@ export default function VehiclesScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#f5f5f5', padding: 16 },
+    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, marginTop: 40 },
+    title: { fontSize: 24, fontWeight: 'bold', color: '#333' },
+    syncButton: { color: '#2563EB', fontWeight: 'bold', fontSize: 16 },
+    logoutButton: { color: '#EF4444', fontSize: 14, marginTop: 4 },
     card: { backgroundColor: '#fff', padding: 16, borderRadius: 12, marginBottom: 12, elevation: 2 },
     row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
     plate: { fontSize: 18, fontWeight: 'bold' },
@@ -133,5 +152,6 @@ const styles = StyleSheet.create({
     model: { color: '#666', marginBottom: 4 },
     km: { color: '#888', marginBottom: 12 },
     button: { backgroundColor: '#2563EB', padding: 8, borderRadius: 6, alignItems: 'center' },
-    buttonText: { color: '#fff', fontWeight: 'bold' }
+    buttonText: { color: '#fff', fontWeight: 'bold' },
+    empty: { alignItems: 'center', marginTop: 100 }
 });

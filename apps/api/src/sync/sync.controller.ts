@@ -1,6 +1,8 @@
-import { Controller, Get, Post, Body, Query, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Request, UseGuards } from '@nestjs/common';
 import { SyncService } from './sync.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('sync')
 export class SyncController {
     constructor(private readonly syncService: SyncService) { }

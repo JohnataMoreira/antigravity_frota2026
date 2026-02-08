@@ -12,20 +12,22 @@ export function useAuth() {
 
 export default function RootLayout() {
     const [user, setUser] = useState<any>(null);
+    const [token, setToken] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check local storage for token
-        // For MVP, just simulate loading
-        setTimeout(() => setLoading(false), 500);
+        // Check local storage for token in next step
+        setLoading(false);
     }, []);
 
-    const login = (userData: any) => {
+    const login = (userData: any, jwtToken: string) => {
         setUser(userData);
+        setToken(jwtToken);
     };
 
     const logout = () => {
         setUser(null);
+        setToken(null);
     };
 
     if (loading) {
@@ -37,9 +39,9 @@ export default function RootLayout() {
     }
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user }}>
+        <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!token }}>
             <Stack screenOptions={{ headerShown: false }}>
-                {user ? (
+                {token ? (
                     <Stack.Screen name="(tabs)" />
                 ) : (
                     <Stack.Screen name="login" />
