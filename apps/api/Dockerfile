@@ -35,6 +35,9 @@ RUN npx prisma generate --schema=./apps/api/prisma/schema.prisma
 # Copy only the compiled JS from builder
 COPY --from=builder /app/apps/api/dist ./dist
 
+# Final check: Ensure main.js exists in the expected place
+RUN ls -la dist/
+
 EXPOSE 3000
 
 # Health check
