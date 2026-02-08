@@ -3,24 +3,18 @@ import { ReactNode } from 'react';
 interface GlassCardProps {
     children: ReactNode;
     className?: string;
+    gradient?: boolean;
 }
 
 /**
- * GlassCard Component
+ * GlassCard Component - Premium Edition
  * 
- * Premium glassmorphism card with backdrop blur and subtle borders.
- * Automatically adapts to dark mode via CSS utilities.
- * 
- * @example
- * ```tsx
- * <GlassCard className="p-6">
- *   <h2>Content Here</h2>
- * </GlassCard>
- * ```
+ * Enhanced glassmorphism card with optional gradient background.
+ * Optimized for vibrant purple theme.
  */
-export function GlassCard({ children, className = '' }: GlassCardProps) {
+export function GlassCard({ children, className = '', gradient = false }: GlassCardProps) {
     return (
-        <div className={`glass-card p-6 ${className}`}>
+        <div className={`glass-card p-6 ${gradient ? 'gradient-card' : ''} ${className}`}>
             {children}
         </div>
     );
@@ -34,44 +28,53 @@ interface StatCardProps {
         isPositive: boolean;
     };
     icon?: ReactNode;
+    gradient?: boolean;
 }
 
 /**
- * StatCard Component
+ * StatCard Component - Premium Edition
  * 
- * High-impact number display with optional trend indicator.
- * Uses fluid typography (clamp) for responsive scaling.
- * 
- * @example
- * ```tsx
- * <StatCard 
- *   label="Veículos Ativos"
- *   value={42}
- *   trend={{ value: 12, isPositive: true }}
- *   icon={<TruckIcon />}
- * />
- * ```
+ * High-impact number display with gradients and micro-animations.
+ * Designed for maximum visual impact.
  */
-export function StatCard({ label, value, trend, icon }: StatCardProps) {
+export function StatCard({ label, value, trend, icon, gradient = false }: StatCardProps) {
     return (
-        <GlassCard className="flex items-start justify-between">
+        <GlassCard
+            className={`
+        flex items-start justify-between 
+        transition-all duration-300 
+        hover:scale-105 hover:shadow-2xl
+        ${gradient ? 'gradient-card border-primary/20' : ''}
+      `}
+            gradient={gradient}
+        >
             <div className="flex-1">
-                <p className="text-sm font-medium text-muted-foreground mb-1">
+                <p className="text-sm font-medium text-muted-foreground mb-2">
                     {label}
                 </p>
-                <p className="text-3xl font-bold tracking-tight">
+                <p className={`
+          text-4xl font-bold tracking-tight
+          ${gradient ? 'gradient-text' : ''}
+        `}>
                     {value}
                 </p>
                 {trend && (
-                    <p className={`text-xs mt-2 flex items-center gap-1 ${trend.isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                    <p className={`text-sm mt-3 flex items-center gap-1.5 font-medium ${trend.isPositive
+                            ? 'text-green-500 dark:text-green-400'
+                            : 'text-red-500 dark:text-red-400'
                         }`}>
-                        <span>{trend.isPositive ? '↑' : '↓'}</span>
-                        <span>{Math.abs(trend.value)}%</span>
+                        <span className="text-lg">{trend.isPositive ? '↑' : '↓'}</span>
+                        <span>{Math.abs(trend.value)}% vs. semana passada</span>
                     </p>
                 )}
             </div>
             {icon && (
-                <div className="text-muted-foreground opacity-60">
+                <div className={`
+          text-muted-foreground/60 
+          transition-all duration-300 
+          group-hover:scale-110
+          ${gradient ? 'text-primary/40' : ''}
+        `}>
                     {icon}
                 </div>
             )}

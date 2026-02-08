@@ -40,39 +40,52 @@ function Dashboard() {
             {/* Header with Theme Switcher */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Painel de Controle</h1>
-                    <p className="text-muted-foreground mt-1">Visão geral da frota em tempo real</p>
+                    <h1 className="text-4xl font-bold tracking-tight gradient-text">
+                        Painel de Controle
+                    </h1>
+                    <p className="text-muted-foreground mt-2 text-lg">
+                        Visão geral da frota em tempo real
+                    </p>
                 </div>
                 <ThemeSwitcher />
             </div>
 
-            {/* Stats Grid */}
+            {/* Stats Grid - Premium Edition */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard
                     label="Jornadas Ativas"
                     value={stats?.activeJourneys || 0}
-                    icon={<Activity className="w-8 h-8" />}
+                    icon={<Activity className="w-10 h-10" />}
+                    gradient={true}
+                    trend={{ value: 12, isPositive: true }}
                 />
                 <StatCard
                     label="Veículos Disponíveis"
                     value={stats?.availableVehicles || 0}
-                    icon={<Truck className="w-8 h-8" />}
+                    icon={<Truck className="w-10 h-10" />}
+                    gradient={true}
+                    trend={{ value: 5, isPositive: true }}
                 />
                 <StatCard
                     label="Total de Funcionários"
                     value={stats?.totalDrivers || 0}
-                    icon={<Users className="w-8 h-8" />}
+                    icon={<Users className="w-10 h-10" />}
+                    gradient={false}
                 />
                 <StatCard
-                    label="Localização Ativa"
+                    label="Localizações Ativas"
                     value={stats?.activeJourneys || 0}
-                    icon={<MapPin className="w-8 h-8" />}
+                    icon={<MapPin className="w-10 h-10" />}
+                    gradient={false}
                 />
             </div>
 
             {/* Live Map Section */}
-            <GlassCard>
-                <h2 className="text-xl font-bold mb-4">Rastreamento em Tempo Real</h2>
+            <GlassCard gradient={true}>
+                <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+                    <MapPin className="w-6 h-6 text-primary" />
+                    Rastreamento em Tempo Real
+                </h2>
                 <ErrorBoundary>
                     <LiveMap />
                 </ErrorBoundary>

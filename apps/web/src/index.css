@@ -1,145 +1,120 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 @layer base {
+
   /* Light Theme (Default) */
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
- 
+
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
- 
+
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
- 
+
     --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
- 
+
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
- 
+
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
- 
+
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
- 
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
- 
+
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
- 
+
     --radius: 0.5rem;
   }
- 
+
   /* Dark Theme */
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
- 
+
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
- 
+
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
- 
+
     --primary: 217.2 91.2% 59.8%;
     --primary-foreground: 222.2 47.4% 11.2%;
- 
+
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
- 
+
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
- 
+
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
- 
+
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
- 
+
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 48%;
   }
 
-  /* Paraopeba Theme - Corporate Blue + Construction Orange */
+  /* Paraopeba Theme - Vibrant Purple/Violet (Premium) */
   [data-theme="paraopeba"] {
-    /* Professional blue base (inspired by construction/industrial sector) */
-    --background: 210 20% 98%;
-    --foreground: 210 24% 16%;
- 
-    --card: 0 0% 100%;
-    --card-foreground: 210 24% 16%;
- 
-    --popover: 0 0% 100%;
-    --popover-foreground: 210 24% 16%;
- 
-    /* Corporate Deep Blue */
-    --primary: 210 100% 34%;
-    --primary-foreground: 0 0% 100%;
- 
-    /* Construction Orange (Accent for CTAs and highlights) */
-    --secondary: 30 100% 50%;
-    --secondary-foreground: 0 0% 100%;
- 
-    --muted: 210 20% 96%;
-    --muted-foreground: 210 10% 46%;
- 
-    /* Orange accent for interactive elements */
-    --accent: 30 95% 55%;
-    --accent-foreground: 0 0% 100%;
- 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
- 
-    --border: 210 20% 88%;
-    --input: 210 20% 94%;
-    --ring: 210 100% 34%;
- 
-    --radius: 0.5rem;
-  }
+    /* Deep purple base with high contrast */
+    --background: 250 20% 10%;
+    --foreground: 250 5% 98%;
 
-  [data-theme="paraopeba"].dark {
-    /* Dark variant of Paraopeba theme */
-    --background: 210 30% 8%;
-    --foreground: 210 20% 96%;
- 
-    --card: 210 25% 12%;
-    --card-foreground: 210 20% 96%;
- 
-    --popover: 210 25% 12%;
-    --popover-foreground: 210 20% 96%;
- 
-    --primary: 210 100% 50%;
-    --primary-foreground: 210 30% 8%;
- 
-    --secondary: 30 100% 55%;
-    --secondary-foreground: 210 30% 8%;
- 
-    --muted: 210 20% 16%;
-    --muted-foreground: 210 10% 64%;
- 
-    --accent: 30 95% 60%;
-    --accent-foreground: 210 30% 8%;
- 
-    --destructive: 0 72% 51%;
+    --card: 250 25% 14%;
+    --card-foreground: 250 5% 98%;
+
+    --popover: 250 25% 12%;
+    --popover-foreground: 250 5% 98%;
+
+    /* Vibrant Purple Primary - High saturation */
+    --primary: 270 85% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Electric Violet Secondary */
+    --secondary: 280 95% 65%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 250 20% 20%;
+    --muted-foreground: 250 10% 70%;
+
+    /* Neon accent for CTAs */
+    --accent: 290 100% 70%;
+    --accent-foreground: 250 20% 10%;
+
+    --destructive: 0 85% 60%;
     --destructive-foreground: 0 0% 100%;
- 
-    --border: 210 20% 20%;
-    --input: 210 20% 18%;
-    --ring: 210 100% 50%;
+
+    --border: 250 20% 24%;
+    --input: 250 20% 18%;
+    --ring: 270 85% 60%;
+
+    --radius: 0.75rem;
+
+    /* Custom gradient variables */
+    --gradient-primary: linear-gradient(135deg, hsl(270 85% 60%) 0%, hsl(290 95% 65%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(250 25% 14%) 0%, hsl(250 25% 16%) 100%);
   }
 }
- 
+
 @layer base {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
@@ -187,5 +162,21 @@
 
   .dark .glass-card {
     @apply glass-dark;
+  }
+
+  /* Gradient backgrounds for purple theme */
+  [data-theme="paraopeba"] .gradient-primary {
+    background: linear-gradient(135deg, hsl(270 85% 60%) 0%, hsl(290 95% 65%) 100%);
+  }
+
+  [data-theme="paraopeba"] .gradient-card {
+    background: linear-gradient(135deg, hsl(250 25% 14%) 0%, hsl(250 25% 16%) 100%);
+  }
+
+  [data-theme="paraopeba"] .gradient-text {
+    background: linear-gradient(135deg, hsl(270 85% 70%) 0%, hsl(290 95% 75%) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }
