@@ -10,23 +10,24 @@ RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 COPY package*.json ./
 COPY tsconfig.json ./
 
-# Copy API workspace configs
+# Copy ALL workspace package.json files for correct dependency resolution
 COPY apps/api/package*.json ./apps/api/
-COPY apps/api/prisma ./apps/api/prisma
-COPY apps/api/tsconfig.json ./apps/api/
+COPY apps/web/package*.json ./apps/web/
+COPY apps/mobile/package*.json ./apps/mobile/
 
-# Install dependencies (Clean slate)
+# Install dependencies (Full monorepo tree)
 RUN npm install --legacy-peer-deps
 
-# Copy rest of the API code
+# Copy API-only code and configs
 COPY apps/api ./apps/api
 
-# Generate Prisma Client (AT ROOT LEVEL) and Build
-# Running from root ensures client goes to /app/node_modules/@prisma/client
-RUN npx prisma generate --schema=apps/api/prisma/schema.prisma
-RUN npm run build -w api
+# Generate Prisma Client and Build
+WORKDIR /app/apps/api
+RUN npx prisma generate --schema=prisma/schema.prisma
+RUN npm run build
 
 # Prune to production only
+WORKDIR /app
 RUN npm prune --production --legacy-peer-deps
 
 # Stage 2: Production
@@ -36,13 +37,10 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-# Copy prepared production node_modules (now including root Prisma Client)
+# Copy prepared production node_modules and code
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/apps/api/dist ./dist
 COPY --from=builder /app/apps/api/prisma ./prisma
-
-# Sanity check for Prisma Client
-RUN ls node_modules/@prisma/client || (echo "ERROR: Prisma Client not found in node_modules" && exit 1)
 
 EXPOSE 3000
 

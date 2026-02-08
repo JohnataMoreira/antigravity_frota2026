@@ -7,14 +7,16 @@ WORKDIR /app
 COPY package*.json ./
 COPY tsconfig.json ./
 
-# Copy Web workspace configs
+# Copy ALL workspace package.json files for correct dependency resolution
+COPY apps/api/package*.json ./apps/api/
 COPY apps/web/package*.json ./apps/web/
-COPY apps/web/tsconfig.json ./apps/web/
+COPY apps/mobile/package*.json ./apps/mobile/
 
-# Install dependencies (Clean slate)
+# Install dependencies (Full monorepo tree)
 RUN npm install --legacy-peer-deps
 
-# Copy Web code
+# Copy Web workspace configs and code
+COPY apps/web/tsconfig.json ./apps/web/
 COPY apps/web ./apps/web
 
 # Build
