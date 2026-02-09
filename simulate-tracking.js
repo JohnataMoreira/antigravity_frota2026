@@ -12,8 +12,8 @@ const orgId = args[0] || '123';
 const vehicleId = args[1] || 'simulated-truck-1';
 const token = args[2] || '';
 
-// URL da API (Ajuste para produção se necessário)
-const API_URL = 'http://localhost:3000';
+// URL da API (Ajustado para o seu domínio de produção)
+const API_URL = 'https://johnatamoreira.com.br';
 const NAMESPACE = '/locations';
 
 console.log(`🚀 Iniciando simulador para Veículo: ${vehicleId} (Org: ${orgId})`);

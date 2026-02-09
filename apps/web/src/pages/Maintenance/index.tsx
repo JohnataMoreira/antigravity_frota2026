@@ -163,13 +163,13 @@ export function MaintenanceList() {
                 <GlassCard transition={true} className="!p-0 overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">
-                            <thead className="bg-gray-50/50 dark:bg-gray-800/50 border-b dark:border-gray-700">
+                            <thead className="bg-gray-50 dark:bg-gray-800/80 border-b dark:border-gray-700">
                                 <tr>
-                                    <th className="px-6 py-4 font-black uppercase tracking-wider text-muted-foreground/80">Veículo</th>
-                                    <th className="px-6 py-4 font-black uppercase tracking-wider text-muted-foreground/80">Tipo</th>
-                                    <th className="px-6 py-4 font-black uppercase tracking-wider text-muted-foreground/80">Status</th>
-                                    <th className="px-6 py-4 font-black uppercase tracking-wider text-muted-foreground/80 text-right">Data / KM</th>
-                                    <th className="px-6 py-4 font-black uppercase tracking-wider text-muted-foreground/80 text-right">Ação</th>
+                                    <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400">Veículo</th>
+                                    <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400">Tipo</th>
+                                    <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400">Status</th>
+                                    <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400 text-right">Data / KM</th>
+                                    <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400 text-right">Ação</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">

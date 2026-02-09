@@ -241,8 +241,8 @@ export function Drivers() {
                 <GlassCard transition={true} className="!p-0 overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">
-                            <thead className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700">
-                                <tr className="text-gray-500">
+                            <thead className="bg-gray-50 dark:bg-gray-800/80 border-b border-gray-100 dark:border-gray-700">
+                                <tr className="text-gray-400 dark:text-gray-400">
                                     <th className="py-4 px-6 font-bold uppercase tracking-wider">Funcionário</th>
                                     <th className="py-4 px-6 font-bold uppercase tracking-wider">Contato / CPF</th>
                                     <th className="py-4 px-6 font-bold uppercase tracking-wider">Cargo</th>

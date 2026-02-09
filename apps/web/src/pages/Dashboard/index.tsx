@@ -1,0 +1,147 @@
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../../lib/axios';
+import { StatCard, GlassCard } from '../../components/ui/Cards';
+import { LiveMap } from '../../components/LiveMap';
+import { ErrorBoundary } from '../../components/ErrorBoundary';
+import { ThemeSwitcher } from '../../components/ThemeSwitcher';
+import { Truck, Users, MapPin, Activity, DollarSign, Gauge } from 'lucide-react';
+import {
+    LineChart, Line, BarChart, Bar, XAxis, YAxis,
+    CartesianGrid, Tooltip, ResponsiveContainer, Legend
+} from 'recharts';
+
+export function Dashboard() {
+    const { data: reportData } = useQuery({
+        queryKey: ['dashboard-stats'],
+        queryFn: async () => {
+            const res = await api.get('/reports/overview');
+            return res.data;
+        }
+    });
+
+    const stats = reportData?.stats;
+    const history = reportData?.history || [
+        { name: 'Jan', costs: 400, km: 2400 },
+        { name: 'Fev', costs: 300, km: 1398 },
+        { name: 'Mar', costs: 200, km: 9800 },
+        { name: 'Abr', costs: 278, km: 3908 },
+        { name: 'Mai', costs: 189, km: 4800 },
+        { name: 'Jun', costs: 239, km: 3800 },
+    ];
+
+    return (
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-4xl font-bold tracking-tight gradient-text">
+                        Painel de Controle
+                    </h1>
+                    <p className="text-muted-foreground mt-2 text-lg">
+                        Visão geral da frota e métricas operacionais
+                    </p>
+                </div>
+                <ThemeSwitcher />
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <StatCard
+                    label="Jornadas Ativas"
+                    value={stats?.activeJourneys || 0}
+                    icon={<Activity className="w-10 h-10" />}
+                    gradient={true}
+                />
+                <StatCard
+                    label="Veículos Disponíveis"
+                    value={stats?.availableVehicles || 0}
+                    icon={<Truck className="w-10 h-10" />}
+                    gradient={true}
+                />
+                <StatCard
+                    label="Custos (Mês)"
+                    value={`R$ ${stats?.monthlyCosts || 0}`}
+                    icon={<DollarSign className="w-10 h-10" />}
+                    gradient={true}
+                />
+                <StatCard
+                    label="Distância (KM)"
+                    value={stats?.totalKm || 0}
+                    icon={<Gauge className="w-10 h-10" />}
+                    gradient={true}
+                />
+            </div>
+
+            {/* Charts Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <GlassCard>
+                    <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                        <DollarSign className="w-5 h-5 text-primary" />
+                        Custos de Manutenção
+                    </h3>
+                    <div className="h-[300px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={history}>
+                                <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
+                                <XAxis dataKey="name" />
+                                <YAxis />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: 'rgba(0,0,0,0.8)',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        color: '#fff'
+                                    }}
+                                />
+                                <Bar dataKey="costs" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </GlassCard>
+
+                <GlassCard>
+                    <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                        <Gauge className="w-5 h-5 text-primary" />
+                        Quilometragem Percorrida
+                    </h3>
+                    <div className="h-[300px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={history}>
+                                <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
+                                <XAxis dataKey="name" />
+                                <YAxis />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: 'rgba(0,0,0,0.8)',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        color: '#fff'
+                                    }}
+                                />
+                                <Line
+                                    type="monotone"
+                                    dataKey="km"
+                                    stroke="#10b981"
+                                    strokeWidth={3}
+                                    dot={{ r: 6 }}
+                                    activeDot={{ r: 8 }}
+                                />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                </GlassCard>
+            </div>
+
+            {/* Live Map Section */}
+            <GlassCard gradient={true}>
+                <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+                    <MapPin className="w-6 h-6 text-primary" />
+                    Rastreamento em Tempo Real
+                </h2>
+                <ErrorBoundary>
+                    <LiveMap />
+                </ErrorBoundary>
+            </GlassCard>
+        </div>
+    );
+}

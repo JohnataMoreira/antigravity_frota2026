@@ -160,20 +160,24 @@ export function VehiclesList() {
                 <div className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">
-                            <thead className="bg-gray-50 dark:bg-gray-800/50 border-b dark:border-gray-700">
+                            <thead className="bg-gray-50 dark:bg-gray-800/80 border-b dark:border-gray-700">
                                 <tr>
-                                    <th className="px-6 py-4 font-semibold">Placa</th>
-                                    <th className="px-6 py-4 font-semibold">Marca/Modelo</th>
-                                    <th className="px-6 py-4 font-semibold text-center">Tipo</th>
-                                    <th className="px-6 py-4 font-semibold">Status</th>
-                                    <th className="px-6 py-4 font-semibold">Km Atual</th>
-                                    <th className="px-6 py-4 font-semibold text-right">Ações</th>
+                                    <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400">Placa</th>
+                                    <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400">Marca/Modelo</th>
+                                    <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400 text-center">Tipo</th>
+                                    <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400">Status</th>
+                                    <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400">KM Atual</th>
+                                    <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400 text-right">Ações</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y dark:divide-gray-700">
                                 {filteredVehicles?.map((vehicle) => (
                                     <tr key={vehicle.id} className="hover:bg-gray-50/80 dark:hover:bg-gray-700/30 transition-colors">
-                                        <td className="px-6 py-4 font-bold text-blue-600 dark:text-blue-400">{vehicle.plate}</td>
+                                        <td className="px-6 py-4 font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
+                                            {vehicle.plate.length === 7
+                                                ? `${vehicle.plate.slice(0, 3)}-${vehicle.plate.slice(3)}`.toUpperCase()
+                                                : vehicle.plate.toUpperCase()}
+                                        </td>
                                         <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
                                             <div className="font-semibold">{vehicle.model}</div>
                                             <div className="text-xs text-gray-500">{vehicle.brand} {vehicle.year}</div>
@@ -191,17 +195,21 @@ export function VehiclesList() {
                                                 {(statusMap as any)[vehicle.status].label}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 font-medium">{vehicle.currentKm.toLocaleString()} km</td>
+                                        <td className="px-6 py-4 font-bold dark:text-gray-200">
+                                            {vehicle.currentKm.toLocaleString('pt-BR')} km
+                                        </td>
                                         <td className="px-6 py-4 text-right space-x-2">
                                             <button
                                                 onClick={() => handleEdit(vehicle)}
                                                 className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all"
+                                                title="Editar Veículo"
                                             >
                                                 <Edit size={18} />
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(vehicle.id)}
                                                 className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                                                title="Excluir Veículo"
                                             >
                                                 <Trash size={18} />
                                             </button>

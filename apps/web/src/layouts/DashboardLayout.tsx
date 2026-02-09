@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, Truck, Users, Map, Wrench, LogOut, Menu, X, User as UserIcon } from 'lucide-react';
+import { LayoutDashboard, Truck, Users, Map, Wrench, LogOut, Menu, X, User as UserIcon, FileText } from 'lucide-react';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
 
 export function DashboardLayout() {
@@ -16,6 +16,7 @@ export function DashboardLayout() {
         { name: 'Funcionários', href: '/drivers', icon: Users },
         { name: 'Jornadas', href: '/journeys', icon: Map },
         { name: 'Manutenção', href: '/maintenance', icon: Wrench },
+        { name: 'Relatórios', href: '/reports', icon: FileText },
     ];
 
     const handleLogout = () => {

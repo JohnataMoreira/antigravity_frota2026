@@ -9,11 +9,10 @@ import { VehicleForm } from './pages/Vehicles/VehicleForm';
 import { Drivers } from './pages/Drivers';
 import { JourneysList } from './pages/Journeys';
 import { MaintenanceList } from './pages/Maintenance';
+import { Reports } from './pages/Reports';
 import { LiveMap } from './components/LiveMap';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { StatCard, GlassCard } from './components/ui/Cards';
 import { ThemeSwitcher } from './components/ThemeSwitcher';
-import { Truck, Users, MapPin, Activity } from 'lucide-react';
 
 const queryClient = new QueryClient();
 
@@ -25,73 +24,7 @@ function ProtectedRoute({ children }: { children: JSX.Element }) {
     return children;
 }
 
-function Dashboard() {
-    const { data: stats } = useQuery({
-        queryKey: ['dashboard-stats'],
-        queryFn: async () => {
-            const res = await api.get('/reports/overview');
-            return res.data.stats;
-        }
-    });
-
-    return (
-        <div className="space-y-6">
-            {/* Header with Theme Switcher */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-4xl font-bold tracking-tight gradient-text">
-                        Painel de Controle
-                    </h1>
-                    <p className="text-muted-foreground mt-2 text-lg">
-                        Visão geral da frota em tempo real
-                    </p>
-                </div>
-                <ThemeSwitcher />
-            </div>
-
-            {/* Stats Grid - Premium Edition */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard
-                    label="Jornadas Ativas"
-                    value={stats?.activeJourneys || 0}
-                    icon={<Activity className="w-10 h-10" />}
-                    gradient={true}
-                    trend={{ value: 12, isPositive: true }}
-                />
-                <StatCard
-                    label="Veículos Disponíveis"
-                    value={stats?.availableVehicles || 0}
-                    icon={<Truck className="w-10 h-10" />}
-                    gradient={true}
-                    trend={{ value: 5, isPositive: true }}
-                />
-                <StatCard
-                    label="Total de Equipe"
-                    value={stats?.totalDrivers || 0}
-                    icon={<Users className="w-10 h-10" />}
-                    gradient={true}
-                />
-                <StatCard
-                    label="Rastreamento"
-                    value={stats?.activeJourneys || 0}
-                    icon={<MapPin className="w-10 h-10" />}
-                    gradient={true}
-                />
-            </div>
-
-            {/* Live Map Section */}
-            <GlassCard gradient={true}>
-                <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-                    <MapPin className="w-6 h-6 text-primary" />
-                    Rastreamento em Tempo Real
-                </h2>
-                <ErrorBoundary>
-                    <LiveMap />
-                </ErrorBoundary>
-            </GlassCard>
-        </div>
-    );
-}
+import { Dashboard } from './pages/Dashboard';
 
 function AppRoutes() {
     return (
@@ -112,6 +45,7 @@ function AppRoutes() {
 
                 <Route path="journeys" element={<JourneysList />} />
                 <Route path="maintenance" element={<MaintenanceList />} />
+                <Route path="reports" element={<Reports />} />
             </Route>
         </Routes>
     );

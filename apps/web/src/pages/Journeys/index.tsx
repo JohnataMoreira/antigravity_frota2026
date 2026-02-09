@@ -1,12 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/axios';
 import { useState } from 'react';
-import { Map, Search, ClipboardList, CheckCircle2, AlertCircle, X, MapPin, Clock } from 'lucide-react';
+import { Map, Search, ClipboardList, CheckCircle2, AlertCircle, X, MapPin, Clock, LayoutGrid, List as ListIcon } from 'lucide-react';
 import { GlassCard } from '../../components/ui/Cards';
 
 export function JourneysList() {
     const [filter, setFilter] = useState('');
     const [selectedJourney, setSelectedJourney] = useState<any>(null);
+    const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
     const { data: journeys = [], isLoading } = useQuery({
         queryKey: ['journeys'],
@@ -41,69 +42,140 @@ export function JourneysList() {
                 </div>
             </div>
 
-            <div className="relative group max-w-xl">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
-                <input
-                    type="text"
-                    placeholder="Buscar por veículo ou motorista..."
-                    className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium"
-                    value={filter}
-                    onChange={(e) => setFilter(e.target.value)}
-                />
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div className="relative group flex-1 max-w-xl w-full">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                    <input
+                        type="text"
+                        placeholder="Buscar por veículo ou motorista..."
+                        className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium"
+                        value={filter}
+                        onChange={(e) => setFilter(e.target.value)}
+                    />
+                </div>
+
+                <div className="flex bg-gray-100 dark:bg-gray-800 p-1.5 rounded-2xl border dark:border-gray-700 shadow-sm">
+                    <button
+                        onClick={() => setViewMode('grid')}
+                        className={`p-2.5 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-gray-700 shadow-md text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                        title="Visualização em Grade"
+                    >
+                        <LayoutGrid size={20} />
+                    </button>
+                    <button
+                        onClick={() => setViewMode('list')}
+                        className={`p-2.5 rounded-xl transition-all ${viewMode === 'list' ? 'bg-white dark:bg-gray-700 shadow-md text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                        title="Visualização em Lista"
+                    >
+                        <ListIcon size={20} />
+                    </button>
+                </div>
             </div>
 
-            <GlassCard transition={true} className="!p-0 overflow-hidden">
-                <div className="overflow-x-auto text-foreground">
-                    <table className="w-full text-left text-sm">
-                        <thead className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700">
-                            <tr>
-                                <th className="px-6 py-4 font-bold uppercase tracking-wider text-muted-foreground/80">Veículo</th>
-                                <th className="px-6 py-4 font-bold uppercase tracking-wider text-muted-foreground/80">Motorista</th>
-                                <th className="px-6 py-4 font-bold uppercase tracking-wider text-muted-foreground/80">Status</th>
-                                <th className="px-6 py-4 font-bold uppercase tracking-wider text-muted-foreground/80">Início / Fim</th>
-                                <th className="px-6 py-4 font-bold uppercase tracking-wider text-muted-foreground/80 text-right">KM Percorrida</th>
-                                <th className="px-6 py-4 font-bold uppercase tracking-wider text-muted-foreground/80 text-right">Ação</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                            {filtered.map((journey: any) => (
-                                <tr key={journey.id} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-all">
-                                    <td className="px-6 py-5 font-bold text-blue-600 dark:text-blue-400">{journey.vehicle?.plate || '—'}</td>
-                                    <td className="px-6 py-5 font-medium">{journey.driver?.name || '—'}</td>
-                                    <td className="px-6 py-5">
-                                        <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${journey.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400' :
-                                            journey.status === 'COMPLETED' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400' :
-                                                'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
-                                            }`}>
+            {viewMode === 'list' ? (
+                <GlassCard transition={true} className="!p-0 overflow-hidden">
+                    <div className="overflow-x-auto text-foreground">
+                        <table className="w-full text-left text-sm">
+                            <thead className="bg-gray-50/50 dark:bg-gray-800/80 border-b border-gray-100 dark:border-gray-700">
+                                <tr>
+                                    <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400">Veículo</th>
+                                    <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400">Motorista</th>
+                                    <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400">Status</th>
+                                    <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400">Início / Fim</th>
+                                    <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400 text-right">KM Percorrida</th>
+                                    <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400 text-right">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                                {filtered.map((journey: any) => (
+                                    <tr key={journey.id} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-all">
+                                        <td className="px-6 py-5 font-bold text-blue-600 dark:text-blue-400">{journey.vehicle?.plate || '—'}</td>
+                                        <td className="px-6 py-5 font-medium">{journey.driver?.name || '—'}</td>
+                                        <td className="px-6 py-5">
+                                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${journey.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400' :
+                                                journey.status === 'COMPLETED' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400' :
+                                                    'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                                                }`}>
+                                                {journey.status === 'IN_PROGRESS' ? 'Em Jornada' : 'Finalizada'}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-5 text-muted-foreground font-medium">
+                                            <div className="flex flex-col">
+                                                <span>{new Date(journey.startTime).toLocaleString('pt-BR')}</span>
+                                                {journey.endTime && <span className="text-xs opacity-70">término: {new Date(journey.endTime).toLocaleString('pt-BR')}</span>}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5 text-right font-bold text-gray-900 dark:text-white">
+                                            {journey.endKm ? `${(journey.endKm - journey.startKm).toLocaleString()} km` : '—'}
+                                        </td>
+                                        <td className="px-6 py-5 text-right">
+                                            {journey.checklists?.length > 0 && (
+                                                <button
+                                                    onClick={() => setSelectedJourney(journey)}
+                                                    className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl transition-all"
+                                                    title="Ver Checklists"
+                                                >
+                                                    <ClipboardList size={22} />
+                                                </button>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </GlassCard>
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {filtered.map((journey: any) => (
+                        <GlassCard key={journey.id} transition={true} className="group overflow-hidden relative">
+                            <div className="flex items-center gap-4 mb-4">
+                                <div className="p-3 rounded-2xl bg-blue-100/50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+                                    <Map size={24} />
+                                </div>
+                                <div>
+                                    <div className="text-xl font-black text-blue-600 dark:text-blue-400">{journey.vehicle?.plate || '—'}</div>
+                                    <div className="text-xs text-muted-foreground uppercase font-bold tracking-tighter">{journey.vehicle?.model || 'Desconhecido'}</div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <div className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase mb-1">Motorista</div>
+                                    <div className="font-bold dark:text-white truncate">{journey.driver?.name || '—'}</div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="p-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl border dark:border-gray-700">
+                                        <div className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase mb-1">Km Percorrida</div>
+                                        <div className="text-sm font-black text-gray-900 dark:text-white">
+                                            {journey.endKm ? `${(journey.endKm - journey.startKm).toLocaleString('pt-BR')} km` : '—'}
+                                        </div>
+                                    </div>
+                                    <div className="p-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl border dark:border-gray-700">
+                                        <div className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase mb-1">Status</div>
+                                        <span className={`text-[10px] font-black uppercase ${journey.status === 'IN_PROGRESS' ? 'text-blue-600 dark:text-blue-400' : 'text-green-600 dark:text-green-400'}`}>
                                             {journey.status === 'IN_PROGRESS' ? 'Em Jornada' : 'Finalizada'}
                                         </span>
-                                    </td>
-                                    <td className="px-6 py-5 text-muted-foreground font-medium">
-                                        <div className="flex flex-col">
-                                            <span>{new Date(journey.startTime).toLocaleString('pt-BR')}</span>
-                                            {journey.endTime && <span className="text-xs opacity-70">término: {new Date(journey.endTime).toLocaleString('pt-BR')}</span>}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-5 text-right font-bold text-gray-900 dark:text-white">
-                                        {journey.endKm ? `${(journey.endKm - journey.startKm).toLocaleString()} km` : '—'}
-                                    </td>
-                                    <td className="px-6 py-5 text-right">
-                                        {journey.checklists?.length > 0 && (
-                                            <button
-                                                onClick={() => setSelectedJourney(journey)}
-                                                className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl transition-all"
-                                                title="Ver Checklists"
-                                            >
-                                                <ClipboardList size={22} />
-                                            </button>
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                                    </div>
+                                </div>
+
+                                <div className="pt-2 border-t dark:border-gray-700 flex justify-between items-center text-[10px] text-gray-500">
+                                    <span>{new Date(journey.startTime).toLocaleDateString('pt-BR')}</span>
+                                    {journey.checklists?.length > 0 && (
+                                        <button
+                                            onClick={() => setSelectedJourney(journey)}
+                                            className="text-blue-600 dark:text-blue-400 font-bold hover:underline underline-offset-4"
+                                        >
+                                            Ver Checklists
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </GlassCard>
+                    ))}
                 </div>
-            </GlassCard>
+            )}
 
             {/* Checklist Modal */}
             {selectedJourney && (
