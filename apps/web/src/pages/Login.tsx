@@ -57,6 +57,7 @@ export function Login() {
                 navigate('/dashboard');
             }
         } catch (err: any) {
+            console.error('Auth Error:', err.response?.data);
             setError(err.response?.data?.message || 'Falha na autenticação');
         } finally {
             setLoading(false);
@@ -224,6 +225,7 @@ export function Login() {
                 .auth-input {
                     width: 100%;
                     padding: 0.75rem 1rem;
+                    padding-left: 3rem !important; /* Force padding for icons */
                     background: rgba(255, 255, 255, 0.03);
                     border: 1px solid rgba(255, 255, 255, 0.1);
                     border-radius: 1rem;
