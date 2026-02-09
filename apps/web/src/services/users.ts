@@ -6,16 +6,23 @@ interface CreateUserData {
     password: string;
     role: 'ADMIN' | 'DRIVER';
     licenseNumber?: string;
+    phone?: string;
+    cpf?: string;
+    birthDate?: string;
+    entryDate?: string;
+    addressStreet?: string;
+    addressNumber?: string;
+    addressComplement?: string;
+    addressNeighborhood?: string;
+    addressCity?: string;
+    addressState?: string;
+    addressZipCode?: string;
 }
 
-interface UpdateUserData {
-    name?: string;
-    licenseNumber?: string;
-    role?: 'ADMIN' | 'DRIVER';
-}
+interface UpdateUserData extends Partial<Omit<CreateUserData, 'password' | 'email'>> { }
 
 export const usersApi = {
-    getUsers: () => api.get('/users'),
+    getUsers: (search?: string) => api.get('/users', { params: { search } }),
 
     createUser: (data: CreateUserData) => api.post('/users', data),
 

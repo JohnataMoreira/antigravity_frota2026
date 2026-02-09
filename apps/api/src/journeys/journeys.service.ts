@@ -86,7 +86,14 @@ export class JourneysService {
                     endKm: dto.endKm,
                     endTime: new Date(),
                     endLocation: (dto.lat && dto.lng) ? { lat: dto.lat, lng: dto.lng } : undefined,
-                }
+                    checklists: dto.checklistItems ? {
+                        create: {
+                            type: ChecklistType.CHECKIN,
+                            items: dto.checklistItems,
+                        }
+                    } : undefined
+                },
+                include: { vehicle: true, checklists: true }
             });
 
             // Update Vehicle

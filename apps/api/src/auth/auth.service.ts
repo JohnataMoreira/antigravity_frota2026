@@ -53,7 +53,7 @@ export class AuthService {
             return { org, user };
         });
 
-        return this.signToken(user.id, org.id, user.email, user.role);
+        return this.signToken(user.id, org.id, user.email, user.role, user.name);
     }
 
     async login(dto: LoginDto) {
@@ -68,10 +68,10 @@ export class AuthService {
         const pwMatches = await bcrypt.compare(dto.password, user.passwordHash);
         if (!pwMatches) throw new UnauthorizedException('Credentials incorrect');
 
-        return this.signToken(user.id, user.organizationId, user.email, user.role);
+        return this.signToken(user.id, user.organizationId, user.email, user.role, user.name);
     }
 
-    async signToken(userId: string, orgId: string, email: string, role: string) {
+    async signToken(userId: string, orgId: string, email: string, role: string, name: string) {
         const payload = {
             sub: userId,
             orgId,
@@ -83,20 +83,33 @@ export class AuthService {
             secret: process.env.JWT_SECRET,
         });
 
-        // Return user details as well
-        // We need to fetch the user name to be complete, but for now let's reuse what we have
-        // ideally login passes the user object here, but let's just return what we have in payload 
-        // plus maybe name if we fetch it. 
-        // To keep it simple and efficient, let's just return the essential info.
-
         return {
             access_token: token,
             user: {
                 id: userId,
                 email,
                 role,
-                organizationId: orgId
+                organizationId: orgId,
+                name: name
             }
+        };
+    }
+
+    async getProfile(userId: string) {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            include: { organization: { select: { name: true } } }
+        });
+
+        if (!user) throw new UnauthorizedException();
+
+        return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            organizationId: user.organizationId,
+            organizationName: user.organization.name
         };
     }
 }

@@ -4,6 +4,7 @@ interface GlassCardProps {
     children: ReactNode;
     className?: string;
     gradient?: boolean;
+    transition?: boolean;
 }
 
 /**
@@ -12,9 +13,14 @@ interface GlassCardProps {
  * Enhanced glassmorphism card with optional gradient background.
  * Optimized for vibrant purple theme.
  */
-export function GlassCard({ children, className = '', gradient = false }: GlassCardProps) {
+export function GlassCard({ children, className = '', gradient = false, transition = false }: GlassCardProps) {
     return (
-        <div className={`glass-card p-6 ${gradient ? 'gradient-card' : ''} ${className}`}>
+        <div className={`
+            glass-card p-6 
+            ${gradient ? 'gradient-card' : ''} 
+            ${transition ? 'transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl' : ''}
+            ${className}
+        `}>
             {children}
         </div>
     );
@@ -60,8 +66,8 @@ export function StatCard({ label, value, trend, icon, gradient = false }: StatCa
                 </p>
                 {trend && (
                     <p className={`text-sm mt-3 flex items-center gap-1.5 font-medium ${trend.isPositive
-                            ? 'text-green-500 dark:text-green-400'
-                            : 'text-red-500 dark:text-red-400'
+                        ? 'text-green-500 dark:text-green-400'
+                        : 'text-red-500 dark:text-red-400'
                         }`}>
                         <span className="text-lg">{trend.isPositive ? '↑' : '↓'}</span>
                         <span>{Math.abs(trend.value)}% vs. semana passada</span>

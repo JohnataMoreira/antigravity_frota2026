@@ -5,6 +5,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../_layout';
 import { sync } from '../../src/services/sync';
 import { api } from '../../src/services/api';
+import * as Location from 'expo-location';
 
 export default function VehiclesScreen() {
     const [vehicles, setVehicles] = useState<any[]>([]);
@@ -55,6 +56,17 @@ export default function VehiclesScreen() {
     }, [params.photoPath, params.vehicleId]);
 
     const handleStartJourney = async (vehicle: any, photoPath?: string) => {
+        // [12/10 STRATEGY] Enforce GPS Permission
+        const { status } = await Location.requestForegroundPermissionsAsync();
+
+        if (status !== 'granted') {
+            Alert.alert(
+                'Permissão Necessária',
+                'O rastreamento GPS é obrigatório para iniciar uma jornada nesta empresa. Por favor, habilite a localização nas configurações do app.'
+            );
+            return;
+        }
+
         Alert.alert(
             'Iniciar Viagem',
             `Deseja iniciar viagem com o veículo ${vehicle.plate}?`,

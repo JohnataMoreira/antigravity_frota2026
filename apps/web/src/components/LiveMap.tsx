@@ -32,23 +32,29 @@ export function LiveMap() {
     const [locations, setLocations] = useState<Record<string, VehicleLocation>>({});
 
     useEffect(() => {
-        // Connect to namespace
+        if (!user?.organizationId) return;
+
+        // [12/10 STRATEGY] Dynamic Socket URL matching Axios pattern
         const isProd = !window.location.host.includes('localhost');
-        const SOCKET_URL = isProd ? 'https://api.johnatamoreira.com.br' : 'http://localhost:3000';
+        const SOCKET_URL = isProd ? window.location.origin : 'http://localhost:3000';
+
+        console.log('Connecting to Locations WS at:', SOCKET_URL);
 
         const socket = io(`${SOCKET_URL}/locations`, {
-            // auth: { token }
+            transports: ['websocket', 'polling'],
+            auth: {
+                token: localStorage.getItem('token')
+            }
         });
 
         socket.on('connect', () => {
             console.log('Connected to Locations WS');
-            if (user) {
-                // Hardcoded org for MVP if not in user context properly yet
-                // But AuthContext has it? We didn't persist orgId in AuthContext clearly in MVP
-                // Assuming user has organizationId or we send what we have.
-                // For now, let's join a test room 'org_123' or real one if available
-                socket.emit('join_organization', '123'); // Demo ID
-            }
+            // Join specific organization room
+            socket.emit('join_organization', user.organizationId);
+        });
+
+        socket.on('connect_error', (err) => {
+            console.error('Socket Connection Error:', err.message);
         });
 
         socket.on('vehicle_location_updated', (payload: VehicleLocation) => {

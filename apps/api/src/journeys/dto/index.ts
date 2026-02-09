@@ -34,4 +34,7 @@ export class EndJourneyDto {
 
     @IsOptional()
     lng?: number;
+
+    @IsOptional()
+    checklistItems?: any[];
 }

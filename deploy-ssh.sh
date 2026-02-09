@@ -35,8 +35,12 @@ if [[ ! "$POSTGRES_PASSWORD" =~ ^[0-9a-f]+$ ]]; then
     FORCE_RESET=true
 fi
 
-if [[ ! "$JWT_SECRET" =~ ^[0-9a-f]+$ ]]; then
+# [12/10 STRATEGY] Garantir estabilidade do JWT_SECRET
+if [ -z "$JWT_SECRET" ]; then
+    echo -e "${YELLOW}ℹ️ Gerando novo JWT_SECRET...${NC}"
     JWT_SECRET=$(openssl rand -hex 48)
+else
+    echo -e "${GREEN}✅ JWT_SECRET existente preservado${NC}"
 fi
 
 MINIO_ROOT_PASSWORD="${MINIO_ROOT_PASSWORD:-MinioSecure2024!}"

@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/axios';
-import { Plus, Edit, Trash, Search } from 'lucide-react';
+import { Plus, Edit, Trash, Search, LayoutGrid, List as ListIcon, Car, Truck as TruckIcon, Bike, Cpu } from 'lucide-react';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { VehicleModal } from '../../components/VehicleModal';
 
 interface Vehicle {
     id: string;
@@ -11,9 +11,31 @@ interface Vehicle {
     brand: string;
     status: 'AVAILABLE' | 'IN_USE' | 'MAINTENANCE' | 'CRITICAL_ISSUE';
     currentKm: number;
+    type: 'CAR' | 'TRUCK' | 'MOTORCYCLE' | 'MACHINE';
+    year?: number;
 }
 
+const statusMap = {
+    AVAILABLE: { label: 'Disponível', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
+    IN_USE: { label: 'Em Uso', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
+    MAINTENANCE: { label: 'Manutenção', color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' },
+    CRITICAL_ISSUE: { label: 'Problema Crítico', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' },
+};
+
+const typeIconMap = {
+    CAR: Car,
+    TRUCK: TruckIcon,
+    MOTORCYCLE: Bike,
+    MACHINE: Cpu,
+};
+
 export function VehiclesList() {
+    const queryClient = useQueryClient();
+    const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
+    const [filter, setFilter] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+
     const { data: vehicles, isLoading, error } = useQuery<Vehicle[]>({
         queryKey: ['vehicles'],
         queryFn: async () => {
@@ -22,78 +44,238 @@ export function VehiclesList() {
         }
     });
 
-    const [filter, setFilter] = useState('');
-
     const filteredVehicles = vehicles?.filter(v =>
         v.plate.toLowerCase().includes(filter.toLowerCase()) ||
-        v.model.toLowerCase().includes(filter.toLowerCase())
+        v.model.toLowerCase().includes(filter.toLowerCase()) ||
+        (v.brand && v.brand.toLowerCase().includes(filter.toLowerCase()))
     );
 
-    if (isLoading) return <div className="p-4">Loading vehicles...</div>;
-    if (error) return <div className="p-4 text-red-500">Error loading vehicles</div>;
+    const deleteMutation = useMutation({
+        mutationFn: (id: string) => api.delete(`/vehicles/${id}`),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vehicles'] });
+        }
+    });
+
+    const saveMutation = useMutation({
+        mutationFn: (data: Partial<Vehicle>) => {
+            if (selectedVehicle) {
+                return api.patch(`/vehicles/${selectedVehicle.id}`, data);
+            }
+            return api.post('/vehicles', data);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['vehicles'] });
+            setIsModalOpen(false);
+        }
+    });
+
+    if (isLoading) return (
+        <div className="flex flex-col items-center justify-center py-20 animate-pulse">
+            <TruckIcon className="w-12 h-12 text-blue-200 mb-4" />
+            <div className="text-lg text-muted-foreground font-medium">Carregando frota...</div>
+        </div>
+    );
+
+    if (error) return (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center text-red-600 mb-4">
+                <LayoutGrid size={32} />
+            </div>
+            <h3 className="text-lg font-bold text-red-600">Erro de Conexão</h3>
+            <p className="text-muted-foreground mt-1">Não foi possível carregar os veículos. Verifique o servidor.</p>
+        </div>
+    );
+
+    const handleSave = (data: Partial<Vehicle>) => {
+        saveMutation.mutate(data);
+    };
+
+    const handleEdit = (vehicle: Vehicle) => {
+        setSelectedVehicle(vehicle);
+        setIsModalOpen(true);
+    };
+
+    const handleDelete = (id: string) => {
+        if (window.confirm('Tem certeza que deseja excluir este veículo?')) {
+            deleteMutation.mutate(id);
+        }
+    };
+
+    const handleAdd = () => {
+        setSelectedVehicle(null);
+        setIsModalOpen(true);
+    };
 
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <h1 className="text-3xl font-bold tracking-tight">Vehicles</h1>
-                <Link to="/vehicles/new" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2">
-                    <Plus size={18} />
-                    Add Vehicle
-                </Link>
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        Frota de Veículos
+                    </h1>
+                    <p className="text-muted-foreground mt-1">Gerencie os veículos e máquinas da sua empresa.</p>
+                </div>
+                <button
+                    onClick={handleAdd}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-blue-500/20 transition-all font-medium"
+                >
+                    <Plus size={20} />
+                    Adicionar Veículo
+                </button>
             </div>
 
-            <div className="flex items-center gap-2 bg-white dark:bg-gray-800 p-2 rounded-lg border shadow-sm max-w-sm">
-                <Search size={20} className="text-gray-400" />
-                <input
-                    placeholder="Search plate or model..."
-                    className="bg-transparent outline-none flex-1"
-                    value={filter}
-                    onChange={(e) => setFilter(e.target.value)}
-                />
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
+                <div className="flex items-center gap-3 bg-white dark:bg-gray-800/50 p-1.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm w-full md:max-w-md focus-within:ring-2 focus-within:ring-blue-500/50 transition-all">
+                    <div className="pl-3 text-gray-400">
+                        <Search size={20} />
+                    </div>
+                    <input
+                        placeholder="Buscar por placa, modelo ou marca..."
+                        className="bg-transparent outline-none flex-1 py-2 text-sm"
+                        value={filter}
+                        onChange={(e) => setFilter(e.target.value)}
+                    />
+                </div>
+
+                <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl border dark:border-gray-700">
+                    <button
+                        onClick={() => setViewMode('grid')}
+                        className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                        title="Visualização em Cards"
+                    >
+                        <LayoutGrid size={20} />
+                    </button>
+                    <button
+                        onClick={() => setViewMode('list')}
+                        className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                        title="Visualização em Lista"
+                    >
+                        <ListIcon size={20} />
+                    </button>
+                </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border overflow-hidden">
-                <table className="w-full text-left text-sm">
-                    <thead className="bg-gray-50 dark:bg-gray-700/50 border-b">
-                        <tr>
-                            <th className="px-6 py-4 font-semibold">Plate</th>
-                            <th className="px-6 py-4 font-semibold">Brand/Model</th>
-                            <th className="px-6 py-4 font-semibold">Status</th>
-                            <th className="px-6 py-4 font-semibold">Current KM</th>
-                            <th className="px-6 py-4 font-semibold text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y">
-                        {filteredVehicles?.map((vehicle) => (
-                            <tr key={vehicle.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                <td className="px-6 py-4 font-medium">{vehicle.plate}</td>
-                                <td className="px-6 py-4">{vehicle.brand} {vehicle.model}</td>
-                                <td className="px-6 py-4">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold
-                                        ${vehicle.status === 'AVAILABLE' ? 'bg-green-100 text-green-700' : ''}
-                                        ${vehicle.status === 'IN_USE' ? 'bg-blue-100 text-blue-700' : ''}
-                                        ${vehicle.status === 'MAINTENANCE' ? 'bg-yellow-100 text-yellow-700' : ''}
-                                        ${vehicle.status === 'CRITICAL_ISSUE' ? 'bg-red-100 text-red-700' : ''}
-                                    `}>
-                                        {vehicle.status.replace('_', ' ')}
+            {viewMode === 'list' ? (
+                <div className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left text-sm">
+                            <thead className="bg-gray-50 dark:bg-gray-800/50 border-b dark:border-gray-700">
+                                <tr>
+                                    <th className="px-6 py-4 font-semibold">Placa</th>
+                                    <th className="px-6 py-4 font-semibold">Marca/Modelo</th>
+                                    <th className="px-6 py-4 font-semibold text-center">Tipo</th>
+                                    <th className="px-6 py-4 font-semibold">Status</th>
+                                    <th className="px-6 py-4 font-semibold">Km Atual</th>
+                                    <th className="px-6 py-4 font-semibold text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y dark:divide-gray-700">
+                                {filteredVehicles?.map((vehicle) => (
+                                    <tr key={vehicle.id} className="hover:bg-gray-50/80 dark:hover:bg-gray-700/30 transition-colors">
+                                        <td className="px-6 py-4 font-bold text-blue-600 dark:text-blue-400">{vehicle.plate}</td>
+                                        <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
+                                            <div className="font-semibold">{vehicle.model}</div>
+                                            <div className="text-xs text-gray-500">{vehicle.brand} {vehicle.year}</div>
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
+                                            <div className="inline-flex p-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-500">
+                                                {(() => {
+                                                    const Icon = (typeIconMap as any)[vehicle.type] || Car;
+                                                    return <Icon size={18} />;
+                                                })()}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${(statusMap as any)[vehicle.status].color}`}>
+                                                {(statusMap as any)[vehicle.status].label}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 font-medium">{vehicle.currentKm.toLocaleString()} km</td>
+                                        <td className="px-6 py-4 text-right space-x-2">
+                                            <button
+                                                onClick={() => handleEdit(vehicle)}
+                                                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all"
+                                            >
+                                                <Edit size={18} />
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(vehicle.id)}
+                                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                                            >
+                                                <Trash size={18} />
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {filteredVehicles?.map((vehicle) => (
+                        <div key={vehicle.id} className="glass-card p-5 rounded-2xl border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:-translate-y-1 transition-all group overflow-hidden relative">
+                            <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                                <button onClick={() => handleEdit(vehicle)} className="p-2 bg-white dark:bg-gray-800 shadow-lg rounded-full text-blue-600 hover:scale-110 active:scale-95 transition-all">
+                                    <Edit size={16} />
+                                </button>
+                                <button onClick={() => handleDelete(vehicle.id)} className="p-2 bg-white dark:bg-gray-800 shadow-lg rounded-full text-red-600 hover:scale-110 active:scale-95 transition-all">
+                                    <Trash size={16} />
+                                </button>
+                            </div>
+
+                            <div className="flex items-start gap-4 mb-4">
+                                <div className="p-3 rounded-2xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 ring-4 ring-blue-50/50 dark:ring-blue-900/10">
+                                    {(() => {
+                                        const Icon = (typeIconMap as any)[vehicle.type] || Car;
+                                        return <Icon size={28} />;
+                                    })()}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="text-xl font-bold text-gray-900 dark:text-white truncate">{vehicle.model}</div>
+                                    <div className="text-sm text-gray-500 font-medium truncate">{vehicle.brand}</div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-center text-sm p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+                                    <span className="text-gray-500">Placa</span>
+                                    <span className="font-bold text-blue-600 dark:text-blue-400">{vehicle.plate}</span>
+                                </div>
+
+                                <div className="flex justify-between items-center text-sm">
+                                    <span className="text-gray-500">Quilometragem</span>
+                                    <span className="font-semibold text-gray-900 dark:text-gray-100">{vehicle.currentKm.toLocaleString()} km</span>
+                                </div>
+
+                                <div className="flex justify-between items-center pt-2">
+                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${(statusMap as any)[vehicle.status].color}`}>
+                                        {(statusMap as any)[vehicle.status].label}
                                     </span>
-                                </td>
-                                <td className="px-6 py-4">{vehicle.currentKm} km</td>
-                                <td className="px-6 py-4 text-right space-x-2">
-                                    <button className="text-gray-500 hover:text-blue-600"><Edit size={18} /></button>
-                                </td>
-                            </tr>
-                        ))}
-                        {filteredVehicles?.length === 0 && (
-                            <tr>
-                                <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                                    No vehicles found.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                                    <div className="text-[10px] text-gray-400 font-bold uppercase">Cod: {vehicle.id.split('-')[0]}</div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {filteredVehicles?.length === 0 && (
+                <div className="text-center py-20 bg-white dark:bg-gray-800/50 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+                    <div className="mx-auto w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-400 mb-4">
+                        <Search size={32} />
+                    </div>
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Nenhum veículo encontrado</h3>
+                    <p className="text-gray-500">Tente ajustar sua busca ou adicione um novo veículo.</p>
+                </div>
+            )}
+            <VehicleModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSave={handleSave}
+                vehicle={selectedVehicle}
+            />
         </div>
     );
 }

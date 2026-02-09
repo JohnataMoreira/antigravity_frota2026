@@ -66,16 +66,16 @@ function Dashboard() {
                     trend={{ value: 5, isPositive: true }}
                 />
                 <StatCard
-                    label="Total de Funcionários"
+                    label="Total de Equipe"
                     value={stats?.totalDrivers || 0}
                     icon={<Users className="w-10 h-10" />}
-                    gradient={false}
+                    gradient={true}
                 />
                 <StatCard
-                    label="Localizações Ativas"
+                    label="Rastreamento"
                     value={stats?.activeJourneys || 0}
                     icon={<MapPin className="w-10 h-10" />}
-                    gradient={false}
+                    gradient={true}
                 />
             </div>
 

@@ -21,6 +21,17 @@ export class UsersService {
                 role: dto.role,
                 licenseNumber: dto.licenseNumber,
                 organizationId: adminOrgId,
+                phone: dto.phone,
+                cpf: dto.cpf,
+                birthDate: dto.birthDate ? new Date(dto.birthDate) : undefined,
+                entryDate: dto.entryDate ? new Date(dto.entryDate) : undefined,
+                addressStreet: dto.addressStreet,
+                addressNumber: dto.addressNumber,
+                addressComplement: dto.addressComplement,
+                addressNeighborhood: dto.addressNeighborhood,
+                addressCity: dto.addressCity,
+                addressState: dto.addressState,
+                addressZipCode: dto.addressZipCode,
             },
             select: {
                 id: true,
@@ -35,15 +46,30 @@ export class UsersService {
         return user;
     }
 
-    async findAll(organizationId: string) {
+    async findAll(organizationId: string, search?: string) {
+        const where: any = { organizationId };
+
+        if (search) {
+            where.OR = [
+                { name: { contains: search, mode: 'insensitive' } },
+                { email: { contains: search, mode: 'insensitive' } },
+                { cpf: { contains: search, mode: 'insensitive' } },
+            ];
+        }
+
         return this.prisma.user.findMany({
-            where: { organizationId },
+            where,
             select: {
                 id: true,
                 name: true,
                 email: true,
                 role: true,
                 licenseNumber: true,
+                phone: true,
+                cpf: true,
+                birthDate: true,
+                entryDate: true,
+                active: true,
                 createdAt: true,
             },
             orderBy: { createdAt: 'desc' },

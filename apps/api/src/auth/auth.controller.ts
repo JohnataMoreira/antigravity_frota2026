@@ -1,7 +1,8 @@
-import { Body, Controller, Post, HttpCode, HttpStatus } from '@nestjs/common';
+import { Body, Controller, Post, Get, Request, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterOrgDto } from './dto';
 import { Public } from './public.decorator';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -20,5 +21,11 @@ export class AuthController {
     @HttpCode(HttpStatus.CREATED)
     registerOrg(@Body() dto: RegisterOrgDto) {
         return this.authService.registerOrg(dto);
+    }
+
+    @Get('me')
+    @UseGuards(JwtAuthGuard)
+    getProfile(@Request() req: any) {
+        return this.authService.getProfile(req.user.sub);
     }
 }

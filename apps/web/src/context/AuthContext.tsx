@@ -24,32 +24,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        // In a real app, we would validate token validity with /auth/me
-        // For MVP, we decode simple payload or trust storage until 401
-        // Let's assume user info is not stored in localstorage securely, 
-        // but for now we just check presence of token.
-        // Ideally we should fetch user profile on load.
+        const validateSession = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setIsLoading(false);
+                return;
+            }
 
-        if (token) {
-            // Mock restoration or fetch from API
-            // api.get('/auth/profile').then(...)
-            // For MVP speed:
-            setIsLoading(false);
-        } else {
-            setIsLoading(false);
-        }
+            try {
+                // Set default header for the initial validation
+                api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                const res = await api.get('/auth/me');
+                setUser(res.data);
+                localStorage.setItem('user', JSON.stringify(res.data));
+            } catch (error) {
+                console.error('Invalid session:', error);
+                logout();
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        validateSession();
     }, []);
 
     const login = (token: string, userData: User) => {
-        console.log('AuthContext: login chamado', userData);
         localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     };
 
     const logout = () => {
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
         setUser(null);
         delete api.defaults.headers.common['Authorization'];
     };

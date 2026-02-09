@@ -1,16 +1,17 @@
 import { io, Socket } from 'socket.io-client';
-
-const API_URL = 'http://localhost:3000/locations'; // Change IP to host
+import { API_URL } from './api';
 
 class LocationService {
     private socket: Socket | null = null;
     private interval: ReturnType<typeof setInterval> | null = null;
 
-    connect(organizationId: string) {
+    connect(organizationId: string, token: string) {
         if (this.socket) return;
 
-        this.socket = io(API_URL, {
-            // auth: { token }
+        // [12/10 STRATEGY] Use namespaced socket with auth
+        this.socket = io(`${API_URL}/locations`, {
+            auth: { token },
+            transports: ['websocket']
         });
 
         this.socket.on('connect', () => {
@@ -19,8 +20,8 @@ class LocationService {
         });
     }
 
-    startEmitting(vehicleId: string, organizationId: string) {
-        if (!this.socket) this.connect(organizationId);
+    startEmitting(vehicleId: string, organizationId: string, token: string) {
+        if (!this.socket) this.connect(organizationId, token);
 
         if (this.interval) clearInterval(this.interval);
 

@@ -20,25 +20,35 @@ export class LocationsGateway implements OnGatewayConnection, OnGatewayDisconnec
     server!: Server;
 
     handleConnection(client: Socket) {
-        // console.log(`Client connected: ${client.id}`);
-        // In real app, verify token in handshake auth
-        // const token = client.handshake.auth.token;
+        const token = client.handshake.auth.token;
+        if (!token) {
+            console.log(`Connection rejected: No token for client ${client.id}`);
+            // client.disconnect(); // Enable after testing
+        }
     }
 
     handleDisconnect(client: Socket) {
-        // console.log(`Client disconnected: ${client.id}`);
+        // Cleanup if needed
     }
 
     @SubscribeMessage('join_organization')
     handleJoinOrganization(client: Socket, organizationId: string) {
+        if (!organizationId) return;
+
+        // Leave previous rooms to avoid multiplexing
+        client.rooms.forEach(room => {
+            if (room.startsWith('org_')) client.leave(room);
+        });
+
         client.join(`org_${organizationId}`);
-        // console.log(`Client ${client.id} joined org_${organizationId}`);
+        console.log(`Client ${client.id} joined room: org_${organizationId}`);
     }
 
     @SubscribeMessage('update_location')
     handleLocationUpdate(client: Socket, payload: { vehicleId: string; lat: number; lng: number; organizationId: string }) {
-        // Save to DB? Redis? For now, just relay.
-        // console.log('Location update', payload);
+        if (!payload.organizationId) return;
+
+        // Broadcast ONLY to the specific organization room
         this.server.to(`org_${payload.organizationId}`).emit('vehicle_location_updated', payload);
     }
 }

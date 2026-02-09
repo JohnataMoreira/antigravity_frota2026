@@ -75,6 +75,20 @@ model User {
   name           String
   firstName      String?
   lastName       String?
+  phone          String?
+  cpf            String?      @unique
+  birthDate      DateTime?
+  entryDate      DateTime?
+  
+  // Address fields
+  addressStreet       String?
+  addressNumber       String?
+  addressComplement   String?
+  addressNeighborhood String?
+  addressCity         String?
+  addressState        String?
+  addressZipCode      String?
+
   licenseNumber  String?
   active         Boolean      @default(true)
   createdAt      DateTime     @default(now())

@@ -20,8 +20,12 @@ export class MaintenanceController {
         return this.maintenanceService.findAll(req.user.organizationId);
     }
 
-    @Get('vehicle/:id')
-    findByVehicle(@Param('id') id: string) {
-        return this.maintenanceService.findByVehicle(id);
+    @Post(':id/complete')
+    complete(
+        @Param('id') id: string,
+        @Request() req: any,
+        @Body() data: { cost: number; notes?: string; lastKm: number }
+    ) {
+        return this.maintenanceService.complete(id, req.user.organizationId, data);
     }
 }

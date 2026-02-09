@@ -8,7 +8,8 @@ import {
     Delete,
     UseGuards,
     HttpCode,
-    HttpStatus
+    HttpStatus,
+    Query
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './dto';
@@ -16,6 +17,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { GetUser } from '../auth/get-user.decorator';
+import { Role } from '@prisma/client';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -23,7 +25,7 @@ export class UsersController {
     constructor(private readonly usersService: UsersService) { }
 
     @Post()
-    @Roles('ADMIN')
+    @Roles(Role.ADMIN)
     @HttpCode(HttpStatus.CREATED)
     create(
         @Body() createUserDto: CreateUserDto,
@@ -33,8 +35,11 @@ export class UsersController {
     }
 
     @Get()
-    findAll(@GetUser('orgId') orgId: string) {
-        return this.usersService.findAll(orgId);
+    findAll(
+        @GetUser('orgId') orgId: string,
+        @Query('search') search?: string,
+    ) {
+        return this.usersService.findAll(orgId, search);
     }
 
     @Get(':id')
@@ -43,7 +48,7 @@ export class UsersController {
     }
 
     @Patch(':id')
-    @Roles('ADMIN')
+    @Roles(Role.ADMIN)
     update(
         @Param('id') id: string,
         @Body() updateUserDto: UpdateUserDto,
@@ -53,7 +58,7 @@ export class UsersController {
     }
 
     @Delete(':id')
-    @Roles('ADMIN')
+    @Roles(Role.ADMIN)
     @HttpCode(HttpStatus.NO_CONTENT)
     remove(@Param('id') id: string, @GetUser('orgId') orgId: string) {
         return this.usersService.remove(id, orgId);
