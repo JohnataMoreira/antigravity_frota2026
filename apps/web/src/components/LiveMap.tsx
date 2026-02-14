@@ -6,13 +6,20 @@ import { useAuth } from '../context/AuthContext';
 import L from 'leaflet';
 import { Clock } from 'lucide-react';
 
+// Safe Leaflet Access
+const getLeaflet = () => {
+    if (typeof window === 'undefined') return null;
+    return (window as any).L || L;
+};
+
 // Fix Leaflet icons - only on client
-const fixLeafletIcons = (L_instance: any) => {
-    if (typeof window !== 'undefined' && L_instance && L_instance.Icon && L_instance.Icon.Default) {
+const fixLeafletIcons = () => {
+    const leaflet = getLeaflet();
+    if (leaflet && leaflet.Icon && leaflet.Icon.Default) {
         try {
-            if (L_instance.Icon.Default.prototype) {
-                delete (L_instance.Icon.Default.prototype as any)._getIconUrl;
-                L_instance.Icon.Default.mergeOptions({
+            if (leaflet.Icon.Default.prototype) {
+                delete (leaflet.Icon.Default.prototype as any)._getIconUrl;
+                leaflet.Icon.Default.mergeOptions({
                     iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
                     iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
                     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
@@ -27,27 +34,18 @@ const fixLeafletIcons = (L_instance: any) => {
 // Custom Car Icon Factory
 const createCarIcon = (status: 'MOVING' | 'STOPPED' | 'OFFLINE', plate: string) => {
     const color = status === 'MOVING' ? '#10b981' : status === 'STOPPED' ? '#ef4444' : '#6b7280';
+    const leaflet = getLeaflet();
 
-    if (typeof window === 'undefined') return undefined;
+    if (!leaflet) return undefined;
 
     try {
-        // CRITICAL FIX: Ensure Leaflet is fully loaded and divIcon is available
-        const leaflet = (window as any).L || L;
-
-        if (!leaflet || typeof leaflet !== 'object') {
-            console.warn('Leaflet not loaded');
-            return undefined;
-        }
-
         // Validate divIcon function exists
-        const divIconFn = leaflet.divIcon;
-
-        if (typeof divIconFn !== 'function') {
-            console.warn('Leaflet divIcon not available, using default marker');
+        if (typeof leaflet.divIcon !== 'function') {
+            console.warn('Leaflet divIcon not available');
             return undefined;
         }
 
-        return divIconFn({
+        return leaflet.divIcon({
             className: 'custom-car-marker',
             html: `
                 <div class="relative group">
@@ -89,7 +87,7 @@ function AutoCenter({ vehicles }: { vehicles: VehicleLocation[] }) {
         if (typeof window === 'undefined' || vehicles.length === 0 || !map) return;
 
         try {
-            const leaflet = (window as any).L || L;
+            const leaflet = getLeaflet();
             if (!leaflet || !leaflet.latLngBounds) return;
 
             const points = vehicles.map(v => [v.lat, v.lng] as L.LatLngExpression);
@@ -114,9 +112,7 @@ export function LiveMap() {
         setIsMounted(true);
 
         const timer = setTimeout(() => {
-            if (typeof window !== 'undefined') {
-                fixLeafletIcons((window as any).L || L);
-            }
+            fixLeafletIcons();
         }, 100);
 
         if (!user?.organizationId) return () => clearTimeout(timer);

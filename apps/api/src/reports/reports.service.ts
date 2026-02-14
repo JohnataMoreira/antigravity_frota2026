@@ -49,6 +49,13 @@ export class ReportsService {
                 },
                 _sum: { cost: true }
             }),
+            this.prisma.fuelEntry.aggregate({
+                where: {
+                    organizationId,
+                    date: { gte: new Date(now.getFullYear(), now.getMonth(), 1) }
+                },
+                _sum: { totalCost: true }
+            }),
             this.prisma.journey.findMany({
                 where: { organizationId, status: 'COMPLETED' },
                 select: { startKm: true, endKm: true }
@@ -106,7 +113,7 @@ export class ReportsService {
                 journeysWithIncidents: journeysWithIncidentsCount,
                 journeysWithoutIncidents: activeJourneys - journeysWithIncidentsCount,
                 totalDrivers,
-                monthlyCosts: maintenanceCosts._sum?.cost || 0,
+                monthlyCosts: (maintenanceCosts._sum?.cost || 0) + ((arguments[0][8] as any)?._sum?.totalCost || 0),
                 totalKm,
                 issuesReported: checklistsWithIssues,
                 breakdown: {
@@ -134,6 +141,10 @@ export class ReportsService {
                     where: { organizationId, status: 'COMPLETED', performedAt: { gte: d, lt: nextD } },
                     _sum: { cost: true }
                 }),
+                this.prisma.fuelEntry.aggregate({
+                    where: { organizationId, date: { gte: d, lt: nextD } },
+                    _sum: { totalCost: true }
+                }),
                 this.prisma.journey.findMany({
                     where: { organizationId, status: 'COMPLETED', endTime: { gte: d, lt: nextD } },
                     select: { startKm: true, endKm: true }
@@ -144,7 +155,7 @@ export class ReportsService {
 
             results.push({
                 name: months[d.getMonth()],
-                costs: costAgg._sum?.cost || 0,
+                costs: (costAgg._sum?.cost || 0) + ((arguments[0][1] as any)?._sum?.totalCost || 0),
                 km: monthlyKm
             });
         }
