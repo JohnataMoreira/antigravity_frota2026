@@ -139,15 +139,12 @@
   }
 
 
+  /* Gradient Utilities with better contrast */
   .gradient-text {
-    background: linear-gradient(135deg, hsl(221.2 83.2% 53.3%) 0%, hsl(270 85% 60%) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    display: inline-block;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600;
   }
 
   .dark .gradient-text {
-    background: linear-gradient(135deg, hsl(217.2 91.2% 65%) 0%, hsl(270 85% 70%) 100%);
+    @apply from-blue-400 to-indigo-400;
   }
 }

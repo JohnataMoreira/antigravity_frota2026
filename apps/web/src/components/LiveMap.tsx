@@ -31,14 +31,19 @@ const createCarIcon = (status: 'MOVING' | 'STOPPED' | 'OFFLINE', plate: string) 
     if (typeof window === 'undefined') return undefined;
 
     try {
-        // Try all possible ways to get Leaflet
+        // CRITICAL FIX: Ensure Leaflet is fully loaded and divIcon is available
         const leaflet = (window as any).L || L;
 
-        // n is not a function error often happens when divIcon is missing or improperly bound
-        const divIconFn = leaflet?.divIcon || (L as any)?.divIcon;
+        if (!leaflet || typeof leaflet !== 'object') {
+            console.warn('Leaflet not loaded');
+            return undefined;
+        }
+
+        // Validate divIcon function exists
+        const divIconFn = leaflet.divIcon;
 
         if (typeof divIconFn !== 'function') {
-            console.warn('Leaflet divIcon not found, using default marker');
+            console.warn('Leaflet divIcon not available, using default marker');
             return undefined;
         }
 
@@ -61,7 +66,7 @@ const createCarIcon = (status: 'MOVING' | 'STOPPED' | 'OFFLINE', plate: string) 
             popupAnchor: [0, -20]
         });
     } catch (e) {
-        console.error('Error creating car icon', e);
+        console.error('Error creating car icon:', e);
         return undefined;
     }
 };

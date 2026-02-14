@@ -563,10 +563,16 @@ export function MaintenanceList() {
                             const type = (form.elements.namedItem('type') as HTMLSelectElement).value;
                             const avgDays = Number((form.elements.namedItem('avgDays') as HTMLInputElement).value);
 
-                            // Mocking vehicleTypes for now or adding checkboxes
-                            const vehicleTypes = ['CAR', 'TRUCK', 'MOTORCYCLE', 'MACHINE'];
+                            // Get selected vehicle types
+                            const selectedTypes = Array.from(form.querySelectorAll('input[name="vehicleTypes"]:checked'))
+                                .map((cb: any) => cb.value);
 
-                            templateMutation.mutate({ name, type, averageDurationDays: avgDays, vehicleTypes });
+                            if (selectedTypes.length === 0) {
+                                alert('Selecione pelo menos um tipo de veículo');
+                                return;
+                            }
+
+                            templateMutation.mutate({ name, type, averageDurationDays: avgDays, vehicleTypes: selectedTypes });
                         }} className="space-y-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-bold ml-1">Nome do Serviço</label>
@@ -578,9 +584,31 @@ export function MaintenanceList() {
                                 />
                             </div>
 
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold ml-1">Tipos de Veículo</label>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {[
+                                        { label: 'Carro', value: 'CAR' },
+                                        { label: 'Caminhão', value: 'TRUCK' },
+                                        { label: 'Moto', value: 'MOTORCYCLE' },
+                                        { label: 'Máquina', value: 'MACHINE' }
+                                    ].map((type) => (
+                                        <label key={type.value} className="flex items-center gap-2 p-2 border rounded-lg hover:bg-muted/50 cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                name="vehicleTypes"
+                                                value={type.value}
+                                                className="w-4 h-4 text-blue-600 rounded bg-gray-100 border-gray-300 focus:ring-blue-500"
+                                            />
+                                            <span className="text-sm font-medium">{type.label}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold ml-1">Tipo</label>
+                                    <label className="text-sm font-bold ml-1">Tipo de Manutenção</label>
                                     <select
                                         name="type"
                                         className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
@@ -590,7 +618,7 @@ export function MaintenanceList() {
                                     </select>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold ml-1">Duração Média (Dias)</label>
+                                    <label className="text-sm font-bold ml-1">Duração (Dias)</label>
                                     <input
                                         name="avgDays"
                                         type="number"
