@@ -20,8 +20,9 @@ class LocationService {
         });
     }
 
-    startEmitting(vehicleId: string, organizationId: string, token: string) {
-        if (!this.socket) this.connect(organizationId, token);
+    startEmitting(vehicleId: string, journeyId: string) {
+        // Connect will be handled separately with auth context
+        // For now we'll skip socket connection until we have proper token management
 
         if (this.interval) clearInterval(this.interval);
 
@@ -36,7 +37,7 @@ class LocationService {
 
             this.socket?.emit('update_location', {
                 vehicleId,
-                organizationId,
+                journeyId,
                 lat,
                 lng
             });
