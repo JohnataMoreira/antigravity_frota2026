@@ -224,6 +224,29 @@ async function main() {
             });
         }
 
+        // Simular incidentes em ~15% das jornadas
+        if (Math.random() < 0.15) {
+            await prisma.incident.create({
+                data: {
+                    organizationId: org.id,
+                    driverId: driver.id,
+                    vehicleId: vehicle.id,
+                    journeyId: journey.id,
+                    description: getRandomItem([
+                        'Pneu furado na rodovia BR-381',
+                        'Superaquecimento do motor',
+                        'Farol dianteiro queimado',
+                        'Problema no sistema de freios',
+                        'Vazamento de óleo identificado',
+                        'Colisão leve em manobra'
+                    ]),
+                    severity: getRandomItem(['LOW', 'MEDIUM', 'HIGH']),
+                    status: 'OPEN',
+                    createdAt: journey.startTime,
+                }
+            });
+        }
+
         if (i % 40 === 0) console.log(`   > ${i} jornadas processadas...`);
     }
 

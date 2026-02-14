@@ -59,7 +59,8 @@
     --secondary-foreground: 210 40% 98%;
 
     --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted-foreground: 215 20.2% 75%;
+    /* Increased from 65.1% for better contrast */
 
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
@@ -72,46 +73,6 @@
     --ring: 224.3 76.3% 48%;
   }
 
-  /* Paraopeba Theme - Vibrant Purple/Violet (Premium) */
-  [data-theme="paraopeba"] {
-    /* Deep purple base with high contrast */
-    --background: 250 20% 10%;
-    --foreground: 250 5% 98%;
-
-    --card: 250 25% 14%;
-    --card-foreground: 250 5% 98%;
-
-    --popover: 250 25% 12%;
-    --popover-foreground: 250 5% 98%;
-
-    /* Vibrant Purple Primary - High saturation */
-    --primary: 270 85% 60%;
-    --primary-foreground: 0 0% 100%;
-
-    /* Electric Violet Secondary */
-    --secondary: 280 95% 65%;
-    --secondary-foreground: 0 0% 100%;
-
-    --muted: 250 20% 20%;
-    --muted-foreground: 250 10% 70%;
-
-    /* Neon accent for CTAs */
-    --accent: 290 100% 70%;
-    --accent-foreground: 250 20% 10%;
-
-    --destructive: 0 85% 60%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 250 20% 24%;
-    --input: 250 20% 18%;
-    --ring: 270 85% 60%;
-
-    --radius: 0.75rem;
-
-    /* Custom gradient variables */
-    --gradient-primary: linear-gradient(135deg, hsl(270 85% 60%) 0%, hsl(290 95% 65%) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(250 25% 14%) 0%, hsl(250 25% 16%) 100%);
-  }
 }
 
 @layer base {
@@ -125,6 +86,15 @@
   }
 
   /* Fluid Typography - Elite Standard */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-foreground;
+  }
+
   h1 {
     font-size: clamp(2rem, 5vw, 3.5rem);
     font-weight: 700;
@@ -168,19 +138,16 @@
     @apply glass-dark shadow-2xl;
   }
 
-  /* Gradient backgrounds for purple theme */
-  [data-theme="paraopeba"] .gradient-primary {
-    background: linear-gradient(135deg, hsl(270 85% 60%) 0%, hsl(290 95% 65%) 100%);
-  }
 
-  [data-theme="paraopeba"] .gradient-card {
-    background: linear-gradient(135deg, hsl(250 25% 14%) 0%, hsl(250 25% 16%) 100%);
-  }
-
-  [data-theme="paraopeba"] .gradient-text {
-    background: linear-gradient(135deg, hsl(270 85% 70%) 0%, hsl(290 95% 75%) 100%);
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(221.2 83.2% 53.3%) 0%, hsl(270 85% 60%) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    display: inline-block;
+  }
+
+  .dark .gradient-text {
+    background: linear-gradient(135deg, hsl(217.2 91.2% 65%) 0%, hsl(270 85% 70%) 100%);
   }
 }

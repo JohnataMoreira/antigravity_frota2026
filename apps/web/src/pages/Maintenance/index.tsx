@@ -8,9 +8,11 @@ import { formatCurrency, formatKm } from '../../lib/utils';
 export function MaintenanceList() {
     const queryClient = useQueryClient();
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+    const [activeTab, setActiveTab] = useState<'maintenances' | 'catalog'>('maintenances');
 
     // Modal states
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
     const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
     const [selectedMaintenance, setSelectedMaintenance] = useState<any>(null);
 
@@ -58,6 +60,14 @@ export function MaintenanceList() {
         }
     });
 
+    const { data: templates = [] } = useQuery({
+        queryKey: ['maintenance-templates'],
+        queryFn: async () => {
+            const res = await api.get('/maintenance-templates');
+            return res.data;
+        }
+    });
+
     const createMutation = useMutation({
         mutationFn: (data: any) => api.post('/maintenance', data),
         onSuccess: () => {
@@ -76,6 +86,14 @@ export function MaintenanceList() {
             setIsCompleteModalOpen(false);
             setSelectedMaintenance(null);
             setCompleteData({ cost: 0, lastKm: 0, notes: '' });
+        }
+    });
+
+    const templateMutation = useMutation({
+        mutationFn: (data: any) => api.post('/maintenance-templates', data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['maintenance-templates'] });
+            setIsTemplateModalOpen(false);
         }
     });
 
@@ -120,175 +138,256 @@ export function MaintenanceList() {
                 <StatCard label="Investimento (Total)" value={formatCurrency(stats.totalCost)} icon={<DollarSign className="w-8 h-8" />} variant="info" />
             </div>
 
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white dark:bg-gray-800/20 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
-                <div className="flex flex-col md:flex-row gap-4 items-center flex-1 w-full max-w-2xl">
-                    <div className="flex items-center gap-3 bg-white dark:bg-gray-800/50 p-2 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex-1 w-full focus-within:ring-2 focus-within:ring-blue-500/50 transition-all">
-                        <Search size={22} className="text-gray-400 ml-2" />
-                        <input
-                            placeholder="Buscar por veículo ou serviço..."
-                            className="bg-transparent outline-none flex-1 py-2 font-medium"
-                        />
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => setIsCreateModalOpen(true)}
-                        className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg shadow-blue-500/20 transition-all group"
-                    >
-                        <Plus size={20} className="group-hover:rotate-90 transition-transform" />
-                        Novo Alerta
-                    </button>
-
-                    <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl border dark:border-gray-700 shadow-sm">
-                        <button
-                            onClick={() => setViewMode('grid')}
-                            className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600' : 'text-gray-400'}`}
-                        >
-                            <LayoutGrid size={20} />
-                        </button>
-                        <button
-                            onClick={() => setViewMode('list')}
-                            className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600' : 'text-gray-400'}`}
-                        >
-                            <ListIcon size={20} />
-                        </button>
-                    </div>
-                </div>
+            <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-2xl w-fit border dark:border-gray-700 shadow-inner">
+                <button
+                    onClick={() => setActiveTab('maintenances')}
+                    className={`px-6 py-2 rounded-xl font-bold transition-all ${activeTab === 'maintenances' ? 'bg-white dark:bg-gray-700 shadow-md text-blue-600' : 'text-gray-500'}`}
+                >
+                    Gestão de Alertas
+                </button>
+                <button
+                    onClick={() => setActiveTab('catalog')}
+                    className={`px-6 py-2 rounded-xl font-bold transition-all ${activeTab === 'catalog' ? 'bg-white dark:bg-gray-700 shadow-md text-blue-600' : 'text-gray-500'}`}
+                >
+                    Catálogo de Serviços
+                </button>
             </div>
 
-            {vehiclesInWorkshop.length > 0 && (
-                <div className="space-y-4">
-                    <h2 className="text-xl font-bold flex items-center gap-2 text-primary">
-                        <LayoutGrid className="w-6 h-6" /> Veículos na Oficina
-                    </h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {vehiclesInWorkshop.map((v: any) => (
-                            <GlassCard key={v.id} className="relative overflow-hidden group border-t-4 border-red-500">
-                                <div className="flex items-center gap-3 mb-3">
-                                    <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 animate-pulse">
+            {activeTab === 'maintenances' ? (
+                <>
+                    <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white dark:bg-gray-800/20 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                        <div className="flex flex-col md:flex-row gap-4 items-center flex-1 w-full max-w-2xl">
+                            <div className="flex items-center gap-3 bg-white dark:bg-gray-800/50 p-2 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex-1 w-full focus-within:ring-2 focus-within:ring-blue-500/50 transition-all">
+                                <Search size={22} className="text-gray-400 ml-2" />
+                                <input
+                                    placeholder="Buscar por veículo ou serviço..."
+                                    className="bg-transparent outline-none flex-1 py-2 font-medium"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => setIsCreateModalOpen(true)}
+                                className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg shadow-blue-500/20 transition-all group"
+                            >
+                                <Plus size={20} className="group-hover:rotate-90 transition-transform" />
+                                Novo Alerta
+                            </button>
+
+                            <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl border dark:border-gray-700 shadow-sm">
+                                <button
+                                    onClick={() => setViewMode('grid')}
+                                    className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600' : 'text-gray-400'}`}
+                                >
+                                    <LayoutGrid size={20} />
+                                </button>
+                                <button
+                                    onClick={() => setViewMode('list')}
+                                    className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600' : 'text-gray-400'}`}
+                                >
+                                    <ListIcon size={20} />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {vehiclesInWorkshop.length > 0 && (
+                        <div className="space-y-4">
+                            <h2 className="text-xl font-bold flex items-center gap-2 text-primary">
+                                <LayoutGrid className="w-6 h-6" /> Veículos na Oficina
+                            </h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                {vehiclesInWorkshop.map((v: any) => (
+                                    <GlassCard key={v.id} className="relative overflow-hidden group border-t-4 border-red-500">
+                                        <div className="flex items-center gap-3 mb-3">
+                                            <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 animate-pulse">
+                                                <Wrench size={20} />
+                                            </div>
+                                            <div>
+                                                <div className="font-black text-lg text-blue-600 dark:text-blue-400">{v.plate}</div>
+                                                <div className="text-[10px] font-bold text-muted-foreground uppercase">{v.model}</div>
+                                            </div>
+                                        </div>
+                                        <div className="text-xs font-bold text-red-500 flex items-center gap-1 uppercase tracking-tighter">
+                                            <Clock size={12} /> Em Manutenção Crítica
+                                        </div>
+                                    </GlassCard>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {pending.length > 0 && (
+                        <div className="space-y-4">
+                            <h2 className="text-xl font-bold flex items-center gap-2 text-red-500">
+                                <AlertTriangle className="w-6 h-6" /> Alertas Críticos
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {pending.map((maintenance: any) => (
+                                    <GlassCard key={maintenance.id} className="border-l-4 border-red-500/50 hover:border-red-500 transition-all flex flex-col">
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div className="bg-red-50 dark:bg-red-900/20 p-2.5 rounded-xl text-red-600">
+                                                <Wrench size={24} />
+                                            </div>
+                                            <span className="text-[10px] font-black uppercase tracking-widest bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-3 py-1 rounded-full">{maintenanceTypeMap[maintenance.type] || maintenance.type}</span>
+                                        </div>
+                                        <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2">{maintenance.vehicle?.plate}</h3>
+                                        <div className="space-y-2 mb-4 flex-grow">
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-muted-foreground font-medium">KM Atual:</span>
+                                                <span className="font-bold">{formatKm(maintenance.vehicle?.currentKm)}</span>
+                                            </div>
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-muted-foreground font-medium">Próxima em:</span>
+                                                <span className="font-bold text-red-600">{formatKm(maintenance.nextDueKm)}</span>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            onClick={() => {
+                                                setSelectedMaintenance(maintenance);
+                                                setCompleteData(prev => ({ ...prev, lastKm: maintenance.vehicle?.currentKm || 0 }));
+                                                setIsCompleteModalOpen(true);
+                                            }}
+                                            className="w-full mt-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-red-200 dark:shadow-none"
+                                        >
+                                            <CheckCircle2 size={18} />
+                                            Concluir Serviço
+                                        </button>
+                                    </GlassCard>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="space-y-4">
+                        <h2 className="text-xl font-bold flex items-center gap-2 text-foreground">
+                            <CheckCircle2 className="w-6 h-6 text-green-500" /> Histórico de Serviços
+                        </h2>
+                        <GlassCard transition={true} className="!p-0 overflow-hidden">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left text-sm">
+                                    <thead className="bg-gray-50 dark:bg-gray-800/80 border-b dark:border-gray-700">
+                                        <tr>
+                                            <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400">Veículo</th>
+                                            <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400">Tipo</th>
+                                            <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400">Status</th>
+                                            <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400 text-right">Data / KM</th>
+                                            <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400 text-right">Ação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                                        {maintenances.map((maintenance: any) => (
+                                            <tr key={maintenance.id} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all">
+                                                <td className="px-6 py-5 font-bold text-blue-600 dark:text-blue-400">{maintenance.vehicle?.plate || '—'}</td>
+                                                <td className="px-6 py-5 font-medium">{maintenanceTypeMap[maintenance.type] || maintenance.type}</td>
+                                                <td className="px-6 py-5">
+                                                    <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${maintenance.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
+                                                        maintenance.status === 'COMPLETED' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                                                            'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                                                        }`}>
+                                                        {statusMap[maintenance.status] || maintenance.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-5 text-right font-medium text-muted-foreground">
+                                                    {maintenance.status === 'COMPLETED' ? (
+                                                        <div className="flex flex-col items-end">
+                                                            <span className="font-bold text-gray-900 dark:text-white">{formatCurrency(maintenance.cost)}</span>
+                                                            <span className="text-[10px]">{new Date(maintenance.performedAt).toLocaleDateString('pt-BR')}</span>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex flex-col items-end">
+                                                            <span className="font-bold text-orange-600">{formatKm(maintenance.nextDueKm)}</span>
+                                                            <span className="text-[10px]">PREVISTA</span>
+                                                        </div>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-5 text-right">
+                                                    {maintenance.status === 'PENDING' && (
+                                                        <button
+                                                            onClick={() => {
+                                                                setSelectedMaintenance(maintenance);
+                                                                setCompleteData(prev => ({ ...prev, lastKm: maintenance.vehicle?.currentKm || 0 }));
+                                                                setIsCompleteModalOpen(true);
+                                                            }}
+                                                            className="text-primary hover:underline font-bold"
+                                                        >
+                                                            Concluir
+                                                        </button>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </GlassCard>
+                    </div>
+                </>
+            ) : (
+                <div className="space-y-6">
+                    <div className="flex justify-between items-center">
+                        <h2 className="text-xl font-bold flex items-center gap-2">
+                            <ListIcon className="text-blue-500" /> Catálogo de Serviços
+                        </h2>
+                        <button
+                            onClick={() => setIsTemplateModalOpen(true)}
+                            className="flex items-center gap-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-lg shadow-blue-500/20 transition-all"
+                        >
+                            <Plus size={18} /> Cadastrar Novo Serviço
+                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {templates.map((template: any) => (
+                            <GlassCard key={template.id} className="border-t-4 border-blue-500">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg text-blue-600">
                                         <Wrench size={20} />
                                     </div>
-                                    <div>
-                                        <div className="font-black text-lg text-blue-600 dark:text-blue-400">{v.plate}</div>
-                                        <div className="text-[10px] font-bold text-muted-foreground uppercase">{v.model}</div>
+                                    <span className="text-[10px] font-black bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2 py-1 rounded uppercase">
+                                        {template.type === 'PREVENTIVE' ? 'Preventiva' : 'Corretiva'}
+                                    </span>
+                                </div>
+                                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{template.name}</h3>
+                                <div className="space-y-2 mb-4">
+                                    <div className="flex flex-wrap gap-1">
+                                        {template.vehicleTypes.map((vt: string) => (
+                                            <span key={vt} className="text-[9px] font-bold bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-gray-500">
+                                                {vt}
+                                            </span>
+                                        ))}
+                                    </div>
+                                    <div className="text-xs text-muted-foreground flex items-center gap-1 mt-3">
+                                        <Clock size={12} /> Duração Média: <strong>{template.averageDurationDays} dias</strong>
                                     </div>
                                 </div>
-                                <div className="text-xs font-bold text-red-500 flex items-center gap-1 uppercase tracking-tighter">
-                                    <Clock size={12} /> Em Manutenção Crítica
-                                </div>
-                            </GlassCard>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {pending.length > 0 && (
-                <div className="space-y-4">
-                    <h2 className="text-xl font-bold flex items-center gap-2 text-red-500">
-                        <AlertTriangle className="w-6 h-6" /> Alertas Críticos
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {pending.map((maintenance: any) => (
-                            <GlassCard key={maintenance.id} className="border-l-4 border-red-500/50 hover:border-red-500 transition-all flex flex-col">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="bg-red-50 dark:bg-red-900/20 p-2.5 rounded-xl text-red-600">
-                                        <Wrench size={24} />
-                                    </div>
-                                    <span className="text-[10px] font-black uppercase tracking-widest bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-3 py-1 rounded-full">{maintenanceTypeMap[maintenance.type] || maintenance.type}</span>
-                                </div>
-                                <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2">{maintenance.vehicle?.plate}</h3>
-                                <div className="space-y-2 mb-4 flex-grow">
-                                    <div className="flex justify-between text-sm">
-                                        <span className="text-muted-foreground font-medium">KM Atual:</span>
-                                        <span className="font-bold">{formatKm(maintenance.vehicle?.currentKm)}</span>
-                                    </div>
-                                    <div className="flex justify-between text-sm">
-                                        <span className="text-muted-foreground font-medium">Próxima em:</span>
-                                        <span className="font-bold text-red-600">{formatKm(maintenance.nextDueKm)}</span>
-                                    </div>
-                                </div>
-
                                 <button
                                     onClick={() => {
-                                        setSelectedMaintenance(maintenance);
-                                        setCompleteData(prev => ({ ...prev, lastKm: maintenance.vehicle?.currentKm || 0 }));
-                                        setIsCompleteModalOpen(true);
+                                        if (confirm('Deseja excluir este serviço do catálogo?')) {
+                                            api.delete(`/maintenance-templates/${template.id}`).then(() => {
+                                                queryClient.invalidateQueries({ queryKey: ['maintenance-templates'] });
+                                            });
+                                        }
                                     }}
-                                    className="w-full mt-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-red-200 dark:shadow-none"
+                                    className="text-[10px] font-bold text-red-500 hover:underline uppercase tracking-tighter"
                                 >
-                                    <CheckCircle2 size={18} />
-                                    Concluir Serviço
+                                    Excluir do Catálogo
                                 </button>
                             </GlassCard>
                         ))}
                     </div>
+
+                    {templates.length === 0 && (
+                        <div className="bg-gray-50 dark:bg-gray-800/20 border border-dashed rounded-3xl py-20 flex flex-col items-center justify-center text-center">
+                            <Wrench className="w-12 h-12 text-gray-300 mb-4" />
+                            <h3 className="text-xl font-bold text-gray-400">Nenhum serviço catalogado</h3>
+                            <p className="text-muted-foreground max-w-sm mt-2">Cadastre os tipos de manutenção frequentes para agilizar o agendamento da sua frota.</p>
+                        </div>
+                    )}
                 </div>
             )}
-
-            <div className="space-y-4">
-                <h2 className="text-xl font-bold flex items-center gap-2 text-foreground">
-                    <CheckCircle2 className="w-6 h-6 text-green-500" /> Histórico de Serviços
-                </h2>
-                <GlassCard transition={true} className="!p-0 overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm">
-                            <thead className="bg-gray-50 dark:bg-gray-800/80 border-b dark:border-gray-700">
-                                <tr>
-                                    <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400">Veículo</th>
-                                    <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400">Tipo</th>
-                                    <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400">Status</th>
-                                    <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400 text-right">Data / KM</th>
-                                    <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 dark:text-gray-400 text-right">Ação</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                                {maintenances.map((maintenance: any) => (
-                                    <tr key={maintenance.id} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all">
-                                        <td className="px-6 py-5 font-bold text-blue-600 dark:text-blue-400">{maintenance.vehicle?.plate || '—'}</td>
-                                        <td className="px-6 py-5 font-medium">{maintenanceTypeMap[maintenance.type] || maintenance.type}</td>
-                                        <td className="px-6 py-5">
-                                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${maintenance.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
-                                                maintenance.status === 'COMPLETED' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
-                                                    'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
-                                                }`}>
-                                                {statusMap[maintenance.status] || maintenance.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-5 text-right font-medium text-muted-foreground">
-                                            {maintenance.status === 'COMPLETED' ? (
-                                                <div className="flex flex-col items-end">
-                                                    <span className="font-bold text-gray-900 dark:text-white">{formatCurrency(maintenance.cost)}</span>
-                                                    <span className="text-[10px]">{new Date(maintenance.performedAt).toLocaleDateString('pt-BR')}</span>
-                                                </div>
-                                            ) : (
-                                                <div className="flex flex-col items-end">
-                                                    <span className="font-bold text-orange-600">{formatKm(maintenance.nextDueKm)}</span>
-                                                    <span className="text-[10px]">PREVISTA</span>
-                                                </div>
-                                            )}
-                                        </td>
-                                        <td className="px-6 py-5 text-right">
-                                            {maintenance.status === 'PENDING' && (
-                                                <button
-                                                    onClick={() => {
-                                                        setSelectedMaintenance(maintenance);
-                                                        setCompleteData(prev => ({ ...prev, lastKm: maintenance.vehicle?.currentKm || 0 }));
-                                                        setIsCompleteModalOpen(true);
-                                                    }}
-                                                    className="text-primary hover:underline font-bold"
-                                                >
-                                                    Concluir
-                                                </button>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </GlassCard>
-            </div>
 
             {/* Create Modal */}
             {isCreateModalOpen && (
@@ -440,6 +539,74 @@ export function MaintenanceList() {
                                 className="w-full py-4 bg-green-600 hover:bg-green-700 text-white rounded-2xl font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
                             >
                                 {completeMutation.isPending ? 'Finalizando...' : 'Confirmar Conclusão'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Template Modal */}
+            {isTemplateModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="w-full max-w-md bg-background rounded-3xl shadow-2xl border border-border p-6 animate-in zoom-in-95 duration-200">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-2xl font-bold">Novo Serviço no Catálogo</h2>
+                            <button onClick={() => setIsTemplateModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors">
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
+                            const form = e.target as HTMLFormElement;
+                            const name = (form.elements.namedItem('name') as HTMLInputElement).value;
+                            const type = (form.elements.namedItem('type') as HTMLSelectElement).value;
+                            const avgDays = Number((form.elements.namedItem('avgDays') as HTMLInputElement).value);
+
+                            // Mocking vehicleTypes for now or adding checkboxes
+                            const vehicleTypes = ['CAR', 'TRUCK', 'MOTORCYCLE', 'MACHINE'];
+
+                            templateMutation.mutate({ name, type, averageDurationDays: avgDays, vehicleTypes });
+                        }} className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold ml-1">Nome do Serviço</label>
+                                <input
+                                    name="name"
+                                    className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
+                                    placeholder="Ex: Troca de Óleo, Revisão de Freios..."
+                                    required
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold ml-1">Tipo</label>
+                                    <select
+                                        name="type"
+                                        className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
+                                    >
+                                        <option value="PREVENTIVE">Preventiva</option>
+                                        <option value="CORRECTIVE">Corretiva</option>
+                                    </select>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold ml-1">Duração Média (Dias)</label>
+                                    <input
+                                        name="avgDays"
+                                        type="number"
+                                        className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
+                                        defaultValue={1}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={templateMutation.isPending}
+                                className="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold text-lg hover:scale-[1.02] transition-all disabled:opacity-50"
+                            >
+                                {templateMutation.isPending ? 'Salvando...' : 'Cadastrar Serviço'}
                             </button>
                         </form>
                     </div>

@@ -99,7 +99,10 @@ export function UserModal({ isOpen, onClose, user }: UserModalProps) {
             return;
         }
 
-        mutation.mutate(formData);
+        const payload = { ...formData };
+        if (!payload.password) delete (payload as any).password;
+
+        mutation.mutate(payload);
     };
 
     if (!isOpen) return null;

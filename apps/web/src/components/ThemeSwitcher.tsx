@@ -15,15 +15,13 @@ export function ThemeSwitcher() {
     const themes = [
         { id: 'light' as const, label: 'Tema Claro', icon: Sun },
         { id: 'dark' as const, label: 'Tema Escuro', icon: Moon },
-        { id: 'paraopeba' as const, label: 'Tema Paraopeba', icon: Building2 },
     ];
 
     const currentThemeIndex = themes.findIndex(t => t.id === theme);
     const currentTheme = themes[currentThemeIndex];
 
     const cycleTheme = () => {
-        const nextIndex = (currentThemeIndex + 1) % themes.length;
-        setTheme(themes[nextIndex].id);
+        setTheme(theme === 'light' ? 'dark' : 'light');
     };
 
     const Icon = currentTheme.icon;

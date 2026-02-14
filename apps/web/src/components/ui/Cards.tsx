@@ -66,7 +66,7 @@ export function StatCard({ label, value, trend, icon, gradient = false, variant 
             gradient={gradient}
         >
             <div className="flex-1">
-                <p className="text-sm font-medium text-muted-foreground mb-2">
+                <p className="text-sm font-bold text-muted-foreground/90 dark:text-muted-foreground mb-2 uppercase tracking-wider">
                     {label}
                 </p>
                 <p className={`
@@ -87,9 +87,9 @@ export function StatCard({ label, value, trend, icon, gradient = false, variant 
             </div>
             {icon && (
                 <div className={`
-          text-muted-foreground/60 
+          text-foreground/40 
           transition-all duration-300 
-          group-hover:scale-110
+          group-hover:scale-110 group-hover:text-primary/60
           ${gradient ? 'text-primary/40' : ''}
         `}>
                     {icon}

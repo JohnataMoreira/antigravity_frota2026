@@ -25,4 +25,9 @@ export class MaintenanceController {
     create(@Request() req: any) { // Body would be a DTO
         return this.maintenanceService.create({ ...req.body, organizationId: req.user.organizationId });
     }
+
+    @Post(':id/complete')
+    complete(@Request() req: any) {
+        return this.maintenanceService.complete(req.params.id, req.body);
+    }
 }

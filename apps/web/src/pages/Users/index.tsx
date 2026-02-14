@@ -132,24 +132,24 @@ export function UsersList() {
 
                         <div className="space-y-4">
                             <div>
-                                <h3 className="text-xl font-bold truncate">{user.name}</h3>
-                                <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                                <h3 className="text-xl font-bold dark:text-white truncate">{user.name}</h3>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/90 dark:text-blue-400">
                                     {user.role === 'ADMIN' ? 'Gestor Administrativo' : 'Motorista Operacional'}
                                 </p>
                             </div>
 
-                            <div className="space-y-2 text-sm">
-                                <div className="flex items-center gap-2 text-muted-foreground">
-                                    <Mail size={14} />
+                            <div className="space-y-2 text-sm font-medium">
+                                <div className="flex items-center gap-2 text-muted-foreground/90 dark:text-gray-300">
+                                    <Mail size={14} className="text-primary/70" />
                                     <span className="truncate">{user.email}</span>
                                 </div>
                                 {user.phone && (
-                                    <div className="flex items-center gap-2 text-muted-foreground">
-                                        <Phone size={14} />
+                                    <div className="flex items-center gap-2 text-muted-foreground/90 dark:text-gray-300">
+                                        <Phone size={14} className="text-primary/70" />
                                         <span>{user.phone}</span>
                                     </div>
                                 )}
-                                <div className="flex items-center gap-2 text-muted-foreground">
+                                <div className="flex items-center gap-2 text-muted-foreground/90 dark:text-gray-400">
                                     <Calendar size={14} />
                                     <span>Cadastrado em {new Date(user.createdAt).toLocaleDateString('pt-BR')}</span>
                                 </div>

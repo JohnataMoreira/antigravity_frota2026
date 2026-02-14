@@ -59,6 +59,25 @@ export class MaintenanceService {
             return maintenance;
         });
     }
+
+    // Template Methods
+    async createTemplate(data: any) {
+        return this.prisma.maintenanceTemplate.create({
+            data: data
+        });
+    }
+
+    async findAllTemplates() {
+        return this.prisma.maintenanceTemplate.findMany({
+            orderBy: { name: 'asc' }
+        });
+    }
+
+    async deleteTemplate(id: string) {
+        return this.prisma.maintenanceTemplate.delete({
+            where: { id }
+        });
+    }
 }
 
 // Minimal DTOs for local types if needed

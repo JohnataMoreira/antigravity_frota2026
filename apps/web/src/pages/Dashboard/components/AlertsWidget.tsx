@@ -43,7 +43,7 @@ export function AlertsWidget() {
                 {!hasIncidents ? (
                     <div className="flex flex-col items-center justify-center h-full text-muted-foreground opacity-50 py-10">
                         <Clock className="w-12 h-12 mb-3" />
-                        <p className="font-bold uppercase tracking-widest text-xs">Nenhum incidente hoje</p>
+                        <p className="font-bold uppercase tracking-widest text-[10px] text-center">Nenhum incidente ativo registrado</p>
                     </div>
                 ) : (
                     incidents.map((incident: any) => (

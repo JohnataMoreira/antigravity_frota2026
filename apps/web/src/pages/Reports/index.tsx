@@ -8,6 +8,7 @@ import { VehiclesTab } from './components/VehiclesTab';
 import { FuelTab } from './components/FuelTab';
 import { FinanceTab } from './components/FinanceTab';
 import { clsx } from 'clsx';
+import { formatCurrency, formatKm } from '../../lib/utils';
 
 export default function Reports() {
     const [activeTab, setActiveTab] = useState<'overview' | 'drivers' | 'vehicles' | 'fuel' | 'finance'>('overview');
@@ -96,7 +97,7 @@ export default function Reports() {
                                     <h3 className="text-lg font-bold">Resumo Financeiro</h3>
                                 </div>
                                 <p className="text-muted-foreground text-sm mb-4">Total investido em manutenção no período:</p>
-                                <p className="text-3xl font-bold text-primary">R$ {reportData?.stats?.monthlyCosts || 0}</p>
+                                <p className="text-3xl font-bold text-primary">{formatCurrency(reportData?.stats?.monthlyCosts || 0)}</p>
                             </GlassCard>
 
                             <GlassCard>
@@ -107,7 +108,7 @@ export default function Reports() {
                                     <h3 className="text-lg font-bold">Eficiência</h3>
                                 </div>
                                 <p className="text-muted-foreground text-sm mb-4">Quilometragem total controlada:</p>
-                                <p className="text-3xl font-bold text-primary">{reportData?.stats?.totalKm || 0} KM</p>
+                                <p className="text-3xl font-bold text-primary">{formatKm(reportData?.stats?.totalKm || 0)}</p>
                             </GlassCard>
 
                             <GlassCard>
@@ -137,8 +138,8 @@ export default function Reports() {
                                         {reportData?.history?.map((row: any) => (
                                             <tr key={row.name} className="hover:bg-white/5 transition-colors">
                                                 <td className="py-4">{row.name}</td>
-                                                <td className="py-4">R$ {row.costs}</td>
-                                                <td className="py-4">{row.km} KM</td>
+                                                <td className="py-4 font-bold">{formatCurrency(row.costs)}</td>
+                                                <td className="py-4 font-bold">{formatKm(row.km)}</td>
                                             </tr>
                                         ))}
                                     </tbody>

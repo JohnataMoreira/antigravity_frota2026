@@ -66,7 +66,7 @@ export function Dashboard() {
                     <h1 className="text-4xl font-bold tracking-tight gradient-text">
                         Painel de Controle
                     </h1>
-                    <p className="text-muted-foreground mt-2 text-lg">
+                    <p className="text-muted-foreground/90 dark:text-gray-300 mt-2 text-lg font-medium">
                         Visão geral da frota e métricas operacionais
                     </p>
                 </div>

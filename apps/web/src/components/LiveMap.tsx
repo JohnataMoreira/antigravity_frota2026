@@ -4,16 +4,23 @@ import { useEffect, useState, useMemo } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from '../context/AuthContext';
 import * as L from 'leaflet';
+import { Clock } from 'lucide-react';
 
 // Fix Leaflet icons - only on client
 const fixLeafletIcons = (L_instance: any) => {
     if (typeof window !== 'undefined' && L_instance && L_instance.Icon && L_instance.Icon.Default) {
-        delete L_instance.Icon.Default.prototype._getIconUrl;
-        L_instance.Icon.Default.mergeOptions({
-            iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-            iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-        });
+        try {
+            if (L_instance.Icon.Default.prototype) {
+                delete (L_instance.Icon.Default.prototype as any)._getIconUrl;
+                L_instance.Icon.Default.mergeOptions({
+                    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+                    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+                });
+            }
+        } catch (e) {
+            console.warn('Leaflet icon fix failed', e);
+        }
     }
 };
 
@@ -22,8 +29,13 @@ const createCarIcon = (status: 'MOVING' | 'STOPPED' | 'OFFLINE', plate: string) 
     const color = status === 'MOVING' ? '#10b981' : status === 'STOPPED' ? '#ef4444' : '#6b7280';
 
     try {
+        if (typeof window === 'undefined') return undefined;
+
+        // Ensure L is defined, either globally or from import
         const leaflet = (window as any).L || L;
-        if (!leaflet || !leaflet.divIcon) return undefined;
+        if (!leaflet || !leaflet.divIcon) {
+            return undefined;
+        }
 
         return leaflet.divIcon({
             className: 'custom-car-marker',
@@ -64,10 +76,20 @@ function AutoCenter({ vehicles }: { vehicles: VehicleLocation[] }) {
     const map = useMap();
 
     useEffect(() => {
-        if (vehicles.length === 0) return;
+        if (typeof window === 'undefined' || vehicles.length === 0 || !map) return;
 
-        const bounds = L.latLngBounds(vehicles.map(v => [v.lat, v.lng]));
-        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+        try {
+            const leaflet = (window as any).L || L;
+            if (!leaflet || !leaflet.latLngBounds) return;
+
+            const points = vehicles.map(v => [v.lat, v.lng] as L.LatLngExpression);
+            if (points.length > 0) {
+                const bounds = leaflet.latLngBounds(points);
+                map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+            }
+        } catch (e) {
+            console.error('Error fitting bounds', e);
+        }
     }, [vehicles, map]);
 
     return null;
@@ -76,13 +98,18 @@ function AutoCenter({ vehicles }: { vehicles: VehicleLocation[] }) {
 export function LiveMap() {
     const { user } = useAuth();
     const [locations, setLocations] = useState<Record<string, VehicleLocation>>({});
+    const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            fixLeafletIcons((window as any).L || L);
-        }
+        setIsMounted(true);
 
-        if (!user?.organizationId) return;
+        const timer = setTimeout(() => {
+            if (typeof window !== 'undefined') {
+                fixLeafletIcons((window as any).L || L);
+            }
+        }, 100);
+
+        if (!user?.organizationId) return () => clearTimeout(timer);
 
         const isProd = !window.location.host.includes('localhost');
         const SOCKET_URL = isProd ? window.location.origin : 'http://localhost:3000';
@@ -95,7 +122,6 @@ export function LiveMap() {
         });
 
         socket.on('connect', () => {
-            console.log('LiveMap connected to locations namespace');
             socket.emit('join_organization', user.organizationId);
         });
 
@@ -104,22 +130,35 @@ export function LiveMap() {
                 ...prev,
                 [payload.vehicleId]: {
                     ...payload,
-                    status: (payload.speed || 0) > 0 ? 'MOVING' : 'STOPPED', // Simple logic for now
+                    status: (payload.speed || 0) > 0 ? 'MOVING' : 'STOPPED',
                     lastUpdate: new Date().toISOString()
                 }
             }));
         });
 
         return () => {
+            clearTimeout(timer);
             socket.disconnect();
         };
     }, [user]);
 
-    const activeVehicles = Object.values(locations);
+    const activeVehicles = useMemo(() => Object.values(locations), [locations]);
+
+    if (!isMounted) return <div className="h-[400px] bg-gray-100 dark:bg-gray-800 animate-pulse rounded-lg" />;
 
     return (
         <div className="h-[400px] w-full rounded-lg overflow-hidden border shadow-sm dark:border-gray-800 relative z-0">
-            <MapContainer center={[-23.55052, -46.633309]} zoom={13} style={{ height: '100%', width: '100%' }}>
+            {activeVehicles.length === 0 && (
+                <div className="absolute inset-0 bg-gray-50/50 dark:bg-gray-900/50 backdrop-blur-[2px] z-10 flex items-center justify-center">
+                    <div className="text-center p-6 bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border dark:border-gray-700">
+                        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                        <p className="font-bold text-sm">Aguardando sinais de GPS...</p>
+                        <p className="text-[10px] text-muted-foreground uppercase mt-1 tracking-widest font-black">Organização #{user?.organizationId?.slice(0, 8)}</p>
+                    </div>
+                </div>
+            )}
+
+            <MapContainer center={[-23.55052, -46.633309]} zoom={13} style={{ height: '100%', width: '100%' }} zoomControl={false}>
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -138,21 +177,21 @@ export function LiveMap() {
                             icon={icon}
                         >
                             <Popup className="custom-popup">
-                                <div className="p-1">
-                                    <h3 className="font-bold text-sm mb-1">{v.plate || v.vehicleId}</h3>
-                                    <div className="space-y-1 text-xs">
-                                        <div className="flex justify-between items-center gap-4">
-                                            <span className="text-muted-foreground">Velocidade:</span>
-                                            <span className="font-mono font-bold">{v.speed ? v.speed.toFixed(0) : 0} km/h</span>
+                                <div className="p-1 min-w-[150px]">
+                                    <h3 className="font-black text-base mb-1 text-primary">{v.plate || v.vehicleId}</h3>
+                                    <div className="space-y-1.5 text-xs font-bold">
+                                        <div className="flex justify-between items-center gap-4 py-1 border-b dark:border-gray-700">
+                                            <span className="text-muted-foreground uppercase text-[10px]">Velocidade:</span>
+                                            <span className="font-mono text-foreground">{v.speed ? v.speed.toFixed(0) : 0} km/h</span>
                                         </div>
-                                        <div className="flex justify-between items-center gap-4">
-                                            <span className="text-muted-foreground">Status:</span>
-                                            <span className={`font-bold ${v.status === 'MOVING' ? 'text-green-600' : 'text-red-600'}`}>
+                                        <div className="flex justify-between items-center gap-4 py-1 border-b dark:border-gray-700">
+                                            <span className="text-muted-foreground uppercase text-[10px]">Status:</span>
+                                            <span className={`px-2 py-0.5 rounded-full text-[9px] uppercase ${v.status === 'MOVING' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>
                                                 {v.status === 'MOVING' ? 'Em Movimento' : 'Parado'}
                                             </span>
                                         </div>
-                                        <div className="pt-2 border-t mt-2 text-[10px] text-muted-foreground text-right">
-                                            {v.lastUpdate ? new Date(v.lastUpdate).toLocaleTimeString() : ''}
+                                        <div className="pt-2 text-[9px] text-muted-foreground/60 text-right flex items-center justify-end gap-1">
+                                            <Clock size={10} /> {v.lastUpdate ? new Date(v.lastUpdate).toLocaleTimeString() : ''}
                                         </div>
                                     </div>
                                 </div>
@@ -162,16 +201,15 @@ export function LiveMap() {
                 })}
             </MapContainer>
 
-            {/* Legend/Controls Overlay */}
-            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur dark:bg-gray-900/90 p-2 rounded-lg shadow-lg border text-xs z-[400]">
-                <div className="flex flex-col gap-2">
-                    <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
-                        <span>Em Movimento</span>
+            <div className="absolute top-4 right-4 bg-white/95 backdrop-blur dark:bg-gray-900/95 p-3 rounded-2xl shadow-2xl border dark:border-gray-700 text-[10px] z-[400] font-black uppercase tracking-widest">
+                <div className="flex flex-col gap-2.5">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                        <span className="text-foreground/80 font-bold">Em Movimento</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                        <span>Parado</span>
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]"></div>
+                        <span className="text-foreground/80 font-bold">Parado</span>
                     </div>
                 </div>
             </div>
