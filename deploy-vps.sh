@@ -52,7 +52,7 @@ echo -e "${GREEN}Step 8: Setup Environment Variables${NC}"
 cat > $APP_DIR/apps/api/.env << EOF
 DATABASE_URL="postgresql://postgres:${DB_PASSWORD}@localhost:5432/frota2026?schema=public"
 JWT_SECRET="${JWT_SECRET}"
-STORAGE_ENDPOINT="http://localhost:9000"
+STORAGE_ENDPOINT="http://${DOMAIN}:9000"
 STORAGE_BUCKET="frota-uploads"
 STORAGE_REGION="us-east-1"
 MINIO_ROOT_USER="minioadmin"
@@ -167,6 +167,8 @@ echo -e "${GREEN}Step 17: Configure Firewall${NC}"
 ufw allow 22
 ufw allow 80
 ufw allow 443
+ufw allow 9000
+ufw allow 9001
 ufw --force enable
 
 echo ""

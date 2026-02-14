@@ -1,10 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/axios';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Map, Search, ClipboardList, CheckCircle2, AlertCircle, X, MapPin, Clock, LayoutGrid, List as ListIcon } from 'lucide-react';
 import { GlassCard } from '../../components/ui/Cards';
 
 export function JourneysList() {
+    const navigate = useNavigate();
     const [filter, setFilter] = useState('');
     const [selectedJourney, setSelectedJourney] = useState<any>(null);
     const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
@@ -111,9 +113,9 @@ export function JourneysList() {
                                         <td className="px-6 py-5 text-right">
                                             {journey.checklists?.length > 0 && (
                                                 <button
-                                                    onClick={() => setSelectedJourney(journey)}
+                                                    onClick={() => navigate(`/journeys/${journey.id}`)}
                                                     className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl transition-all"
-                                                    title="Ver Checklists"
+                                                    title="Ver Detalhes"
                                                 >
                                                     <ClipboardList size={22} />
                                                 </button>
@@ -164,84 +166,16 @@ export function JourneysList() {
                                     <span>{new Date(journey.startTime).toLocaleDateString('pt-BR')}</span>
                                     {journey.checklists?.length > 0 && (
                                         <button
-                                            onClick={() => setSelectedJourney(journey)}
+                                            onClick={() => navigate(`/journeys/${journey.id}`)}
                                             className="text-blue-600 dark:text-blue-400 font-bold hover:underline underline-offset-4"
                                         >
-                                            Ver Checklists
+                                            Ver Detalhes
                                         </button>
                                     )}
                                 </div>
                             </div>
                         </GlassCard>
                     ))}
-                </div>
-            )}
-
-            {/* Checklist Modal */}
-            {selectedJourney && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="w-full max-w-2xl bg-background rounded-3xl shadow-2xl border border-border overflow-hidden animate-in zoom-in-95 duration-200">
-                        <div className="flex justify-between items-center p-6 bg-muted/30 border-b">
-                            <div>
-                                <h2 className="text-2xl font-bold flex items-center gap-2">
-                                    <ClipboardList className="text-primary" />
-                                    Auditoria de Checklists
-                                </h2>
-                                <p className="text-sm text-muted-foreground">Veículo {selectedJourney.vehicle?.plate} • {selectedJourney.driver?.name}</p>
-                            </div>
-                            <button onClick={() => setSelectedJourney(null)} className="p-2 hover:bg-muted rounded-full transition-colors">
-                                <X size={20} />
-                            </button>
-                        </div>
-
-                        <div className="p-6 max-h-[70vh] overflow-y-auto">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {selectedJourney.checklists.sort((a: any, b: any) => a.type === 'CHECKOUT' ? -1 : 1).map((checklist: any) => (
-                                    <div key={checklist.id} className="space-y-4">
-                                        <div className="flex items-center justify-between pb-2 border-b">
-                                            <h3 className="font-black uppercase tracking-widest text-xs text-muted-foreground">
-                                                {checklist.type === 'CHECKOUT' ? 'Saída (Início)' : 'Retorno (Fim)'}
-                                            </h3>
-                                            <span className="text-[10px] font-medium opacity-60">
-                                                {new Date(checklist.createdAt).toLocaleString('pt-BR')}
-                                            </span>
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            {checklist.items.map((item: any, idx: number) => (
-                                                <div key={idx} className="flex items-start gap-3 p-3 bg-muted/20 rounded-xl border border-border/40">
-                                                    {item.status === 'OK' ?
-                                                        <CheckCircle2 size={18} className="text-green-500 mt-0.5 shrink-0" /> :
-                                                        <AlertCircle size={18} className="text-red-500 mt-0.5 shrink-0" />
-                                                    }
-                                                    <div className="flex-grow">
-                                                        <div className="font-bold text-sm">{item.itemId}</div>
-                                                        {item.notes && <p className="text-xs text-muted-foreground mt-1 italic">"{item.notes}"</p>}
-                                                    </div>
-                                                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${item.status === 'OK' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                                        {item.status}
-                                                    </span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="p-6 bg-muted/30 border-t flex justify-between items-center">
-                            <div className="flex gap-4 text-xs font-medium text-muted-foreground">
-                                <span className="flex items-center gap-1"><MapPin size={12} /> Localização capturada</span>
-                                <span className="flex items-center gap-1"><Clock size={12} /> Timestamp verificado</span>
-                            </div>
-                            <button
-                                onClick={() => setSelectedJourney(null)}
-                                className="px-6 py-2 bg-foreground text-background rounded-xl font-bold transition-all hover:opacity-90"
-                            >
-                                Fechar
-                            </button>
-                        </div>
-                    </div>
                 </div>
             )}
 

@@ -8,6 +8,7 @@ import { VehiclesList } from './pages/Vehicles';
 import { VehicleForm } from './pages/Vehicles/VehicleForm';
 import { Drivers } from './pages/Drivers';
 import { JourneysList } from './pages/Journeys';
+import { JourneyDetails } from './pages/Journeys/JourneyDetails';
 import { MaintenanceList } from './pages/Maintenance';
 import { Reports } from './pages/Reports';
 import { LiveMap } from './components/LiveMap';
@@ -44,6 +45,7 @@ function AppRoutes() {
                 </Route>
 
                 <Route path="journeys" element={<JourneysList />} />
+                <Route path="journeys/:id" element={<JourneyDetails />} />
                 <Route path="maintenance" element={<MaintenanceList />} />
                 <Route path="reports" element={<Reports />} />
             </Route>
