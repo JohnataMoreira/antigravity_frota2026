@@ -50,32 +50,33 @@ export function JourneysList() {
                 </div>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                <div className="relative group flex-1 max-w-xl w-full">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
-                    <input
-                        type="text"
-                        placeholder="Buscar por veículo ou motorista..."
-                        className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium"
-                        value={filter}
-                        onChange={(e) => setFilter(e.target.value)}
-                    />
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white dark:bg-gray-800/20 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                <div className="flex flex-col md:flex-row gap-4 items-center flex-1 w-full max-w-2xl">
+                    <div className="flex items-center gap-3 bg-white dark:bg-gray-800/50 p-2 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex-1 w-full focus-within:ring-2 focus-within:ring-blue-500/50 transition-all">
+                        <Search size={22} className="text-gray-400 ml-2" />
+                        <input
+                            placeholder="Buscar por veículo ou motorista..."
+                            className="bg-transparent outline-none flex-1 py-2 text-sm font-medium"
+                            value={filter}
+                            onChange={(e) => setFilter(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="flex items-center gap-2 bg-white dark:bg-gray-800/50 p-2 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm w-full md:w-auto">
+                        <Filter size={20} className="text-gray-400 ml-2" />
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value as any)}
+                            className="bg-transparent outline-none text-sm font-bold pr-8 py-2"
+                        >
+                            <option value="ALL">Todas as Jornadas</option>
+                            <option value="IN_PROGRESS">Em Andamento</option>
+                            <option value="COMPLETED">Finalizadas</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div className="flex items-center gap-2 bg-white dark:bg-gray-800/50 p-2 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm w-full md:w-auto">
-                    <Filter size={20} className="text-gray-400 ml-2" />
-                    <select
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value as any)}
-                        className="bg-transparent outline-none text-sm font-bold pr-8 py-1.5"
-                    >
-                        <option value="ALL">Todas as Jornadas</option>
-                        <option value="IN_PROGRESS">Em Andamento</option>
-                        <option value="COMPLETED">Finalizadas</option>
-                    </select>
-                </div>
-
-                <div className="flex bg-gray-100 dark:bg-gray-800 p-1.5 rounded-2xl border dark:border-gray-700 shadow-sm">
+                <div className="flex bg-gray-100 dark:bg-gray-800 p-1.5 rounded-xl border dark:border-gray-700 shadow-sm">
                     <button
                         onClick={() => setViewMode('grid')}
                         className={`p-2.5 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-gray-700 shadow-md text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}

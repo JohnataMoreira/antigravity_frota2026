@@ -131,26 +131,24 @@ export function VehiclesList() {
                 </button>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white dark:bg-gray-800/20 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
                 <div className="flex flex-col md:flex-row gap-4 items-center flex-1 w-full max-w-2xl">
-                    <div className="flex items-center gap-3 bg-white dark:bg-gray-800/50 p-1.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex-1 w-full focus-within:ring-2 focus-within:ring-blue-500/50 transition-all">
-                        <div className="pl-3 text-gray-400">
-                            <Search size={20} />
-                        </div>
+                    <div className="flex items-center gap-3 bg-white dark:bg-gray-800/50 p-2 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex-1 w-full focus-within:ring-2 focus-within:ring-blue-500/50 transition-all">
+                        <Search size={20} className="text-gray-400 ml-2" />
                         <input
                             placeholder="Buscar por placa, modelo ou marca..."
-                            className="bg-transparent outline-none flex-1 py-2 text-sm"
+                            className="bg-transparent outline-none flex-1 py-2 text-sm font-medium"
                             value={filter}
                             onChange={(e) => setFilter(e.target.value)}
                         />
                     </div>
 
-                    <div className="flex items-center gap-2 bg-white dark:bg-gray-800/50 p-1.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm w-full md:w-auto">
+                    <div className="flex items-center gap-2 bg-white dark:bg-gray-800/50 p-2 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm w-full md:w-auto">
                         <Filter size={18} className="text-gray-400 ml-2" />
                         <select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="bg-transparent outline-none text-sm font-medium pr-8 py-2"
+                            className="bg-transparent outline-none text-sm font-bold pr-8 py-2"
                         >
                             <option value="ALL">Todos os Status</option>
                             <option value="AVAILABLE">Disponível</option>
@@ -161,7 +159,7 @@ export function VehiclesList() {
                     </div>
                 </div>
 
-                <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl border dark:border-gray-700 self-end md:self-center">
+                <div className="flex bg-gray-100 dark:bg-gray-800 p-1.5 rounded-xl border dark:border-gray-700 shadow-sm">
                     <button
                         onClick={() => setViewMode('grid')}
                         className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}

@@ -71,28 +71,30 @@ export function DriversList() {
                 <StatCard label="Inativos" value={(drivers?.length || 0) - activeCount} icon={<User className="w-8 h-8" />} variant="warning" />
             </div>
 
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                <div className="flex items-center gap-3 bg-white dark:bg-gray-800/50 p-2 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm flex-1 max-w-md focus-within:ring-2 focus-within:ring-blue-500/50 transition-all">
-                    <Search size={22} className="text-gray-400 ml-2" />
-                    <input
-                        placeholder="Buscar por nome ou email..."
-                        className="bg-transparent outline-none flex-1 py-2 font-medium"
-                        value={filter}
-                        onChange={(e) => setFilter(e.target.value)}
-                    />
-                </div>
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white dark:bg-gray-800/20 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                <div className="flex flex-col md:flex-row gap-4 items-center flex-1 w-full max-w-2xl">
+                    <div className="flex items-center gap-3 bg-white dark:bg-gray-800/50 p-2 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex-1 w-full focus-within:ring-2 focus-within:ring-blue-500/50 transition-all">
+                        <Search size={22} className="text-gray-400 ml-2" />
+                        <input
+                            placeholder="Buscar por nome ou email..."
+                            className="bg-transparent outline-none flex-1 py-2 font-medium"
+                            value={filter}
+                            onChange={(e) => setFilter(e.target.value)}
+                        />
+                    </div>
 
-                <div className="flex items-center gap-2 bg-white dark:bg-gray-800/50 p-2 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm w-full md:w-auto">
-                    <Filter size={20} className="text-gray-400 ml-2" />
-                    <select
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value as any)}
-                        className="bg-transparent outline-none text-sm font-bold pr-8 py-2"
-                    >
-                        <option value="ALL">Todos os Motoristas</option>
-                        <option value="IN_JOURNEY">Em Jornada</option>
-                        <option value="AVAILABLE">Disponíveis</option>
-                    </select>
+                    <div className="flex items-center gap-2 bg-white dark:bg-gray-800/50 p-2 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm w-full md:w-auto">
+                        <Filter size={20} className="text-gray-400 ml-2" />
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value as any)}
+                            className="bg-transparent outline-none text-sm font-bold pr-8 py-2"
+                        >
+                            <option value="ALL">Todos os Motoristas</option>
+                            <option value="IN_JOURNEY">Em Jornada</option>
+                            <option value="AVAILABLE">Disponíveis</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 

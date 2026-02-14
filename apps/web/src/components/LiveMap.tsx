@@ -6,11 +6,10 @@ import { useAuth } from '../context/AuthContext';
 import * as L from 'leaflet';
 
 // Fix Leaflet icons - only on client
-const fixLeafletIcons = () => {
-    if (typeof window !== 'undefined' && L && L.Icon && L.Icon.Default) {
-        // @ts-expect-error Leaflet prototype fix
-        delete L.Icon.Default.prototype._getIconUrl;
-        L.Icon.Default.mergeOptions({
+const fixLeafletIcons = (L_instance: any) => {
+    if (typeof window !== 'undefined' && L_instance && L_instance.Icon && L_instance.Icon.Default) {
+        delete L_instance.Icon.Default.prototype._getIconUrl;
+        L_instance.Icon.Default.mergeOptions({
             iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
             iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
             shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
@@ -18,17 +17,15 @@ const fixLeafletIcons = () => {
     }
 };
 
-if (typeof window !== 'undefined') {
-    fixLeafletIcons();
-}
-
 // Custom Car Icon Factory
 const createCarIcon = (status: 'MOVING' | 'STOPPED' | 'OFFLINE', plate: string) => {
     const color = status === 'MOVING' ? '#10b981' : status === 'STOPPED' ? '#ef4444' : '#6b7280';
 
     try {
-        if (!L || !L.divIcon) return undefined;
-        return L.divIcon({
+        const leaflet = (window as any).L || L;
+        if (!leaflet || !leaflet.divIcon) return undefined;
+
+        return leaflet.divIcon({
             className: 'custom-car-marker',
             html: `
                 <div class="relative group">
@@ -81,6 +78,10 @@ export function LiveMap() {
     const [locations, setLocations] = useState<Record<string, VehicleLocation>>({});
 
     useEffect(() => {
+        if (typeof window !== 'undefined') {
+            fixLeafletIcons((window as any).L || L);
+        }
+
         if (!user?.organizationId) return;
 
         const isProd = !window.location.host.includes('localhost');
@@ -126,34 +127,39 @@ export function LiveMap() {
 
                 <AutoCenter vehicles={activeVehicles} />
 
-                {activeVehicles.map(v => (
-                    <Marker
-                        key={v.vehicleId}
-                        position={[v.lat, v.lng]}
-                        icon={createCarIcon(v.status || 'STOPPED', v.plate || '???')}
-                    >
-                        <Popup className="custom-popup">
-                            <div className="p-1">
-                                <h3 className="font-bold text-sm mb-1">{v.plate || v.vehicleId}</h3>
-                                <div className="space-y-1 text-xs">
-                                    <div className="flex justify-between items-center gap-4">
-                                        <span className="text-muted-foreground">Velocidade:</span>
-                                        <span className="font-mono font-bold">{v.speed ? v.speed.toFixed(0) : 0} km/h</span>
-                                    </div>
-                                    <div className="flex justify-between items-center gap-4">
-                                        <span className="text-muted-foreground">Status:</span>
-                                        <span className={`font-bold ${v.status === 'MOVING' ? 'text-green-600' : 'text-red-600'}`}>
-                                            {v.status === 'MOVING' ? 'Em Movimento' : 'Parado'}
-                                        </span>
-                                    </div>
-                                    <div className="pt-2 border-t mt-2 text-[10px] text-muted-foreground text-right">
-                                        {v.lastUpdate ? new Date(v.lastUpdate).toLocaleTimeString() : ''}
+                {activeVehicles.map(v => {
+                    const icon = createCarIcon(v.status || 'STOPPED', v.plate || '???');
+                    if (!icon) return null;
+
+                    return (
+                        <Marker
+                            key={v.vehicleId}
+                            position={[v.lat, v.lng]}
+                            icon={icon}
+                        >
+                            <Popup className="custom-popup">
+                                <div className="p-1">
+                                    <h3 className="font-bold text-sm mb-1">{v.plate || v.vehicleId}</h3>
+                                    <div className="space-y-1 text-xs">
+                                        <div className="flex justify-between items-center gap-4">
+                                            <span className="text-muted-foreground">Velocidade:</span>
+                                            <span className="font-mono font-bold">{v.speed ? v.speed.toFixed(0) : 0} km/h</span>
+                                        </div>
+                                        <div className="flex justify-between items-center gap-4">
+                                            <span className="text-muted-foreground">Status:</span>
+                                            <span className={`font-bold ${v.status === 'MOVING' ? 'text-green-600' : 'text-red-600'}`}>
+                                                {v.status === 'MOVING' ? 'Em Movimento' : 'Parado'}
+                                            </span>
+                                        </div>
+                                        <div className="pt-2 border-t mt-2 text-[10px] text-muted-foreground text-right">
+                                            {v.lastUpdate ? new Date(v.lastUpdate).toLocaleTimeString() : ''}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </Popup>
-                    </Marker>
-                ))}
+                            </Popup>
+                        </Marker>
+                    );
+                })}
             </MapContainer>
 
             {/* Legend/Controls Overlay */}
