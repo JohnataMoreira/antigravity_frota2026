@@ -46,7 +46,7 @@ export class UsersService {
         return user;
     }
 
-    async findAll(search?: string) {
+    async findAll(search?: string, role?: string) {
         const where: any = {};
 
         if (search) {
@@ -55,6 +55,10 @@ export class UsersService {
                 { email: { contains: search, mode: 'insensitive' } },
                 { cpf: { contains: search, mode: 'insensitive' } },
             ];
+        }
+
+        if (role && role !== 'ALL') {
+            where.role = role;
         }
 
         return this.prisma.user.findMany({
@@ -72,7 +76,7 @@ export class UsersService {
                 active: true,
                 createdAt: true,
             },
-            orderBy: { createdAt: 'desc' },
+            orderBy: { name: 'asc' },
         });
     }
 
@@ -85,6 +89,18 @@ export class UsersService {
                 email: true,
                 role: true,
                 licenseNumber: true,
+                phone: true,
+                cpf: true,
+                birthDate: true,
+                entryDate: true,
+                active: true,
+                addressStreet: true,
+                addressNumber: true,
+                addressComplement: true,
+                addressNeighborhood: true,
+                addressCity: true,
+                addressState: true,
+                addressZipCode: true,
                 createdAt: true,
             },
         });
@@ -99,24 +115,48 @@ export class UsersService {
     async update(id: string, dto: UpdateUserDto) {
         await this.findOne(id);
 
-        const user = await this.prisma.user.update({
+        const data: any = {
+            name: dto.name,
+            licenseNumber: dto.licenseNumber,
+            role: dto.role,
+            phone: dto.phone,
+            cpf: dto.cpf,
+            addressStreet: dto.addressStreet,
+            addressNumber: dto.addressNumber,
+            addressComplement: dto.addressComplement,
+            addressNeighborhood: dto.addressNeighborhood,
+            addressCity: dto.addressCity,
+            addressState: dto.addressState,
+            addressZipCode: dto.addressZipCode,
+        };
+
+        if (dto.birthDate) data.birthDate = new Date(dto.birthDate);
+        if (dto.entryDate) data.entryDate = new Date(dto.entryDate);
+
+        if (dto.password) {
+            const salt = await bcrypt.genSalt();
+            data.passwordHash = await bcrypt.hash(dto.password, salt);
+        }
+
+        return this.prisma.user.update({
             where: { id },
-            data: {
-                name: dto.name,
-                licenseNumber: dto.licenseNumber,
-                role: dto.role,
-            },
+            data,
             select: {
                 id: true,
                 name: true,
                 email: true,
                 role: true,
-                licenseNumber: true,
-                createdAt: true,
             },
         });
+    }
 
-        return user;
+    async toggleStatus(id: string) {
+        const user = await this.findOne(id);
+        return this.prisma.user.update({
+            where: { id },
+            data: { active: !user.active },
+            select: { id: true, active: true },
+        });
     }
 
     async remove(id: string) {

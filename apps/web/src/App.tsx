@@ -6,7 +6,7 @@ import { Login } from './pages/Login';
 import { DashboardLayout } from './layouts/DashboardLayout';
 import { VehiclesList } from './pages/Vehicles';
 import { VehicleForm } from './pages/Vehicles/VehicleForm';
-import { Drivers } from './pages/Drivers';
+import { UsersList } from './pages/Users';
 import { JourneysList } from './pages/Journeys';
 import { JourneyDetails } from './pages/Journeys/JourneyDetails';
 import { MaintenanceList } from './pages/Maintenance';
@@ -40,8 +40,8 @@ function AppRoutes() {
                     <Route path="new" element={<VehicleForm />} />
                 </Route>
 
-                <Route path="drivers">
-                    <Route index element={<Drivers />} />
+                <Route path="users">
+                    <Route index element={<UsersList />} />
                 </Route>
 
                 <Route path="journeys" element={<JourneysList />} />

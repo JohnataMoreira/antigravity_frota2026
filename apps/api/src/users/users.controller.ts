@@ -31,8 +31,11 @@ export class UsersController {
     }
 
     @Get()
-    findAll(@Query('search') search?: string) {
-        return this.usersService.findAll(search);
+    findAll(
+        @Query('search') search?: string,
+        @Query('role') role?: string,
+    ) {
+        return this.usersService.findAll(search, role);
     }
 
     @Get(':id')
@@ -47,6 +50,12 @@ export class UsersController {
         @Body() updateUserDto: UpdateUserDto,
     ) {
         return this.usersService.update(id, updateUserDto);
+    }
+
+    @Patch(':id/toggle')
+    @Roles(Role.ADMIN)
+    toggleStatus(@Param('id') id: string) {
+        return this.usersService.toggleStatus(id);
     }
 
     @Delete(':id')
