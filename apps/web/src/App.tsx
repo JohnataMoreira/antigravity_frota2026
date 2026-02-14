@@ -11,7 +11,6 @@ import { JourneysList } from './pages/Journeys';
 import { JourneyDetails } from './pages/Journeys/JourneyDetails';
 import { MaintenanceList } from './pages/Maintenance';
 import Reports from './pages/Reports';
-import { Inventory } from './pages/Inventory';
 import { LiveMap } from './components/LiveMap';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ThemeSwitcher } from './components/ThemeSwitcher';
@@ -49,7 +48,6 @@ function AppRoutes() {
                 <Route path="journeys/:id" element={<JourneyDetails />} />
                 <Route path="maintenance" element={<MaintenanceList />} />
                 <Route path="reports" element={<Reports />} />
-                <Route path="inventory" element={<Inventory />} />
             </Route>
         </Routes>
     );

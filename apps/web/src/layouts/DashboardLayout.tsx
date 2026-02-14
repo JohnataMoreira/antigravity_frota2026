@@ -16,7 +16,6 @@ export function DashboardLayout() {
         { name: 'Funcionários', href: '/users', icon: Users },
         { name: 'Jornadas', href: '/journeys', icon: Map },
         { name: 'Manutenção', href: '/maintenance', icon: Wrench },
-        { name: 'Estoque', href: '/inventory', icon: Package },
         { name: 'Relatórios', href: '/reports', icon: FileText },
     ];
 
