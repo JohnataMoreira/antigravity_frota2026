@@ -33,4 +33,15 @@ export class ReportsController {
         const endDate = end ? new Date(end) : undefined;
         return this.reportsService.getVehicleUtilization(req.user.organizationId, startDate, endDate);
     }
+
+    @Get('driver-ranking')
+    async getDriverRanking(
+        @Req() req: any,
+        @Query('start') start?: string,
+        @Query('end') end?: string
+    ) {
+        const startDate = start ? new Date(start) : undefined;
+        const endDate = end ? new Date(end) : undefined;
+        return this.reportsService.getDriverRanking(req.user.organizationId, startDate, endDate);
+    }
 }

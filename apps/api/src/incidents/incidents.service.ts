@@ -1,14 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateIncidentDto } from './dto/create-incident.dto';
+import { NotificationService } from '../common/notifications/notification.service';
 
 @Injectable()
 export class IncidentsService {
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private prisma: PrismaService,
+        private notificationService: NotificationService
+    ) { }
 
     async create(driverId: string, dto: CreateIncidentDto) {
-        // organizationId is injected by Prisma Extension
-        return this.prisma.incident.create({
+        const incident = await this.prisma.incident.create({
             data: {
                 driverId,
                 vehicleId: dto.vehicleId,
@@ -18,7 +21,21 @@ export class IncidentsService {
                 status: 'OPEN',
                 photoUrl: dto.photoUrl,
             } as any,
+            include: {
+                vehicle: { select: { plate: true } },
+                driver: { select: { name: true, organizationId: true } }
+            }
         });
+
+        // Notify Admins
+        await this.notificationService.notifyAdmins(
+            incident.driver.organizationId,
+            `⚠️ Novo Incidente: ${incident.vehicle.plate}`,
+            `${incident.driver.name} relatou um incidente (${incident.severity}).`,
+            { incidentId: incident.id }
+        );
+
+        return incident;
     }
 
     async findAll(status?: string) {

@@ -14,6 +14,7 @@ export function useAuth() {
 
 import NetInfo from '@react-native-community/netinfo';
 import { photoService } from '../src/services/photoService';
+import { syncService } from '../src/services/SyncService';
 
 export default function RootLayout() {
     const [user, setUser] = useState<any>(null);
@@ -31,6 +32,11 @@ export default function RootLayout() {
                 photoService.processOfflineQueue(token);
             }
         });
+
+        if (token) {
+            syncService.setToken(token);
+            syncService.sync();
+        }
 
         return () => unsubscribe();
     }, [token]);

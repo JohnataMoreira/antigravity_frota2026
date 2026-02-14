@@ -229,4 +229,77 @@ export class ReportsService {
 
         return report.sort((a, b) => b.totalKm - a.totalKm);
     }
+
+    async getDriverRanking(organizationId: string, start?: Date, end?: Date) {
+        const drivers = await this.prisma.user.findMany({
+            where: { organizationId, role: 'DRIVER' },
+            select: { id: true, name: true, photoUrl: true }
+        });
+
+        const ranking = [];
+
+        for (const driver of drivers) {
+            // 1. Calculate Fuel Efficiency
+            const fuelEntries = await this.prisma.fuelEntry.findMany({
+                where: {
+                    organizationId,
+                    driverId: driver.id,
+                    ...(start && end ? { date: { gte: start, lte: end } } : {})
+                }
+            });
+
+            const totalFuelLiters = fuelEntries.reduce((acc, f) => acc + f.liters, 0);
+
+            // Get Journeys for Km calculation (only completed ones)
+            const journeys = await this.prisma.journey.findMany({
+                where: {
+                    organizationId,
+                    driverId: driver.id,
+                    status: 'COMPLETED',
+                    ...(start && end ? { endTime: { gte: start, lte: end } } : {})
+                },
+                select: { startKm: true, endKm: true }
+            });
+
+            const totalKm = journeys.reduce((acc, j) => acc + ((j.endKm || 0) - j.startKm), 0);
+            const kmPerLiter = totalFuelLiters > 0 ? totalKm / totalFuelLiters : 0;
+
+            // 2. Safety Score
+            const incidents = await this.prisma.incident.findMany({
+                where: {
+                    organizationId,
+                    driverId: driver.id,
+                    ...(start && end ? { createdAt: { gte: start, lte: end } } : {})
+                }
+            });
+
+            let safetyScore = 100;
+            incidents.forEach(inc => {
+                if (inc.severity === 'HIGH') safetyScore -= 20;
+                else if (inc.severity === 'MEDIUM') safetyScore -= 10;
+                else safetyScore -= 5;
+            });
+            if (safetyScore < 0) safetyScore = 0;
+
+            // 3. Overall Efficiency Score (Weighted: 40% Fuel, 60% Safety)
+            // Normalizing Km/L: Target 10km/l = 100 points
+            const efficiencyScore = Math.min((kmPerLiter / 10) * 100, 100);
+
+            const overallScore = Math.round((efficiencyScore * 0.4) + (safetyScore * 0.6));
+
+            ranking.push({
+                driverId: driver.id,
+                name: driver.name,
+                photoUrl: driver.photoUrl,
+                totalKm,
+                kmPerLiter: Number(kmPerLiter.toFixed(2)),
+                incidentCount: incidents.length,
+                safetyScore,
+                efficiencyScore: Math.round(efficiencyScore),
+                overallScore
+            });
+        }
+
+        return ranking.sort((a, b) => b.overallScore - a.overallScore);
+    }
 }

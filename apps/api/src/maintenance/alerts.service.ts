@@ -1,9 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationService } from '../common/notifications/notification.service';
 
 @Injectable()
 export class MaintenanceAlertsService {
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private prisma: PrismaService,
+        private notificationService: NotificationService
+    ) { }
 
     async checkAlerts(organizationId: string) {
         // Rule: Maintenance every 10,000 km
@@ -35,6 +39,18 @@ export class MaintenanceAlertsService {
             })
             .filter((a): a is NonNullable<typeof a> => a !== null);
 
-        return alerts.sort((a, b) => a.severity === 'CRITICAL' ? -1 : 1);
+        const sortedAlerts = alerts.sort((a, b) => a.severity === 'CRITICAL' ? -1 : 1);
+
+        // Notify Admins about Critical Alerts
+        const criticalCount = alerts.filter(a => a.severity === 'CRITICAL').length;
+        if (criticalCount > 0) {
+            await this.notificationService.notifyAdmins(
+                organizationId,
+                '🚨 Manutenções Críticas',
+                `Existem ${criticalCount} veículos com manutenção vencida.`
+            );
+        }
+
+        return sortedAlerts;
     }
 }

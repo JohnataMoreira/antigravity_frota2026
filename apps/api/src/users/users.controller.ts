@@ -9,7 +9,8 @@ import {
     UseGuards,
     HttpCode,
     HttpStatus,
-    Query
+    Query,
+    Req
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './dto';
@@ -56,6 +57,12 @@ export class UsersController {
     @Roles(Role.ADMIN)
     toggleStatus(@Param('id') id: string) {
         return this.usersService.toggleStatus(id);
+    }
+
+    @Patch('push-token')
+    @HttpCode(HttpStatus.OK)
+    updatePushToken(@Req() req: any, @Body('pushToken') pushToken: string) {
+        return this.usersService.updatePushToken(req.user.id, pushToken);
     }
 
     @Delete(':id')

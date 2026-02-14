@@ -26,6 +26,18 @@ export interface VehicleUtilization {
     costPerKm: number; // string in JSON, number here? check backend
 }
 
+export interface DriverRanking {
+    driverId: string;
+    name: string;
+    photoUrl?: string;
+    totalKm: number;
+    kmPerLiter: number;
+    incidentCount: number;
+    safetyScore: number;
+    efficiencyScore: number;
+    overallScore: number;
+}
+
 export const reportsService = {
     getOverview: async () => {
         const response = await api.get('/reports/overview');
@@ -38,6 +50,15 @@ export const reportsService = {
         if (end) params.append('end', end);
 
         const response = await api.get<DriverPerformance[]>(`/reports/drivers?${params.toString()}`);
+        return response.data;
+    },
+
+    getDriverRanking: async (start?: string, end?: string) => {
+        const params = new URLSearchParams();
+        if (start) params.append('start', start);
+        if (end) params.append('end', end);
+
+        const response = await api.get<DriverRanking[]>(`/reports/driver-ranking?${params.toString()}`);
         return response.data;
     },
 

@@ -159,6 +159,14 @@ export class UsersService {
         });
     }
 
+    async updatePushToken(id: string, pushToken: string) {
+        return this.prisma.user.update({
+            where: { id },
+            data: { pushToken },
+            select: { id: true, name: true }
+        });
+    }
+
     async remove(id: string) {
         await this.findOne(id);
 

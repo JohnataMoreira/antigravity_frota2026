@@ -131,6 +131,7 @@ model User {
   addressZipCode      String?
 
   licenseNumber  String?
+  pushToken      String?      // Token for Expo/FCM push notifications
   active         Boolean      @default(true)
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
