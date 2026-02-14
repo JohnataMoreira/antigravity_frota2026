@@ -14,10 +14,10 @@ COPY . .
 RUN npm install --legacy-peer-deps
 
 # [11/10 STRATEGY] Generate Prisma from ROOT
-RUN npx prisma generate --schema=apps/api/prisma/schema.prisma
+RUN npx prisma generate --schema=prisma/schema.prisma
 
 # Build the API
-RUN npm run build -w api
+RUN npm run build
 
 # [11/10 STRATEGY] Prune at root using workspaces awareness
 # Using --omit=dev is more modern and reliable than prune in some npm versions
