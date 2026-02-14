@@ -33,6 +33,31 @@ export function Dashboard() {
         { name: 'Jun', costs: 239, km: 3800 },
     ];
 
+    const typeLabels: Record<string, string> = {
+        CAR: 'Carros',
+        TRUCK: 'Caminhões',
+        MOTORCYCLE: 'Motos',
+        MACHINE: 'Máquinas'
+    };
+
+    const renderBreakdown = (items: any[]) => {
+        if (!items || items.length === 0) return null;
+        return (
+            <div className="flex flex-wrap gap-x-3 gap-y-1 mt-3 pt-3 border-t border-gray-100 dark:border-gray-800/50">
+                {items.map((item: any) => (
+                    <div key={item.type} className="flex items-center gap-1">
+                        <span className="text-[10px] font-black uppercase text-muted-foreground">
+                            {typeLabels[item.type] || item.type}:
+                        </span>
+                        <span className="text-xs font-bold text-primary">
+                            {item._count._all}
+                        </span>
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -62,19 +87,25 @@ export function Dashboard() {
                     value={stats?.availableVehicles || 0}
                     icon={<CheckCircle className="w-8 h-8" />}
                     variant="success"
-                />
+                >
+                    {renderBreakdown(stats?.breakdown?.available)}
+                </StatCard>
                 <StatCard
                     label="Vei. em Uso"
                     value={stats?.inUseVehicles || 0}
                     icon={<Truck className="w-8 h-8" />}
                     variant="info"
-                />
+                >
+                    {renderBreakdown(stats?.breakdown?.inUse)}
+                </StatCard>
                 <StatCard
                     label="Em Manutenção"
                     value={stats?.maintenanceVehicles || 0}
                     icon={<Wrench className="w-8 h-8" />}
                     variant="warning"
-                />
+                >
+                    {renderBreakdown(stats?.breakdown?.maintenance)}
+                </StatCard>
                 <StatCard
                     label="Custos (Mês)"
                     value={formatCurrency(stats?.monthlyCosts)}
