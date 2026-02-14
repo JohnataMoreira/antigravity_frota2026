@@ -3,7 +3,7 @@ import 'leaflet/dist/leaflet.css';
 import { useEffect, useState, useMemo } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from '../context/AuthContext';
-import * as L from 'leaflet';
+import L from 'leaflet';
 import { Clock } from 'lucide-react';
 
 // Fix Leaflet icons - only on client
@@ -28,16 +28,21 @@ const fixLeafletIcons = (L_instance: any) => {
 const createCarIcon = (status: 'MOVING' | 'STOPPED' | 'OFFLINE', plate: string) => {
     const color = status === 'MOVING' ? '#10b981' : status === 'STOPPED' ? '#ef4444' : '#6b7280';
 
-    try {
-        if (typeof window === 'undefined') return undefined;
+    if (typeof window === 'undefined') return undefined;
 
-        // Ensure L is defined, either globally or from import
+    try {
+        // Try all possible ways to get Leaflet
         const leaflet = (window as any).L || L;
-        if (!leaflet || !leaflet.divIcon) {
+
+        // n is not a function error often happens when divIcon is missing or improperly bound
+        const divIconFn = leaflet?.divIcon || (L as any)?.divIcon;
+
+        if (typeof divIconFn !== 'function') {
+            console.warn('Leaflet divIcon not found, using default marker');
             return undefined;
         }
 
-        return leaflet.divIcon({
+        return divIconFn({
             className: 'custom-car-marker',
             html: `
                 <div class="relative group">
@@ -142,7 +147,14 @@ export function LiveMap() {
         };
     }, [user]);
 
-    const activeVehicles = useMemo(() => Object.values(locations), [locations]);
+    const activeVehicles = useMemo(() => {
+        return Object.values(locations).filter(v =>
+            typeof v.lat === 'number' &&
+            typeof v.lng === 'number' &&
+            !isNaN(v.lat) &&
+            !isNaN(v.lng)
+        );
+    }, [locations]);
 
     if (!isMounted) return <div className="h-[400px] bg-gray-100 dark:bg-gray-800 animate-pulse rounded-lg" />;
 
