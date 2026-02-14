@@ -10,7 +10,7 @@ COPY . .
 RUN npm install --legacy-peer-deps
 
 # Build the Web app
-RUN npm run build -w web
+RUN npm run build
 
 # Stage 2: Production
 FROM nginx:alpine
