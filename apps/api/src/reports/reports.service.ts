@@ -20,6 +20,7 @@ export class ReportsService {
             totalDrivers,
             recentJourneys,
             maintenanceCosts,
+            fuelCosts,
             journeysWithKm,
             checklistsWithIssues,
             availableByType,
@@ -54,7 +55,7 @@ export class ReportsService {
                     organizationId,
                     date: { gte: new Date(now.getFullYear(), now.getMonth(), 1) }
                 },
-                _sum: { totalCost: true }
+                _sum: { totalValue: true }
             }),
             this.prisma.journey.findMany({
                 where: { organizationId, status: 'COMPLETED' },
@@ -113,7 +114,7 @@ export class ReportsService {
                 journeysWithIncidents: journeysWithIncidentsCount,
                 journeysWithoutIncidents: activeJourneys - journeysWithIncidentsCount,
                 totalDrivers,
-                monthlyCosts: (maintenanceCosts._sum?.cost || 0) + ((arguments[0][8] as any)?._sum?.totalCost || 0),
+                monthlyCosts: (maintenanceCosts._sum?.cost || 0) + (fuelCosts._sum?.totalValue || 0),
                 totalKm,
                 issuesReported: checklistsWithIssues,
                 breakdown: {
@@ -136,14 +137,14 @@ export class ReportsService {
             const d = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
             const nextD = new Date(startDate.getFullYear(), startDate.getMonth() + i + 1, 1);
 
-            const [costAgg, journeyList] = await Promise.all([
+            const [costAgg, fuelAgg, journeyList] = await Promise.all([
                 this.prisma.maintenance.aggregate({
                     where: { organizationId, status: 'COMPLETED', performedAt: { gte: d, lt: nextD } },
                     _sum: { cost: true }
                 }),
                 this.prisma.fuelEntry.aggregate({
                     where: { organizationId, date: { gte: d, lt: nextD } },
-                    _sum: { totalCost: true }
+                    _sum: { totalValue: true }
                 }),
                 this.prisma.journey.findMany({
                     where: { organizationId, status: 'COMPLETED', endTime: { gte: d, lt: nextD } },
@@ -155,7 +156,7 @@ export class ReportsService {
 
             results.push({
                 name: months[d.getMonth()],
-                costs: (costAgg._sum?.cost || 0) + ((arguments[0][1] as any)?._sum?.totalCost || 0),
+                costs: (costAgg._sum?.cost || 0) + (fuelAgg._sum?.totalValue || 0),
                 km: monthlyKm
             });
         }
