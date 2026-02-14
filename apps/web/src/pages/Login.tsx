@@ -76,7 +76,7 @@ export function Login() {
                         <img src="/logo.png" alt="Grupo Paraopeba" className="h-20 w-auto object-contain" />
                     </div>
                     <h2 className="text-4xl font-bold tracking-tight gradient-text">
-                        {isRegistering ? 'Nova Organização' : 'Entrar no Frota2026'}
+                        {isRegistering ? 'Nova Organização' : 'Entrar no Sistema'}
                     </h2>
                     <p className="text-muted-foreground">
                         {isRegistering ? 'Preencha os dados da sua empresa' : 'Seja bem-vindo de volta'}
