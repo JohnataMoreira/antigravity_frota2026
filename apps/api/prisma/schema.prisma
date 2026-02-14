@@ -86,6 +86,7 @@ model Organization {
   journeys  Journey[]
   maintenances Maintenance[]
   fuelEntries FuelEntry[]
+  incidents Incident[]
 }
 
 model User {
@@ -119,6 +120,7 @@ model User {
   organization   Organization @relation(fields: [organizationId], references: [id])
   journeys       Journey[]    @relation("DriverJourneys")
   fuelEntries    FuelEntry[]
+  incidents      Incident[]
 }
 
 model Vehicle {
@@ -141,6 +143,7 @@ model Vehicle {
   journeys       Journey[]
   maintenances   Maintenance[]
   fuelEntries    FuelEntry[]
+  incidents      Incident[]
 
   @@unique([organizationId, plate])
 }
@@ -170,6 +173,7 @@ model Journey {
   vehicle        Vehicle       @relation(fields: [vehicleId], references: [id])
   checklists     Checklist[]
   fuelEntries    FuelEntry[]
+  incidents      Incident[]
 }
 
 model Checklist {
@@ -236,4 +240,23 @@ model FuelEntry {
   driver         User         @relation(fields: [driverId], references: [id])
   journey        Journey?     @relation(fields: [journeyId], references: [id])
 }
+model Incident {
+  id             String       @id @default(uuid())
+  organizationId String
+  journeyId      String?
+  driverId       String
+  vehicleId      String
 
+  description    String
+  severity       String       @default("MEDIUM") // LOW, MEDIUM, HIGH
+  status         String       @default("OPEN")   // OPEN, RESOLVED
+  photoUrl       String?
+
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  journey        Journey?     @relation(fields: [journeyId], references: [id])
+  driver         User         @relation(fields: [driverId], references: [id])
+  vehicle        Vehicle      @relation(fields: [vehicleId], references: [id])
+}

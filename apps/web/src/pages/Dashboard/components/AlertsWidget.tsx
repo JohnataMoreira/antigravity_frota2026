@@ -1,54 +1,80 @@
 import { useQuery } from '@tanstack/react-query';
-import { maintenanceService } from '../../../services/reportsService';
+import { api } from '../../../lib/axios';
 import { GlassCard } from '../../../components/ui/Cards';
-import { AlertTriangle, Wrench, CheckCircle } from 'lucide-react';
-import { clsx } from 'clsx';
-import { Link } from 'react-router-dom';
+import { AlertCircle, User, Truck, Clock, Eye } from 'lucide-react';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 export function AlertsWidget() {
-    const { data: alerts, isLoading } = useQuery({
-        queryKey: ['maintenance-alerts'],
-        queryFn: () => maintenanceService.getAlerts()
+    const { data: incidents, isLoading } = useQuery({
+        queryKey: ['recent-incidents'],
+        queryFn: async () => {
+            const res = await api.get('/incidents?status=OPEN');
+            return res.data;
+        }
     });
 
-    if (isLoading) return <GlassCard className="h-full animate-pulse"><div className="h-6 bg-white/10 rounded w-1/3 mb-4"></div></GlassCard>;
+    if (isLoading) return (
+        <GlassCard className="h-full animate-pulse">
+            <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded w-1/2 mb-6"></div>
+            <div className="space-y-4">
+                {[1, 2, 3].map(i => <div key={i} className="h-20 bg-gray-100 dark:bg-gray-900 rounded-xl"></div>)}
+            </div>
+        </GlassCard>
+    );
 
-    const hasAlerts = alerts && alerts.length > 0;
+    const hasIncidents = incidents && incidents.length > 0;
 
     return (
-        <GlassCard className="h-full flex flex-col">
+        <GlassCard className="h-full flex flex-col border-amber-500/20 bg-amber-500/5">
             <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-bold flex items-center gap-2">
-                    <AlertTriangle className={clsx("w-5 h-5", hasAlerts ? "text-amber-500" : "text-green-500")} />
-                    Alertas de Manutenção
+                    <AlertCircle className={hasIncidents ? "text-amber-500" : "text-green-500"} />
+                    Incidentes Relatados
                 </h3>
-                {hasAlerts && (
-                    <span className="px-2 py-1 bg-red-500/20 text-red-400 text-xs font-bold rounded-full animate-pulse">
-                        {alerts.length} Ação Necessária
+                {hasIncidents && (
+                    <span className="px-3 py-1 bg-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-black rounded-full animate-pulse uppercase tracking-wider">
+                        {incidents.length} Ativos
                     </span>
                 )}
             </div>
 
-            <div className="flex-1 overflow-y-auto space-y-3 min-h-[200px] max-h-[300px] pr-2 custom-scrollbar">
-                {!hasAlerts ? (
-                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground opacity-50">
-                        <CheckCircle className="w-12 h-12 mb-2" />
-                        <p>Tudo certo com a frota!</p>
+            <div className="flex-1 overflow-y-auto space-y-4 min-h-[300px] max-h-[500px] pr-2 custom-scrollbar">
+                {!hasIncidents ? (
+                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground opacity-50 py-10">
+                        <Clock className="w-12 h-12 mb-3" />
+                        <p className="font-bold uppercase tracking-widest text-xs">Nenhum incidente hoje</p>
                     </div>
                 ) : (
-                    alerts.map((alert: any) => (
-                        <div key={alert.vehicleId} className="p-3 bg-white/5 rounded-lg border border-white/5 hover:border-white/10 transition-colors">
-                            <div className="flex justify-between items-start mb-1">
-                                <span className="font-bold text-sm text-foreground">{alert.model}</span>
-                                <span className="text-xs font-mono bg-black/10 dark:bg-black/40 px-1.5 py-0.5 rounded text-muted-foreground">{alert.plate}</span>
+                    incidents.map((incident: any) => (
+                        <div key={incident.id} className="group p-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-amber-500/50 transition-all shadow-sm hover:shadow-md">
+                            <div className="flex items-start justify-between mb-3">
+                                <div className="space-y-1">
+                                    <div className="flex items-center gap-2 text-sm font-black text-foreground">
+                                        <User size={14} className="text-primary" />
+                                        {incident.driver?.name}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                                        <Truck size={14} />
+                                        {incident.vehicle?.model} • {incident.vehicle?.plate}
+                                    </div>
+                                </div>
+                                <span className="text-[10px] font-black text-muted-foreground/50 flex items-center gap-1">
+                                    <Clock size={12} />
+                                    {format(new Date(incident.createdAt), 'HH:mm', { locale: ptBR })}
+                                </span>
                             </div>
-                            <p className={clsx("text-sm font-medium", alert.severity === 'CRITICAL' ? "text-red-400" : "text-amber-400")}>
-                                {alert.message}
-                            </p>
-                            <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-                                <span>Última: {alert.kmSinceLast} km atrás</span>
-                                <Link to="/maintenance" className="text-primary hover:underline">Agendar</Link>
+
+                            <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl mb-3">
+                                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 italic line-clamp-2">
+                                    "{incident.description}"
+                                </p>
                             </div>
+
+                            <button className="w-full py-2 bg-amber-500/10 hover:bg-amber-500 text-amber-600 hover:text-white text-[11px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 border border-amber-500/20">
+                                <Eye size={14} />
+                                Ver Detalhes
+                            </button>
                         </div>
                     ))
                 )}

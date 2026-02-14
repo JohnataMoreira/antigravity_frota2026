@@ -69,6 +69,27 @@ export function UserModal({ isOpen, onClose, user }: UserModalProps) {
         }
     });
 
+    const handleCepBlur = async () => {
+        const cep = formData.addressZipCode.replace(/\D/g, '');
+        if (cep.length === 8) {
+            try {
+                const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                const data = await response.json();
+                if (!data.erro) {
+                    setFormData(prev => ({
+                        ...prev,
+                        addressStreet: data.logradouro || '',
+                        addressNeighborhood: data.bairro || '',
+                        addressCity: data.localidade || '',
+                        addressState: data.uf || '',
+                    }));
+                }
+            } catch (error) {
+                console.error('Error fetching CEP:', error);
+            }
+        }
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -254,6 +275,17 @@ export function UserModal({ isOpen, onClose, user }: UserModalProps) {
 
                     {/* Address Info */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-6 border-t dark:border-gray-800">
+                        <div className="space-y-2">
+                            <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">CEP</label>
+                            <input
+                                maxLength={9}
+                                placeholder="00000-000"
+                                className="w-full px-4 py-3.5 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
+                                value={formData.addressZipCode}
+                                onChange={e => setFormData({ ...formData, addressZipCode: e.target.value })}
+                                onBlur={handleCepBlur}
+                            />
+                        </div>
                         <div className="md:col-span-2 space-y-2">
                             <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Logradouro / Rua</label>
                             <input

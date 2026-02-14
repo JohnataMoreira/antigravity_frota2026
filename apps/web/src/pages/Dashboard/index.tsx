@@ -81,7 +81,18 @@ export function Dashboard() {
                     icon={<Activity className="w-8 h-8" />}
                     variant="info"
                     gradient={true}
-                />
+                >
+                    <div className="flex flex-wrap gap-x-3 gap-y-1 mt-3 pt-3 border-t border-gray-100 dark:border-gray-800/50">
+                        <div className="flex items-center gap-1">
+                            <span className="text-[10px] font-black uppercase text-muted-foreground">normais:</span>
+                            <span className="text-xs font-bold text-green-500">{stats?.journeysWithoutIncidents || 0}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                            <span className="text-[10px] font-black uppercase text-muted-foreground">incidentes:</span>
+                            <span className="text-xs font-bold text-amber-500">{stats?.journeysWithIncidents || 0}</span>
+                        </div>
+                    </div>
+                </StatCard>
                 <StatCard
                     label="Vei. Disponíveis"
                     value={stats?.availableVehicles || 0}

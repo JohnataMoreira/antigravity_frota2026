@@ -25,7 +25,9 @@ export class ReportsService {
             checklistsWithIssues,
             availableByType,
             inUseByType,
-            maintenanceByType
+            maintenanceByType,
+            recentIncidents,
+            journeysWithIncidentsCount
         ] = await Promise.all([
             this.prisma.vehicle.count(),
             this.prisma.vehicle.count({ where: { status: 'AVAILABLE' } }),
@@ -69,6 +71,21 @@ export class ReportsService {
                 by: ['type'],
                 where: { status: 'MAINTENANCE' },
                 _count: { _all: true }
+            }),
+            this.prisma.incident.findMany({
+                where: { status: 'OPEN' },
+                orderBy: { createdAt: 'desc' },
+                take: 5,
+                include: {
+                    driver: { select: { name: true } },
+                    vehicle: { select: { plate: true, model: true } }
+                }
+            }),
+            this.prisma.journey.count({
+                where: {
+                    status: 'IN_PROGRESS',
+                    incidents: { some: { status: 'OPEN' } }
+                }
             })
         ]);
 
@@ -83,6 +100,8 @@ export class ReportsService {
                 maintenanceVehicles,
                 criticalVehicles,
                 activeJourneys,
+                journeysWithIncidents: journeysWithIncidentsCount,
+                journeysWithoutIncidents: activeJourneys - journeysWithIncidentsCount,
                 totalDrivers,
                 monthlyCosts: maintenanceCosts._sum?.cost || 0,
                 totalKm,
@@ -91,7 +110,8 @@ export class ReportsService {
                     available: availableByType,
                     inUse: inUseByType,
                     maintenance: maintenanceByType
-                }
+                },
+                recentIncidents
             },
             history,
             recentActivity: recentJourneys

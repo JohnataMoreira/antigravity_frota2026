@@ -17,6 +17,7 @@ import { UsersModule } from './users/users.module';
 import { HealthModule } from './health/health.module';
 import { FinanceModule } from './finance/finance.module';
 import { AppController } from './app.controller';
+import { IncidentsModule } from './incidents/incidents.module';
 import { LoggerInterceptor } from './prisma/logger.interceptor';
 
 
@@ -38,6 +39,7 @@ import { LoggerInterceptor } from './prisma/logger.interceptor';
         MaintenanceModule,
         FuelModule,
         UsersModule,
+        IncidentsModule,
     ],
     providers: [
         {

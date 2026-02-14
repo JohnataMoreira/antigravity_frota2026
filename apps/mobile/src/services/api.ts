@@ -98,6 +98,19 @@ class ApiService {
             }),
         });
     }
+
+    async reportIncident(data: {
+        vehicleId: string;
+        journeyId?: string;
+        description: string;
+        severity?: string;
+        photoUrl?: string;
+    }) {
+        return this.request('/incidents', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        });
+    }
 }
 
 export const api = new ApiService();
