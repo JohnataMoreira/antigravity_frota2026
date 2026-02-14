@@ -4,6 +4,7 @@ import { GlassCard } from '../../../components/ui/Cards';
 import { Fuel, TrendingUp, DollarSign, Gauge, Users, Truck } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { formatCurrency, formatKm } from '../../../lib/utils';
+import { ExportActions } from './ExportActions';
 
 export function FuelTab() {
     const { data: stats, isLoading: loadingStats } = useQuery({
@@ -158,7 +159,22 @@ export function FuelTab() {
 
                 <div className="md:col-span-2">
                     <GlassCard>
-                        <h3 className="text-xl font-bold mb-6">Histórico Recente</h3>
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-xl font-bold">Histórico Recente</h3>
+                            <ExportActions
+                                data={entries || []}
+                                filename="relatorio_combustivel"
+                                title="Histórico de Abastecimentos"
+                                columns={[
+                                    { header: 'Data', dataKey: 'date' },
+                                    { header: 'Placa', dataKey: 'vehiclePlate' },
+                                    { header: 'Litros', dataKey: 'liters' },
+                                    { header: 'Valor Total', dataKey: 'totalValue' },
+                                    { header: 'Tipo', dataKey: 'fuelType' },
+                                    { header: 'Pagamento', dataKey: 'paymentMethod' }
+                                ]}
+                            />
+                        </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead>

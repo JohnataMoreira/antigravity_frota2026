@@ -4,6 +4,7 @@ import { GlassCard } from '../../../components/ui/Cards';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Truck, Wrench, AlertTriangle, TrendingUp } from 'lucide-react';
 import { formatCurrency, formatKm } from '../../../lib/utils';
+import { ExportActions } from './ExportActions';
 
 export function VehiclesTab() {
     const { data: vehicles, isLoading } = useQuery({
@@ -50,7 +51,21 @@ export function VehiclesTab() {
             </div>
 
             <GlassCard>
-                <h3 className="text-xl font-bold mb-6">Análise de Custo Operacional (R$/KM)</h3>
+                <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold">Análise de Custo Operacional (R$/KM)</h3>
+                    <ExportActions
+                        data={vehicles || []}
+                        filename="relatorio_veiculos"
+                        title="Relatário de Utilização e Custos de Veículos"
+                        columns={[
+                            { header: 'Placa', dataKey: 'plate' },
+                            { header: 'Modelo', dataKey: 'model' },
+                            { header: 'KM Total', dataKey: 'totalKm' },
+                            { header: 'Custo Manutenção', dataKey: 'maintenanceCost' },
+                            { header: 'Custo por KM', dataKey: 'costPerKm' }
+                        ]}
+                    />
+                </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
                         <thead>

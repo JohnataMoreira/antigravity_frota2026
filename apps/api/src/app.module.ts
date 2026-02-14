@@ -19,13 +19,21 @@ import { FinanceModule } from './finance/finance.module';
 import { AppController } from './app.controller';
 import { IncidentsModule } from './incidents/incidents.module';
 import { LoggerInterceptor } from './prisma/logger.interceptor';
+import { AuditModule } from './common/audit/audit.module';
+import { AuditInterceptor } from './common/audit/audit.interceptor';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 
 
 @Module({
     controllers: [AppController],
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
+        ThrottlerModule.forRoot([{
+            ttl: 60000,
+            limit: 100,
+        }]),
         PrismaModule,
+        AuditModule,
         AuthModule,
         VehiclesModule,
         DriversModule,
@@ -47,8 +55,16 @@ import { LoggerInterceptor } from './prisma/logger.interceptor';
             useClass: JwtAuthGuard,
         },
         {
+            provide: APP_GUARD,
+            useClass: ThrottlerGuard,
+        },
+        {
             provide: APP_INTERCEPTOR,
             useClass: LoggerInterceptor,
+        },
+        {
+            provide: APP_INTERCEPTOR,
+            useClass: AuditInterceptor,
         },
     ],
 })

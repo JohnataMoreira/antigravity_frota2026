@@ -4,6 +4,7 @@ import { GlassCard } from '../../../components/ui/Cards';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { User, Medal, AlertTriangle, Route } from 'lucide-react';
 import { formatKm } from '../../../lib/utils';
+import { ExportActions } from './ExportActions';
 
 export function DriversTab() {
     const { data: drivers, isLoading } = useQuery({
@@ -54,7 +55,20 @@ export function DriversTab() {
                 </GlassCard>
 
                 <GlassCard>
-                    <h3 className="text-xl font-bold mb-6">Detalhamento</h3>
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-xl font-bold">Detalhamento</h3>
+                        <ExportActions
+                            data={drivers || []}
+                            filename="relatorio_motoristas"
+                            title="Desempenho e Utilização por Motorista"
+                            columns={[
+                                { header: 'Motorista', dataKey: 'driverName' },
+                                { header: 'Total de Viagens', dataKey: 'totalJourneys' },
+                                { header: 'Total KM', dataKey: 'totalKm' },
+                                { header: 'Média KM/Viagem', dataKey: 'avgKmPerJourney' }
+                            ]}
+                        />
+                    </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
                             <thead>

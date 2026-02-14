@@ -7,6 +7,7 @@ import { DriversTab } from './components/DriversTab';
 import { VehiclesTab } from './components/VehiclesTab';
 import { FuelTab } from './components/FuelTab';
 import { FinanceTab } from './components/FinanceTab';
+import { ExportActions } from './components/ExportActions';
 import { clsx } from 'clsx';
 import { formatCurrency, formatKm } from '../../lib/utils';
 
@@ -124,7 +125,19 @@ export default function Reports() {
                         </div>
 
                         <GlassCard>
-                            <h3 className="text-xl font-bold mb-6">Histórico Detalhado</h3>
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-xl font-bold">Histórico Detalhado</h3>
+                                <ExportActions
+                                    data={reportData?.history || []}
+                                    filename="relatorio_geral"
+                                    title="Relatório Geral de Custos e Quilometragem"
+                                    columns={[
+                                        { header: 'Mês', dataKey: 'name' },
+                                        { header: 'Custos (R$)', dataKey: 'costs' },
+                                        { header: 'Distância (KM)', dataKey: 'km' }
+                                    ]}
+                                />
+                            </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left">
                                     <thead>

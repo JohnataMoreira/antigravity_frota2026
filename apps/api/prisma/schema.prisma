@@ -88,6 +88,23 @@ model Organization {
   fuelEntries FuelEntry[]
   incidents Incident[]
   maintenanceTemplates MaintenanceTemplate[]
+  auditLogs AuditLog[]
+}
+
+model AuditLog {
+  id             String       @id @default(uuid())
+  organizationId String
+  userId         String?
+  action         String       // CREATE, UPDATE, DELETE, LOGIN, etc.
+  entity         String       // Vehicle, Journey, User, etc.
+  entityId       String?      // The ID of the affected record
+  
+  // Stored as JSON: { oldValues: any, newValues: any, ip: string, userAgent: string }
+  metadata       Json?
+  
+  createdAt      DateTime     @default(now())
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
 }
 
 model User {

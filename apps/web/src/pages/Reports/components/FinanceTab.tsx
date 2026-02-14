@@ -4,6 +4,7 @@ import { GlassCard } from '../../../components/ui/Cards';
 import { DollarSign, TrendingUp, CreditCard, Wrench, Fuel } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { formatCurrency } from '../../../lib/utils';
+import { ExportActions } from './ExportActions';
 
 export function FinanceTab() {
     const { data: financeData, isLoading } = useQuery({
@@ -64,10 +65,23 @@ export function FinanceTab() {
                 </GlassCard>
 
                 <GlassCard>
-                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                        <CreditCard className="w-5 h-5 text-green-500" />
-                        Últimas Transações
-                    </h3>
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-bold flex items-center gap-2">
+                            <CreditCard className="w-5 h-5 text-green-500" />
+                            Últimas Transações
+                        </h3>
+                        <ExportActions
+                            data={financeData?.recentExpenses || []}
+                            filename="relatorio_financeiro"
+                            title="Relatário de Despesas Recentes"
+                            columns={[
+                                { header: 'Data', dataKey: 'date' },
+                                { header: 'Tipo', dataKey: 'type' },
+                                { header: 'Valor', dataKey: 'value' },
+                                { header: 'Detalhes', dataKey: 'details' }
+                            ]}
+                        />
+                    </div>
                     <div className="space-y-4">
                         {financeData?.recentExpenses?.map((exp: any, i: number) => (
                             <div key={i} className="flex justify-between items-center p-3 bg-white/5 rounded-lg border border-white/5">
