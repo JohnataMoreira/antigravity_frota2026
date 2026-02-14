@@ -19,12 +19,13 @@ export default function JourneyScreen() {
                 setActiveJourney(journey);
                 setVehicle(journey.vehicle);
 
-                // START TRACKING
-                locationService.startEmitting(journey.vehicleId, journey.id);
+                // START REAL GPS TRACKING
+                // Note: token and org will come from auth context in production
+                await locationService.startTracking(journey.vehicleId, journey.id);
             } else {
                 setActiveJourney(null);
                 setVehicle(null);
-                locationService.stopEmitting();
+                locationService.stopTracking();
             }
         } catch (e) {
             console.error(e);

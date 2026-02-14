@@ -51,13 +51,20 @@ class ApiService {
         return this.request('/journeys/active', { method: 'GET' });
     }
 
-    async startJourney(vehicleId: string, startKm: number, photoPath?: string) {
+    async startJourney(
+        vehicleId: string,
+        startKm: number,
+        photoPath?: string,
+        location?: { lat: number; lng: number }
+    ) {
         return this.request('/journeys/start', {
             method: 'POST',
             body: JSON.stringify({
                 vehicleId,
                 startKm,
                 startPhotoUrl: photoPath,
+                lat: location?.lat,
+                lng: location?.lng,
             }),
         });
     }

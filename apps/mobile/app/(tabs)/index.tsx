@@ -5,11 +5,13 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../_layout';
 import { sync } from '../../src/services/sync';
 import { api } from '../../src/services/api';
-import * as Location from 'expo-location';
+import { getCaptureLocation } from '../../src/services/photoService';
 
 export default function VehiclesScreen() {
     const [vehicles, setVehicles] = useState<any[]>([]);
     const [isSyncing, setIsSyncing] = useState(false);
+    const [isStarting, setIsStarting] = useState(false);
+    const [startingVehicleId, setStartingVehicleId] = useState<string | null>(null);
     const router = useRouter();
     const { token, logout } = useAuth();
     const params = useLocalSearchParams();
@@ -19,10 +21,6 @@ export default function VehiclesScreen() {
             const collection = database.get('vehicles');
             const data = await collection.query().fetch();
             setVehicles(data);
-
-            if (data.length === 0) {
-                // Initial data if empty - but sync will normally handle this
-            }
         } catch (e) {
             console.error('DB Error', e);
         }
@@ -56,37 +54,34 @@ export default function VehiclesScreen() {
     }, [params.photoPath, params.vehicleId]);
 
     const handleStartJourney = async (vehicle: any, photoPath?: string) => {
-        // [12/10 STRATEGY] Enforce GPS Permission
-        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (isStarting) return;
 
-        if (status !== 'granted') {
-            Alert.alert(
-                'Permissão Necessária',
-                'O rastreamento GPS é obrigatório para iniciar uma jornada nesta empresa. Por favor, habilite a localização nas configurações do app.'
-            );
-            return;
+        setIsStarting(true);
+        setStartingVehicleId(vehicle.id);
+
+        try {
+            // Get current location
+            const location = await getCaptureLocation();
+
+            if (!location) {
+                Alert.alert(
+                    'GPS Necessário',
+                    'Não foi possível obter sua localização. Verifique se o GPS está ativado e as permissões estão concedidas.'
+                );
+                return;
+            }
+
+            // Start journey with location
+            await api.startJourney(vehicle.id, vehicle.currentKm, photoPath, location);
+
+            // Navigate to journey tab
+            router.replace('/(tabs)/journey');
+        } catch (e: any) {
+            Alert.alert('Erro', e.message || 'Falha ao iniciar viagem');
+        } finally {
+            setIsStarting(false);
+            setStartingVehicleId(null);
         }
-
-        Alert.alert(
-            'Iniciar Viagem',
-            `Deseja iniciar viagem com o veículo ${vehicle.plate}?`,
-            [
-                { text: 'Cancelar', style: 'cancel' },
-                {
-                    text: 'Iniciar', onPress: async () => {
-                        try {
-                            // api.startJourney(vehicleId: string, startKm: number, photoPath?: string)
-                            await api.startJourney(vehicle.id, vehicle.currentKm, photoPath);
-
-                            // Navigate to journey tab
-                            router.replace('/(tabs)/journey');
-                        } catch (e: any) {
-                            Alert.alert('Erro', e.message || 'Falha ao iniciar viagem');
-                        }
-                    }
-                }
-            ]
-        );
     };
 
     return (
@@ -102,7 +97,7 @@ export default function VehiclesScreen() {
                     {isSyncing ? (
                         <ActivityIndicator size="small" color="#2563EB" />
                     ) : (
-                        <Text style={styles.syncButton}>Sincronizar</Text>
+                        <Text style={styles.syncButton}>🔄 Sincronizar</Text>
                     )}
                 </TouchableOpacity>
             </View>
@@ -122,18 +117,29 @@ export default function VehiclesScreen() {
                         <Text style={styles.km}>{item.currentKm} km</Text>
 
                         {item.status === 'AVAILABLE' && (
-                            <TouchableOpacity style={styles.button} onPress={() => {
-                                router.push({ pathname: '/camera', params: { vehicleId: item.id } });
-                            }}>
-                                <Text style={styles.buttonText}>Check-out & Iniciar</Text>
+                            <TouchableOpacity
+                                style={[
+                                    styles.button,
+                                    (isStarting && startingVehicleId === item.id) && styles.buttonDisabled
+                                ]}
+                                onPress={() => {
+                                    router.push({ pathname: '/camera', params: { vehicleId: item.id } });
+                                }}
+                                disabled={isStarting && startingVehicleId === item.id}
+                            >
+                                {isStarting && startingVehicleId === item.id ? (
+                                    <ActivityIndicator size="small" color="#fff" />
+                                ) : (
+                                    <Text style={styles.buttonText}>📸 Check-out & Iniciar</Text>
+                                )}
                             </TouchableOpacity>
                         )}
                     </View>
                 )}
                 ListEmptyComponent={
                     <View style={styles.empty}>
-                        <Text>Nenhum veículo encontrado.</Text>
-                        <Text>Toque em Sincronizar para baixar dados.</Text>
+                        <Text style={styles.emptyText}>Nenhum veículo encontrado.</Text>
+                        <Text style={styles.emptySubtext}>Toque em Sincronizar para baixar dados.</Text>
                     </View>
                 }
             />
@@ -153,7 +159,10 @@ const styles = StyleSheet.create({
     status: { fontWeight: '600' },
     model: { color: '#666', marginBottom: 4 },
     km: { color: '#888', marginBottom: 12 },
-    button: { backgroundColor: '#2563EB', padding: 8, borderRadius: 6, alignItems: 'center' },
-    buttonText: { color: '#fff', fontWeight: 'bold' },
-    empty: { alignItems: 'center', marginTop: 100 }
+    button: { backgroundColor: '#2563EB', padding: 12, borderRadius: 6, alignItems: 'center', minHeight: 48 },
+    buttonDisabled: { backgroundColor: '#93C5FD' },
+    buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+    empty: { alignItems: 'center', marginTop: 100 },
+    emptyText: { fontSize: 18, fontWeight: '600', color: '#333', marginBottom: 8 },
+    emptySubtext: { fontSize: 14, color: '#666' }
 });
