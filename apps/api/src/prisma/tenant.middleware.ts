@@ -17,8 +17,10 @@ export class TenantMiddleware implements NestMiddleware {
             const secret = process.env.JWT_SECRET || 'super-secret-key-change-in-prod';
             const decoded = jwt.verify(token, secret) as any;
 
-            if (decoded && decoded.organizationId) {
-                return TenantContext.run(decoded.organizationId, () => next());
+            const organizationId = decoded.orgId || decoded.organizationId;
+
+            if (decoded && organizationId) {
+                return TenantContext.run(organizationId, () => next());
             }
         } catch (e) {
             // Invalid token, ignore and proceed (Guards will handle auth)
