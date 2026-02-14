@@ -27,7 +27,7 @@ export class NotificationService {
                 sound: 'default'
             });
             console.log(`[PUSH-SENT] To: ${userId} | Title: ${title}`);
-        } catch (error) {
+        } catch (error: any) {
             console.error('[PUSH-ERROR] Failed to send push', error.response?.data || error.message);
         }
     }

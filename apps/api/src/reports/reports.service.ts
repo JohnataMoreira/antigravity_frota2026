@@ -233,7 +233,7 @@ export class ReportsService {
     async getDriverRanking(organizationId: string, start?: Date, end?: Date) {
         const drivers = await this.prisma.user.findMany({
             where: { organizationId, role: 'DRIVER' },
-            select: { id: true, name: true, photoUrl: true }
+            select: { id: true, name: true }
         });
 
         const ranking = [];
@@ -283,46 +283,24 @@ export class ReportsService {
             });
             if (safetyScore < 0) safetyScore = 0;
 
-            // 3. Checklist Score (Quality & Compliance)
-            const checklists = await this.prisma.checklist.findMany({
-                where: {
-                    organizationId,
-                    driverId: driver.id,
-                    ...(start && end ? { date: { gte: start, lte: end } } : {})
-                }
-            });
-
-            let checklistScore = 100;
-            if (checklists.length === 0 && totalKm > 0) {
-                checklistScore = 0; // Penalty for driving without checklists
-            } else {
-                // @ts-ignore - Field added in recent migration
-                const totalRating = checklists.reduce((acc, c) => acc + (c.rating || 3), 0); // Default to 3 if no rating
-                const avgRating = checklists.length > 0 ? totalRating / checklists.length : 3;
-                checklistScore = (avgRating / 5) * 100;
-            }
-
-            // 4. Overall Efficiency Score (Weighted)
-            // Fuel: 30%, Safety: 40%, Checklist: 30%
+            // 3. Overall Efficiency Score (Weighted)
+            // Fuel: 50%, Safety: 50%
             const fuelScore = Math.min((kmPerLiter / 10) * 100, 100);
 
             const overallScore = Math.round(
-                (fuelScore * 0.3) +
-                (safetyScore * 0.4) +
-                (checklistScore * 0.3)
+                (fuelScore * 0.5) +
+                (safetyScore * 0.5)
             );
+
 
             ranking.push({
                 driverId: driver.id,
                 name: driver.name,
-                photoUrl: driver.photoUrl,
                 totalKm,
                 kmPerLiter: Number(kmPerLiter.toFixed(2)),
                 incidentCount: incidents.length,
                 // @ts-ignore
                 atFaultCount: incidents.filter(i => i.isDriverAtFault).length,
-                checklistCount: checklists.length,
-                checklistScore: Math.round(checklistScore),
                 safetyScore,
                 efficiencyScore: Math.round(fuelScore),
                 overallScore

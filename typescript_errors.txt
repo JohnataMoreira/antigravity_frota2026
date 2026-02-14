@@ -1,0 +1,5 @@
+src/common/notifications/notification.service.ts(31,63): error TS18046: 'error' is of type 'unknown'.
+src/common/notifications/notification.service.ts(31,87): error TS18046: 'error' is of type 'unknown'.
+src/reports/reports.service.ts(236,45): error TS2353: Object literal may only specify known properties, and 'photoUrl' does not exist in type 'UserSelect<DefaultArgs>'.
+src/reports/reports.service.ts(289,21): error TS2353: Object literal may only specify known properties, and 'organizationId' does not exist in type 'ChecklistWhereInput'.
+src/reports/reports.service.ts(318,34): error TS2339: Property 'photoUrl' does not exist on type '{ id: string; name: string; createdAt: Date; updatedAt: Date; organizationId: string; email: string; passwordHash: string; role: Role; firstName: string | null; lastName: string | null; ... 13 more ...; active: boolean; }'.
