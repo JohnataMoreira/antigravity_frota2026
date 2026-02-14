@@ -72,8 +72,8 @@ export function Login() {
 
             <div className="w-full max-w-md space-y-8 p-8 glass-card relative z-10 border border-border/50 shadow-2xl">
                 <div className="text-center space-y-2">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-2 border border-primary/20">
-                        <Shield className="w-8 h-8 text-primary" />
+                    <div className="flex justify-center mb-6">
+                        <img src="/logo.png" alt="Grupo Paraopeba" className="h-20 w-auto object-contain" />
                     </div>
                     <h2 className="text-4xl font-bold tracking-tight gradient-text">
                         {isRegistering ? 'Nova Organização' : 'Entrar no Frota2026'}
