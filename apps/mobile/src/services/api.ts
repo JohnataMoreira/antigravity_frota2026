@@ -1,4 +1,7 @@
-export const API_URL = 'https://api.johnatamoreira.com.br';
+// Production API URL
+export const API_URL = 'https://frota.johnatamoreira.com.br/api';
+// Fallback for local development (uncomment if needed)
+// export const API_URL = 'http://192.168.1.10:3000/api';
 
 interface LoginResponse {
     access_token: string;
