@@ -122,13 +122,12 @@ async function main() {
             else if (type === VehicleType.MOTORCYCLE) modelData = getRandomItem(bikeModels);
             else modelData = getRandomItem(machineModels);
 
+            const plate = generatePlate();
             const v = await prisma.vehicle.upsert({
-                where: { organizationId_plate: { organizationId: org.id, plate: generatePlate() } }, // Note: generatePlate in where might be tricky if we want to fix it.
-                // Actually, let's pre-generate a list of plates or just use create but handle unique constraint.
-                // Or better, use a predictable plate for the seed or just check existence.
+                where: { organizationId_plate: { organizationId: org.id, plate: plate } },
                 update: {},
                 create: {
-                    plate: generatePlate(),
+                    plate: plate,
                     model: modelData.model,
                     brand: modelData.brand,
                     type: type as VehicleType,
