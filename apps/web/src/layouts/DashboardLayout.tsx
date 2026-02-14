@@ -28,8 +28,8 @@ export function DashboardLayout() {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
             {/* Sidebar for Desktop */}
             <aside className="hidden md:flex flex-col w-64 glass-card h-screen sticky top-0 border-r border-gray-200 dark:border-gray-800">
-                <div className="p-6 border-b border-gray-100 dark:border-gray-800">
-                    <img src="/logo.png" alt="Grupo Paraopeba" className="h-12 w-auto object-contain" />
+                <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-center bg-white">
+                    <img src="/logo.png" alt="Grupo Paraopeba" className="h-14 w-auto object-contain" />
                 </div>
 
                 <div className="px-6 py-4 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800 mb-4">
@@ -78,7 +78,9 @@ export function DashboardLayout() {
             {/* Mobile Header & Content */}
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 <header className="md:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between p-4">
-                    <img src="/logo.png" alt="Grupo Paraopeba" className="h-8 w-auto object-contain" />
+                    <div className="bg-white p-1 rounded-lg">
+                        <img src="/logo.png" alt="Grupo Paraopeba" className="h-8 w-auto object-contain" />
+                    </div>
                     <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
                         {isMobileMenuOpen ? <X /> : <Menu />}
                     </button>
