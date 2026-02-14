@@ -14,6 +14,9 @@ export class ReportsService {
         const [
             totalVehicles,
             availableVehicles,
+            inUseVehicles,
+            maintenanceVehicles,
+            criticalVehicles,
             activeJourneys,
             totalDrivers,
             recentJourneys,
@@ -23,6 +26,9 @@ export class ReportsService {
         ] = await Promise.all([
             this.prisma.vehicle.count(),
             this.prisma.vehicle.count({ where: { status: 'AVAILABLE' } }),
+            this.prisma.vehicle.count({ where: { status: 'IN_USE' } }),
+            this.prisma.vehicle.count({ where: { status: 'MAINTENANCE' } }),
+            this.prisma.vehicle.count({ where: { status: 'CRITICAL_ISSUE' } }),
             this.prisma.journey.count({ where: { status: 'IN_PROGRESS' } }),
             this.prisma.user.count({ where: { role: 'DRIVER' } }),
             this.prisma.journey.findMany({
@@ -55,6 +61,9 @@ export class ReportsService {
             stats: {
                 totalVehicles,
                 availableVehicles,
+                inUseVehicles,
+                maintenanceVehicles,
+                criticalVehicles,
                 activeJourneys,
                 totalDrivers,
                 monthlyCosts: maintenanceCosts._sum?.cost || 0,

@@ -21,6 +21,20 @@ export function MaintenanceList() {
         notes: ''
     });
 
+    const maintenanceTypeMap: Record<string, string> = {
+        'OIL': 'Troca de Óleo',
+        'TIRES': 'Pneus/Rodagem',
+        'INSPECTION': 'Revisão Preventiva',
+        'REPAIR': 'Corretiva/Reparo',
+        'OTHER': 'Outros Serviços'
+    };
+
+    const statusMap: Record<string, string> = {
+        'PENDING': 'Pendente',
+        'COMPLETED': 'Concluída',
+        'CANCELED': 'Cancelada'
+    };
+
     const [completeData, setCompleteData] = useState({
         cost: 0,
         lastKm: 0,
@@ -125,7 +139,7 @@ export function MaintenanceList() {
                                     <div className="bg-red-50 dark:bg-red-900/20 p-2.5 rounded-xl text-red-600">
                                         <Wrench size={24} />
                                     </div>
-                                    <span className="text-[10px] font-black uppercase tracking-widest bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-3 py-1 rounded-full">{maintenance.type}</span>
+                                    <span className="text-[10px] font-black uppercase tracking-widest bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-3 py-1 rounded-full">{maintenanceTypeMap[maintenance.type] || maintenance.type}</span>
                                 </div>
                                 <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2">{maintenance.vehicle?.plate}</h3>
                                 <div className="space-y-2 mb-4 flex-grow">
@@ -176,13 +190,13 @@ export function MaintenanceList() {
                                 {maintenances.map((maintenance: any) => (
                                     <tr key={maintenance.id} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/20 transition-all">
                                         <td className="px-6 py-5 font-bold text-blue-600 dark:text-blue-400">{maintenance.vehicle?.plate || '—'}</td>
-                                        <td className="px-6 py-5 font-medium">{maintenance.type}</td>
+                                        <td className="px-6 py-5 font-medium">{maintenanceTypeMap[maintenance.type] || maintenance.type}</td>
                                         <td className="px-6 py-5">
                                             <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${maintenance.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' :
                                                 maintenance.status === 'COMPLETED' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
                                                     'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
                                                 }`}>
-                                                {maintenance.status === 'PENDING' ? 'Pendente' : 'Realizada'}
+                                                {statusMap[maintenance.status] || maintenance.status}
                                             </span>
                                         </td>
                                         <td className="px-6 py-5 text-right font-medium text-muted-foreground">
@@ -309,7 +323,7 @@ export function MaintenanceList() {
                             </div>
                             <div>
                                 <div className="font-black text-lg">{selectedMaintenance.vehicle?.plate}</div>
-                                <div className="text-sm text-muted-foreground uppercase font-bold tracking-wider">{selectedMaintenance.type}</div>
+                                <div className="text-sm text-muted-foreground uppercase font-bold tracking-wider">{maintenanceTypeMap[selectedMaintenance.type] || selectedMaintenance.type}</div>
                             </div>
                         </div>
 

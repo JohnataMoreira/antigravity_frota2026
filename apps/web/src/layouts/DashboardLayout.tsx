@@ -38,7 +38,7 @@ export function DashboardLayout() {
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold truncate text-gray-900 dark:text-gray-100">{user?.name || 'Usuário'}</p>
-                        <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
                     </div>
                 </div>
 
@@ -84,20 +84,48 @@ export function DashboardLayout() {
                     </button>
                 </header>
 
-                {/* Mobile Menu */}
+                {/* Mobile Menu Overlay */}
                 {isMobileMenuOpen && (
-                    <div className="md:hidden bg-white dark:bg-gray-800 border-b p-4 space-y-2">
-                        {navigation.map((item) => (
-                            <Link
-                                key={item.name}
-                                to={item.href}
-                                className="block px-4 py-2 hover:bg-gray-100 rounded"
+                    <div className="fixed inset-0 z-50 md:hidden flex flex-col bg-white dark:bg-gray-900 animate-in fade-in slide-in-from-top-4 duration-200">
+                        <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
+                            <span className="font-bold text-xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Frota2026</span>
+                            <button
                                 onClick={() => setIsMobileMenuOpen(false)}
+                                className="p-2 text-gray-500"
                             >
-                                {item.name}
-                            </Link>
-                        ))}
-                        <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-red-600">Sair</button>
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
+
+                        <nav className="flex-1 px-4 py-8 space-y-4">
+                            {navigation.map((item) => {
+                                const isActive = location.pathname.startsWith(item.href);
+                                return (
+                                    <Link
+                                        key={item.name}
+                                        to={item.href}
+                                        className={`flex items-center px-6 py-4 text-lg font-semibold rounded-2xl transition-all ${isActive
+                                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                                            : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                            }`}
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                    >
+                                        <item.icon className="w-6 h-6 mr-4" />
+                                        {item.name}
+                                    </Link>
+                                );
+                            })}
+                        </nav>
+
+                        <div className="p-6 border-t border-gray-100 dark:border-gray-800">
+                            <button
+                                onClick={handleLogout}
+                                className="flex items-center justify-center w-full px-6 py-4 text-lg font-bold text-red-500 bg-red-50 dark:bg-red-900/10 rounded-2xl"
+                            >
+                                <LogOut className="w-6 h-6 mr-3" />
+                                Sair da Conta
+                            </button>
+                        </div>
                     </div>
                 )}
 

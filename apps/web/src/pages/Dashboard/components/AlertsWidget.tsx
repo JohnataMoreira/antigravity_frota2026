@@ -39,8 +39,8 @@ export function AlertsWidget() {
                     alerts.map((alert: any) => (
                         <div key={alert.vehicleId} className="p-3 bg-white/5 rounded-lg border border-white/5 hover:border-white/10 transition-colors">
                             <div className="flex justify-between items-start mb-1">
-                                <span className="font-bold text-sm text-white">{alert.model}</span>
-                                <span className="text-xs font-mono bg-black/30 px-1.5 py-0.5 rounded text-muted-foreground">{alert.plate}</span>
+                                <span className="font-bold text-sm text-foreground">{alert.model}</span>
+                                <span className="text-xs font-mono bg-black/10 dark:bg-black/40 px-1.5 py-0.5 rounded text-muted-foreground">{alert.plate}</span>
                             </div>
                             <p className={clsx("text-sm font-medium", alert.severity === 'CRITICAL' ? "text-red-400" : "text-amber-400")}>
                                 {alert.message}

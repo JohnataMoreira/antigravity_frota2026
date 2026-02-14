@@ -154,18 +154,18 @@
   }
 
   .glass-dark {
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
   }
 
   .glass-card {
-    @apply glass shadow-lg rounded-lg;
+    @apply glass shadow-lg rounded-lg border border-white/10;
   }
 
   .dark .glass-card {
-    @apply glass-dark;
+    @apply glass-dark shadow-2xl;
   }
 
   /* Gradient backgrounds for purple theme */

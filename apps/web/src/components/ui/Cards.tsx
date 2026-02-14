@@ -35,6 +35,7 @@ interface StatCardProps {
     };
     icon?: ReactNode;
     gradient?: boolean;
+    variant?: 'default' | 'success' | 'warning' | 'danger' | 'info';
 }
 
 /**
@@ -43,13 +44,22 @@ interface StatCardProps {
  * High-impact number display with gradients and micro-animations.
  * Designed for maximum visual impact.
  */
-export function StatCard({ label, value, trend, icon, gradient = false }: StatCardProps) {
+export function StatCard({ label, value, trend, icon, gradient = false, variant = 'default' }: StatCardProps) {
+    const variantClasses = {
+        default: '',
+        success: 'border-green-500/30 bg-green-500/5',
+        warning: 'border-amber-500/30 bg-amber-500/5',
+        danger: 'border-red-500/30 bg-red-500/5',
+        info: 'border-blue-500/30 bg-blue-500/5',
+    };
+
     return (
         <GlassCard
             className={`
         flex items-start justify-between 
         transition-all duration-300 
         hover:scale-105 hover:shadow-2xl
+        ${variantClasses[variant]}
         ${gradient ? 'gradient-card border-primary/20' : ''}
       `}
             gradient={gradient}

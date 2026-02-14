@@ -180,7 +180,7 @@ export function VehiclesList() {
                                         </td>
                                         <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
                                             <div className="font-semibold">{vehicle.model}</div>
-                                            <div className="text-xs text-gray-500">{vehicle.brand} {vehicle.year}</div>
+                                            <div className="text-xs text-gray-500 dark:text-gray-400">{vehicle.brand} {vehicle.year}</div>
                                         </td>
                                         <td className="px-6 py-4 text-center">
                                             <div className="inline-flex p-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-500">
@@ -191,8 +191,8 @@ export function VehiclesList() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${(statusMap as any)[vehicle.status].color}`}>
-                                                {(statusMap as any)[vehicle.status].label}
+                                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${statusMap[vehicle.status].color}`}>
+                                                {statusMap[vehicle.status].label}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 font-bold dark:text-gray-200">
@@ -258,8 +258,8 @@ export function VehiclesList() {
                                 </div>
 
                                 <div className="flex justify-between items-center pt-2">
-                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${(statusMap as any)[vehicle.status].color}`}>
-                                        {(statusMap as any)[vehicle.status].label}
+                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${statusMap[vehicle.status].color}`}>
+                                        {statusMap[vehicle.status].label}
                                     </span>
                                     <div className="text-[10px] text-gray-400 font-bold uppercase">Cod: {vehicle.id.split('-')[0]}</div>
                                 </div>
@@ -275,7 +275,7 @@ export function VehiclesList() {
                         <Search size={32} />
                     </div>
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">Nenhum veículo encontrado</h3>
-                    <p className="text-gray-500">Tente ajustar sua busca ou adicione um novo veículo.</p>
+                    <p className="text-muted-foreground">Tente ajustar sua busca ou adicione um novo veículo.</p>
                 </div>
             )}
             <VehicleModal

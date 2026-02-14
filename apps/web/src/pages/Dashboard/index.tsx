@@ -5,7 +5,7 @@ import { LiveMap } from '../../components/LiveMap';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { ThemeSwitcher } from '../../components/ThemeSwitcher';
 import { AlertsWidget } from './components/AlertsWidget';
-import { Truck, Users, MapPin, Activity, DollarSign, Gauge } from 'lucide-react';
+import { Truck, Users, MapPin, Activity, DollarSign, Gauge, Wrench, CheckCircle } from 'lucide-react';
 import {
     LineChart, Line, BarChart, Bar, XAxis, YAxis,
     CartesianGrid, Tooltip, ResponsiveContainer, Legend
@@ -46,30 +46,37 @@ export function Dashboard() {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
                 <StatCard
                     label="Jornadas Ativas"
                     value={stats?.activeJourneys || 0}
-                    icon={<Activity className="w-10 h-10" />}
+                    icon={<Activity className="w-8 h-8" />}
                     gradient={true}
                 />
                 <StatCard
-                    label="Veículos Disponíveis"
+                    label="Vei. Disponíveis"
                     value={stats?.availableVehicles || 0}
-                    icon={<Truck className="w-10 h-10" />}
-                    gradient={true}
+                    icon={<CheckCircle className="w-8 h-8" />}
+                />
+                <StatCard
+                    label="Vei. em Uso"
+                    value={stats?.inUseVehicles || 0}
+                    icon={<Truck className="w-8 h-8" />}
+                />
+                <StatCard
+                    label="Em Manutenção"
+                    value={stats?.maintenanceVehicles || 0}
+                    icon={<Wrench className="w-8 h-8" />}
                 />
                 <StatCard
                     label="Custos (Mês)"
-                    value={`R$ ${stats?.monthlyCosts || 0}`}
-                    icon={<DollarSign className="w-10 h-10" />}
-                    gradient={true}
+                    value={`R$ ${stats?.monthlyCosts?.toLocaleString() || 0}`}
+                    icon={<DollarSign className="w-8 h-8" />}
                 />
                 <StatCard
                     label="Distância (KM)"
-                    value={stats?.totalKm || 0}
-                    icon={<Gauge className="w-10 h-10" />}
-                    gradient={true}
+                    value={stats?.totalKm?.toLocaleString() || 0}
+                    icon={<Gauge className="w-8 h-8" />}
                 />
             </div>
 
