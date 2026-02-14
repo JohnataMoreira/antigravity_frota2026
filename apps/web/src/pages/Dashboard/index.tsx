@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/axios';
 import { StatCard, GlassCard } from '../../components/ui/Cards';
-import { LiveMap } from '../../components/LiveMap';
+import { lazy, Suspense } from 'react';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { ThemeSwitcher } from '../../components/ThemeSwitcher';
 import { AlertsWidget } from './components/AlertsWidget';
@@ -11,6 +11,8 @@ import {
     CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 import { formatCurrency, formatKm } from '../../lib/utils';
+
+const LiveMap = lazy(() => import('../../components/LiveMap').then(m => ({ default: m.LiveMap })));
 
 export function Dashboard() {
     const { data: reportData } = useQuery({
@@ -94,7 +96,16 @@ export function Dashboard() {
                             Rastreamento em Tempo Real
                         </h2>
                         <ErrorBoundary>
-                            <LiveMap />
+                            <Suspense fallback={
+                                <div className="h-[400px] w-full flex items-center justify-center bg-gray-50 dark:bg-gray-800/20 rounded-xl border border-dashed animate-pulse">
+                                    <div className="text-center">
+                                        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                                        <p className="text-muted-foreground font-medium">Carregando mapa em tempo real...</p>
+                                    </div>
+                                </div>
+                            }>
+                                <LiveMap />
+                            </Suspense>
                         </ErrorBoundary>
                     </GlassCard>
                 </div>
