@@ -51,31 +51,35 @@ export function Dashboard() {
                     label="Jornadas Ativas"
                     value={stats?.activeJourneys || 0}
                     icon={<Activity className="w-8 h-8" />}
+                    variant="info"
                     gradient={true}
                 />
                 <StatCard
                     label="Vei. Disponíveis"
                     value={stats?.availableVehicles || 0}
                     icon={<CheckCircle className="w-8 h-8" />}
+                    variant="success"
                 />
                 <StatCard
                     label="Vei. em Uso"
                     value={stats?.inUseVehicles || 0}
                     icon={<Truck className="w-8 h-8" />}
+                    variant="info"
                 />
                 <StatCard
                     label="Em Manutenção"
                     value={stats?.maintenanceVehicles || 0}
                     icon={<Wrench className="w-8 h-8" />}
+                    variant="warning"
                 />
                 <StatCard
                     label="Custos (Mês)"
-                    value={`R$ ${stats?.monthlyCosts?.toLocaleString() || 0}`}
+                    value={`R$ ${stats?.monthlyCosts?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '0,00'}`}
                     icon={<DollarSign className="w-8 h-8" />}
                 />
                 <StatCard
                     label="Distância (KM)"
-                    value={stats?.totalKm?.toLocaleString() || 0}
+                    value={stats?.totalKm?.toLocaleString('pt-BR') || 0}
                     icon={<Gauge className="w-8 h-8" />}
                 />
             </div>
@@ -158,16 +162,6 @@ export function Dashboard() {
                 </GlassCard>
             </div>
 
-            {/* Live Map Section */}
-            <GlassCard gradient={true}>
-                <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
-                    <MapPin className="w-6 h-6 text-primary" />
-                    Rastreamento em Tempo Real
-                </h2>
-                <ErrorBoundary>
-                    <LiveMap />
-                </ErrorBoundary>
-            </GlassCard>
         </div>
     );
 }
