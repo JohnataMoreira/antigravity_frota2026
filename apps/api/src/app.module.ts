@@ -39,14 +39,15 @@ import { LoggerInterceptor } from './prisma/logger.interceptor';
         FuelModule,
         UsersModule,
     ],
+    providers: [
         {
-        provide: APP_GUARD,
-        useClass: JwtAuthGuard,
-    },
-    {
-        provide: APP_INTERCEPTOR,
-        useClass: LoggerInterceptor,
-    },
+            provide: APP_GUARD,
+            useClass: JwtAuthGuard,
+        },
+        {
+            provide: APP_INTERCEPTOR,
+            useClass: LoggerInterceptor,
+        },
     ],
 })
 export class AppModule { }
