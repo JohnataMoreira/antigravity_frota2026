@@ -17,7 +17,6 @@ import { UsersModule } from './users/users.module';
 import { HealthModule } from './health/health.module';
 import { FinanceModule } from './finance/finance.module';
 import { AppController } from './app.controller';
-import { TenantInterceptor } from './prisma/tenant.interceptor';
 import { LoggerInterceptor } from './prisma/logger.interceptor';
 
 
@@ -40,19 +39,14 @@ import { LoggerInterceptor } from './prisma/logger.interceptor';
         FuelModule,
         UsersModule,
     ],
-    providers: [
         {
-            provide: APP_GUARD,
-            useClass: JwtAuthGuard,
-        },
-        {
-            provide: APP_INTERCEPTOR,
-            useClass: TenantInterceptor,
-        },
-        {
-            provide: APP_INTERCEPTOR,
-            useClass: LoggerInterceptor,
-        },
+        provide: APP_GUARD,
+        useClass: JwtAuthGuard,
+    },
+    {
+        provide: APP_INTERCEPTOR,
+        useClass: LoggerInterceptor,
+    },
     ],
 })
 export class AppModule { }

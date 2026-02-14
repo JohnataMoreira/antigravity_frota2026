@@ -1,13 +1,13 @@
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from '../context/AuthContext';
-import L from 'leaflet';
+import * as L from 'leaflet';
 
 // Fix Leaflet icons - only on client
 const fixLeafletIcons = () => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && L && L.Icon && L.Icon.Default) {
         // @ts-expect-error Leaflet prototype fix
         delete L.Icon.Default.prototype._getIconUrl;
         L.Icon.Default.mergeOptions({
@@ -18,13 +18,16 @@ const fixLeafletIcons = () => {
     }
 };
 
-fixLeafletIcons();
+if (typeof window !== 'undefined') {
+    fixLeafletIcons();
+}
 
 // Custom Car Icon Factory
 const createCarIcon = (status: 'MOVING' | 'STOPPED' | 'OFFLINE', plate: string) => {
     const color = status === 'MOVING' ? '#10b981' : status === 'STOPPED' ? '#ef4444' : '#6b7280';
 
     try {
+        if (!L || !L.divIcon) return undefined;
         return L.divIcon({
             className: 'custom-car-marker',
             html: `
@@ -45,7 +48,7 @@ const createCarIcon = (status: 'MOVING' | 'STOPPED' | 'OFFLINE', plate: string) 
         });
     } catch (e) {
         console.error('Error creating car icon', e);
-        return new L.Icon.Default(); // Fallback to default icon
+        return undefined;
     }
 };
 
