@@ -1,8 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/axios';
-import { Wrench, AlertTriangle, CheckCircle2, Search, Calendar, LayoutGrid, List as ListIcon, Plus, X, DollarSign, ArrowRight } from 'lucide-react';
-import { GlassCard } from '../../components/ui/Cards';
-import { useState } from 'react';
+import { Wrench, AlertTriangle, CheckCircle2, Search, LayoutGrid, List as ListIcon, Plus, X, DollarSign, ArrowRight, Clock } from 'lucide-react';
+import { GlassCard, StatCard } from '../../components/ui/Cards';
+import { useState, useMemo } from 'react';
+import { formatCurrency, formatKm } from '../../lib/utils';
 
 export function MaintenanceList() {
     const queryClient = useQueryClient();
@@ -80,6 +81,18 @@ export function MaintenanceList() {
 
     const pending = maintenances.filter((m: any) => m.status === 'PENDING');
 
+    const stats = useMemo(() => {
+        const total = maintenances.length;
+        const pendingCount = pending.length;
+        const completedCount = maintenances.filter((m: any) => m.status === 'COMPLETED').length;
+        const totalCost = maintenances.reduce((acc: number, m: any) => acc + (m.cost || 0), 0);
+        const inWorkshop = vehicles.filter((v: any) => v.status === 'MAINTENANCE').length;
+
+        return { total, pendingCount, completedCount, totalCost, inWorkshop };
+    }, [maintenances, vehicles, pending]);
+
+    const vehiclesInWorkshop = vehicles.filter((v: any) => v.status === 'MAINTENANCE');
+
     if (isLoading) return (
         <div className="flex flex-col items-center justify-center py-20 animate-pulse">
             <Wrench className="w-12 h-12 text-purple-200 mb-4" />
@@ -98,34 +111,77 @@ export function MaintenanceList() {
                         Garantindo a segurança e durabilidade da frota.
                     </p>
                 </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <StatCard label="Total de Registros" value={stats.total} icon={<Wrench className="w-8 h-8" />} />
+                <StatCard label="Alertas Ativos" value={stats.pendingCount} icon={<AlertTriangle className="w-8 h-8" />} variant={stats.pendingCount > 0 ? 'warning' : 'default'} />
+                <StatCard label="Veículos na Oficina" value={stats.inWorkshop} icon={<LayoutGrid className="w-8 h-8" />} variant={stats.inWorkshop > 0 ? 'danger' : 'default'} />
+                <StatCard label="Investimento (Total)" value={formatCurrency(stats.totalCost)} icon={<DollarSign className="w-8 h-8" />} variant="info" />
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white dark:bg-gray-800/20 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+                <div className="flex flex-col md:flex-row gap-4 items-center flex-1 w-full max-w-2xl">
+                    <div className="flex items-center gap-3 bg-white dark:bg-gray-800/50 p-2 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex-1 w-full focus-within:ring-2 focus-within:ring-blue-500/50 transition-all">
+                        <Search size={22} className="text-gray-400 ml-2" />
+                        <input
+                            placeholder="Buscar por veículo ou serviço..."
+                            className="bg-transparent outline-none flex-1 py-2 font-medium"
+                        />
+                    </div>
+                </div>
 
                 <div className="flex items-center gap-3">
                     <button
                         onClick={() => setIsCreateModalOpen(true)}
-                        className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-2xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                        className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg shadow-blue-500/20 transition-all group"
                     >
-                        <Plus size={20} />
-                        Nova Manutenção
+                        <Plus size={20} className="group-hover:rotate-90 transition-transform" />
+                        Novo Alerta
                     </button>
 
-                    <div className="flex bg-gray-100 dark:bg-gray-800 p-1.5 rounded-2xl border dark:border-gray-700 shadow-sm">
+                    <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl border dark:border-gray-700 shadow-sm">
                         <button
                             onClick={() => setViewMode('grid')}
-                            className={`p-2.5 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-gray-700 shadow-md text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
-                            title="Alertas em Grade"
+                            className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600' : 'text-gray-400'}`}
                         >
                             <LayoutGrid size={20} />
                         </button>
                         <button
                             onClick={() => setViewMode('list')}
-                            className={`p-2.5 rounded-xl transition-all ${viewMode === 'list' ? 'bg-white dark:bg-gray-700 shadow-md text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
-                            title="Histórico Completo"
+                            className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600' : 'text-gray-400'}`}
                         >
                             <ListIcon size={20} />
                         </button>
                     </div>
                 </div>
             </div>
+
+            {vehiclesInWorkshop.length > 0 && (
+                <div className="space-y-4">
+                    <h2 className="text-xl font-bold flex items-center gap-2 text-primary">
+                        <LayoutGrid className="w-6 h-6" /> Veículos na Oficina
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {vehiclesInWorkshop.map((v: any) => (
+                            <GlassCard key={v.id} className="relative overflow-hidden group border-t-4 border-red-500">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 animate-pulse">
+                                        <Wrench size={20} />
+                                    </div>
+                                    <div>
+                                        <div className="font-black text-lg text-blue-600 dark:text-blue-400">{v.plate}</div>
+                                        <div className="text-[10px] font-bold text-muted-foreground uppercase">{v.model}</div>
+                                    </div>
+                                </div>
+                                <div className="text-xs font-bold text-red-500 flex items-center gap-1 uppercase tracking-tighter">
+                                    <Clock size={12} /> Em Manutenção Crítica
+                                </div>
+                            </GlassCard>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {pending.length > 0 && (
                 <div className="space-y-4">
@@ -145,11 +201,11 @@ export function MaintenanceList() {
                                 <div className="space-y-2 mb-4 flex-grow">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-muted-foreground font-medium">KM Atual:</span>
-                                        <span className="font-bold">{maintenance.vehicle?.currentKm.toLocaleString()} km</span>
+                                        <span className="font-bold">{formatKm(maintenance.vehicle?.currentKm)}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-muted-foreground font-medium">Próxima em:</span>
-                                        <span className="font-bold text-red-600">{maintenance.nextDueKm.toLocaleString()} km</span>
+                                        <span className="font-bold text-red-600">{formatKm(maintenance.nextDueKm)}</span>
                                     </div>
                                 </div>
 
@@ -200,10 +256,17 @@ export function MaintenanceList() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-5 text-right font-medium text-muted-foreground">
-                                            {maintenance.performedAt ?
-                                                new Date(maintenance.performedAt).toLocaleDateString('pt-BR') :
-                                                maintenance.nextDueKm.toLocaleString() + ' km'
-                                            }
+                                            {maintenance.status === 'COMPLETED' ? (
+                                                <div className="flex flex-col items-end">
+                                                    <span className="font-bold text-gray-900 dark:text-white">{formatCurrency(maintenance.cost)}</span>
+                                                    <span className="text-[10px]">{new Date(maintenance.performedAt).toLocaleDateString('pt-BR')}</span>
+                                                </div>
+                                            ) : (
+                                                <div className="flex flex-col items-end">
+                                                    <span className="font-bold text-orange-600">{formatKm(maintenance.nextDueKm)}</span>
+                                                    <span className="text-[10px]">PREVISTA</span>
+                                                </div>
+                                            )}
                                         </td>
                                         <td className="px-6 py-5 text-right">
                                             {maintenance.status === 'PENDING' && (
