@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -5,14 +6,13 @@ import { PrismaService } from '../prisma/prisma.service';
 export class SyncService {
     constructor(private prisma: PrismaService) { }
 
-    async pull(lastPulledAt: number, organizationId: string) {
+    async pull(lastPulledAt: number) {
         const changes: any = {};
         const date = new Date(lastPulledAt);
 
         // Vehicles (Read-only for mobile basically, but we send updates)
         const updatedVehicles = await this.prisma.vehicle.findMany({
             where: {
-                organizationId,
                 updatedAt: { gt: date },
             },
             select: {
@@ -32,7 +32,6 @@ export class SyncService {
         // But if driver changes device? Need to pull.
         const updatedJourneys = await this.prisma.journey.findMany({
             where: {
-                organizationId,
                 updatedAt: { gt: date }
             }
         });
@@ -56,7 +55,7 @@ export class SyncService {
         return { changes, timestamp: Date.now() };
     }
 
-    async push(changes: any, organizationId: string, userId: string) {
+    async push(changes: any, userId: string) {
         // Process pushed changes
         // WatermelonDB sends { vehicles: { created: [], updated: [], deleted: [] }, ... }
 
@@ -72,14 +71,13 @@ export class SyncService {
                 await this.prisma.journey.create({
                     data: {
                         id: j.id, // Trust mobile ID?
-                        organizationId,
                         driverId: userId, // Enforce current user as driver
                         vehicleId: j.vehicle_id,
                         status: j.status,
                         startKm: j.start_km,
                         startTime: new Date(j.start_time),
                         updatedAt: new Date(j.updated_at || Date.now()),
-                    }
+                    } as any // organizationId is injected by Prisma Extension
                 }).catch(e => console.error('Sync Create Error', e));
             }
 

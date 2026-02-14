@@ -1,4 +1,4 @@
-import { Controller, Get, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -8,8 +8,7 @@ export class ReportsController {
     constructor(private prisma: PrismaService) { }
 
     @Get('overview')
-    async getOverview(@Request() req: any) {
-        const orgId = req.user.organizationId;
+    async getOverview() {
         const now = new Date();
         const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
 
@@ -23,12 +22,11 @@ export class ReportsController {
             journeysWithKm,
             checklistsWithIssues
         ] = await Promise.all([
-            this.prisma.vehicle.count({ where: { organizationId: orgId } }),
-            this.prisma.vehicle.count({ where: { organizationId: orgId, status: 'AVAILABLE' } }),
-            this.prisma.journey.count({ where: { organizationId: orgId, status: 'IN_PROGRESS' } }),
-            this.prisma.user.count({ where: { organizationId: orgId } }),
+            this.prisma.vehicle.count(),
+            this.prisma.vehicle.count({ where: { status: 'AVAILABLE' } }),
+            this.prisma.journey.count({ where: { status: 'IN_PROGRESS' } }),
+            this.prisma.user.count(),
             this.prisma.journey.findMany({
-                where: { organizationId: orgId },
                 orderBy: { createdAt: 'desc' },
                 take: 5,
                 include: { driver: { select: { name: true } }, vehicle: { select: { plate: true } } }
@@ -36,7 +34,6 @@ export class ReportsController {
             // Total costs this month
             this.prisma.maintenance.aggregate({
                 where: {
-                    organizationId: orgId,
                     status: 'COMPLETED',
                     performedAt: { gte: new Date(now.getFullYear(), now.getMonth(), 1) }
                 },
@@ -44,23 +41,24 @@ export class ReportsController {
             }),
             // Total Km from completed journeys
             this.prisma.journey.findMany({
-                where: { organizationId: orgId, status: 'COMPLETED' },
+                where: { status: 'COMPLETED' },
                 select: { startKm: true, endKm: true }
             }),
             // Health: issues in checklists
             this.prisma.checklist.count({
                 where: {
-                    journey: { organizationId: orgId },
                     items: { path: ['$'], array_contains: { status: 'ISSUE' } }
                 }
             })
         ]);
 
         // Calculate total distance
+        /* eslint-disable @typescript-eslint/no-explicit-any */
         const totalKm = journeysWithKm.reduce((acc: number, j: any) => acc + ((j.endKm || 0) - j.startKm), 0);
+        /* eslint-enable @typescript-eslint/no-explicit-any */
 
         // Generate history for charts
-        const history = await this.getMonthlyHistory(orgId, sixMonthsAgo);
+        const history = await this.getMonthlyHistory(sixMonthsAgo);
 
         return {
             stats: {
@@ -77,7 +75,7 @@ export class ReportsController {
         };
     }
 
-    private async getMonthlyHistory(orgId: string, startDate: Date) {
+    private async getMonthlyHistory(startDate: Date) {
         const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
         const results = [];
 
@@ -87,16 +85,18 @@ export class ReportsController {
 
             const [costAgg, journeyList] = await Promise.all([
                 this.prisma.maintenance.aggregate({
-                    where: { organizationId: orgId, status: 'COMPLETED', performedAt: { gte: d, lt: nextD } },
+                    where: { status: 'COMPLETED', performedAt: { gte: d, lt: nextD } },
                     _sum: { cost: true }
                 }),
                 this.prisma.journey.findMany({
-                    where: { organizationId: orgId, status: 'COMPLETED', endTime: { gte: d, lt: nextD } },
+                    where: { status: 'COMPLETED', endTime: { gte: d, lt: nextD } },
                     select: { startKm: true, endKm: true }
                 })
             ]);
 
+            /* eslint-disable @typescript-eslint/no-explicit-any */
             const monthlyKm = journeyList.reduce((acc: number, j: any) => acc + ((j.endKm || 0) - j.startKm), 0);
+            /* eslint-enable @typescript-eslint/no-explicit-any */
 
             results.push({
                 name: months[d.getMonth()],

@@ -1,0 +1,55 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: frota2026-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=frota2026
+    networks:
+      - dokploy-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgbouncer:
+    image: edoburu/pgbouncer:latest
+    container_name: frota2026-pgbouncer
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgres://postgres:password@frota2026-postgres:5432/frota2026
+      - MAX_CLIENT_CONN=1000
+      - DEFAULT_POOL_SIZE=50
+      - POOL_MODE=transaction
+    networks:
+      - dokploy-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    image: frota2026-api
+    container_name: frota2026-api-prod
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgres://postgres:password@frota2026-pgbouncer:6432/frota2026?schema=public
+      - JWT_SECRET=frota2026-secret-key-change-me
+      - PORT=3000
+      - NODE_ENV=production
+    networks:
+      - dokploy-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frota_final_api.rule=Host(`johnatamoreira.com.br`) && PathPrefix(`/api`)"
+      - "traefik.http.routers.frota_final_api.entrypoints=web,websecure"
+      - "traefik.http.routers.frota_final_api.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.frota_final_api.priority=9999"
+      - "traefik.http.services.frota_final_api.loadbalancer.server.port=3000"
+    depends_on:
+      - pgbouncer
+
+networks:
+  dokploy-network:
+    external: true

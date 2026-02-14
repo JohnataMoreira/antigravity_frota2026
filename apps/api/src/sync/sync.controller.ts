@@ -1,21 +1,21 @@
-import { Controller, Get, Post, Body, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { SyncService } from './sync.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { UserRequest } from '../auth/user-request.interface';
 
-@UseGuards(JwtAuthGuard)
 @Controller('sync')
+@UseGuards(JwtAuthGuard)
 export class SyncController {
     constructor(private readonly syncService: SyncService) { }
 
-    @Get()
-    async pull(@Request() req: any, @Query('last_pulled_at') lastPulledAt: string) {
-        const timestamp = lastPulledAt ? parseInt(lastPulledAt) : 0;
-        return this.syncService.pull(timestamp, req.user.organizationId);
+    @Get('pull')
+    pull(@Query('lastPulledAt') lastPulledAt: string) {
+        return this.syncService.pull(parseInt(lastPulledAt, 10) || 0);
     }
 
-    @Post()
-    async push(@Request() req: any, @Body() changes: any) {
-        await this.syncService.push(changes, req.user.organizationId, req.user.userId);
-        return { status: 'ok' };
+    @Post('push')
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    push(@Request() req: UserRequest, @Body() changes: any) {
+        return this.syncService.push(changes, req.user.userId);
     }
 }

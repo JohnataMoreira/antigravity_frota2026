@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { LoginDto, RegisterOrgDto } from './dto';
 import { Public } from './public.decorator';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { UserRequest } from './user-request.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -25,7 +26,7 @@ export class AuthController {
 
     @Get('me')
     @UseGuards(JwtAuthGuard)
-    getProfile(@Request() req: any) {
-        return this.authService.getProfile(req.user.sub);
+    getProfile(@Request() req: UserRequest) {
+        return this.authService.getProfile(req.user.userId);
     }
 }

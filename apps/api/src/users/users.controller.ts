@@ -16,7 +16,6 @@ import { CreateUserDto, UpdateUserDto } from './dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
-import { GetUser } from '../auth/get-user.decorator';
 import { Role } from '@prisma/client';
 
 @Controller('users')
@@ -27,24 +26,18 @@ export class UsersController {
     @Post()
     @Roles(Role.ADMIN)
     @HttpCode(HttpStatus.CREATED)
-    create(
-        @Body() createUserDto: CreateUserDto,
-        @GetUser('orgId') orgId: string,
-    ) {
-        return this.usersService.create(createUserDto, orgId);
+    create(@Body() createUserDto: CreateUserDto) {
+        return this.usersService.create(createUserDto);
     }
 
     @Get()
-    findAll(
-        @GetUser('orgId') orgId: string,
-        @Query('search') search?: string,
-    ) {
-        return this.usersService.findAll(orgId, search);
+    findAll(@Query('search') search?: string) {
+        return this.usersService.findAll(search);
     }
 
     @Get(':id')
-    findOne(@Param('id') id: string, @GetUser('orgId') orgId: string) {
-        return this.usersService.findOne(id, orgId);
+    findOne(@Param('id') id: string) {
+        return this.usersService.findOne(id);
     }
 
     @Patch(':id')
@@ -52,15 +45,14 @@ export class UsersController {
     update(
         @Param('id') id: string,
         @Body() updateUserDto: UpdateUserDto,
-        @GetUser('orgId') orgId: string,
     ) {
-        return this.usersService.update(id, updateUserDto, orgId);
+        return this.usersService.update(id, updateUserDto);
     }
 
     @Delete(':id')
     @Roles(Role.ADMIN)
     @HttpCode(HttpStatus.NO_CONTENT)
-    remove(@Param('id') id: string, @GetUser('orgId') orgId: string) {
-        return this.usersService.remove(id, orgId);
+    remove(@Param('id') id: string) {
+        return this.usersService.remove(id);
     }
 }

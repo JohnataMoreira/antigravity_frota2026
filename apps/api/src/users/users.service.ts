@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import * as bcrypt from 'bcrypt';
@@ -7,12 +8,12 @@ import * as bcrypt from 'bcrypt';
 export class UsersService {
     constructor(private prisma: PrismaService) { }
 
-    async create(dto: CreateUserDto, adminOrgId: string) {
+    async create(dto: CreateUserDto) {
         // Hash password
         const salt = await bcrypt.genSalt();
         const passwordHash = await bcrypt.hash(dto.password, salt);
 
-        // Create user in same organization as admin
+        // Create user (organizationId added by extension)
         const user = await this.prisma.user.create({
             data: {
                 name: dto.name,
@@ -20,7 +21,6 @@ export class UsersService {
                 passwordHash,
                 role: dto.role,
                 licenseNumber: dto.licenseNumber,
-                organizationId: adminOrgId,
                 phone: dto.phone,
                 cpf: dto.cpf,
                 birthDate: (dto.birthDate && !isNaN(Date.parse(dto.birthDate))) ? new Date(dto.birthDate) : undefined,
@@ -32,7 +32,7 @@ export class UsersService {
                 addressCity: dto.addressCity,
                 addressState: dto.addressState,
                 addressZipCode: dto.addressZipCode,
-            },
+            } as any, // organizationId is injected by Prisma Extension
             select: {
                 id: true,
                 name: true,
@@ -46,8 +46,8 @@ export class UsersService {
         return user;
     }
 
-    async findAll(organizationId: string, search?: string) {
-        const where: any = { organizationId };
+    async findAll(search?: string) {
+        const where: any = {};
 
         if (search) {
             where.OR = [
@@ -76,9 +76,9 @@ export class UsersService {
         });
     }
 
-    async findOne(id: string, organizationId: string) {
+    async findOne(id: string) {
         const user = await this.prisma.user.findFirst({
-            where: { id, organizationId },
+            where: { id },
             select: {
                 id: true,
                 name: true,
@@ -96,9 +96,8 @@ export class UsersService {
         return user;
     }
 
-    async update(id: string, dto: UpdateUserDto, organizationId: string) {
-        // Check user exists and belongs to same org
-        await this.findOne(id, organizationId);
+    async update(id: string, dto: UpdateUserDto) {
+        await this.findOne(id);
 
         const user = await this.prisma.user.update({
             where: { id },
@@ -120,9 +119,8 @@ export class UsersService {
         return user;
     }
 
-    async remove(id: string, organizationId: string) {
-        // Check user exists and belongs to same org
-        await this.findOne(id, organizationId);
+    async remove(id: string) {
+        await this.findOne(id);
 
         await this.prisma.user.delete({
             where: { id },

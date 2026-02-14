@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, BadRequestException, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { StartJourneyDto, EndJourneyDto } from './dto';
@@ -7,13 +8,13 @@ import { JourneyStatus, VehicleStatus, ChecklistType } from '@prisma/client';
 export class JourneysService {
     constructor(private prisma: PrismaService) { }
 
-    async start(organizationId: string, driverId: string, dto: StartJourneyDto) {
-        // 1. Check if vehicle exists and is available
+    async start(driverId: string, dto: StartJourneyDto) {
+        // 1. Check if vehicle exists and is available (automated isolation)
         const vehicle = await this.prisma.vehicle.findUnique({
             where: { id: dto.vehicleId },
         });
 
-        if (!vehicle || vehicle.organizationId !== organizationId) {
+        if (!vehicle) {
             throw new NotFoundException('Vehicle not found');
         }
 
@@ -41,10 +42,9 @@ export class JourneysService {
                 data: { status: VehicleStatus.IN_USE },
             });
 
-            // Create Journey
+            // Create Journey (organizationId added by extension)
             const journey = await tx.journey.create({
                 data: {
-                    organizationId,
                     driverId,
                     vehicleId: dto.vehicleId,
                     startKm: dto.startKm,
@@ -56,7 +56,7 @@ export class JourneysService {
                             items: dto.checklistItems,
                         }
                     } : undefined
-                },
+                } as any, // organizationId is injected by Prisma Extension
                 include: { vehicle: true, checklists: true }
             });
 
@@ -64,9 +64,9 @@ export class JourneysService {
         });
     }
 
-    async end(organizationId: string, driverId: string, journeyId: string, dto: EndJourneyDto) {
+    async end(driverId: string, journeyId: string, dto: EndJourneyDto) {
         const journey = await this.prisma.journey.findFirst({
-            where: { id: journeyId, organizationId, driverId },
+            where: { id: journeyId, driverId },
             include: { vehicle: true }
         });
 
@@ -109,16 +109,15 @@ export class JourneysService {
         });
     }
 
-    async findActive(organizationId: string, driverId: string) {
+    async findActive(driverId: string) {
         return this.prisma.journey.findFirst({
-            where: { organizationId, driverId, status: JourneyStatus.IN_PROGRESS },
+            where: { driverId, status: JourneyStatus.IN_PROGRESS },
             include: { vehicle: true }
         });
     }
 
-    async findAll(organizationId: string) {
+    async findAll() {
         return this.prisma.journey.findMany({
-            where: { organizationId },
             include: {
                 vehicle: true,
                 driver: true,

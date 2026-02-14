@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { DriversService } from './drivers.service';
 import { CreateDriverDto } from './dto';
 
@@ -7,12 +7,12 @@ export class DriversController {
     constructor(private readonly driversService: DriversService) { }
 
     @Post()
-    create(@Request() req: any, @Body() createDriverDto: CreateDriverDto) {
-        return this.driversService.create(req.user.organizationId, createDriverDto);
+    create(@Body() createDriverDto: CreateDriverDto) {
+        return this.driversService.create(createDriverDto);
     }
 
     @Get()
-    findAll(@Request() req: any) {
-        return this.driversService.findAll(req.user.organizationId);
+    findAll() {
+        return this.driversService.findAll();
     }
 }

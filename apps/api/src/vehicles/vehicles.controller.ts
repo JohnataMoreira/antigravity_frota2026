@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { VehiclesService } from './vehicles.service';
 import { CreateVehicleDto, UpdateVehicleDto } from './dto';
 
@@ -7,27 +7,27 @@ export class VehiclesController {
     constructor(private readonly vehiclesService: VehiclesService) { }
 
     @Post()
-    create(@Request() req: any, @Body() createVehicleDto: CreateVehicleDto) {
-        return this.vehiclesService.create(req.user.organizationId, createVehicleDto);
+    create(@Body() createVehicleDto: CreateVehicleDto) {
+        return this.vehiclesService.create(createVehicleDto);
     }
 
     @Get()
-    findAll(@Request() req: any) {
-        return this.vehiclesService.findAll(req.user.organizationId);
+    findAll() {
+        return this.vehiclesService.findAll();
     }
 
     @Get(':id')
-    findOne(@Request() req: any, @Param('id') id: string) {
-        return this.vehiclesService.findOne(req.user.organizationId, id);
+    findOne(@Param('id') id: string) {
+        return this.vehiclesService.findOne(id);
     }
 
     @Patch(':id')
-    update(@Request() req: any, @Param('id') id: string, @Body() updateVehicleDto: UpdateVehicleDto) {
-        return this.vehiclesService.update(req.user.organizationId, id, updateVehicleDto);
+    update(@Param('id') id: string, @Body() updateVehicleDto: UpdateVehicleDto) {
+        return this.vehiclesService.update(id, updateVehicleDto);
     }
 
     @Delete(':id')
-    remove(@Request() req: any, @Param('id') id: string) {
-        return this.vehiclesService.remove(req.user.organizationId, id);
+    remove(@Param('id') id: string) {
+        return this.vehiclesService.remove(id);
     }
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -7,11 +8,12 @@ export class MaintenanceService {
 
     async create(data: any) {
         return this.prisma.$transaction(async (tx) => {
-            const maintenance = await tx.maintenance.create({ data });
+            const maintenance = await tx.maintenance.create({
+                data: data as any // organizationId is injected by Prisma Extension
+            });
 
-            // Mark vehicle as in maintenance
             await tx.vehicle.update({
-                where: { id: data.vehicleId },
+                where: { id: maintenance.vehicleId },
                 data: { status: 'MAINTENANCE' }
             });
 
@@ -19,55 +21,50 @@ export class MaintenanceService {
         });
     }
 
-    async findAll(organizationId: string) {
+    async findAll() {
         return this.prisma.maintenance.findMany({
-            where: { organizationId },
-            include: { vehicle: true },
             orderBy: { createdAt: 'desc' },
+            include: { vehicle: { select: { plate: true, model: true } } }
         });
     }
 
     async findByVehicle(vehicleId: string) {
         return this.prisma.maintenance.findMany({
             where: { vehicleId },
-            orderBy: { createdAt: 'desc' },
+            orderBy: { createdAt: 'desc' }
         });
     }
 
-    async complete(id: string, organizationId: string, data: { cost: number; notes?: string; lastKm: number }) {
+    async complete(id: string, data: { cost: number; notes?: string; lastKm: number }) {
         return this.prisma.$transaction(async (tx) => {
-            // 1. Update maintenance record
             const maintenance = await tx.maintenance.update({
-                where: { id, organizationId },
+                where: { id },
                 data: {
                     status: 'COMPLETED',
-                    performedAt: new Date(),
                     cost: data.cost,
                     notes: data.notes,
-                    lastKm: data.lastKm,
-                },
+                    performedAt: new Date()
+                }
             });
 
-            // 2. Update vehicle status and Km
             await tx.vehicle.update({
                 where: { id: maintenance.vehicleId },
                 data: {
                     status: 'AVAILABLE',
-                    currentKm: data.lastKm,
-                },
+                    lastMaintenanceKm: data.lastKm,
+                    lastMaintenanceDate: new Date()
+                }
             });
 
             return maintenance;
         });
     }
+}
 
-    async checkMaintenanceDue(vehicleId: string, currentKm: number) {
-        return this.prisma.maintenance.findMany({
-            where: {
-                vehicleId,
-                status: 'PENDING',
-                nextDueKm: { lte: currentKm },
-            },
-        });
-    }
+// Minimal DTOs for local types if needed
+export interface CreateMaintenanceDto {
+    vehicleId: string;
+    description: string;
+    scheduledDate: Date;
+    cost?: number;
 }

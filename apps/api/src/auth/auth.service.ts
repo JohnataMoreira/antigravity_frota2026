@@ -101,7 +101,7 @@ export class AuthService {
             include: { organization: { select: { name: true } } }
         });
 
-        if (!user) throw new UnauthorizedException();
+        if (!user || !user.organization) throw new UnauthorizedException();
 
         return {
             id: user.id,

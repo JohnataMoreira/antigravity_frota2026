@@ -47,6 +47,9 @@ export function LiveMap() {
         });
 
         socket.on('connect', () => {
+            console.log('LiveMap connected to locations namespace');
+            // Room joining is now handled by the server based on JWT or client-sent ID, 
+            // but we keep the emit for compatibility if needed, though we could remove it.
             socket.emit('join_organization', user.organizationId);
         });
 

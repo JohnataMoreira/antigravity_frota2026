@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateVehicleDto, UpdateVehicleDto } from './dto';
@@ -6,34 +7,30 @@ import { CreateVehicleDto, UpdateVehicleDto } from './dto';
 export class VehiclesService {
     constructor(private prisma: PrismaService) { }
 
-    async create(organizationId: string, dto: CreateVehicleDto) {
+    async create(dto: CreateVehicleDto) {
         return this.prisma.vehicle.create({
-            data: {
-                ...dto,
-                organizationId,
-            },
+            data: dto as any, // organizationId is injected by Prisma Extension
         });
     }
 
-    async findAll(organizationId: string) {
+    async findAll() {
         return this.prisma.vehicle.findMany({
-            where: { organizationId },
             orderBy: { plate: 'asc' },
         });
     }
 
-    async findOne(organizationId: string, id: string) {
+    async findOne(id: string) {
         const vehicle = await this.prisma.vehicle.findFirst({
-            where: { id, organizationId },
+            where: { id },
         });
 
         if (!vehicle) throw new NotFoundException('Vehicle not found');
         return vehicle;
     }
 
-    async update(organizationId: string, id: string, dto: UpdateVehicleDto) {
-        // Check existence and ownership
-        await this.findOne(organizationId, id);
+    async update(id: string, dto: UpdateVehicleDto) {
+        // Check existence and ownership (automated by extension)
+        await this.findOne(id);
 
         return this.prisma.vehicle.update({
             where: { id },
@@ -41,9 +38,9 @@ export class VehiclesService {
         });
     }
 
-    async remove(organizationId: string, id: string) {
-        // Check existence and ownership
-        await this.findOne(organizationId, id);
+    async remove(id: string) {
+        // Check existence and ownership (automated by extension)
+        await this.findOne(id);
 
         return this.prisma.vehicle.delete({
             where: { id },

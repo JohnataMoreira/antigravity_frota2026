@@ -109,6 +109,8 @@ model Vehicle {
   currentKm      Int
   status         VehicleStatus @default(AVAILABLE)
   photoUrl       String?
+  lastMaintenanceKm   Int?
+  lastMaintenanceDate DateTime?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
