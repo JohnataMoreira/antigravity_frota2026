@@ -33,10 +33,10 @@ RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 # [11/10 STRATEGY] Copy the entire production node_modules from root
 COPY --from=builder /app/node_modules ./node_modules
 # Copy API artifacts
-COPY --from=builder /app/apps/api/dist ./dist
-COPY --from=builder /app/apps/api/prisma ./prisma
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/apps/api/verify-internal.js ./verify-internal.js
+COPY --from=builder /app/verify-internal.js ./verify-internal.js
 
 # [11/10 STRATEGY] MULTI-MODULE SANITY CHECK
 # This command MUST pass for the image to be created.
