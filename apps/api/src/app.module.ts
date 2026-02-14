@@ -12,8 +12,10 @@ import { SyncModule } from './sync/sync.module';
 import { ReportsModule } from './reports/reports.module';
 import { LocationsModule } from './locations/locations.module';
 import { MaintenanceModule } from './maintenance/maintenance.module';
+import { FuelModule } from './fuel/fuel.module';
 import { UsersModule } from './users/users.module';
 import { HealthModule } from './health/health.module';
+import { FinanceModule } from './finance/finance.module';
 import { AppController } from './app.controller';
 import { TenantInterceptor } from './prisma/tenant.interceptor';
 import { LoggerInterceptor } from './prisma/logger.interceptor';
@@ -33,7 +35,9 @@ import { LoggerInterceptor } from './prisma/logger.interceptor';
         ReportsModule,
         LocationsModule,
         HealthModule,
+        FinanceModule,
         MaintenanceModule,
+        FuelModule,
         UsersModule,
     ],
     providers: [

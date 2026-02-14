@@ -53,6 +53,27 @@ enum MaintenanceStatus {
   CANCELED
 }
 
+enum FuelType {
+  GASOLINE
+  ETHANOL
+  DIESEL
+  GNV
+  OTHER
+}
+
+enum PaymentMethod {
+  CASH
+  DEBIT_CARD
+  CREDIT_CARD
+  PIX
+  FUEL_CARD
+  INVOICED
+  REIMBURSEMENT
+  PREPAID_CARD
+  VOUCHER
+  INTERNAL_TANK
+}
+
 model Organization {
   id        String   @id @default(uuid())
   name      String
@@ -64,6 +85,7 @@ model Organization {
   vehicles  Vehicle[]
   journeys  Journey[]
   maintenances Maintenance[]
+  fuelEntries FuelEntry[]
 }
 
 model User {
@@ -96,6 +118,7 @@ model User {
 
   organization   Organization @relation(fields: [organizationId], references: [id])
   journeys       Journey[]    @relation("DriverJourneys")
+  fuelEntries    FuelEntry[]
 }
 
 model Vehicle {
@@ -117,6 +140,7 @@ model Vehicle {
   organization   Organization  @relation(fields: [organizationId], references: [id])
   journeys       Journey[]
   maintenances   Maintenance[]
+  fuelEntries    FuelEntry[]
 
   @@unique([organizationId, plate])
 }
@@ -145,6 +169,7 @@ model Journey {
   driver         User          @relation("DriverJourneys", fields: [driverId], references: [id])
   vehicle        Vehicle       @relation(fields: [vehicleId], references: [id])
   checklists     Checklist[]
+  fuelEntries    FuelEntry[]
 }
 
 model Checklist {
@@ -181,3 +206,34 @@ model Maintenance {
   organization   Organization      @relation(fields: [organizationId], references: [id])
   vehicle        Vehicle           @relation(fields: [vehicleId], references: [id])
 }
+
+model FuelEntry {
+  id             String       @id @default(uuid())
+  organizationId String
+  vehicleId      String
+  driverId       String
+  journeyId      String?
+  
+  date           DateTime     @default(now())
+  km             Int
+  liters         Float
+  totalValue     Float
+  pricePerLiter  Float
+  fuelType       FuelType     @default(GASOLINE)
+  
+  paymentMethod  PaymentMethod @default(CASH)
+  paymentProvider String?     // Ex: Ticket Log, Ipiranga Max Frota
+  paymentReference String?    // Ultimos digitos do cartão ou número da fatura
+  
+  photoUrl       String?      // Foto da nota fiscal
+  notes          String?
+  
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  vehicle        Vehicle      @relation(fields: [vehicleId], references: [id])
+  driver         User         @relation(fields: [driverId], references: [id])
+  journey        Journey?     @relation(fields: [journeyId], references: [id])
+}
+

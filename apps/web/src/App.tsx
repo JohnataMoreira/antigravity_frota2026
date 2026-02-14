@@ -10,7 +10,7 @@ import { Drivers } from './pages/Drivers';
 import { JourneysList } from './pages/Journeys';
 import { JourneyDetails } from './pages/Journeys/JourneyDetails';
 import { MaintenanceList } from './pages/Maintenance';
-import { Reports } from './pages/Reports';
+import Reports from './pages/Reports';
 import { LiveMap } from './components/LiveMap';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ThemeSwitcher } from './components/ThemeSwitcher';

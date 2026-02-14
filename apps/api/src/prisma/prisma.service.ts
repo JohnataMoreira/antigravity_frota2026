@@ -50,7 +50,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
                     },
                 },
             },
-        }) as unknown as PrismaService;
+        }) as any;
     }
 
     async onModuleInit() {

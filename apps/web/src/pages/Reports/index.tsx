@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/axios';
 import { GlassCard } from '../../components/ui/Cards';
-import { Download, FileText, Table as TableIcon, Filter, Layers, Users, Truck } from 'lucide-react';
+import { Download, FileText, Table as TableIcon, Filter, Layers, Users, Truck, Fuel, DollarSign } from 'lucide-react';
 import { DriversTab } from './components/DriversTab';
 import { VehiclesTab } from './components/VehiclesTab';
+import { FuelTab } from './components/FuelTab';
+import { FinanceTab } from './components/FinanceTab';
 import { clsx } from 'clsx';
 
-export function Reports() {
-    const [activeTab, setActiveTab] = useState<'overview' | 'drivers' | 'vehicles'>('overview');
+export default function Reports() {
+    const [activeTab, setActiveTab] = useState<'overview' | 'drivers' | 'vehicles' | 'fuel' | 'finance'>('overview');
     const [isExporting, setIsExporting] = useState(false);
 
     const { data: reportData } = useQuery({
@@ -63,6 +65,7 @@ export function Reports() {
                     { id: 'overview', label: 'Visão Geral', icon: Layers },
                     { id: 'drivers', label: 'Motoristas', icon: Users },
                     { id: 'vehicles', label: 'Veículos', icon: Truck },
+                    { id: 'fuel', label: 'Combustível', icon: Fuel },
                 ].map((tab) => (
                     <button
                         key={tab.id}
@@ -147,6 +150,8 @@ export function Reports() {
 
                 {activeTab === 'drivers' && <DriversTab />}
                 {activeTab === 'vehicles' && <VehiclesTab />}
+                {activeTab === 'fuel' && <FuelTab />}
+                {activeTab === 'finance' && <FinanceTab />}
             </div>
         </div>
     );
