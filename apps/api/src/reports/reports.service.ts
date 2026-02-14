@@ -264,7 +264,7 @@ export class ReportsService {
             const totalKm = journeys.reduce((acc, j) => acc + ((j.endKm || 0) - j.startKm), 0);
             const kmPerLiter = totalFuelLiters > 0 ? totalKm / totalFuelLiters : 0;
 
-            // 2. Safety Score
+            // 2. Safety Score (Incidents)
             const incidents = await this.prisma.incident.findMany({
                 where: {
                     organizationId,
@@ -275,17 +275,42 @@ export class ReportsService {
 
             let safetyScore = 100;
             incidents.forEach(inc => {
-                if (inc.severity === 'HIGH') safetyScore -= 20;
+                // @ts-ignore - Field added in recent migration
+                if (inc.isDriverAtFault) safetyScore -= 30; // Heavy penalty for at-fault
+                else if (inc.severity === 'HIGH') safetyScore -= 20;
                 else if (inc.severity === 'MEDIUM') safetyScore -= 10;
                 else safetyScore -= 5;
             });
             if (safetyScore < 0) safetyScore = 0;
 
-            // 3. Overall Efficiency Score (Weighted: 40% Fuel, 60% Safety)
-            // Normalizing Km/L: Target 10km/l = 100 points
-            const efficiencyScore = Math.min((kmPerLiter / 10) * 100, 100);
+            // 3. Checklist Score (Quality & Compliance)
+            const checklists = await this.prisma.checklist.findMany({
+                where: {
+                    organizationId,
+                    driverId: driver.id,
+                    ...(start && end ? { date: { gte: start, lte: end } } : {})
+                }
+            });
 
-            const overallScore = Math.round((efficiencyScore * 0.4) + (safetyScore * 0.6));
+            let checklistScore = 100;
+            if (checklists.length === 0 && totalKm > 0) {
+                checklistScore = 0; // Penalty for driving without checklists
+            } else {
+                // @ts-ignore - Field added in recent migration
+                const totalRating = checklists.reduce((acc, c) => acc + (c.rating || 3), 0); // Default to 3 if no rating
+                const avgRating = checklists.length > 0 ? totalRating / checklists.length : 3;
+                checklistScore = (avgRating / 5) * 100;
+            }
+
+            // 4. Overall Efficiency Score (Weighted)
+            // Fuel: 30%, Safety: 40%, Checklist: 30%
+            const fuelScore = Math.min((kmPerLiter / 10) * 100, 100);
+
+            const overallScore = Math.round(
+                (fuelScore * 0.3) +
+                (safetyScore * 0.4) +
+                (checklistScore * 0.3)
+            );
 
             ranking.push({
                 driverId: driver.id,
@@ -294,8 +319,12 @@ export class ReportsService {
                 totalKm,
                 kmPerLiter: Number(kmPerLiter.toFixed(2)),
                 incidentCount: incidents.length,
+                // @ts-ignore
+                atFaultCount: incidents.filter(i => i.isDriverAtFault).length,
+                checklistCount: checklists.length,
+                checklistScore: Math.round(checklistScore),
                 safetyScore,
-                efficiencyScore: Math.round(efficiencyScore),
+                efficiencyScore: Math.round(fuelScore),
                 overallScore
             });
         }

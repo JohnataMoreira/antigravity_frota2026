@@ -202,6 +202,9 @@ model Checklist {
   
   // Stored as JSON array: [{ itemId: string, status: "OK" | "ISSUE", notes?: string, photoUrl?: string }]
   items     Json
+
+  // New field for Scorecard
+  rating         Int?         // 1 to 5 stars (Quality of inspection)
   
   createdAt DateTime      @default(now())
 
@@ -270,6 +273,9 @@ model Incident {
   severity       String       @default("MEDIUM") // LOW, MEDIUM, HIGH
   status         String       @default("OPEN")   // OPEN, RESOLVED
   photoUrl       String?
+  
+  // New field for Scorecard
+  isDriverAtFault Boolean     @default(false)
 
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt

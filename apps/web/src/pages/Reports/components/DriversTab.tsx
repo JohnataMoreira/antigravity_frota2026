@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { reportsService } from '../../../services/reportsService';
 import { GlassCard } from '../../../components/ui/Cards';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { User, Medal, AlertTriangle, Route, Shield, Zap } from 'lucide-react';
+import { User, Medal, AlertTriangle, Route, Shield, Zap, CheckSquare, AlertOctagon } from 'lucide-react';
 import { formatKm } from '../../../lib/utils';
 import { ExportActions } from './ExportActions';
 
@@ -28,14 +28,18 @@ export function DriversTab() {
                         <div className="flex-1">
                             <h3 className="text-lg font-medium text-yellow-100">Motorista Destaque</h3>
                             <p className="text-3xl font-bold text-white">{topDriver.name}</p>
-                            <div className="flex gap-4 mt-2">
+                            <div className="flex gap-4 mt-2 flex-wrap">
                                 <div className="flex items-center gap-1 text-sm text-yellow-200/80">
                                     <Shield className="w-4 h-4" />
-                                    <span>Segurança: {topDriver.safetyScore}/100</span>
+                                    <span>Segurança: {topDriver.safetyScore}</span>
                                 </div>
                                 <div className="flex items-center gap-1 text-sm text-yellow-200/80">
                                     <Zap className="w-4 h-4" />
-                                    <span>Eficiência: {topDriver.efficiencyScore}/100</span>
+                                    <span>Eficiência: {topDriver.efficiencyScore}</span>
+                                </div>
+                                <div className="flex items-center gap-1 text-sm text-yellow-200/80">
+                                    <CheckSquare className="w-4 h-4" />
+                                    <span>Checklists: {topDriver.checklistScore}</span>
                                 </div>
                             </div>
                         </div>
@@ -82,9 +86,11 @@ export function DriversTab() {
                                 { header: 'Score Geral', dataKey: 'overallScore' },
                                 { header: 'Score Segurança', dataKey: 'safetyScore' },
                                 { header: 'Score Eficiência', dataKey: 'efficiencyScore' },
+                                { header: 'Score Checklist', dataKey: 'checklistScore' },
                                 { header: 'KM Total', dataKey: 'totalKm' },
                                 { header: 'KM/L', dataKey: 'kmPerLiter' },
-                                { header: 'Incidentes', dataKey: 'incidentCount' }
+                                { header: 'Incidentes', dataKey: 'incidentCount' },
+                                { header: 'Incidentes (Culpa)', dataKey: 'atFaultCount' }
                             ]}
                         />
                     </div>
@@ -96,6 +102,8 @@ export function DriversTab() {
                                     <th className="pb-3 text-center">Score</th>
                                     <th className="pb-3 text-center">Segurança</th>
                                     <th className="pb-3 text-center">Eficiência</th>
+                                    <th className="pb-3 text-center">Checklist</th>
+                                    <th className="pb-3 text-center">Incidentes</th>
                                     <th className="pb-3 text-right">KM/L</th>
                                 </tr>
                             </thead>
@@ -113,17 +121,34 @@ export function DriversTab() {
                                         <td className="py-3 text-center font-bold text-lg">{driver.overallScore}</td>
                                         <td className="py-3 text-center">
                                             <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${driver.safetyScore >= 90 ? 'bg-green-500/20 text-green-400' :
-                                                    driver.safetyScore >= 70 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'
+                                                driver.safetyScore >= 70 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'
                                                 }`}>
                                                 {driver.safetyScore}
                                             </span>
                                         </td>
                                         <td className="py-3 text-center">
                                             <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${driver.efficiencyScore >= 90 ? 'bg-green-500/20 text-green-400' :
-                                                    driver.efficiencyScore >= 70 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'
+                                                driver.efficiencyScore >= 70 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'
                                                 }`}>
                                                 {driver.efficiencyScore}
                                             </span>
+                                        </td>
+                                        <td className="py-3 text-center">
+                                            <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${driver.checklistScore >= 90 ? 'bg-green-500/20 text-green-400' :
+                                                driver.checklistScore >= 70 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'
+                                                }`}>
+                                                {driver.checklistScore}
+                                            </span>
+                                        </td>
+                                        <td className="py-3 text-center">
+                                            {driver.atFaultCount > 0 ? (
+                                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-red-500/20 text-red-400">
+                                                    <AlertOctagon className="w-3 h-3" />
+                                                    {driver.atFaultCount}
+                                                </span>
+                                            ) : (
+                                                <span className="text-muted-foreground">-</span>
+                                            )}
                                         </td>
                                         <td className="py-3 text-right">{driver.kmPerLiter}</td>
                                     </tr>

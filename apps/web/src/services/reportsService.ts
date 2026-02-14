@@ -33,6 +33,9 @@ export interface DriverRanking {
     totalKm: number;
     kmPerLiter: number;
     incidentCount: number;
+    atFaultCount: number;
+    checklistCount: number;
+    checklistScore: number;
     safetyScore: number;
     efficiencyScore: number;
     overallScore: number;
