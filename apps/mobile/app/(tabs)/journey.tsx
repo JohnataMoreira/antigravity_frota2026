@@ -1,9 +1,13 @@
-import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Modal, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Modal, ScrollView, Image } from 'react-native';
 import { useEffect, useState } from 'react';
 import { locationService } from '../../src/services/location';
 import { api } from '../../src/services/api';
 import { fuelService } from '../../src/services/fuelService';
+import { photoService } from '../../src/services/photoService';
 import { useRouter } from 'expo-router';
+import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
+import { useAuth } from '../_layout';
+import { useRef } from 'react';
 
 const PAYMENT_METHODS = [
     { id: 'CASH', label: 'Dinheiro', icon: '💵' },
@@ -35,6 +39,14 @@ export default function JourneyScreen() {
     const [incidentDescription, setIncidentDescription] = useState('');
     const [incidentSeverity, setIncidentSeverity] = useState('MEDIUM');
     const [isReportingIncident, setIsReportingIncident] = useState(false);
+    const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
+    const [showCamera, setShowCamera] = useState(false);
+
+    const { hasPermission, requestPermission } = useCameraPermission();
+    const device = useCameraDevice('back');
+    const camera = useRef<Camera>(null);
+    const { token } = useAuth();
+
     const router = useRouter();
 
     const fetchActive = async () => {
@@ -71,7 +83,46 @@ export default function JourneyScreen() {
     };
 
     const handleConfirmFuel = async () => {
-        // ... (keep existing logic)
+        const { km, liters, totalValue, fuelType, paymentMethod, paymentProvider, paymentReference } = fuelData;
+        const kmNum = parseInt(km);
+        const litersNum = parseFloat(liters);
+        const valueNum = parseFloat(totalValue);
+
+        if (isNaN(kmNum) || isNaN(litersNum) || isNaN(valueNum)) {
+            Alert.alert('Erro', 'Por favor, preencha todos os campos numéricos corretamente.');
+            return;
+        }
+
+        setIsSavingFuel(true);
+        try {
+            await fuelService.create({
+                vehicleId: vehicle.id,
+                journeyId: activeJourney.id,
+                km: kmNum,
+                liters: litersNum,
+                totalValue: valueNum,
+                pricePerLiter: valueNum / litersNum,
+                fuelType,
+                paymentMethod,
+                paymentProvider,
+                paymentReference,
+            });
+            Alert.alert('Sucesso', 'Abastecimento registrado com sucesso!');
+            setShowFuelModal(false);
+            fetchActive();
+        } catch (e: any) {
+            Alert.alert('Erro', e.message || 'Erro ao registrar abastecimento');
+        } finally {
+            setIsSavingFuel(false);
+        }
+    };
+
+    const takePhoto = async () => {
+        if (camera.current) {
+            const file = await camera.current.takePhoto();
+            setCapturedPhoto(`file://${file.path}`);
+            setShowCamera(false);
+        }
     };
 
     const handleReportIncident = async () => {
@@ -82,14 +133,21 @@ export default function JourneyScreen() {
 
         setIsReportingIncident(true);
         try {
+            let photoUrl = undefined;
+            if (capturedPhoto && token) {
+                photoUrl = await photoService.uploadPhoto(capturedPhoto, token);
+            }
+
             await api.reportIncident({
                 vehicleId: vehicle.id,
                 journeyId: activeJourney.id,
                 description: incidentDescription,
                 severity: incidentSeverity,
+                photoUrl: photoUrl || undefined,
             });
             Alert.alert('Sucesso', 'Incidente relatado com sucesso. O administrador foi notificado.');
             setIncidentDescription('');
+            setCapturedPhoto(null);
             setShowIncidentModal(false);
             fetchActive();
         } catch (e: any) {
@@ -122,6 +180,26 @@ export default function JourneyScreen() {
             params: { type: 'checkin', journeyId: activeJourney.id, endKm: endKmNum },
         });
     };
+
+    if (showCamera) {
+        return (
+            <View style={styles.cameraContainer}>
+                <Camera
+                    ref={camera}
+                    style={StyleSheet.absoluteFill}
+                    device={device!}
+                    isActive={true}
+                    photo={true}
+                />
+                <TouchableOpacity style={styles.captureBtn} onPress={takePhoto}>
+                    <View style={styles.captureInner} />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.cameraCancelBtn} onPress={() => setShowCamera(false)}>
+                    <Text style={{ color: 'white', fontWeight: 'bold' }}>Cancelar</Text>
+                </TouchableOpacity>
+            </View>
+        );
+    }
 
     if (!activeJourney) {
         return (
@@ -259,13 +337,39 @@ export default function JourneyScreen() {
 
                         <Text style={styles.inputLabel}>Descrição do Incidente:</Text>
                         <TextInput
-                            style={[styles.input, { height: 100, textAlignVertical: 'top' }]}
+                            style={[styles.input, { height: 80, textAlignVertical: 'top' }]}
                             placeholder="Ex: Pneu furado, barulho no motor, batida leve..."
                             multiline
                             numberOfLines={4}
                             value={incidentDescription}
                             onChangeText={setIncidentDescription}
                         />
+
+                        <Text style={styles.inputLabel}>Foto do Incidente (Opcional):</Text>
+                        {!capturedPhoto ? (
+                            <TouchableOpacity
+                                style={styles.photoUploadButton}
+                                onPress={async () => {
+                                    if (!hasPermission) {
+                                        const granted = await requestPermission();
+                                        if (!granted) {
+                                            Alert.alert('Permissão', 'Acesso à câmera é necessário.');
+                                            return;
+                                        }
+                                    }
+                                    setShowCamera(true);
+                                }}
+                            >
+                                <Text style={styles.photoUploadText}>📸 Tirar Foto</Text>
+                            </TouchableOpacity>
+                        ) : (
+                            <View style={styles.photoPreviewContainer}>
+                                <Image source={{ uri: capturedPhoto }} style={styles.photoPreview} />
+                                <TouchableOpacity style={styles.removePhotoButton} onPress={() => setCapturedPhoto(null)}>
+                                    <Text style={styles.removePhotoText}>Remover Foto</Text>
+                                </TouchableOpacity>
+                            </View>
+                        )}
 
                         <View style={styles.modalButtons}>
                             <TouchableOpacity style={[styles.modalButton, styles.cancelButton]} onPress={() => setShowIncidentModal(false)} disabled={isReportingIncident}>
@@ -301,6 +405,16 @@ const styles = StyleSheet.create({
     fuelButton: { backgroundColor: '#10B981', paddingHorizontal: 32, paddingVertical: 16, borderRadius: 8, width: '100%', alignItems: 'center', marginBottom: 12 },
     fuelButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 18 },
     incidentButton: { backgroundColor: '#F59E0B', paddingHorizontal: 32, paddingVertical: 16, borderRadius: 8, width: '100%', alignItems: 'center', marginBottom: 12 },
+    cameraContainer: { flex: 1, backgroundColor: 'black' },
+    cameraCancelBtn: { position: 'absolute', bottom: 40, left: 20, padding: 12, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 8 },
+    captureBtn: { position: 'absolute', bottom: 40, alignSelf: 'center', width: 70, height: 70, borderRadius: 35, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' },
+    captureInner: { width: 60, height: 60, borderRadius: 30, borderWidth: 4, borderColor: '#2563EB' },
+    photoUploadButton: { borderStyle: 'dashed', borderWidth: 1, borderColor: '#2563EB', padding: 12, borderRadius: 8, alignItems: 'center', backgroundColor: '#EFF6FF', marginBottom: 16 },
+    photoUploadText: { color: '#2563EB', fontWeight: 'bold' },
+    photoPreviewContainer: { position: 'relative', marginBottom: 16 },
+    photoPreview: { width: '100%', height: 150, borderRadius: 8 },
+    removePhotoButton: { position: 'absolute', top: 8, right: 8, backgroundColor: 'rgba(255,0,0,0.7)', padding: 4, borderRadius: 4 },
+    removePhotoText: { color: 'white', fontSize: 10, fontWeight: 'bold' },
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 },
     modalContent: { backgroundColor: '#fff', borderRadius: 16, padding: 24, width: '100%', maxWidth: 450, maxHeight: '90%' },
     modalTitle: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, color: '#333' },

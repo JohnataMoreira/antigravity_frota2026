@@ -71,6 +71,16 @@ export function AlertsWidget() {
                                 </p>
                             </div>
 
+                            {incident.photoUrl && (
+                                <div className="mb-3 rounded-xl overflow-hidden border border-gray-100 dark:border-gray-800">
+                                    <img
+                                        src={incident.photoUrl}
+                                        alt="Evidência do incidente"
+                                        className="w-full h-32 object-cover hover:scale-105 transition-transform duration-500"
+                                    />
+                                </div>
+                            )}
+
                             <button className="w-full py-2 bg-amber-500/10 hover:bg-amber-500 text-amber-600 hover:text-white text-[11px] font-black uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 border border-amber-500/20">
                                 <Eye size={14} />
                                 Ver Detalhes
