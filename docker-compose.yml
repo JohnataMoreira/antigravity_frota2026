@@ -37,12 +37,7 @@ services:
       - frota-network
       - dokploy-network # Needs to be accessible externally for uploads if direct
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.minio-console.rule=Host(`minio.frota.johnatamoreira.com.br`)"
-      - "traefik.http.routers.minio-console.entrypoints=websecure"
-      - "traefik.http.routers.minio-console.tls.certresolver=letsencrypt"
-      - "traefik.http.services.minio-console.loadbalancer.server.port=9001"
-      - "traefik.docker.network=dokploy-network"
+      - "traefik.enable=false"
 
   # -----------------------------------------------------------------------------
   # BACKEND API (NestJS)
@@ -75,6 +70,7 @@ services:
       - "traefik.http.routers.frota-api.rule=Host(`frota.johnatamoreira.com.br`) && PathPrefix(`/api`)"
       - "traefik.http.routers.frota-api.entrypoints=websecure"
       - "traefik.http.routers.frota-api.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.frota-api.service=frota-api"
       - "traefik.http.services.frota-api.loadbalancer.server.port=3000"
       - "traefik.docker.network=dokploy-network"
 
@@ -82,6 +78,7 @@ services:
       - "traefik.http.routers.frota-socket.rule=Host(`frota.johnatamoreira.com.br`) && PathPrefix(`/socket.io`)"
       - "traefik.http.routers.frota-socket.entrypoints=websecure"
       - "traefik.http.routers.frota-socket.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.frota-socket.service=frota-socket"
       - "traefik.http.services.frota-socket.loadbalancer.server.port=3000"
       - "traefik.http.services.frota-socket.loadbalancer.sticky.cookie=true" # Session affinity for websockets
 
@@ -107,6 +104,7 @@ services:
       - "traefik.http.routers.frota-web.rule=Host(`frota.johnatamoreira.com.br`)"
       - "traefik.http.routers.frota-web.entrypoints=websecure"
       - "traefik.http.routers.frota-web.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.frota-web.service=frota-web"
       - "traefik.http.services.frota-web.loadbalancer.server.port=80"
       - "traefik.docker.network=dokploy-network"
 

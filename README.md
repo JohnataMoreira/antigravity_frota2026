@@ -11,47 +11,88 @@ A modern, offline-first SaaS for fleet management.
 ## getting Started
 
 ### 1. Prerequisites
-- Node.js 18+
+- Node.js 22+
 - Docker & Docker Compose
-- NPM
+- NPM / Turbo
 
-### 2. Infrastructure Setup
+### 2. Local Infrastructure Setup
 Start the database and storage services:
 ```bash
 docker-compose up -d
 ```
 
-### 3. Backend Setup
-```bash
-cd apps/api
-npx prisma generate
-npx prisma migrate dev --name init
-npm run start:dev
-```
-API will be available at `http://localhost:3000`.
+### 3. Application Setup
+We use [Turborepo](https://turbo.build/) to manage the monorepo.
 
-### 4. Web Admin Panel Setup
 ```bash
-cd apps/web
+# Install root dependencies
+npm install
+
+# Build all apps
+npm run build
+
+# Start core services in dev mode
+# (This will start API and Web)
 npm run dev
 ```
-Access at `http://localhost:5173`.
 
-**Login Credentials (Demo):**
-- Register a new organization on the Login screen.
-- Or use seeded data if applicable.
+---
 
-### 5. Mobile App Setup
+## 🚀 Production Deployment Guide
+
+The system is designed to be deployed via Docker Compose behind a Traefik reverse proxy.
+
+### 1. Environment Configuration
+Copy the production example and fill in the secrets:
 ```bash
-cd apps/mobile
-npx expo start
+cp .env.production.example .env
+# Edit .env with strong DB_PASSWORD and JWT_SECRET
 ```
-- Use Expo Go or Android Emulator.
-- Ensure your device can reach the Backend IP (update `API_URL` in `apps/mobile/src/services/sync.ts` and `apps/mobile/app/login.tsx` if running on physical device).
 
-## Features Implemented
-- **Multi-tenancy**: Organization-based data isolation.
-- **Vehicles CRUD**: Manage fleet inventory.
-- **Drivers Management**: Register and monitor drivers.
-- **Mobile Journey**: Offline-capable journey tracking (Start/End).
-- **Dashboard**: Real-time fleet overview.
+### 2. Protocolo de Deploy (Obrigatório)
+Sempre valide o build localmente antes de qualquer alteração no servidor:
+```bash
+# Validar Backend
+cd apps/api && npm run build
+# Validar Frontend
+cd ../web && npm run build
+```
+
+### 3. Deploying with Docker
+```bash
+# Clean build and up
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+---
+
+## 🏗️ Project Structure
+- `apps/api`: NestJS Backend (Prisma, PostgreSQL)
+- `apps/web`: React Frontend (Vite, Tailwind)
+- `apps/mobile`: React Native Mobile App (Expo)
+- `packages/`: Shared packages (planned)
+
+---
+
+## 🔐 Security Protocols
+
+- **JWT Rotation:** Generate a new `JWT_SECRET` for every production environment using `openssl rand -base64 32`.
+- **Database Backups:** Use the provided script `scripts/backup-db.sh` to perform daily backups.
+- **Passwords:** Never store raw passwords. PRODUCTION passwords MUST be rotated using the provided SQL update scripts.
+
+---
+
+## 🧪 Testing
+
+### Backend (API)
+```bash
+cd apps/api
+npm run test
+```
+
+### Frontend (Web)
+```bash
+cd apps/web
+npm run test
+```
