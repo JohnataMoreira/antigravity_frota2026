@@ -22,18 +22,24 @@ import { LoggerInterceptor } from './prisma/logger.interceptor';
 import { AuditModule } from './common/audit/audit.module';
 import { AuditInterceptor } from './common/audit/audit.interceptor';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ScheduleModule } from '@nestjs/schedule';
+import { MailModule } from './common/mail/mail.module';
+import { NotificationModule } from './common/notifications/notification.module';
 
 
 @Module({
     controllers: [AppController],
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
+        ScheduleModule.forRoot(),
         ThrottlerModule.forRoot([{
             ttl: 60000,
             limit: 100,
         }]),
         PrismaModule,
         AuditModule,
+        MailModule,
+        NotificationModule,
         AuthModule,
         VehiclesModule,
         DriversModule,

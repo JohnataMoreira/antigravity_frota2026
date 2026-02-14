@@ -6,8 +6,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ReportsService {
     constructor(private prisma: PrismaService) { }
 
-    async getOverview() {
-        // Logic moved from Controller + Enhanced
+    async getOverview(organizationId: string) {
         const now = new Date();
         const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
 
@@ -29,51 +28,54 @@ export class ReportsService {
             recentIncidents,
             journeysWithIncidentsCount
         ] = await Promise.all([
-            this.prisma.vehicle.count(),
-            this.prisma.vehicle.count({ where: { status: 'AVAILABLE' } }),
-            this.prisma.vehicle.count({ where: { status: 'IN_USE' } }),
-            this.prisma.vehicle.count({ where: { status: 'MAINTENANCE' } }),
-            this.prisma.vehicle.count({ where: { status: 'CRITICAL_ISSUE' } }),
-            this.prisma.journey.count({ where: { status: 'IN_PROGRESS' } }),
-            this.prisma.user.count({ where: { role: 'DRIVER' } }),
+            this.prisma.vehicle.count({ where: { organizationId } }),
+            this.prisma.vehicle.count({ where: { organizationId, status: 'AVAILABLE' } }),
+            this.prisma.vehicle.count({ where: { organizationId, status: 'IN_USE' } }),
+            this.prisma.vehicle.count({ where: { organizationId, status: 'MAINTENANCE' } }),
+            this.prisma.vehicle.count({ where: { organizationId, status: 'CRITICAL_ISSUE' } }),
+            this.prisma.journey.count({ where: { organizationId, status: 'IN_PROGRESS' } }),
+            this.prisma.user.count({ where: { organizationId, role: 'DRIVER' } }),
             this.prisma.journey.findMany({
+                where: { organizationId },
                 orderBy: { createdAt: 'desc' },
                 take: 5,
                 include: { driver: { select: { name: true } }, vehicle: { select: { plate: true } } }
             }),
             this.prisma.maintenance.aggregate({
                 where: {
+                    organizationId,
                     status: 'COMPLETED',
                     performedAt: { gte: new Date(now.getFullYear(), now.getMonth(), 1) }
                 },
                 _sum: { cost: true }
             }),
             this.prisma.journey.findMany({
-                where: { status: 'COMPLETED' },
+                where: { organizationId, status: 'COMPLETED' },
                 select: { startKm: true, endKm: true }
             }),
             this.prisma.checklist.count({
                 where: {
+                    journey: { organizationId },
                     items: { path: ['$'], array_contains: { status: 'ISSUE' } }
                 }
             }),
             this.prisma.vehicle.groupBy({
                 by: ['type'],
-                where: { status: 'AVAILABLE' },
+                where: { organizationId, status: 'AVAILABLE' },
                 _count: { _all: true }
             }),
             this.prisma.vehicle.groupBy({
                 by: ['type'],
-                where: { status: 'IN_USE' },
+                where: { organizationId, status: 'IN_USE' },
                 _count: { _all: true }
             }),
             this.prisma.vehicle.groupBy({
                 by: ['type'],
-                where: { status: 'MAINTENANCE' },
+                where: { organizationId, status: 'MAINTENANCE' },
                 _count: { _all: true }
             }),
             this.prisma.incident.findMany({
-                where: { status: 'OPEN' },
+                where: { organizationId, status: 'OPEN' },
                 orderBy: { createdAt: 'desc' },
                 take: 5,
                 include: {
@@ -83,6 +85,7 @@ export class ReportsService {
             }),
             this.prisma.journey.count({
                 where: {
+                    organizationId,
                     status: 'IN_PROGRESS',
                     incidents: { some: { status: 'OPEN' } }
                 }
@@ -90,7 +93,7 @@ export class ReportsService {
         ]);
 
         const totalKm = journeysWithKm.reduce((acc: number, j: any) => acc + ((j.endKm || 0) - j.startKm), 0);
-        const history = await this.getMonthlyHistory(sixMonthsAgo);
+        const history = await this.getMonthlyHistory(organizationId, sixMonthsAgo);
 
         return {
             stats: {
@@ -118,7 +121,7 @@ export class ReportsService {
         };
     }
 
-    private async getMonthlyHistory(startDate: Date) {
+    private async getMonthlyHistory(organizationId: string, startDate: Date) {
         const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
         const results = [];
 
@@ -128,11 +131,11 @@ export class ReportsService {
 
             const [costAgg, journeyList] = await Promise.all([
                 this.prisma.maintenance.aggregate({
-                    where: { status: 'COMPLETED', performedAt: { gte: d, lt: nextD } },
+                    where: { organizationId, status: 'COMPLETED', performedAt: { gte: d, lt: nextD } },
                     _sum: { cost: true }
                 }),
                 this.prisma.journey.findMany({
-                    where: { status: 'COMPLETED', endTime: { gte: d, lt: nextD } },
+                    where: { organizationId, status: 'COMPLETED', endTime: { gte: d, lt: nextD } },
                     select: { startKm: true, endKm: true }
                 })
             ]);
@@ -148,11 +151,11 @@ export class ReportsService {
         return results;
     }
 
-    async getDriverPerformance(start?: Date, end?: Date) {
+    async getDriverPerformance(organizationId: string, start?: Date, end?: Date) {
         const dateFilter = start && end ? { createdAt: { gte: start, lte: end } } : {};
 
         const drivers = await this.prisma.user.findMany({
-            where: { role: 'DRIVER' },
+            where: { organizationId, role: 'DRIVER' },
             select: { id: true, name: true, email: true }
         });
 
@@ -161,6 +164,7 @@ export class ReportsService {
         for (const driver of drivers) {
             const journeys = await this.prisma.journey.findMany({
                 where: {
+                    organizationId,
                     driverId: driver.id,
                     status: 'COMPLETED',
                     ...dateFilter
@@ -169,10 +173,6 @@ export class ReportsService {
             });
 
             const totalKm = journeys.reduce((acc, j) => acc + ((j.endKm || 0) - j.startKm), 0);
-
-            // Assume 1 issue per checklist implies safety score reduction (mock logic)
-            // Real logic requires joining checklists -> journeys -> driver
-            // For MVP: Count total journeys
 
             performanceData.push({
                 driverName: driver.name,
@@ -185,14 +185,17 @@ export class ReportsService {
         return performanceData.sort((a, b) => b.totalKm - a.totalKm);
     }
 
-    async getVehicleUtilization(start?: Date, end?: Date) {
+    async getVehicleUtilization(organizationId: string, start?: Date, end?: Date) {
         // Logic to calculate vehicle usage & cost per km
-        const vehicles = await this.prisma.vehicle.findMany();
+        const vehicles = await this.prisma.vehicle.findMany({
+            where: { organizationId }
+        });
         const report = [];
 
         for (const v of vehicles) {
             const journeys = await this.prisma.journey.findMany({
                 where: {
+                    organizationId,
                     vehicleId: v.id,
                     status: 'COMPLETED',
                     ...(start && end ? { endTime: { gte: start, lte: end } } : {})
@@ -204,6 +207,7 @@ export class ReportsService {
 
             const maintenances = await this.prisma.maintenance.aggregate({
                 where: {
+                    organizationId,
                     vehicleId: v.id,
                     status: 'COMPLETED',
                     ...(start && end ? { performedAt: { gte: start, lte: end } } : {})
