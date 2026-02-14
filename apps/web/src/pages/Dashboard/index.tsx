@@ -4,6 +4,7 @@ import { StatCard, GlassCard } from '../../components/ui/Cards';
 import { LiveMap } from '../../components/LiveMap';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { ThemeSwitcher } from '../../components/ThemeSwitcher';
+import { AlertsWidget } from './components/AlertsWidget';
 import { Truck, Users, MapPin, Activity, DollarSign, Gauge } from 'lucide-react';
 import {
     LineChart, Line, BarChart, Bar, XAxis, YAxis,
@@ -70,6 +71,24 @@ export function Dashboard() {
                     icon={<Gauge className="w-10 h-10" />}
                     gradient={true}
                 />
+            </div>
+
+            {/* Active Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                    <GlassCard gradient={true} className="h-full">
+                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-3">
+                            <MapPin className="w-6 h-6 text-primary" />
+                            Rastreamento em Tempo Real
+                        </h2>
+                        <ErrorBoundary>
+                            <LiveMap />
+                        </ErrorBoundary>
+                    </GlassCard>
+                </div>
+                <div className="lg:col-span-1">
+                    <AlertsWidget />
+                </div>
             </div>
 
             {/* Charts Section */}

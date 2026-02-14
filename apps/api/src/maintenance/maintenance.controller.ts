@@ -1,33 +1,28 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, UseGuards, Request } from '@nestjs/common';
 import { MaintenanceService } from './maintenance.service';
+import { MaintenanceAlertsService } from './alerts.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
-@UseGuards(JwtAuthGuard)
 @Controller('maintenance')
+@UseGuards(JwtAuthGuard)
 export class MaintenanceController {
-    constructor(private readonly maintenanceService: MaintenanceService) { }
-
-    @Post()
-    create(@Body() data: any) {
-        return this.maintenanceService.create(data);
-    }
+    constructor(
+        private readonly maintenanceService: MaintenanceService,
+        private readonly alertsService: MaintenanceAlertsService
+    ) { }
 
     @Get()
     findAll() {
         return this.maintenanceService.findAll();
     }
 
-    @Get('vehicle/:vehicleId')
-    findByVehicle(@Param('vehicleId') vehicleId: string) {
-        return this.maintenanceService.findByVehicle(vehicleId);
+    @Get('alerts')
+    async getAlerts(@Request() req: any) {
+        return this.alertsService.checkAlerts(req.user.organizationId);
     }
 
-    @Post(':id/complete')
-    complete(
-        @Param('id') id: string,
-        @Body() data: { cost: number; notes?: string; lastKm: number }
-    ) {
-        return this.maintenanceService.complete(id, data);
+    @Post()
+    create(@Request() req: any) { // Body would be a DTO
+        return this.maintenanceService.create({ ...req.body, organizationId: req.user.organizationId });
     }
 }
