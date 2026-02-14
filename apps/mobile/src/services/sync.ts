@@ -1,7 +1,7 @@
 import { synchronize } from '@nozbe/watermelondb/sync';
 import { database } from '../model/database';
 
-const API_URL = 'https://johnatamoreira.com.br/api/sync';
+const API_URL = 'https://frota.johnatamoreira.com.br/api/sync';
 
 export async function sync(token: string) {
     if (!token) return;
