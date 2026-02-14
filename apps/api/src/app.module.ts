@@ -25,6 +25,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MailModule } from './common/mail/mail.module';
 import { NotificationModule } from './common/notifications/notification.module';
+import { BackupModule } from './backup/backup.module';
 
 
 @Module({
@@ -54,6 +55,7 @@ import { NotificationModule } from './common/notifications/notification.module';
         FuelModule,
         UsersModule,
         IncidentsModule,
+        BackupModule,
     ],
     providers: [
         {

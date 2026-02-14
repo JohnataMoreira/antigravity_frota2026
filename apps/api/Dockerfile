@@ -28,7 +28,8 @@ FROM node:20-bookworm-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+# Install system dependencies + postgresql-client for backups
+RUN apt-get update && apt-get install -y openssl postgresql-client && rm -rf /var/lib/apt/lists/*
 
 # [11/10 STRATEGY] Copy the entire production node_modules from root
 COPY --from=builder /app/node_modules ./node_modules
