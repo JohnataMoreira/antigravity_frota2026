@@ -1,8 +1,10 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image, Alert } from 'react-native';
-import { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView, Image, Alert, ActivityIndicator } from 'react-native';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
-import { useRef } from 'react';
+import { photoService, getCaptureLocation } from '../src/services/photoService';
+import { api } from '../src/services/api';
+import { useAuth } from './_layout';
 
 // Checklist items configuration
 const CHECKLIST_ITEMS = [
@@ -75,7 +77,10 @@ export default function ChecklistScreen() {
         }
     };
 
-    const handleFinish = () => {
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const { token } = useAuth(); // Assuming useAuth is available or we export it
+
+    const handleFinish = async () => {
         // Validate all items are filled
         const incomplete = items.filter(item => item.status === 'pending');
         if (incomplete.length > 0) {
@@ -92,19 +97,83 @@ export default function ChecklistScreen() {
             return;
         }
 
-        // Navigate back with checklist data
-        const checklistData = items.map((item, index) => ({
-            itemId: CHECKLIST_ITEMS[index].id,
-            itemName: CHECKLIST_ITEMS[index].name,
-            status: item.status === 'ok' ? 'OK' : 'PROBLEM',
-            photoUrl: item.photoUri,
-            notes: item.notes,
-        }));
+        setIsSubmitting(true);
 
-        router.back();
-        // In real implementation, pass checklistData via navigation params or context
-        // For now, we'll need to implement a context or storage solution
-        console.log('Checklist completed:', checklistData);
+        try {
+            // 1. Prepare items for upload
+            const itemsWithPhotos = items
+                .filter(item => item.photoUri && item.photoUri.startsWith('file://'))
+                .map(item => ({
+                    uri: item.photoUri!,
+                    itemId: item.id,
+                    itemName: CHECKLIST_ITEMS.find(i => i.id === item.id)?.name || item.id,
+                    status: item.status === 'ok' ? 'OK' as const : 'PROBLEM' as const,
+                    notes: item.notes
+                }));
+
+            // 2. Upload photos
+            // We need a token here. If useAuth is not available directly, we might need to export it or pass it.
+            // Let's assume we can get it from storage or context. 
+            // For now, I'll add useAuth hook import at the top.
+
+            // If offline, we should queue headers. For now, try upload.
+            let uploadedUrls = new Map<string, string>();
+            if (itemsWithPhotos.length > 0 && token) {
+                uploadedUrls = await photoService.uploadPhotos(itemsWithPhotos, token);
+            }
+
+            // 3. Construct final checklist data
+            const checklistItems = items.map(item => ({
+                itemId: item.id,
+                status: item.status === 'ok' ? 'OK' as const : 'PROBLEM' as const,
+                photoUrl: uploadedUrls.get(item.id) || item.photoUri, // Use uploaded URL or local if failed/no photo
+                notes: item.notes,
+            }));
+
+            // 4. Call API based on type
+            const location = await getCaptureLocation();
+
+            if (params.type === 'checkout') {
+                // START JOURNEY
+                if (!params.vehicleId || !params.currentKm) {
+                    throw new Error('Missing vehicle data for checkout');
+                }
+
+                await api.startJourney(
+                    params.vehicleId as string,
+                    Number(params.currentKm),
+                    checklistItems,
+                    location || undefined
+                );
+
+                Alert.alert('Sucesso', 'Jornada iniciada com sucesso!', [
+                    { text: 'OK', onPress: () => router.replace('/(tabs)/journey') }
+                ]);
+
+            } else if (params.type === 'checkin') {
+                // END JOURNEY
+                if (!params.journeyId || !params.endKm) {
+                    throw new Error('Missing journey data for checkin');
+                }
+
+                await api.endJourney(
+                    params.journeyId as string,
+                    Number(params.endKm),
+                    checklistItems,
+                    location || undefined
+                );
+
+                Alert.alert('Sucesso', 'Jornada encerrada com sucesso!', [
+                    { text: 'OK', onPress: () => router.replace('/(tabs)/') }
+                ]);
+            }
+
+        } catch (error: any) {
+            console.error('Checklist Finish Error:', error);
+            Alert.alert('Erro', error.message || 'Falha ao processar checklist');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     if (showCamera) {
@@ -237,6 +306,12 @@ export default function ChecklistScreen() {
                     );
                 })}
             </View>
+            {isSubmitting && (
+                <View style={styles.loadingOverlay}>
+                    <ActivityIndicator size="large" color="#2563EB" />
+                    <Text style={styles.loadingText}>Enviando fotos...</Text>
+                </View>
+            )}
         </ScrollView>
     );
 }
@@ -330,4 +405,17 @@ const styles = StyleSheet.create({
         borderRadius: 8,
     },
     cancelText: { color: 'white', fontWeight: 'bold', fontSize: 16 },
+    loadingOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(255,255,255,0.8)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1000,
+    },
+    loadingText: {
+        marginTop: 16,
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#2563EB',
+    },
 });

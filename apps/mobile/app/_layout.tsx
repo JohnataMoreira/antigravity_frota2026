@@ -4,12 +4,16 @@ import { useEffect, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 // Context for Auth will be simple for now
 import { createContext, useContext } from 'react';
+import { ChecklistProvider } from '../src/context/ChecklistContext';
 
 const AuthContext = createContext<any>(null);
 
 export function useAuth() {
     return useContext(AuthContext);
 }
+
+import NetInfo from '@react-native-community/netinfo';
+import { photoService } from '../src/services/photoService';
 
 export default function RootLayout() {
     const [user, setUser] = useState<any>(null);
@@ -18,9 +22,18 @@ export default function RootLayout() {
 
     useEffect(() => {
         // Check local storage for token in next step
-        // For now, we rely on memory, but in a real app we'd load from SecureStore
         setLoading(false);
-    }, []);
+
+        // Network status listener
+        const unsubscribe = NetInfo.addEventListener(state => {
+            if (state.isConnected && token) {
+                console.log('Network connected, processing offline queue...');
+                photoService.processOfflineQueue(token);
+            }
+        });
+
+        return () => unsubscribe();
+    }, [token]);
 
     const login = (userData: any, jwtToken: string) => {
         setUser(userData);
@@ -45,13 +58,15 @@ export default function RootLayout() {
 
     return (
         <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated: !!token }}>
-            <Stack screenOptions={{ headerShown: false }}>
-                {token ? (
-                    <Stack.Screen name="(tabs)" />
-                ) : (
-                    <Stack.Screen name="login" />
-                )}
-            </Stack>
+            <ChecklistProvider>
+                <Stack screenOptions={{ headerShown: false }}>
+                    {token ? (
+                        <Stack.Screen name="(tabs)" />
+                    ) : (
+                        <Stack.Screen name="login" />
+                    )}
+                </Stack>
+            </ChecklistProvider>
         </AuthContext.Provider>
     );
 }

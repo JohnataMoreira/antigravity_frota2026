@@ -4,8 +4,6 @@ import { database } from '../../src/model/database';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../_layout';
 import { sync } from '../../src/services/sync';
-import { api } from '../../src/services/api';
-import { getCaptureLocation } from '../../src/services/photoService';
 
 export default function VehiclesScreen() {
     const [vehicles, setVehicles] = useState<any[]>([]);
@@ -44,45 +42,9 @@ export default function VehiclesScreen() {
         }
     };
 
-    useEffect(() => {
-        if (params.photoPath && params.vehicleId) {
-            const vehicle = vehicles.find(v => v.id === params.vehicleId);
-            if (vehicle) {
-                handleStartJourney(vehicle, params.photoPath as string);
-            }
-        }
-    }, [params.photoPath, params.vehicleId]);
+    // Journey start logic is now handled in checklist.tsx
+    // Keep fetchVehicles and handleSync
 
-    const handleStartJourney = async (vehicle: any, photoPath?: string) => {
-        if (isStarting) return;
-
-        setIsStarting(true);
-        setStartingVehicleId(vehicle.id);
-
-        try {
-            // Get current location
-            const location = await getCaptureLocation();
-
-            if (!location) {
-                Alert.alert(
-                    'GPS Necessário',
-                    'Não foi possível obter sua localização. Verifique se o GPS está ativado e as permissões estão concedidas.'
-                );
-                return;
-            }
-
-            // Start journey with location
-            await api.startJourney(vehicle.id, vehicle.currentKm, photoPath, location);
-
-            // Navigate to journey tab
-            router.replace('/(tabs)/journey');
-        } catch (e: any) {
-            Alert.alert('Erro', e.message || 'Falha ao iniciar viagem');
-        } finally {
-            setIsStarting(false);
-            setStartingVehicleId(null);
-        }
-    };
 
     return (
         <View style={styles.container}>
@@ -123,14 +85,22 @@ export default function VehiclesScreen() {
                                     (isStarting && startingVehicleId === item.id) && styles.buttonDisabled
                                 ]}
                                 onPress={() => {
-                                    router.push({ pathname: '/camera', params: { vehicleId: item.id } });
+                                    // Navigate to checklist for checkout
+                                    router.push({
+                                        pathname: '/checklist',
+                                        params: {
+                                            type: 'checkout',
+                                            vehicleId: item.id,
+                                            currentKm: item.currentKm
+                                        }
+                                    });
                                 }}
                                 disabled={isStarting && startingVehicleId === item.id}
                             >
                                 {isStarting && startingVehicleId === item.id ? (
                                     <ActivityIndicator size="small" color="#fff" />
                                 ) : (
-                                    <Text style={styles.buttonText}>📸 Check-out & Iniciar</Text>
+                                    <Text style={styles.buttonText}>📸 Iniciar Jornada</Text>
                                 )}
                             </TouchableOpacity>
                         )}

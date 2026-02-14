@@ -54,7 +54,12 @@ class ApiService {
     async startJourney(
         vehicleId: string,
         startKm: number,
-        photoPath?: string,
+        checklistItems?: Array<{
+            itemId: string;
+            status: 'OK' | 'PROBLEM';
+            photoUrl?: string;
+            notes?: string;
+        }>,
         location?: { lat: number; lng: number }
     ) {
         return this.request('/journeys/start', {
@@ -62,17 +67,32 @@ class ApiService {
             body: JSON.stringify({
                 vehicleId,
                 startKm,
-                startPhotoUrl: photoPath,
+                checklistItems,
                 lat: location?.lat,
                 lng: location?.lng,
             }),
         });
     }
 
-    async endJourney(journeyId: string, endKm: number) {
+    async endJourney(
+        journeyId: string,
+        endKm: number,
+        checklistItems?: Array<{
+            itemId: string;
+            status: 'OK' | 'PROBLEM';
+            photoUrl?: string;
+            notes?: string;
+        }>,
+        location?: { lat: number; lng: number }
+    ) {
         return this.request(`/journeys/${journeyId}/end`, {
             method: 'PATCH',
-            body: JSON.stringify({ endKm }),
+            body: JSON.stringify({
+                endKm,
+                checklistItems,
+                lat: location?.lat,
+                lng: location?.lng,
+            }),
         });
     }
 }
