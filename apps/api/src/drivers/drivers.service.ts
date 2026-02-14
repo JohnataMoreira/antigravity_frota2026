@@ -39,7 +39,7 @@ export class DriversService {
     }
 
     async findAll() {
-        return this.prisma.user.findMany({
+        const drivers = await this.prisma.user.findMany({
             where: { role: 'DRIVER' },
             select: {
                 id: true,
@@ -47,8 +47,18 @@ export class DriversService {
                 email: true,
                 licenseNumber: true,
                 active: true,
+                journeys: {
+                    where: { status: 'IN_PROGRESS' },
+                    select: { id: true }
+                }
             },
             orderBy: { name: 'asc' },
         });
+
+        return drivers.map(d => ({
+            ...d,
+            inJourney: d.journeys.length > 0,
+            journeys: undefined // Remove empty array to keep response clean
+        }));
     }
 }

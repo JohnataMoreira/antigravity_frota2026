@@ -10,6 +10,7 @@ import {
     LineChart, Line, BarChart, Bar, XAxis, YAxis,
     CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
+import { formatCurrency, formatKm } from '../../lib/utils';
 
 export function Dashboard() {
     const { data: reportData } = useQuery({
@@ -74,12 +75,12 @@ export function Dashboard() {
                 />
                 <StatCard
                     label="Custos (Mês)"
-                    value={`R$ ${stats?.monthlyCosts?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || '0,00'}`}
+                    value={formatCurrency(stats?.monthlyCosts)}
                     icon={<DollarSign className="w-8 h-8" />}
                 />
                 <StatCard
                     label="Distância (KM)"
-                    value={stats?.totalKm?.toLocaleString('pt-BR') || 0}
+                    value={formatKm(stats?.totalKm)}
                     icon={<Gauge className="w-8 h-8" />}
                 />
             </div>
@@ -122,6 +123,7 @@ export function Dashboard() {
                                         borderRadius: '8px',
                                         color: '#fff'
                                     }}
+                                    formatter={(value: any) => [formatCurrency(value), 'Gasto']}
                                 />
                                 <Bar dataKey="costs" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                             </BarChart>
@@ -147,6 +149,7 @@ export function Dashboard() {
                                         borderRadius: '8px',
                                         color: '#fff'
                                     }}
+                                    formatter={(value: any) => [formatKm(value), 'Distância']}
                                 />
                                 <Line
                                     type="monotone"

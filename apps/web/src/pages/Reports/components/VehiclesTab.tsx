@@ -3,6 +3,7 @@ import { reportsService } from '../../../services/reportsService';
 import { GlassCard } from '../../../components/ui/Cards';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Truck, Wrench, AlertTriangle, TrendingUp } from 'lucide-react';
+import { formatCurrency, formatKm } from '../../../lib/utils';
 
 export function VehiclesTab() {
     const { data: vehicles, isLoading } = useQuery({
@@ -27,7 +28,7 @@ export function VehiclesTab() {
                             <div>
                                 <p className="text-sm text-muted-foreground">Veículo Mais Utilizado</p>
                                 <h3 className="text-2xl font-bold">{mostUsed.model}</h3>
-                                <p className="text-sm text-blue-400">{mostUsed.totalKm} KM rodados</p>
+                                <p className="text-sm text-blue-400 uppercase font-bold">{formatKm(mostUsed.totalKm)} rodados</p>
                             </div>
                         </div>
                     </GlassCard>
@@ -41,7 +42,7 @@ export function VehiclesTab() {
                             <div>
                                 <p className="text-sm text-muted-foreground">Maior Custo de Manutenção</p>
                                 <h3 className="text-2xl font-bold">{costliest.model}</h3>
-                                <p className="text-sm text-red-400">R$ {costliest.maintenanceCost}</p>
+                                <p className="text-sm text-red-400 font-bold">{formatCurrency(costliest.maintenanceCost)}</p>
                             </div>
                         </div>
                     </GlassCard>
@@ -70,10 +71,10 @@ export function VehiclesTab() {
                                             {vehicle.plate}
                                         </span>
                                     </td>
-                                    <td className="py-3">{vehicle.totalKm}</td>
-                                    <td className="py-3">R$ {vehicle.maintenanceCost}</td>
+                                    <td className="py-3 uppercase font-medium">{formatKm(vehicle.totalKm)}</td>
+                                    <td className="py-3 font-medium">{formatCurrency(vehicle.maintenanceCost)}</td>
                                     <td className="py-3 font-bold text-amber-400">
-                                        R$ {vehicle.costPerKm}
+                                        {formatCurrency(vehicle.costPerKm)}/KM
                                     </td>
                                 </tr>
                             ))}

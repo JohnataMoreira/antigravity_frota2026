@@ -7,9 +7,9 @@ import { Badge } from '../../components/ui/Badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { PhotoGallery } from '../../components/PhotoGallery';
 import { GlassCard } from '../../components/ui/Cards'; // Assuming this exists or I should use Card
-// If GlassCard is not standard or I want to stick to my new components, I'll use Card.
 // But JourneysList used GlassCard. Let's stick to consistent UI. 
 // Actually I created Card.tsx recently (Step 294), let's use that for consistency with new design system.
+import { formatKm } from '../../lib/utils';
 
 export function JourneyDetails() {
     const { id } = useParams();
@@ -122,8 +122,8 @@ export function JourneyDetails() {
                                     </div>
                                     <span className="text-sm font-medium text-muted-foreground">Distância</span>
                                 </div>
-                                <div className="text-2xl font-bold">
-                                    {journey.endKm ? `${(journey.endKm - journey.startKm).toLocaleString('pt-BR')} km` : 'Em andamento'}
+                                <div className="text-2xl font-bold uppercase">
+                                    {journey.endKm ? formatKm(journey.endKm - journey.startKm) : 'Em andamento'}
                                 </div>
                                 <div className="text-sm text-muted-foreground">
                                     {duration ? `${Math.floor(duration / 60)}h ${duration % 60}min` : 'Calculando...'}
@@ -152,8 +152,8 @@ export function JourneyDetails() {
                                         <p className="text-muted-foreground text-sm flex items-center gap-2">
                                             <Calendar size={14} /> {new Date(journey.startTime).toLocaleString('pt-BR')}
                                         </p>
-                                        <div className="mt-2 text-sm font-mono bg-muted/50 p-2 rounded inline-block">
-                                            KM Inicial: <strong>{journey.startKm}</strong>
+                                        <div className="mt-2 text-sm font-mono bg-muted/50 p-2 rounded inline-block uppercase font-bold">
+                                            KM Inicial: {formatKm(journey.startKm)}
                                         </div>
                                     </div>
                                 </div>
@@ -169,8 +169,8 @@ export function JourneyDetails() {
                                             <p className="text-muted-foreground text-sm flex items-center gap-2">
                                                 <Calendar size={14} /> {new Date(journey.endTime).toLocaleString('pt-BR')}
                                             </p>
-                                            <div className="mt-2 text-sm font-mono bg-muted/50 p-2 rounded inline-block">
-                                                KM Final: <strong>{journey.endKm}</strong>
+                                            <div className="mt-2 text-sm font-mono bg-muted/50 p-2 rounded inline-block uppercase font-bold">
+                                                KM Final: {formatKm(journey.endKm)}
                                             </div>
                                         </div>
                                     </div>

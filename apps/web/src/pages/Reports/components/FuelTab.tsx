@@ -3,6 +3,7 @@ import { fuelService } from '../../../services/fuelService';
 import { GlassCard } from '../../../components/ui/Cards';
 import { Fuel, TrendingUp, DollarSign, Gauge, Users, Truck } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { formatCurrency, formatKm } from '../../../lib/utils';
 
 export function FuelTab() {
     const { data: stats, isLoading: loadingStats } = useQuery({
@@ -48,7 +49,7 @@ export function FuelTab() {
                         </div>
                         <span className="text-sm text-muted-foreground">Média Geral KM/L</span>
                     </div>
-                    <p className="text-2xl font-bold">{stats?.avgKmL || 0} km/l</p>
+                    <p className="text-2xl font-bold">{stats?.avgKmL ? `${stats.avgKmL.toFixed(1)} KM/L` : '0 KM/L'}</p>
                 </GlassCard>
 
                 <GlassCard>
@@ -58,7 +59,7 @@ export function FuelTab() {
                         </div>
                         <span className="text-sm text-muted-foreground">Custo Médio/KM</span>
                     </div>
-                    <p className="text-2xl font-bold">R$ {stats?.avgCostKm || 0}</p>
+                    <p className="text-2xl font-bold">{formatCurrency(stats?.avgCostKm)}/KM</p>
                 </GlassCard>
 
                 <GlassCard>
@@ -78,7 +79,7 @@ export function FuelTab() {
                         </div>
                         <span className="text-sm text-muted-foreground">Investimento Total</span>
                     </div>
-                    <p className="text-2xl font-bold text-primary">R$ {stats?.totalSpent?.toFixed(2) || 0}</p>
+                    <p className="text-2xl font-bold text-primary">{formatCurrency(stats?.totalSpent)}</p>
                 </GlassCard>
             </div>
 
@@ -96,7 +97,7 @@ export function FuelTab() {
                                 <YAxis stroke="#94a3b8" fontSize={12} />
                                 <Tooltip
                                     contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px' }}
-                                    formatter={(value: any) => [`R$ ${value}`, 'Gasto']}
+                                    formatter={(value: any) => [formatCurrency(value), 'Gasto']}
                                 />
                                 <Bar dataKey="spent" fill="#2563EB" radius={[4, 4, 0, 0]} />
                             </BarChart>
@@ -117,7 +118,7 @@ export function FuelTab() {
                                     <p className="text-[10px] text-muted-foreground uppercase">{v.model}</p>
                                 </div>
                                 <div className="text-right">
-                                    <p className="font-bold text-primary">R$ {v.spent.toFixed(2)}</p>
+                                    <p className="font-bold text-primary">{formatCurrency(v.spent)}</p>
                                     <p className="text-[10px] text-muted-foreground">{v.count} abastecimentos</p>
                                 </div>
                             </div>
@@ -148,7 +149,7 @@ export function FuelTab() {
                                             <p className="text-[10px] text-muted-foreground">{d.count} registros</p>
                                         </div>
                                     </div>
-                                    <p className="font-bold text-xs">R$ {d.spent.toFixed(2)}</p>
+                                    <p className="font-bold text-xs">{formatCurrency(d.spent)}</p>
                                 </div>
                             ))}
                         </div>
@@ -179,9 +180,9 @@ export function FuelTab() {
                                                 <p className="text-xs font-bold">{entry.vehicle?.plate}</p>
                                                 <p className="text-[9px] text-muted-foreground">{entry.vehicle?.model}</p>
                                             </td>
-                                            <td className="py-3 px-2 text-[10px]">{entry.km}</td>
+                                            <td className="py-3 px-2 text-[10px] uppercase font-bold">{formatKm(entry.km)}</td>
                                             <td className="py-3 px-2 text-[10px] font-medium text-blue-200">{entry.liters}L</td>
-                                            <td className="py-3 px-2 text-xs font-bold text-primary">R$ {entry.totalValue.toFixed(2)}</td>
+                                            <td className="py-3 px-2 text-xs font-bold text-primary">{formatCurrency(entry.totalValue)}</td>
                                             <td className="py-3 px-2">
                                                 <span className="px-1.5 py-0.5 bg-white/5 rounded text-[9px] uppercase border border-white/5">
                                                     {fuelTypeMap[entry.fuelType] || entry.fuelType}

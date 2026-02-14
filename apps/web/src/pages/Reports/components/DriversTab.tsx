@@ -3,6 +3,7 @@ import { reportsService } from '../../../services/reportsService';
 import { GlassCard } from '../../../components/ui/Cards';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { User, Medal, AlertTriangle, Route } from 'lucide-react';
+import { formatKm } from '../../../lib/utils';
 
 export function DriversTab() {
     const { data: drivers, isLoading } = useQuery({
@@ -27,7 +28,7 @@ export function DriversTab() {
                             <h3 className="text-lg font-medium text-yellow-100">Motorista Destaque</h3>
                             <p className="text-3xl font-bold text-white">{topDriver.driverName}</p>
                             <p className="text-sm text-yellow-200/80">
-                                {topDriver.totalKm} KM percorridos em {topDriver.totalJourneys} viagens
+                                {formatKm(topDriver.totalKm)} percorridos em {topDriver.totalJourneys} viagens
                             </p>
                         </div>
                     </div>
@@ -71,7 +72,7 @@ export function DriversTab() {
                                             {driver.driverName}
                                         </td>
                                         <td className="py-3">{driver.totalJourneys}</td>
-                                        <td className="py-3">{driver.avgKmPerJourney} km</td>
+                                        <td className="py-3 uppercase font-bold">{formatKm(driver.avgKmPerJourney)}</td>
                                     </tr>
                                 ))}
                             </tbody>

@@ -2,12 +2,14 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/axios';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Map, Search, ClipboardList, CheckCircle2, AlertCircle, X, MapPin, Clock, LayoutGrid, List as ListIcon } from 'lucide-react';
+import { Map, Search, ClipboardList, CheckCircle2, AlertCircle, X, MapPin, Clock, LayoutGrid, List as ListIcon, Filter } from 'lucide-react';
 import { GlassCard } from '../../components/ui/Cards';
+import { formatKm, formatDateTime } from '../../lib/utils';
 
 export function JourneysList() {
     const navigate = useNavigate();
     const [filter, setFilter] = useState('');
+    const [statusFilter, setStatusFilter] = useState<'ALL' | 'IN_PROGRESS' | 'COMPLETED'>('ALL');
     const [selectedJourney, setSelectedJourney] = useState<any>(null);
     const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
@@ -19,10 +21,14 @@ export function JourneysList() {
         }
     });
 
-    const filtered = journeys.filter((j: any) =>
-        j.vehicle?.plate?.toLowerCase().includes(filter.toLowerCase()) ||
-        j.driver?.name?.toLowerCase().includes(filter.toLowerCase())
-    );
+    const filtered = journeys.filter((j: any) => {
+        const matchesSearch = j.vehicle?.plate?.toLowerCase().includes(filter.toLowerCase()) ||
+            j.driver?.name?.toLowerCase().includes(filter.toLowerCase());
+
+        const matchesStatus = statusFilter === 'ALL' || j.status === statusFilter;
+
+        return matchesSearch && matchesStatus;
+    });
 
     if (isLoading) return (
         <div className="flex flex-col items-center justify-center py-20 animate-pulse">
@@ -54,6 +60,19 @@ export function JourneysList() {
                         value={filter}
                         onChange={(e) => setFilter(e.target.value)}
                     />
+                </div>
+
+                <div className="flex items-center gap-2 bg-white dark:bg-gray-800/50 p-2 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm w-full md:w-auto">
+                    <Filter size={20} className="text-gray-400 ml-2" />
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value as any)}
+                        className="bg-transparent outline-none text-sm font-bold pr-8 py-1.5"
+                    >
+                        <option value="ALL">Todas as Jornadas</option>
+                        <option value="IN_PROGRESS">Em Andamento</option>
+                        <option value="COMPLETED">Finalizadas</option>
+                    </select>
                 </div>
 
                 <div className="flex bg-gray-100 dark:bg-gray-800 p-1.5 rounded-2xl border dark:border-gray-700 shadow-sm">
@@ -103,12 +122,12 @@ export function JourneysList() {
                                         </td>
                                         <td className="px-6 py-5 text-muted-foreground font-medium">
                                             <div className="flex flex-col">
-                                                <span>{new Date(journey.startTime).toLocaleString('pt-BR')}</span>
-                                                {journey.endTime && <span className="text-xs opacity-70">término: {new Date(journey.endTime).toLocaleString('pt-BR')}</span>}
+                                                <span>{formatDateTime(journey.startTime)}</span>
+                                                {journey.endTime && <span className="text-xs opacity-70">término: {formatDateTime(journey.endTime)}</span>}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-5 text-right font-bold text-gray-900 dark:text-white">
-                                            {journey.endKm ? `${(journey.endKm - journey.startKm).toLocaleString()} km` : '—'}
+                                        <td className="px-6 py-5 text-right font-bold text-gray-900 dark:text-white uppercase">
+                                            {journey.endKm ? formatKm(journey.endKm - journey.startKm) : '—'}
                                         </td>
                                         <td className="px-6 py-5 text-right">
                                             {journey.checklists?.length > 0 && (
@@ -150,8 +169,8 @@ export function JourneysList() {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="p-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl border dark:border-gray-700">
                                         <div className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase mb-1">Km Percorrida</div>
-                                        <div className="text-sm font-black text-gray-900 dark:text-white">
-                                            {journey.endKm ? `${(journey.endKm - journey.startKm).toLocaleString('pt-BR')} km` : '—'}
+                                        <div className="text-sm font-black text-gray-900 dark:text-white uppercase">
+                                            {journey.endKm ? formatKm(journey.endKm - journey.startKm) : '—'}
                                         </div>
                                     </div>
                                     <div className="p-2.5 bg-gray-50 dark:bg-gray-800/50 rounded-xl border dark:border-gray-700">

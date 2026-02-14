@@ -1,8 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/axios';
-import { Plus, Edit, Trash, Search, LayoutGrid, List as ListIcon, Car, Truck as TruckIcon, Bike, Cpu } from 'lucide-react';
+import { Plus, Edit, Trash, Search, LayoutGrid, List as ListIcon, Car, Truck as TruckIcon, Bike, Cpu, Filter } from 'lucide-react';
 import { useState } from 'react';
 import { VehicleModal } from '../../components/VehicleModal';
+import { formatKm } from '../../lib/utils';
 
 interface Vehicle {
     id: string;
@@ -33,6 +34,7 @@ export function VehiclesList() {
     const queryClient = useQueryClient();
     const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
     const [filter, setFilter] = useState('');
+    const [statusFilter, setStatusFilter] = useState<string>('ALL');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
 
@@ -44,11 +46,15 @@ export function VehiclesList() {
         }
     });
 
-    const filteredVehicles = vehicles?.filter(v =>
-        v.plate.toLowerCase().includes(filter.toLowerCase()) ||
-        v.model.toLowerCase().includes(filter.toLowerCase()) ||
-        (v.brand && v.brand.toLowerCase().includes(filter.toLowerCase()))
-    );
+    const filteredVehicles = vehicles?.filter(v => {
+        const matchesSearch = v.plate.toLowerCase().includes(filter.toLowerCase()) ||
+            v.model.toLowerCase().includes(filter.toLowerCase()) ||
+            (v.brand && v.brand.toLowerCase().includes(filter.toLowerCase()));
+
+        const matchesStatus = statusFilter === 'ALL' || v.status === statusFilter;
+
+        return matchesSearch && matchesStatus;
+    });
 
     const deleteMutation = useMutation({
         mutationFn: (id: string) => api.delete(`/vehicles/${id}`),
@@ -126,19 +132,36 @@ export function VehiclesList() {
             </div>
 
             <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-                <div className="flex items-center gap-3 bg-white dark:bg-gray-800/50 p-1.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm w-full md:max-w-md focus-within:ring-2 focus-within:ring-blue-500/50 transition-all">
-                    <div className="pl-3 text-gray-400">
-                        <Search size={20} />
+                <div className="flex flex-col md:flex-row gap-4 items-center flex-1 w-full max-w-2xl">
+                    <div className="flex items-center gap-3 bg-white dark:bg-gray-800/50 p-1.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex-1 w-full focus-within:ring-2 focus-within:ring-blue-500/50 transition-all">
+                        <div className="pl-3 text-gray-400">
+                            <Search size={20} />
+                        </div>
+                        <input
+                            placeholder="Buscar por placa, modelo ou marca..."
+                            className="bg-transparent outline-none flex-1 py-2 text-sm"
+                            value={filter}
+                            onChange={(e) => setFilter(e.target.value)}
+                        />
                     </div>
-                    <input
-                        placeholder="Buscar por placa, modelo ou marca..."
-                        className="bg-transparent outline-none flex-1 py-2 text-sm"
-                        value={filter}
-                        onChange={(e) => setFilter(e.target.value)}
-                    />
+
+                    <div className="flex items-center gap-2 bg-white dark:bg-gray-800/50 p-1.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm w-full md:w-auto">
+                        <Filter size={18} className="text-gray-400 ml-2" />
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className="bg-transparent outline-none text-sm font-medium pr-8 py-2"
+                        >
+                            <option value="ALL">Todos os Status</option>
+                            <option value="AVAILABLE">Disponível</option>
+                            <option value="IN_USE">Em Uso</option>
+                            <option value="MAINTENANCE">Manutenção</option>
+                            <option value="CRITICAL_ISSUE">Problema Crítico</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl border dark:border-gray-700">
+                <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl border dark:border-gray-700 self-end md:self-center">
                     <button
                         onClick={() => setViewMode('grid')}
                         className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
@@ -173,10 +196,10 @@ export function VehiclesList() {
                             <tbody className="divide-y dark:divide-gray-700">
                                 {filteredVehicles?.map((vehicle) => (
                                     <tr key={vehicle.id} className="hover:bg-gray-50/80 dark:hover:bg-gray-700/30 transition-colors">
-                                        <td className="px-6 py-4 font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">
+                                        <td className="px-6 py-4 font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap uppercase">
                                             {vehicle.plate.length === 7
-                                                ? `${vehicle.plate.slice(0, 3)}-${vehicle.plate.slice(3)}`.toUpperCase()
-                                                : vehicle.plate.toUpperCase()}
+                                                ? `${vehicle.plate.slice(0, 3)}-${vehicle.plate.slice(3)}`
+                                                : vehicle.plate}
                                         </td>
                                         <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
                                             <div className="font-semibold">{vehicle.model}</div>
@@ -196,7 +219,7 @@ export function VehiclesList() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 font-bold dark:text-gray-200">
-                                            {vehicle.currentKm.toLocaleString('pt-BR')} km
+                                            {formatKm(vehicle.currentKm)}
                                         </td>
                                         <td className="px-6 py-4 text-right space-x-2">
                                             <button
@@ -249,12 +272,12 @@ export function VehiclesList() {
                             <div className="space-y-3">
                                 <div className="flex justify-between items-center text-sm p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
                                     <span className="text-gray-500">Placa</span>
-                                    <span className="font-bold text-blue-600 dark:text-blue-400">{vehicle.plate}</span>
+                                    <span className="font-bold text-blue-600 dark:text-blue-400 uppercase">{vehicle.plate}</span>
                                 </div>
 
                                 <div className="flex justify-between items-center text-sm">
                                     <span className="text-gray-500">Quilometragem</span>
-                                    <span className="font-semibold text-gray-900 dark:text-gray-100">{vehicle.currentKm.toLocaleString()} km</span>
+                                    <span className="font-semibold text-gray-900 dark:text-gray-100 uppercase">{formatKm(vehicle.currentKm)}</span>
                                 </div>
 
                                 <div className="flex justify-between items-center pt-2">

@@ -16,7 +16,14 @@ export function formatCurrency(value: number): string {
     return new Intl.NumberFormat('pt-BR', {
         style: 'currency',
         currency: 'BRL',
-    }).format(value);
+    }).format(value || 0);
+}
+
+/**
+ * Format number as kilometers (KM) with mile separators
+ */
+export function formatKm(value: number): string {
+    return `${new Intl.NumberFormat('pt-BR').format(value || 0)} KM`;
 }
 
 /**

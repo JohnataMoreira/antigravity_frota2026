@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/axios';
-import { Plus, Edit, Search, Users, ShieldCheck, Mail, User } from 'lucide-react';
+import { Plus, Edit, Search, Users, ShieldCheck, Mail, User, MapPin, Filter } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { GlassCard, StatCard } from '../../components/ui/Cards';
@@ -11,6 +11,7 @@ interface Driver {
     email: string;
     licenseNumber: string;
     active: boolean;
+    inJourney: boolean;
 }
 
 export function DriversList() {
@@ -23,11 +24,17 @@ export function DriversList() {
     });
 
     const [filter, setFilter] = useState('');
+    const [statusFilter, setStatusFilter] = useState<'ALL' | 'IN_JOURNEY' | 'AVAILABLE'>('ALL');
 
-    const filteredDrivers = drivers?.filter(d =>
-        d.name.toLowerCase().includes(filter.toLowerCase()) ||
-        d.email.toLowerCase().includes(filter.toLowerCase())
-    );
+    const filteredDrivers = drivers?.filter(d => {
+        const matchesSearch = d.name.toLowerCase().includes(filter.toLowerCase()) ||
+            d.email.toLowerCase().includes(filter.toLowerCase());
+
+        const matchesStatus = statusFilter === 'ALL' ||
+            (statusFilter === 'IN_JOURNEY' ? d.inJourney : !d.inJourney);
+
+        return matchesSearch && matchesStatus;
+    });
 
     if (isLoading) return (
         <div className="flex flex-col items-center justify-center py-20 animate-pulse text-muted-foreground">
@@ -64,14 +71,29 @@ export function DriversList() {
                 <StatCard label="Inativos" value={(drivers?.length || 0) - activeCount} icon={<User className="w-8 h-8" />} variant="warning" />
             </div>
 
-            <div className="flex items-center gap-3 bg-white dark:bg-gray-800/50 p-2 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm max-w-md focus-within:ring-2 focus-within:ring-blue-500/50 transition-all">
-                <Search size={22} className="text-gray-400 ml-2" />
-                <input
-                    placeholder="Buscar por nome ou email..."
-                    className="bg-transparent outline-none flex-1 py-2 font-medium"
-                    value={filter}
-                    onChange={(e) => setFilter(e.target.value)}
-                />
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                <div className="flex items-center gap-3 bg-white dark:bg-gray-800/50 p-2 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm flex-1 max-w-md focus-within:ring-2 focus-within:ring-blue-500/50 transition-all">
+                    <Search size={22} className="text-gray-400 ml-2" />
+                    <input
+                        placeholder="Buscar por nome ou email..."
+                        className="bg-transparent outline-none flex-1 py-2 font-medium"
+                        value={filter}
+                        onChange={(e) => setFilter(e.target.value)}
+                    />
+                </div>
+
+                <div className="flex items-center gap-2 bg-white dark:bg-gray-800/50 p-2 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm w-full md:w-auto">
+                    <Filter size={20} className="text-gray-400 ml-2" />
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value as any)}
+                        className="bg-transparent outline-none text-sm font-bold pr-8 py-2"
+                    >
+                        <option value="ALL">Todos os Motoristas</option>
+                        <option value="IN_JOURNEY">Em Jornada</option>
+                        <option value="AVAILABLE">Disponíveis</option>
+                    </select>
+                </div>
             </div>
 
             <GlassCard className="!p-0 overflow-hidden border border-gray-100 dark:border-gray-800">
@@ -104,11 +126,19 @@ export function DriversList() {
                                     </td>
                                     <td className="px-6 py-5 font-mono text-gray-600 dark:text-gray-400">{driver.licenseNumber}</td>
                                     <td className="px-6 py-5 text-center">
-                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest
-                                            ${driver.active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}
-                                        `}>
-                                            {driver.active ? 'Ativo' : 'Inativo'}
-                                        </span>
+                                        <div className="flex flex-col items-center gap-1.5">
+                                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest
+                                                ${driver.active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}
+                                            `}>
+                                                {driver.active ? 'Cadastrado' : 'Suspenso'}
+                                            </span>
+                                            {driver.inJourney && (
+                                                <span className="flex items-center gap-1 text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-tighter animate-pulse">
+                                                    <MapPin size={10} />
+                                                    Em Jornada
+                                                </span>
+                                            )}
+                                        </div>
                                     </td>
                                     <td className="px-6 py-5 text-right">
                                         <button className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl transition-all">

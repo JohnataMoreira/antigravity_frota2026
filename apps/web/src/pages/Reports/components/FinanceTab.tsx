@@ -3,6 +3,7 @@ import { api } from '../../../lib/axios';
 import { GlassCard } from '../../../components/ui/Cards';
 import { DollarSign, TrendingUp, CreditCard, Wrench, Fuel } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { formatCurrency } from '../../../lib/utils';
 
 export function FinanceTab() {
     const { data: financeData, isLoading } = useQuery({
@@ -34,7 +35,7 @@ export function FinanceTab() {
                             </div>
                             <span className="text-sm text-muted-foreground">{card.label}</span>
                         </div>
-                        <p className="text-2xl font-bold">R$ {card.value?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                        <p className="text-2xl font-bold">{formatCurrency(card.value)}</p>
                     </GlassCard>
                 ))}
             </div>
@@ -53,7 +54,7 @@ export function FinanceTab() {
                                 <YAxis stroke="#94a3b8" />
                                 <Tooltip
                                     contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px' }}
-                                    formatter={(value: any) => [`R$ ${value}`, 'Gasto']}
+                                    formatter={(value: any) => [formatCurrency(value), 'Gasto']}
                                 />
                                 <Bar dataKey="fuel" name="Combustível" stackId="a" fill="#2563EB" />
                                 <Bar dataKey="maintenance" name="Manutenção" stackId="a" fill="#F59E0B" />
@@ -80,7 +81,7 @@ export function FinanceTab() {
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <p className="font-bold text-primary">R$ {exp.value?.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                                    <p className="font-bold text-primary">{formatCurrency(exp.value)}</p>
                                     <p className="text-[10px] text-muted-foreground uppercase">{exp.details}</p>
                                 </div>
                             </div>
