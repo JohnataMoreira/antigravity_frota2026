@@ -2,9 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/axios';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Map, Search, ClipboardList, CheckCircle2, AlertCircle, X, MapPin, Clock, LayoutGrid, List as ListIcon, Filter } from 'lucide-react';
+import { Map, Search, ClipboardList, CheckCircle2, AlertCircle, X, MapPin, Clock, LayoutGrid, List as ListIcon, Filter, AlertTriangle } from 'lucide-react';
 import { GlassCard } from '../../components/ui/Cards';
-import { formatKm, formatDateTime } from '../../lib/utils';
+import { formatKm, formatDateTime, formatDuration } from '../../lib/utils';
 
 export function JourneysList() {
     const navigate = useNavigate();
@@ -111,35 +111,47 @@ export function JourneysList() {
                             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                                 {filtered.map((journey: any) => (
                                     <tr key={journey.id} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-all">
-                                        <td className="px-6 py-5 font-bold text-blue-600 dark:text-blue-400">{journey.vehicle?.plate || '—'}</td>
+                                        <td className="px-6 py-5">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-bold text-blue-600 dark:text-blue-400">{journey.vehicle?.plate || '—'}</span>
+                                                {journey.isLongRunning && (
+                                                    <span title="Jornada prolongada (>12h)">
+                                                        <AlertTriangle size={14} className="text-amber-500 animate-pulse" />
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </td>
                                         <td className="px-6 py-5 font-medium">{journey.driver?.name || '—'}</td>
                                         <td className="px-6 py-5">
-                                            <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${journey.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400' :
-                                                journey.status === 'COMPLETED' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400' :
-                                                    'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
-                                                }`}>
-                                                {journey.status === 'IN_PROGRESS' ? 'Em Jornada' : 'Finalizada'}
-                                            </span>
+                                            <div className="flex flex-col gap-1">
+                                                <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider w-fit ${journey.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400' :
+                                                    journey.status === 'COMPLETED' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400' :
+                                                        'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                                                    }`}>
+                                                    {journey.status === 'IN_PROGRESS' ? 'Em Jornada' : 'Finalizada'}
+                                                </span>
+                                                <span className="text-[10px] font-bold text-muted-foreground flex items-center gap-1">
+                                                    <Clock size={10} /> {formatDuration(journey.durationMinutes)}
+                                                </span>
+                                            </div>
                                         </td>
                                         <td className="px-6 py-5 text-muted-foreground font-medium">
                                             <div className="flex flex-col">
-                                                <span>{formatDateTime(journey.startTime)}</span>
-                                                {journey.endTime && <span className="text-xs opacity-70">término: {formatDateTime(journey.endTime)}</span>}
+                                                <span className="text-xs">{formatDateTime(journey.startTime)}</span>
+                                                {journey.endTime && <span className="text-[10px] opacity-70">bloqueio: {formatDateTime(journey.endTime)}</span>}
                                             </div>
                                         </td>
                                         <td className="px-6 py-5 text-right font-bold text-gray-900 dark:text-white uppercase">
                                             {journey.endKm ? formatKm(journey.endKm - journey.startKm) : '—'}
                                         </td>
                                         <td className="px-6 py-5 text-right">
-                                            {journey.checklists?.length > 0 && (
-                                                <button
-                                                    onClick={() => navigate(`/journeys/${journey.id}`)}
-                                                    className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl transition-all"
-                                                    title="Ver Detalhes"
-                                                >
-                                                    <ClipboardList size={22} />
-                                                </button>
-                                            )}
+                                            <button
+                                                onClick={() => navigate(`/journeys/${journey.id}`)}
+                                                className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl transition-all"
+                                                title="Ver Detalhes"
+                                            >
+                                                <ClipboardList size={22} />
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}

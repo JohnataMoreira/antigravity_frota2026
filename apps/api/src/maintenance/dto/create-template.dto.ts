@@ -18,6 +18,14 @@ export class CreateMaintenanceTemplateDto {
     @IsEnum(VehicleType, { each: true })
     vehicleTypes!: VehicleType[];
 
+    @ApiProperty({ description: 'Intervalo em KM para manutenção preventiva', example: 10000 })
+    @IsNumber()
+    intervalKm!: number;
+
+    @ApiProperty({ description: 'Descrição detalhada do plano', required: false })
+    @IsString()
+    description?: string;
+
     @ApiProperty({ description: 'Duração média estimada em dias', example: 1 })
     @IsNumber()
     averageDurationDays!: number;

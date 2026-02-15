@@ -68,11 +68,20 @@ export function MaintenanceList() {
         }
     });
 
+    const { data: alerts = [], isLoading: loadingAlerts } = useQuery({
+        queryKey: ['maintenance-alerts'],
+        queryFn: async () => {
+            const res = await api.get('/maintenance/alerts');
+            return res.data;
+        }
+    });
+
     const createMutation = useMutation({
         mutationFn: (data: any) => api.post('/maintenance', data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['maintenances'] });
             queryClient.invalidateQueries({ queryKey: ['vehicles'] });
+            queryClient.invalidateQueries({ queryKey: ['maintenance-alerts'] });
             setIsCreateModalOpen(false);
             setFormData({ vehicleId: '', type: 'OIL', nextDueKm: 0, notes: '' });
         }
@@ -83,6 +92,7 @@ export function MaintenanceList() {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['maintenances'] });
             queryClient.invalidateQueries({ queryKey: ['vehicles'] });
+            queryClient.invalidateQueries({ queryKey: ['maintenance-alerts'] });
             setIsCompleteModalOpen(false);
             setSelectedMaintenance(null);
             setCompleteData({ cost: 0, lastKm: 0, notes: '' });
@@ -93,21 +103,19 @@ export function MaintenanceList() {
         mutationFn: (data: any) => api.post('/maintenance-templates', data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['maintenance-templates'] });
+            queryClient.invalidateQueries({ queryKey: ['maintenance-alerts'] });
             setIsTemplateModalOpen(false);
         }
     });
 
-    const pending = maintenances.filter((m: any) => m.status === 'PENDING');
-
     const stats = useMemo(() => {
         const total = maintenances.length;
-        const pendingCount = pending.length;
-        const completedCount = maintenances.filter((m: any) => m.status === 'COMPLETED').length;
+        const alertCount = alerts.length;
         const totalCost = maintenances.reduce((acc: number, m: any) => acc + (m.cost || 0), 0);
         const inWorkshop = vehicles.filter((v: any) => v.status === 'MAINTENANCE').length;
 
-        return { total, pendingCount, completedCount, totalCost, inWorkshop };
-    }, [maintenances, vehicles, pending]);
+        return { total, alertCount, totalCost, inWorkshop };
+    }, [maintenances, vehicles, alerts]);
 
     const vehiclesInWorkshop = vehicles.filter((v: any) => v.status === 'MAINTENANCE');
 
@@ -133,7 +141,7 @@ export function MaintenanceList() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard label="Total de Registros" value={stats.total} icon={<Wrench className="w-8 h-8" />} />
-                <StatCard label="Alertas Ativos" value={stats.pendingCount} icon={<AlertTriangle className="w-8 h-8" />} variant={stats.pendingCount > 0 ? 'warning' : 'default'} />
+                <StatCard label="Alertas de KM" value={stats.alertCount} icon={<AlertTriangle className="w-8 h-8" />} variant={stats.alertCount > 0 ? 'warning' : 'default'} />
                 <StatCard label="Veículos na Oficina" value={stats.inWorkshop} icon={<LayoutGrid className="w-8 h-8" />} variant={stats.inWorkshop > 0 ? 'danger' : 'default'} />
                 <StatCard label="Investimento (Total)" value={formatCurrency(stats.totalCost)} icon={<DollarSign className="w-8 h-8" />} variant="info" />
             </div>
@@ -172,7 +180,7 @@ export function MaintenanceList() {
                                 className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg shadow-blue-500/20 transition-all group"
                             >
                                 <Plus size={20} className="group-hover:rotate-90 transition-transform" />
-                                Novo Alerta
+                                Nova Manutenção
                             </button>
 
                             <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-xl border dark:border-gray-700 shadow-sm">
@@ -218,42 +226,59 @@ export function MaintenanceList() {
                         </div>
                     )}
 
-                    {pending.length > 0 && (
+                    {alerts.length > 0 && (
                         <div className="space-y-4">
-                            <h2 className="text-xl font-bold flex items-center gap-2 text-red-500">
-                                <AlertTriangle className="w-6 h-6" /> Alertas Críticos
+                            <h2 className="text-xl font-bold flex items-center gap-2 text-amber-500">
+                                <AlertTriangle className="w-6 h-6" /> Alertas Preventivos
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {pending.map((maintenance: any) => (
-                                    <GlassCard key={maintenance.id} className="border-l-4 border-red-500/50 hover:border-red-500 transition-all flex flex-col">
+                                {alerts.map((alert: any) => (
+                                    <GlassCard
+                                        key={alert.id}
+                                        className={`border-l-4 transition-all flex flex-col ${alert.severity === 'CRITICAL' ? 'border-red-500 shadow-lg shadow-red-500/5' : 'border-amber-500'}`}
+                                    >
                                         <div className="flex justify-between items-start mb-4">
-                                            <div className="bg-red-50 dark:bg-red-900/20 p-2.5 rounded-xl text-red-600">
+                                            <div className={`p-2.5 rounded-xl ${alert.severity === 'CRITICAL' ? 'bg-red-50 dark:bg-red-900/20 text-red-600' : 'bg-amber-50 dark:bg-amber-900/20 text-amber-600'}`}>
                                                 <Wrench size={24} />
                                             </div>
-                                            <span className="text-[10px] font-black uppercase tracking-widest bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-3 py-1 rounded-full">{maintenanceTypeMap[maintenance.type] || maintenance.type}</span>
+                                            <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${alert.severity === 'CRITICAL' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'}`}>
+                                                {alert.templateName}
+                                            </span>
                                         </div>
-                                        <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2">{maintenance.vehicle?.plate}</h3>
-                                        <div className="space-y-2 mb-4 flex-grow">
-                                            <div className="flex justify-between text-sm">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <h3 className="text-2xl font-black text-gray-900 dark:text-white">{alert.plate}</h3>
+                                            <div className="text-[10px] font-bold text-muted-foreground uppercase">{alert.model}</div>
+                                        </div>
+                                        <div className="space-y-2 mb-4 flex-grow bg-gray-50/50 dark:bg-white/5 p-3 rounded-xl border border-gray-100 dark:border-white/5">
+                                            <div className="flex justify-between text-xs">
                                                 <span className="text-muted-foreground font-medium">KM Atual:</span>
-                                                <span className="font-bold">{formatKm(maintenance.vehicle?.currentKm)}</span>
+                                                <span className="font-bold">{formatKm(alert.kmSinceLast + alert.baseKm)}</span>
                                             </div>
-                                            <div className="flex justify-between text-sm">
-                                                <span className="text-muted-foreground font-medium">Próxima em:</span>
-                                                <span className="font-bold text-red-600">{formatKm(maintenance.nextDueKm)}</span>
+                                            <div className="flex justify-between text-xs">
+                                                <span className="text-muted-foreground font-medium">Planificado:</span>
+                                                <span className="font-bold">{formatKm(alert.nextMaintenanceKm)}</span>
+                                            </div>
+                                            <div className="pt-2 border-t dark:border-white/5 mt-2">
+                                                <p className={`text-[11px] font-bold uppercase ${alert.severity === 'CRITICAL' ? 'text-red-500' : 'text-amber-600'}`}>
+                                                    {alert.message}
+                                                </p>
                                             </div>
                                         </div>
 
                                         <button
                                             onClick={() => {
-                                                setSelectedMaintenance(maintenance);
-                                                setCompleteData(prev => ({ ...prev, lastKm: maintenance.vehicle?.currentKm || 0 }));
-                                                setIsCompleteModalOpen(true);
+                                                setFormData({
+                                                    vehicleId: alert.vehicleId,
+                                                    type: 'OTHER', // Fallback or mapping needed
+                                                    nextDueKm: alert.nextMaintenanceKm,
+                                                    notes: `Gerado por alerta de ${alert.templateName}`
+                                                });
+                                                setIsCreateModalOpen(true);
                                             }}
-                                            className="w-full mt-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-red-200 dark:shadow-none"
+                                            className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${alert.severity === 'CRITICAL' ? 'bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/20' : 'bg-amber-500 hover:bg-amber-600 text-white'}`}
                                         >
-                                            <CheckCircle2 size={18} />
-                                            Concluir Serviço
+                                            <Plus size={18} />
+                                            Iniciar Manutenção
                                         </button>
                                     </GlassCard>
                                 ))}
@@ -351,7 +376,7 @@ export function MaintenanceList() {
                                     </span>
                                 </div>
                                 <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{template.name}</h3>
-                                <div className="space-y-2 mb-4">
+                                <div className="space-y-2 mb-4 flex-grow">
                                     <div className="flex flex-wrap gap-1">
                                         {template.vehicleTypes.map((vt: string) => (
                                             <span key={vt} className="text-[9px] font-bold bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-gray-500">
@@ -359,21 +384,34 @@ export function MaintenanceList() {
                                             </span>
                                         ))}
                                     </div>
-                                    <div className="text-xs text-muted-foreground flex items-center gap-1 mt-3">
-                                        <Clock size={12} /> Duração Média: <strong>{template.averageDurationDays} dias</strong>
+                                    <div className="bg-gray-50 dark:bg-white/5 p-3 rounded-xl space-y-2 mt-3 text-xs">
+                                        <div className="flex justify-between">
+                                            <span className="text-muted-foreground">Intervalo:</span>
+                                            <span className="font-bold text-blue-600">{formatKm(template.intervalKm)}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-muted-foreground">Tempo Médio:</span>
+                                            <span className="font-bold">{template.averageDurationDays} dias</span>
+                                        </div>
                                     </div>
+                                    {template.description && (
+                                        <p className="text-[10px] text-muted-foreground italic line-clamp-2 mt-2">
+                                            "{template.description}"
+                                        </p>
+                                    )}
                                 </div>
                                 <button
                                     onClick={() => {
                                         if (confirm('Deseja excluir este serviço do catálogo?')) {
                                             api.delete(`/maintenance-templates/${template.id}`).then(() => {
                                                 queryClient.invalidateQueries({ queryKey: ['maintenance-templates'] });
+                                                queryClient.invalidateQueries({ queryKey: ['maintenance-alerts'] });
                                             });
                                         }
                                     }}
-                                    className="text-[10px] font-bold text-red-500 hover:underline uppercase tracking-tighter"
+                                    className="text-[10px] font-bold text-red-400 hover:text-red-500 uppercase tracking-tighter self-end"
                                 >
-                                    Excluir do Catálogo
+                                    Excluir
                                 </button>
                             </GlassCard>
                         ))}
@@ -560,8 +598,10 @@ export function MaintenanceList() {
                             e.preventDefault();
                             const form = e.target as HTMLFormElement;
                             const name = (form.elements.namedItem('name') as HTMLInputElement).value;
+                            const description = (form.elements.namedItem('description') as HTMLTextAreaElement).value;
                             const type = (form.elements.namedItem('type') as HTMLSelectElement).value;
                             const avgDays = Number((form.elements.namedItem('avgDays') as HTMLInputElement).value);
+                            const intervalKm = Number((form.elements.namedItem('intervalKm') as HTMLInputElement).value);
 
                             // Get selected vehicle types
                             const selectedTypes = Array.from(form.querySelectorAll('input[name="vehicleTypes"]:checked'))
@@ -572,7 +612,7 @@ export function MaintenanceList() {
                                 return;
                             }
 
-                            templateMutation.mutate({ name, type, averageDurationDays: avgDays, vehicleTypes: selectedTypes });
+                            templateMutation.mutate({ name, description, type, averageDurationDays: avgDays, intervalKm, vehicleTypes: selectedTypes });
                         }} className="space-y-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-bold ml-1">Nome do Serviço</label>
@@ -581,6 +621,15 @@ export function MaintenanceList() {
                                     className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
                                     placeholder="Ex: Troca de Óleo, Revisão de Freios..."
                                     required
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold ml-1">Descrição (Opcional)</label>
+                                <textarea
+                                    name="description"
+                                    className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary min-h-[60px]"
+                                    placeholder="Detalhes sobre o que este plano cobre..."
                                 />
                             </div>
 
@@ -608,7 +657,7 @@ export function MaintenanceList() {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold ml-1">Tipo de Manutenção</label>
+                                    <label className="text-sm font-bold ml-1">Tipo</label>
                                     <select
                                         name="type"
                                         className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
@@ -618,15 +667,26 @@ export function MaintenanceList() {
                                     </select>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold ml-1">Duração (Dias)</label>
+                                    <label className="text-sm font-bold ml-1">Intervalo (KM)</label>
                                     <input
-                                        name="avgDays"
+                                        name="intervalKm"
                                         type="number"
                                         className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
-                                        defaultValue={1}
+                                        defaultValue={10000}
                                         required
                                     />
                                 </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold ml-1">Duração Média (Dias)</label>
+                                <input
+                                    name="avgDays"
+                                    type="number"
+                                    className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
+                                    defaultValue={1}
+                                    required
+                                />
                             </div>
 
                             <button

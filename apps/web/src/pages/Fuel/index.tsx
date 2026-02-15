@@ -47,6 +47,27 @@ export function FuelEntriesList() {
         avgPrice: entries?.length ? (entries.reduce((acc, curr) => acc + curr.pricePerLiter, 0) / entries.length) : 0,
     };
 
+    const fuelTypeMap: Record<string, string> = {
+        'GASOLINE': 'Gasolina',
+        'ETHANOL': 'Etanol',
+        'DIESEL': 'Diesel',
+        'GNV': 'GNV',
+        'OTHER': 'Outro'
+    };
+
+    const paymentMethodMap: Record<string, string> = {
+        'CASH': 'Dinheiro',
+        'PIX': 'Pix',
+        'DEBIT_CARD': 'Débito',
+        'CREDIT_CARD': 'Crédito',
+        'FUEL_CARD': 'Cartão Combustível',
+        'INVOICED': 'Faturado',
+        'REIMBURSEMENT': 'Reembolso',
+        'PREPAID_CARD': 'Pré-pago',
+        'VOUCHER': 'Vale',
+        'INTERNAL_TANK': 'Tanque Próprio'
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -126,8 +147,9 @@ export function FuelEntriesList() {
                                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Motorista</th>
                                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Data</th>
                                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">KM</th>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Liters</th>
+                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Litros</th>
                                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Total</th>
+                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Tipo</th>
                                 <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Pagamento</th>
                             </tr>
                         </thead>
@@ -135,7 +157,7 @@ export function FuelEntriesList() {
                             {isLoading ? (
                                 Array.from({ length: 5 }).map((_, i) => (
                                     <tr key={i} className="animate-pulse">
-                                        <td colSpan={7} className="px-6 py-4">
+                                        <td colSpan={8} className="px-6 py-4">
                                             <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg w-full"></div>
                                         </td>
                                     </tr>
@@ -168,8 +190,13 @@ export function FuelEntriesList() {
                                         {formatCurrency(entry.totalValue)}
                                     </td>
                                     <td className="px-6 py-4">
+                                        <span className="px-2 py-1 text-[10px] font-bold uppercase rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800">
+                                            {fuelTypeMap[entry.fuelType] || entry.fuelType}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4">
                                         <span className="px-2 py-1 text-[10px] font-bold uppercase rounded-md bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                                            {entry.paymentMethod}
+                                            {paymentMethodMap[entry.paymentMethod] || entry.paymentMethod}
                                         </span>
                                     </td>
                                 </tr>

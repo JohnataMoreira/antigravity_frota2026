@@ -5,6 +5,7 @@ import { lazy, Suspense } from 'react';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { ThemeSwitcher } from '../../components/ThemeSwitcher';
 import { AlertsWidget } from './components/AlertsWidget';
+import { VehicleHealthCard } from './components/VehicleHealthCard';
 import { Truck, Users, MapPin, Activity, DollarSign, Gauge, Wrench, CheckCircle } from 'lucide-react';
 import {
     LineChart, Line, BarChart, Bar, XAxis, YAxis,
@@ -19,6 +20,14 @@ export function Dashboard() {
         queryKey: ['dashboard-stats'],
         queryFn: async () => {
             const res = await api.get('/reports/overview');
+            return res.data;
+        }
+    });
+
+    const { data: alerts = [], isLoading: loadingAlerts } = useQuery({
+        queryKey: ['maintenance-alerts'],
+        queryFn: async () => {
+            const res = await api.get('/maintenance/alerts');
             return res.data;
         }
     });
@@ -151,7 +160,8 @@ export function Dashboard() {
                         </ErrorBoundary>
                     </GlassCard>
                 </div>
-                <div className="lg:col-span-1">
+                <div className="lg:col-span-1 space-y-6">
+                    <VehicleHealthCard alerts={alerts} isLoading={loadingAlerts} />
                     <AlertsWidget />
                 </div>
             </div>

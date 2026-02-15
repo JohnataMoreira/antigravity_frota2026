@@ -10,36 +10,63 @@ export class MaintenanceAlertsService {
     ) { }
 
     async checkAlerts(organizationId: string) {
-        // Rule: Maintenance every 10,000 km
-        const MAINTENANCE_INTERVAL = 10000;
-
         const vehicles = await this.prisma.vehicle.findMany({
             where: { organizationId, status: { not: 'MAINTENANCE' } }
         });
 
-        const alerts = vehicles
-            .map(v => {
-                const kmSinceLast = v.currentKm - (v.lastMaintenanceKm || 0);
-                const kmToNext = MAINTENANCE_INTERVAL - kmSinceLast;
+        const templates = await this.prisma.maintenanceTemplate.findMany({
+            where: { organizationId }
+        }) as any[]; // Type assertion for intervalKm
 
-                if (kmToNext <= 1000) { // Alert 1000km before
-                    return {
-                        vehicleId: v.id,
-                        plate: v.plate,
-                        model: v.model,
+        const alerts: any[] = [];
+
+        for (const vehicle of vehicles) {
+            const applicableTemplates = templates.filter(t =>
+                t.vehicleTypes.includes(vehicle.type)
+            );
+
+            for (const template of applicableTemplates) {
+                // Find last completed maintenance for this template/type
+                const lastMaintenance = await this.prisma.maintenance.findFirst({
+                    where: {
+                        vehicleId: vehicle.id,
+                        status: 'COMPLETED',
+                        // Since we don't have templateId in Maintenance yet, 
+                        // we match by type or name if possible. 
+                        // For now, let's use the vehicle's lastMaintenanceKm as a fallback.
+                    },
+                    orderBy: { performedAt: 'desc' }
+                });
+
+                const baseKm = lastMaintenance?.lastKm ?? vehicle.lastMaintenanceKm ?? 0;
+                const kmSinceLast = vehicle.currentKm - baseKm;
+                const kmToNext = template.intervalKm - kmSinceLast;
+
+                if (kmToNext <= 500) {
+                    alerts.push({
+                        id: `${vehicle.id}-${template.id}`,
+                        vehicleId: vehicle.id,
+                        plate: vehicle.plate,
+                        model: vehicle.model,
+                        templateName: template.name,
+                        templateId: template.id,
                         severity: kmToNext <= 0 ? 'CRITICAL' : 'WARNING',
                         message: kmToNext <= 0
-                            ? `Manutenção vencida há ${Math.abs(kmToNext)} km`
-                            : `Manutenção próxima: faltam ${kmToNext} km`,
+                            ? `${template.name} vencido há ${Math.abs(kmToNext)} km`
+                            : `${template.name} próximo: faltam ${kmToNext} km`,
                         kmSinceLast,
-                        nextMaintenanceKm: (v.lastMaintenanceKm || 0) + MAINTENANCE_INTERVAL
-                    };
+                        baseKm,
+                        nextMaintenanceKm: baseKm + template.intervalKm
+                    });
                 }
-                return null;
-            })
-            .filter((a): a is NonNullable<typeof a> => a !== null);
+            }
+        }
 
-        const sortedAlerts = alerts.sort((a, b) => a.severity === 'CRITICAL' ? -1 : 1);
+        const sortedAlerts = alerts.sort((a, b) => {
+            if (a.severity === 'CRITICAL' && b.severity !== 'CRITICAL') return -1;
+            if (a.severity !== 'CRITICAL' && b.severity === 'CRITICAL') return 1;
+            return 0;
+        });
 
         // Notify Admins about Critical Alerts
         const criticalCount = alerts.filter(a => a.severity === 'CRITICAL').length;
@@ -47,7 +74,7 @@ export class MaintenanceAlertsService {
             await this.notificationService.notifyAdmins(
                 organizationId,
                 '🚨 Manutenções Críticas',
-                `Existem ${criticalCount} veículos com manutenção vencida.`
+                `Existem ${criticalCount} veículos com manutenção preventiva vencida.`
             );
         }
 

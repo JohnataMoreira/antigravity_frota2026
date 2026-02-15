@@ -117,13 +117,28 @@ export class JourneysService {
     }
 
     async findAll() {
-        return this.prisma.journey.findMany({
+        const journeys = await this.prisma.journey.findMany({
             include: {
-                vehicle: true,
-                driver: true,
+                vehicle: { select: { plate: true, model: true } },
+                driver: { select: { name: true } },
                 checklists: true
             },
             orderBy: { startTime: 'desc' }
+        });
+
+        const now = new Date();
+        const TWELVE_HOURS_MS = 12 * 60 * 60 * 1000;
+
+        return journeys.map(journey => {
+            const durationMs = journey.endTime
+                ? (new Date(journey.endTime).getTime() - new Date(journey.startTime).getTime())
+                : (now.getTime() - new Date(journey.startTime).getTime());
+
+            return {
+                ...journey,
+                durationMinutes: Math.floor(durationMs / 60000),
+                isLongRunning: journey.status === JourneyStatus.IN_PROGRESS && durationMs > TWELVE_HOURS_MS
+            };
         });
     }
 }

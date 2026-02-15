@@ -290,8 +290,10 @@ model MaintenanceTemplate {
   id             String       @id @default(uuid())
   organizationId String
   name           String
+  description    String?
   type           String       // PREVENTIVE, CORRECTIVE
   vehicleTypes   VehicleType[]
+  intervalKm     Int          @default(10000)
   averageDurationDays Int     @default(1)
   
   createdAt      DateTime     @default(now())
