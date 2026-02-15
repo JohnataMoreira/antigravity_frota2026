@@ -288,5 +288,6 @@ export function JourneyDetails() {
                     </Card>
                 </div>
             </div>
-            );
+        </div>
+    );
 }
