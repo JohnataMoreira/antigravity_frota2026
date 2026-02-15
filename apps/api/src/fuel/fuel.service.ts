@@ -1,30 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateFuelDto } from './dto/create-fuel.dto';
+import { FuelType, PaymentMethod } from '@prisma/client';
 
 @Injectable()
 export class FuelService {
     constructor(private prisma: PrismaService) { }
 
-    async create(data: {
-        vehicleId: string;
-        driverId: string;
-        journeyId?: string;
-        km: number;
-        liters: number;
-        totalValue: number;
-        pricePerLiter: number;
-        fuelType?: any;
-        paymentMethod?: any;
-        paymentProvider?: string;
-        paymentReference?: string;
-        photoUrl?: string;
-        notes?: string;
-        organizationId: string;
-    }) {
+    async create(data: CreateFuelDto & { organizationId: string; driverId: string }) {
         return this.prisma.$transaction(async (tx) => {
             const entry = await tx.fuelEntry.create({
                 data: {
                     ...data,
+                    fuelType: data.fuelType as FuelType,
+                    paymentMethod: data.paymentMethod as PaymentMethod,
                     date: new Date()
                 }
             });

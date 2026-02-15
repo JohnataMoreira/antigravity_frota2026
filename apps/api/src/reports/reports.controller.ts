@@ -1,20 +1,28 @@
-import { Controller, Get, UseGuards, Query, Req } from '@nestjs/common';
+import { Controller, Get, UseGuards, Query, Request } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { UserRequest } from '../auth/user-request.interface';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 
+@ApiTags('Relatórios')
+@ApiBearerAuth()
 @Controller('reports')
 @UseGuards(JwtAuthGuard)
 export class ReportsController {
     constructor(private reportsService: ReportsService) { }
 
     @Get('overview')
-    async getOverview(@Req() req: any) {
+    @ApiOperation({ summary: 'Resumo geral da frota (KPIs)' })
+    async getOverview(@Request() req: UserRequest) {
         return this.reportsService.getOverview(req.user.organizationId);
     }
 
     @Get('drivers')
+    @ApiOperation({ summary: 'Desempenho por motorista' })
+    @ApiQuery({ name: 'start', required: false, description: 'Data inicial (ISO)' })
+    @ApiQuery({ name: 'end', required: false, description: 'Data final (ISO)' })
     async getDriverPerformance(
-        @Req() req: any,
+        @Request() req: UserRequest,
         @Query('start') start?: string,
         @Query('end') end?: string
     ) {
@@ -24,8 +32,11 @@ export class ReportsController {
     }
 
     @Get('vehicles')
+    @ApiOperation({ summary: 'Uso da frota por veículo' })
+    @ApiQuery({ name: 'start', required: false, description: 'Data inicial (ISO)' })
+    @ApiQuery({ name: 'end', required: false, description: 'Data final (ISO)' })
     async getVehicleUtilization(
-        @Req() req: any,
+        @Request() req: UserRequest,
         @Query('start') start?: string,
         @Query('end') end?: string
     ) {
@@ -35,8 +46,11 @@ export class ReportsController {
     }
 
     @Get('driver-ranking')
+    @ApiOperation({ summary: 'Ranking de pontuação dos motoristas' })
+    @ApiQuery({ name: 'start', required: false, description: 'Data inicial (ISO)' })
+    @ApiQuery({ name: 'end', required: false, description: 'Data final (ISO)' })
     async getDriverRanking(
-        @Req() req: any,
+        @Request() req: UserRequest,
         @Query('start') start?: string,
         @Query('end') end?: string
     ) {

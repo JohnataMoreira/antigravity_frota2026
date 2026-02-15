@@ -1,20 +1,26 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateMaintenanceDto } from './dto/create-maintenance.dto';
+import { CompleteMaintenanceDto } from './dto/complete-maintenance.dto';
+import { CreateMaintenanceTemplateDto } from './dto/create-template.dto';
+import { MaintenanceStatus, VehicleStatus } from '@prisma/client';
 
 @Injectable()
 export class MaintenanceService {
     constructor(private prisma: PrismaService) { }
 
-    async create(data: any) {
+    async create(data: CreateMaintenanceDto & { organizationId: string }) {
         return this.prisma.$transaction(async (tx) => {
             const maintenance = await tx.maintenance.create({
-                data: data as any // organizationId is injected by Prisma Extension
+                data: {
+                    ...data,
+                    status: MaintenanceStatus.PENDING
+                }
             });
 
             await tx.vehicle.update({
                 where: { id: maintenance.vehicleId },
-                data: { status: 'MAINTENANCE' }
+                data: { status: VehicleStatus.MAINTENANCE }
             });
 
             return maintenance;
@@ -35,12 +41,12 @@ export class MaintenanceService {
         });
     }
 
-    async complete(id: string, data: { cost: number; notes?: string; lastKm: number }) {
+    async complete(id: string, data: CompleteMaintenanceDto) {
         return this.prisma.$transaction(async (tx) => {
             const maintenance = await tx.maintenance.update({
                 where: { id },
                 data: {
-                    status: 'COMPLETED',
+                    status: MaintenanceStatus.COMPLETED,
                     cost: data.cost,
                     notes: data.notes,
                     performedAt: new Date()
@@ -50,7 +56,7 @@ export class MaintenanceService {
             await tx.vehicle.update({
                 where: { id: maintenance.vehicleId },
                 data: {
-                    status: 'AVAILABLE',
+                    status: VehicleStatus.AVAILABLE,
                     lastMaintenanceKm: data.lastKm,
                     lastMaintenanceDate: new Date()
                 }
@@ -61,7 +67,7 @@ export class MaintenanceService {
     }
 
     // Template Methods
-    async createTemplate(data: any) {
+    async createTemplate(data: CreateMaintenanceTemplateDto & { organizationId: string }) {
         return this.prisma.maintenanceTemplate.create({
             data: data
         });
@@ -80,10 +86,3 @@ export class MaintenanceService {
     }
 }
 
-// Minimal DTOs for local types if needed
-export interface CreateMaintenanceDto {
-    vehicleId: string;
-    description: string;
-    scheduledDate: Date;
-    cost?: number;
-}

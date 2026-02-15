@@ -11,6 +11,13 @@ export class IncidentsService {
     ) { }
 
     async create(driverId: string, dto: CreateIncidentDto) {
+        const driver = await this.prisma.user.findUnique({
+            where: { id: driverId },
+            select: { organizationId: true }
+        });
+
+        if (!driver) throw new NotFoundException('Driver not found');
+
         const incident = await this.prisma.incident.create({
             data: {
                 driverId,
@@ -20,7 +27,8 @@ export class IncidentsService {
                 severity: dto.severity || 'MEDIUM',
                 status: 'OPEN',
                 photoUrl: dto.photoUrl,
-            } as any,
+                organizationId: driver.organizationId
+            },
             include: {
                 vehicle: { select: { plate: true } },
                 driver: { select: { name: true, organizationId: true } }
@@ -29,7 +37,7 @@ export class IncidentsService {
 
         // Notify Admins
         await this.notificationService.notifyAdmins(
-            incident.driver.organizationId,
+            driver.organizationId,
             `⚠️ Novo Incidente: ${incident.vehicle.plate}`,
             `${incident.driver.name} relatou um incidente (${incident.severity}).`,
             { incidentId: incident.id }

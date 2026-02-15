@@ -3,12 +3,15 @@ import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { LoginDto, RegisterOrgDto } from './dto';
+import { AuditService } from '../common/audit/audit.service';
+import { AuditAction, AuditEntity } from '../common/audit/audit.types';
 
 @Injectable()
 export class AuthService {
     constructor(
         private prisma: PrismaService,
         private jwt: JwtService,
+        private audit: AuditService,
     ) { }
 
     async registerOrg(dto: RegisterOrgDto) {
@@ -53,6 +56,15 @@ export class AuthService {
             return { org, user };
         });
 
+        await this.audit.log({
+            organizationId: org.id,
+            userId: user.id,
+            action: AuditAction.CREATE,
+            entity: AuditEntity.ORGANIZATION,
+            entityId: org.id,
+            metadata: { email: user.email }
+        });
+
         return this.signToken(user.id, org.id, user.email, user.role, user.name);
     }
 
@@ -68,7 +80,18 @@ export class AuthService {
         const pwMatches = await bcrypt.compare(dto.password, user.passwordHash);
         if (!pwMatches) throw new UnauthorizedException('Credentials incorrect');
 
-        return this.signToken(user.id, user.organizationId, user.email, user.role, user.name);
+        const result = await this.signToken(user.id, user.organizationId, user.email, user.role, user.name);
+
+        await this.audit.log({
+            organizationId: user.organizationId,
+            userId: user.id,
+            action: AuditAction.LOGIN,
+            entity: AuditEntity.USER,
+            entityId: user.id,
+            metadata: { email: user.email }
+        });
+
+        return result;
     }
 
     async signToken(userId: string, orgId: string, email: string, role: string, name: string) {
