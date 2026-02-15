@@ -27,6 +27,7 @@ import { MailModule } from './common/mail/mail.module';
 import { NotificationModule } from './common/notifications/notification.module';
 import { BackupModule } from './backup/backup.module';
 import { InventoryModule } from './inventory/inventory.module';
+import { TelemetryModule } from './telemetry/telemetry.module';
 
 
 @Module({
@@ -58,6 +59,7 @@ import { InventoryModule } from './inventory/inventory.module';
         IncidentsModule,
         BackupModule,
         InventoryModule,
+        TelemetryModule,
     ],
     providers: [
         {

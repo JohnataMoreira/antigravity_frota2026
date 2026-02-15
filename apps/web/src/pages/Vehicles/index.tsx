@@ -14,6 +14,7 @@ interface Vehicle {
     currentKm: number;
     type: 'CAR' | 'TRUCK' | 'MOTORCYCLE' | 'MACHINE';
     year?: number;
+    fuelLevel?: number;
 }
 
 const statusMap = {

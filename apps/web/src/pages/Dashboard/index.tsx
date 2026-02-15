@@ -136,6 +136,12 @@ export function Dashboard() {
                     value={formatKm(stats?.totalKm)}
                     icon={<Gauge className="w-8 h-8" />}
                 />
+                <StatCard
+                    label="Combustível Médio"
+                    value={`${stats?.avgFuelLevel || 100}%`}
+                    icon={<Activity className="w-8 h-8 text-emerald-500" />}
+                    variant="success"
+                />
             </div>
 
             {/* Active Content Grid */}

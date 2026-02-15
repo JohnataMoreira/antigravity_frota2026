@@ -32,8 +32,8 @@ const fixLeafletIcons = () => {
 };
 
 // Custom Car Icon Factory
-const createCarIcon = (status: 'MOVING' | 'STOPPED' | 'OFFLINE', plate: string) => {
-    const color = status === 'MOVING' ? '#10b981' : status === 'STOPPED' ? '#ef4444' : '#6b7280';
+const createCarIcon = (status: 'MOVING' | 'STOPPED' | 'OFFLINE' | 'ENGINE_ON', plate: string) => {
+    const color = status === 'MOVING' ? '#10b981' : (status === 'ENGINE_ON' ? '#3b82f6' : (status === 'STOPPED' ? '#ef4444' : '#6b7280'));
 
     if (typeof window === 'undefined') return undefined;
 
@@ -50,12 +50,13 @@ const createCarIcon = (status: 'MOVING' | 'STOPPED' | 'OFFLINE', plate: string) 
             className: 'custom-car-marker',
             html: `
                 <div class="relative group">
-                    <div class="w-10 h-10 rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-transform hover:scale-110" style="background-color: ${color}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <div class="w-10 h-10 rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-transform hover:scale-110 relative" style="background-color: ${color}">
+                        ${status === 'MOVING' || status === 'ENGINE_ON' ? '<div class="absolute inset-0 rounded-full bg-white/20 animate-ping"></div>' : ''}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="relative z-10">
                             <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12a6 6 0 0 0 6 6h12a6 6 0 0 0 6-6c0-4-3.13-5.73-6-6Z"/>
                         </svg>
                     </div>
-                    <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-black/75 text-white text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-black/75 text-white text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
                         ${plate}
                     </div>
                 </div>
@@ -76,7 +77,9 @@ interface VehicleLocation {
     lng: number;
     plate?: string;
     speed?: number;
-    status?: 'MOVING' | 'STOPPED' | 'OFFLINE';
+    fuelLevel?: number;
+    engineStatus?: boolean;
+    status?: 'MOVING' | 'STOPPED' | 'OFFLINE' | 'ENGINE_ON';
     lastUpdate?: string;
 }
 
@@ -143,6 +146,23 @@ export function LiveMap() {
             }));
         });
 
+        socket.on('vehicleUpdate', (payload: any) => {
+            setLocations(prev => ({
+                ...prev,
+                [payload.vehicleId]: {
+                    vehicleId: payload.vehicleId,
+                    lat: payload.latitude,
+                    lng: payload.longitude,
+                    plate: payload.plate,
+                    speed: payload.speed,
+                    fuelLevel: payload.fuelLevel,
+                    engineStatus: payload.engineStatus,
+                    status: payload.speed > 0 ? 'MOVING' : (payload.engineStatus ? 'ENGINE_ON' : 'STOPPED'),
+                    lastUpdate: payload.timestamp
+                }
+            }));
+        });
+
         return () => {
             clearTimeout(timer);
             socket.disconnect();
@@ -199,9 +219,15 @@ export function LiveMap() {
                                             <span className="font-mono text-foreground">{v.speed ? v.speed.toFixed(0) : 0} km/h</span>
                                         </div>
                                         <div className="flex justify-between items-center gap-4 py-1 border-b dark:border-gray-700">
+                                            <span className="text-muted-foreground uppercase text-[10px]">Combustível:</span>
+                                            <span className={`font-mono ${v.fuelLevel && v.fuelLevel < 20 ? 'text-red-500' : 'text-emerald-500'}`}>
+                                                {v.fuelLevel ? v.fuelLevel.toFixed(0) : 100}%
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-center gap-4 py-1 border-b dark:border-gray-700">
                                             <span className="text-muted-foreground uppercase text-[10px]">Status:</span>
-                                            <span className={`px-2 py-0.5 rounded-full text-[9px] uppercase ${v.status === 'MOVING' ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>
-                                                {v.status === 'MOVING' ? 'Em Movimento' : 'Parado'}
+                                            <span className={`px-2 py-0.5 rounded-full text-[9px] uppercase ${v.status === 'MOVING' ? 'bg-green-500/20 text-green-500' : (v.status === 'ENGINE_ON' ? 'bg-blue-500/20 text-blue-500' : 'bg-red-500/20 text-red-500')}`}>
+                                                {v.status === 'MOVING' ? 'Em Movimento' : (v.status === 'ENGINE_ON' ? 'Motor Ligado' : 'Parado')}
                                             </span>
                                         </div>
                                         <div className="pt-2 text-[9px] text-muted-foreground/60 text-right flex items-center justify-end gap-1">
@@ -220,6 +246,10 @@ export function LiveMap() {
                     <div className="flex items-center gap-2.5">
                         <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
                         <span className="text-foreground/80 font-bold">Em Movimento</span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
+                        <span className="text-foreground/80 font-bold">Motor Ligado</span>
                     </div>
                     <div className="flex items-center gap-2.5">
                         <div className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]"></div>

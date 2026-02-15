@@ -27,7 +27,9 @@ export class ReportsService {
             inUseByType,
             maintenanceByType,
             recentIncidents,
-            journeysWithIncidentsCount
+            journeysWithIncidentsCount,
+            totalVehicleKm, // New variable for total currentKm
+            avgFuelLevel // New variable for average fuel level
         ] = await Promise.all([
             this.prisma.vehicle.count({ where: { organizationId } }),
             this.prisma.vehicle.count({ where: { organizationId, status: 'AVAILABLE' } }),
@@ -97,7 +99,9 @@ export class ReportsService {
                     status: 'IN_PROGRESS',
                     incidents: { some: { status: 'OPEN' } }
                 }
-            })
+            }),
+            this.prisma.vehicle.aggregate({ where: { organizationId }, _sum: { currentKm: true } }),
+            (this.prisma.vehicle as any).aggregate({ where: { organizationId }, _avg: { fuelLevel: true } })
         ]);
 
         const totalKm = journeysWithKm.reduce((acc: number, j: any) => acc + ((j.endKm || 0) - j.startKm), 0);
@@ -115,7 +119,8 @@ export class ReportsService {
                 journeysWithoutIncidents: activeJourneys - journeysWithIncidentsCount,
                 totalDrivers,
                 monthlyCosts: (maintenanceCosts._sum?.cost || 0) + (fuelCosts._sum?.totalValue || 0),
-                totalKm,
+                totalKm: (totalVehicleKm as any)._sum?.currentKm || 0,
+                avgFuelLevel: Math.round((avgFuelLevel as any)._avg?.fuelLevel || 100),
                 issuesReported: checklistsWithIssues,
                 breakdown: {
                     available: availableByType,
