@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useEffect, useState, useMemo } from 'react';
 import { io } from 'socket.io-client';
@@ -50,11 +50,12 @@ const createCarIcon = (status: 'MOVING' | 'STOPPED' | 'OFFLINE' | 'ENGINE_ON', p
             className: 'custom-car-marker',
             html: `
                 <div class="relative group">
-                    <div class="w-10 h-10 rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-transform hover:scale-110 relative" style="background-color: ${color}">
+                    <div class="w-10 h-10 rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-transform hover:scale-110 relative" style="background-color: ${color}; ${status === 'OFFLINE' ? 'opacity: 0.5;' : ''}">
                         ${status === 'MOVING' || status === 'ENGINE_ON' ? '<div class="absolute inset-0 rounded-full bg-white/20 animate-ping"></div>' : ''}
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="relative z-10">
                             <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12a6 6 0 0 0 6 6h12a6 6 0 0 0 6-6c0-4-3.13-5.73-6-6Z"/>
                         </svg>
+                        ${plate.includes('!') ? '<div class="absolute -top-1 -right-1 bg-red-600 text-white w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-black border border-white animate-bounce">!</div>' : ''}
                     </div>
                     <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-black/75 text-white text-[10px] px-2 py-0.5 rounded-full whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
                         ${plate}
@@ -82,6 +83,8 @@ interface VehicleLocation {
     fuelLevel?: number;
     engineStatus?: boolean;
     status?: 'MOVING' | 'STOPPED' | 'OFFLINE' | 'ENGINE_ON';
+    isDeviated?: boolean;
+    plannedRoute?: [number, number][];
     lastUpdate?: string;
 }
 
@@ -159,6 +162,8 @@ export function LiveMap() {
                     speed: payload.speed,
                     fuelLevel: payload.fuelLevel,
                     engineStatus: payload.engineStatus,
+                    isDeviated: payload.isDeviated,
+                    plannedRoute: payload.plannedRoute,
                     status: payload.speed > 0 ? 'MOVING' : (payload.engineStatus ? 'ENGINE_ON' : 'STOPPED'),
                     lastUpdate: payload.timestamp
                 }
@@ -202,8 +207,19 @@ export function LiveMap() {
 
                 <AutoCenter vehicles={activeVehicles} />
 
+                {activeVehicles.map(v => v.plannedRoute && (
+                    <Polyline
+                        key={`route-${v.vehicleId}`}
+                        positions={v.plannedRoute}
+                        color="#3b82f6"
+                        weight={4}
+                        opacity={0.5}
+                        dashArray="10, 10"
+                    />
+                ))}
+
                 {activeVehicles.map(v => {
-                    const icon = createCarIcon(v.status || 'STOPPED', v.plate || '???');
+                    const icon = createCarIcon(v.status || 'STOPPED', (v.isDeviated ? '!' : '') + (v.plate || '???'));
                     if (!icon) return null;
 
                     return (

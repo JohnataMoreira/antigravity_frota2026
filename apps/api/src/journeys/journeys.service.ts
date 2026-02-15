@@ -50,6 +50,8 @@ export class JourneysService {
                     startKm: dto.startKm,
                     status: JourneyStatus.IN_PROGRESS,
                     startLocation: (dto.lat && dto.lng) ? { lat: dto.lat, lng: dto.lng } : undefined,
+                    plannedRoute: dto.plannedRoute,
+                    destinationName: dto.destinationName,
                     checklists: dto.checklistItems ? {
                         create: {
                             type: ChecklistType.CHECKOUT,

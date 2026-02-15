@@ -1,8 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/axios';
-import { Plus, Edit, Trash, Search, LayoutGrid, List as ListIcon, Car, Truck as TruckIcon, Bike, Cpu, Filter } from 'lucide-react';
+import { Plus, Edit, Trash, Search, LayoutGrid, List as ListIcon, Car, Truck as TruckIcon, Bike, Cpu, Filter, Play } from 'lucide-react';
 import { useState } from 'react';
 import { VehicleModal } from '../../components/VehicleModal';
+import { StartJourneyModal } from '../Journeys/components/StartJourneyModal';
 import { formatKm } from '../../lib/utils';
 
 interface Vehicle {
@@ -38,6 +39,8 @@ export function VehiclesList() {
     const [statusFilter, setStatusFilter] = useState<string>('ALL');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+    const [isStartJourneyModalOpen, setIsStartJourneyModalOpen] = useState(false);
+    const [vehicleToStart, setVehicleToStart] = useState<Vehicle | null>(null);
 
     const { data: vehicles, isLoading, error } = useQuery<Vehicle[]>({
         queryKey: ['vehicles'],
@@ -285,6 +288,20 @@ export function VehiclesList() {
                                     </span>
                                     <div className="text-[10px] text-gray-400 font-bold uppercase">Cod: {vehicle.id.split('-')[0]}</div>
                                 </div>
+
+                                {vehicle.status === 'AVAILABLE' && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setVehicleToStart(vehicle);
+                                            setIsStartJourneyModalOpen(true);
+                                        }}
+                                        className="w-full mt-2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+                                    >
+                                        <Play size={12} fill="white" />
+                                        Iniciar Jornada
+                                    </button>
+                                )}
                             </div>
                         </div>
                     ))}
@@ -306,6 +323,13 @@ export function VehiclesList() {
                 onSave={handleSave}
                 vehicle={selectedVehicle}
             />
+            {vehicleToStart && (
+                <StartJourneyModal
+                    isOpen={isStartJourneyModalOpen}
+                    onClose={() => setIsStartJourneyModalOpen(false)}
+                    vehicle={vehicleToStart}
+                />
+            )}
         </div>
     );
 }

@@ -90,6 +90,7 @@ model Organization {
   maintenanceTemplates MaintenanceTemplate[]
   inventoryItems InventoryItem[]
   auditLogs AuditLog[]
+  geofences Geofence[]
 }
 
 model AuditLog {
@@ -187,6 +188,12 @@ model Journey {
   startLocation  Json?
   endLocation    Json?
 
+  // Route Optimization (v2.7)
+  plannedRoute     Json?     // Array of lat/lng: [[lat, lng], ...]
+  allowedDeviation Float     @default(500) // in meters
+  isDeviated       Boolean   @default(false)
+  destinationName  String?
+
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 
@@ -196,6 +203,19 @@ model Journey {
   checklists     Checklist[]
   fuelEntries    FuelEntry[]
   incidents      Incident[]
+}
+
+model Geofence {
+  id             String   @id @default(uuid())
+  organizationId String
+  name           String
+  type           String   // CIRCLE, POLYGON
+  coordinates    Json     // CIRCLE: { center: [lat, lng], radius: number }, POLYGON: [[lat, lng], ...]
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
 }
 
 model Checklist {

@@ -22,6 +22,12 @@ export class StartJourneyDto {
     @IsOptional()
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     checklistItems?: any[]; // Simplified for MVP
+
+    @IsOptional()
+    plannedRoute?: [number, number][];
+
+    @IsOptional()
+    destinationName?: string;
 }
 
 export class EndJourneyDto {
