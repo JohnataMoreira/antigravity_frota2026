@@ -18,12 +18,8 @@ async function bootstrap() {
         SwaggerModule.setup('api/docs', app, document);
 
         app.enableCors({
-            origin: [
-                'https://frota.johnatamoreira.com.br',
-                'http://localhost:5173',
-                'http://localhost:4173'
-            ],
-            methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+            origin: true, // Allow all temporarily for debugging
+            methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
             credentials: true,
         });
         app.setGlobalPrefix('api');
