@@ -38,6 +38,7 @@ export interface DriverRanking {
     checklistScore: number;
     safetyScore: number;
     efficiencyScore: number;
+    complianceScore: number;
     overallScore: number;
 }
 
