@@ -10,5 +10,6 @@ import { JwtModule } from '@nestjs/jwt';
         }),
     ],
     providers: [LocationsGateway],
+    exports: [LocationsGateway],
 })
 export class LocationsModule { }
