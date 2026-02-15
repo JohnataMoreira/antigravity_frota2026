@@ -10,6 +10,7 @@ import { UsersList } from './pages/Users';
 import { JourneysList } from './pages/Journeys';
 import { JourneyDetails } from './pages/Journeys/JourneyDetails';
 import { MaintenanceList } from './pages/Maintenance';
+import { FuelEntriesList } from './pages/Fuel';
 import Reports from './pages/Reports';
 import { LiveMap } from './components/LiveMap';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -43,6 +44,7 @@ function AppRoutes() {
                     <Route index element={<UsersList />} />
                 </Route>
 
+                <Route path="fuel" element={<FuelEntriesList />} />
                 <Route path="journeys" element={<JourneysList />} />
                 <Route path="journeys/:id" element={<JourneyDetails />} />
                 <Route path="maintenance" element={<MaintenanceList />} />

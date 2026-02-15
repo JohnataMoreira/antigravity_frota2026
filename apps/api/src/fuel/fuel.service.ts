@@ -31,9 +31,22 @@ export class FuelService {
         });
     }
 
-    async findAll(organizationId: string) {
+    async findAll(organizationId: string, filters: { vehicleId?: string; driverId?: string; startDate?: string; endDate?: string } = {}) {
+        const { vehicleId, driverId, startDate, endDate } = filters;
+
+        const where: any = { organizationId };
+
+        if (vehicleId) where.vehicleId = vehicleId;
+        if (driverId) where.driverId = driverId;
+
+        if (startDate || endDate) {
+            where.date = {};
+            if (startDate) where.date.gte = new Date(startDate);
+            if (endDate) where.date.lte = new Date(endDate);
+        }
+
         return this.prisma.fuelEntry.findMany({
-            where: { organizationId },
+            where,
             orderBy: { date: 'desc' },
             include: {
                 vehicle: { select: { plate: true, model: true } },

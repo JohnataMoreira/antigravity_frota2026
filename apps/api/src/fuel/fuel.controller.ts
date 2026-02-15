@@ -25,8 +25,19 @@ export class FuelController {
 
     @Get()
     @ApiOperation({ summary: 'Listar todos os abastecimentos' })
-    async findAll(@Request() req: UserRequest) {
-        return this.fuelService.findAll(req.user.organizationId);
+    async findAll(
+        @Request() req: UserRequest,
+        @Query('vehicleId') vehicleId?: string,
+        @Query('driverId') driverId?: string,
+        @Query('startDate') startDate?: string,
+        @Query('endDate') endDate?: string,
+    ) {
+        return this.fuelService.findAll(req.user.organizationId, {
+            vehicleId,
+            driverId,
+            startDate,
+            endDate
+        });
     }
 
     @Get('stats')
