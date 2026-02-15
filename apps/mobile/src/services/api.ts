@@ -105,6 +105,8 @@ class ApiService {
         description: string;
         severity?: string;
         photoUrl?: string;
+        lat?: string;
+        lng?: string;
     }) {
         return this.request('/incidents', {
             method: 'POST',

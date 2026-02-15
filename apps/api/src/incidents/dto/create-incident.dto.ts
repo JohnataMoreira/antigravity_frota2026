@@ -26,4 +26,14 @@ export class CreateIncidentDto {
     @IsOptional()
     @IsString()
     photoUrl?: string;
+
+    @ApiPropertyOptional({ description: 'Latitude do incidente' })
+    @IsOptional()
+    @IsString()
+    lat?: string;
+
+    @ApiPropertyOptional({ description: 'Longitude do incidente' })
+    @IsOptional()
+    @IsString()
+    lng?: string;
 }

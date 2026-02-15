@@ -138,12 +138,16 @@ export default function JourneyScreen() {
                 photoUrl = await photoService.uploadPhoto(capturedPhoto, token);
             }
 
+            const currentPos = await locationService.getCurrentPosition();
+
             await api.reportIncident({
                 vehicleId: vehicle.id,
                 journeyId: activeJourney.id,
                 description: incidentDescription,
                 severity: incidentSeverity,
                 photoUrl: photoUrl || undefined,
+                lat: currentPos?.lat?.toString(),
+                lng: currentPos?.lng?.toString()
             });
             Alert.alert('Sucesso', 'Incidente relatado com sucesso. O administrador foi notificado.');
             setIncidentDescription('');

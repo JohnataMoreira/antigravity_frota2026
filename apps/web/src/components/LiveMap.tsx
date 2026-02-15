@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from '../context/AuthContext';
 import L from 'leaflet';
-import { Clock } from 'lucide-react';
+import { Clock, AlertTriangle } from 'lucide-react';
 
 // Safe Leaflet Access
 const getLeaflet = () => {
@@ -115,6 +115,7 @@ function AutoCenter({ vehicles }: { vehicles: VehicleLocation[] }) {
 export function LiveMap() {
     const { user } = useAuth();
     const [locations, setLocations] = useState<Record<string, VehicleLocation>>({});
+    const [incidents, setIncidents] = useState<any[]>([]);
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
@@ -168,6 +169,15 @@ export function LiveMap() {
                     lastUpdate: payload.timestamp
                 }
             }));
+        });
+
+        socket.on('new_incident', (payload: any) => {
+            setIncidents(prev => [...prev, payload]);
+
+            // Auto remove after 30 mins
+            setTimeout(() => {
+                setIncidents(prev => prev.filter(i => i.id !== payload.id));
+            }, 30 * 60 * 1000);
         });
 
         return () => {
@@ -257,6 +267,37 @@ export function LiveMap() {
                         </Marker>
                     );
                 })}
+
+                {/* Incident Markers */}
+                {incidents.map(incident => incident.location && (
+                    <Marker
+                        key={incident.id}
+                        position={[incident.location.lat, incident.location.lng]}
+                        icon={L.divIcon({
+                            className: 'incident-marker',
+                            html: `
+                                <div class="relative animate-bounce">
+                                    <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center border-2 border-white shadow-xl">
+                                        <span class="text-white font-black text-xs">!</span>
+                                    </div>
+                                    <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-red-600 text-white text-[9px] px-2 py-1 rounded-lg whitespace-nowrap font-black uppercase tracking-tighter shadow-lg">
+                                        INCIDENTE: ${incident.vehicle?.plate}
+                                    </div>
+                                </div>
+                            `,
+                            iconSize: [32, 32],
+                            iconAnchor: [16, 16]
+                        })}
+                    >
+                        <Popup>
+                            <div className="p-2">
+                                <h4 className="text-red-600 font-black text-xs uppercase mb-1">INCIDENTE RELATADO</h4>
+                                <p className="text-[11px] font-bold text-gray-700 dark:text-gray-300">"{incident.description}"</p>
+                                <p className="text-[9px] text-gray-400 mt-2 uppercase font-black">{incident.driver?.name}</p>
+                            </div>
+                        </Popup>
+                    </Marker>
+                ))}
             </MapContainer>
 
             <div className="absolute top-4 right-4 bg-white/95 backdrop-blur dark:bg-gray-900/95 p-3 rounded-2xl shadow-2xl border dark:border-gray-700 text-[10px] z-[400] font-black uppercase tracking-widest">

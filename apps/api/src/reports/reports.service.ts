@@ -257,59 +257,57 @@ export class ReportsService {
         const ranking = [];
 
         for (const driver of drivers) {
-            // 1. Calculate Fuel Efficiency
-            const fuelEntries = await this.prisma.fuelEntry.findMany({
-                where: {
-                    organizationId,
-                    driverId: driver.id,
-                    ...(start && end ? { date: { gte: start, lte: end } } : {})
-                }
-            });
+            const dateFilter = start && end ? { gte: start, lte: end } : {};
 
+            // 1. Data Fetching
+            const [fuelEntries, journeys, incidents, checklists] = await Promise.all([
+                this.prisma.fuelEntry.findMany({
+                    where: { organizationId, driverId: driver.id, date: dateFilter }
+                }),
+                this.prisma.journey.findMany({
+                    where: { organizationId, driverId: driver.id, status: 'COMPLETED', endTime: dateFilter },
+                    select: { startKm: true, endKm: true, startTime: true, checklists: true }
+                }),
+                this.prisma.incident.findMany({
+                    where: { organizationId, driverId: driver.id, createdAt: dateFilter }
+                }),
+                this.prisma.checklist.count({
+                    where: { journey: { driverId: driver.id }, createdAt: dateFilter }
+                })
+            ]);
+
+            // 2. Efficiency Score (Fuel) - 30% Weight
             const totalFuelLiters = fuelEntries.reduce((acc, f) => acc + f.liters, 0);
-
-            // Get Journeys for Km calculation (only completed ones)
-            const journeys = await this.prisma.journey.findMany({
-                where: {
-                    organizationId,
-                    driverId: driver.id,
-                    status: 'COMPLETED',
-                    ...(start && end ? { endTime: { gte: start, lte: end } } : {})
-                },
-                select: { startKm: true, endKm: true }
-            });
-
             const totalKm = journeys.reduce((acc, j) => acc + ((j.endKm || 0) - j.startKm), 0);
             const kmPerLiter = totalFuelLiters > 0 ? totalKm / totalFuelLiters : 0;
+            // Target: 10 km/l = 100 points (Simple baseline, can be dynamic later)
+            const efficiencyScore = Math.min((kmPerLiter / 10) * 100, 100);
 
-            // 2. Safety Score (Incidents)
-            const incidents = await this.prisma.incident.findMany({
-                where: {
-                    organizationId,
-                    driverId: driver.id,
-                    ...(start && end ? { createdAt: { gte: start, lte: end } } : {})
-                }
-            });
-
+            // 3. Safety Score (Incidents) - 40% Weight
             let safetyScore = 100;
             incidents.forEach(inc => {
-                // @ts-ignore - Field added in recent migration
-                if (inc.isDriverAtFault) safetyScore -= 30; // Heavy penalty for at-fault
+                // @ts-ignore - Field exists in DB
+                if (inc.isDriverAtFault) safetyScore -= 30;
                 else if (inc.severity === 'HIGH') safetyScore -= 20;
                 else if (inc.severity === 'MEDIUM') safetyScore -= 10;
                 else safetyScore -= 5;
             });
             if (safetyScore < 0) safetyScore = 0;
 
-            // 3. Overall Efficiency Score (Weighted)
-            // Fuel: 50%, Safety: 50%
-            const fuelScore = Math.min((kmPerLiter / 10) * 100, 100);
+            // 4. Compliance Score (Checklists/App Usage) - 30% Weight
+            // Ideal: 2 checklists per journey (Start/End)
+            const expectedChecklists = journeys.length * 2;
+            const complianceScore = expectedChecklists > 0
+                ? Math.min((checklists / expectedChecklists) * 100, 100)
+                : 100; // No journeys = Neutral compliance
 
+
+            // 5. Overall Weighted Score
             const overallScore = Math.round(
-                (fuelScore * 0.5) +
-                (safetyScore * 0.5)
+                (efficiencyScore * 0.3) +
+                (safetyScore * 0.4) +
+                (complianceScore * 0.3)
             );
-
 
             ranking.push({
                 driverId: driver.id,
@@ -319,8 +317,9 @@ export class ReportsService {
                 incidentCount: incidents.length,
                 // @ts-ignore
                 atFaultCount: incidents.filter(i => i.isDriverAtFault).length,
-                safetyScore,
-                efficiencyScore: Math.round(fuelScore),
+                safetyScore: Math.round(safetyScore),
+                efficiencyScore: Math.round(efficiencyScore),
+                complianceScore: Math.round(complianceScore),
                 overallScore
             });
         }

@@ -1,11 +1,16 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../../lib/axios';
 import { GlassCard } from '../../../components/ui/Cards';
 import { AlertCircle, User, Truck, Clock, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useEffect } from 'react';
+import { io } from 'socket.io-client';
+import { useAuth } from '../../../context/AuthContext';
 
 export function AlertsWidget() {
+    const { user } = useAuth();
+    const queryClient = useQueryClient();
     const { data: incidents, isLoading } = useQuery({
         queryKey: ['recent-incidents'],
         queryFn: async () => {
@@ -13,6 +18,35 @@ export function AlertsWidget() {
             return res.data;
         }
     });
+
+    useEffect(() => {
+        if (!user?.organizationId) return;
+
+        const isProd = !window.location.host.includes('localhost');
+        const SOCKET_URL = isProd ? window.location.origin : 'http://localhost:3000';
+
+        const socket = io(`${SOCKET_URL}/locations`, {
+            transports: ['websocket'],
+            auth: { token: localStorage.getItem('token') }
+        });
+
+        socket.on('connect', () => {
+            socket.emit('join_organization', user.organizationId);
+        });
+
+        socket.on('new_incident', (incident: any) => {
+            // Re-fetch or update cache
+            queryClient.setQueryData(['recent-incidents'], (prev: any) => {
+                if (!prev) return [incident];
+                return [incident, ...prev];
+            });
+            // Also notify visually (Toast or sound could go here)
+        });
+
+        return () => {
+            socket.disconnect();
+        };
+    }, [user, queryClient]);
 
     if (isLoading) return (
         <GlassCard className="h-full animate-pulse">

@@ -296,6 +296,7 @@ model Incident {
   severity       String       @default("MEDIUM") // LOW, MEDIUM, HIGH
   status         String       @default("OPEN")   // OPEN, RESOLVED
   photoUrl       String?
+  location       Json?        // { lat: number, lng: number }
   
   // New field for Scorecard
   isDriverAtFault Boolean     @default(false)

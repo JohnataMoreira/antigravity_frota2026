@@ -39,7 +39,7 @@ export function DriversTab() {
                                 </div>
                                 <div className="flex items-center gap-1 text-sm text-yellow-200/80">
                                     <CheckSquare className="w-4 h-4" />
-                                    <span>Checklists: {topDriver.checklistScore}</span>
+                                    <span>Conformidade: {topDriver.complianceScore}</span>
                                 </div>
                             </div>
                         </div>
@@ -65,7 +65,7 @@ export function DriversTab() {
                                     contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px', color: '#fff' }}
                                 />
                                 <Bar dataKey="overallScore" radius={[0, 4, 4, 0]}>
-                                    {drivers?.slice(0, 10).map((entry, index) => (
+                                    {drivers?.slice(0, 10).map((entry: any, index: number) => (
                                         <Cell key={`cell-${index}`} fill={index === 0 ? '#eab308' : '#3b82f6'} />
                                     ))}
                                 </Bar>
@@ -86,7 +86,7 @@ export function DriversTab() {
                                 { header: 'Score Geral', dataKey: 'overallScore' },
                                 { header: 'Score Segurança', dataKey: 'safetyScore' },
                                 { header: 'Score Eficiência', dataKey: 'efficiencyScore' },
-                                { header: 'Score Checklist', dataKey: 'checklistScore' },
+                                { header: 'Score Conformidade', dataKey: 'complianceScore' },
                                 { header: 'KM Total', dataKey: 'totalKm' },
                                 { header: 'KM/L', dataKey: 'kmPerLiter' },
                                 { header: 'Incidentes', dataKey: 'incidentCount' },
@@ -102,13 +102,13 @@ export function DriversTab() {
                                     <th className="pb-3 text-center">Score</th>
                                     <th className="pb-3 text-center">Segurança</th>
                                     <th className="pb-3 text-center">Eficiência</th>
-                                    <th className="pb-3 text-center">Checklist</th>
+                                    <th className="pb-3 text-center">Conformidade</th>
                                     <th className="pb-3 text-center">Incidentes</th>
                                     <th className="pb-3 text-right">KM/L</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
-                                {drivers?.map((driver) => (
+                                {drivers?.map((driver: any) => (
                                     <tr key={driver.driverId} className="hover:bg-white/5 transition-colors">
                                         <td className="py-3 font-medium flex items-center gap-2">
                                             {driver.photoUrl ? (
@@ -134,10 +134,10 @@ export function DriversTab() {
                                             </span>
                                         </td>
                                         <td className="py-3 text-center">
-                                            <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${driver.checklistScore >= 90 ? 'bg-green-500/20 text-green-400' :
-                                                driver.checklistScore >= 70 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'
+                                            <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${driver.complianceScore >= 90 ? 'bg-green-500/20 text-green-400' :
+                                                driver.complianceScore >= 70 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'
                                                 }`}>
-                                                {driver.checklistScore}
+                                                {driver.complianceScore}
                                             </span>
                                         </td>
                                         <td className="py-3 text-center">

@@ -2,12 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateIncidentDto } from './dto/create-incident.dto';
 import { NotificationService } from '../common/notifications/notification.service';
+import { LocationsGateway } from '../locations/locations.gateway';
 
 @Injectable()
 export class IncidentsService {
     constructor(
         private prisma: PrismaService,
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        private locationsGateway: LocationsGateway
     ) { }
 
     async create(driverId: string, dto: CreateIncidentDto) {
@@ -18,7 +20,7 @@ export class IncidentsService {
 
         if (!driver) throw new NotFoundException('Driver not found');
 
-        const incident = await this.prisma.incident.create({
+        const incident: any = await this.prisma.incident.create({
             data: {
                 driverId,
                 vehicleId: dto.vehicleId,
@@ -27,15 +29,22 @@ export class IncidentsService {
                 severity: dto.severity || 'MEDIUM',
                 status: 'OPEN',
                 photoUrl: dto.photoUrl,
-                organizationId: driver.organizationId
-            },
+                organizationId: driver.organizationId,
+                location: (dto.lat && dto.lng) ? { lat: parseFloat(dto.lat), lng: parseFloat(dto.lng) } : undefined
+            } as any,
             include: {
-                vehicle: { select: { plate: true } },
+                vehicle: { select: { plate: true, model: true } },
                 driver: { select: { name: true, organizationId: true } }
             }
         });
 
-        // Notify Admins
+        // Notify Admins via WebSocket (Real-time Dashboard)
+        this.locationsGateway.server.to(`org_${driver.organizationId}`).emit('new_incident', {
+            ...incident,
+            type: 'INCIDENT'
+        });
+
+        // Notify Admins via Push/Persistent Notification
         await this.notificationService.notifyAdmins(
             driver.organizationId,
             `⚠️ Novo Incidente: ${incident.vehicle.plate}`,
