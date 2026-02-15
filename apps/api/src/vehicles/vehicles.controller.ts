@@ -1,12 +1,17 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { VehiclesService } from './vehicles.service';
 import { CreateVehicleDto, UpdateVehicleDto } from './dto';
+import { RolesGuard } from '../auth/roles.guard';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiTags('Veículos')
+@ApiBearerAuth()
 @Controller('vehicles')
 export class VehiclesController {
     constructor(private readonly vehiclesService: VehiclesService) { }
 
     @Post()
+    @ApiOperation({ summary: 'Cadastrar novo veículo' })
     create(@Body() createVehicleDto: CreateVehicleDto) {
         return this.vehiclesService.create(createVehicleDto);
     }

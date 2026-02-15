@@ -34,14 +34,15 @@ const fixLeafletIcons = () => {
 // Custom Car Icon Factory
 const createCarIcon = (status: 'MOVING' | 'STOPPED' | 'OFFLINE', plate: string) => {
     const color = status === 'MOVING' ? '#10b981' : status === 'STOPPED' ? '#ef4444' : '#6b7280';
-    const leaflet = getLeaflet();
 
-    if (!leaflet) return undefined;
+    if (typeof window === 'undefined') return undefined;
 
     try {
-        // Validate divIcon function exists
-        if (typeof leaflet.divIcon !== 'function') {
-            console.warn('Leaflet divIcon not available');
+        // Use the Leaflet instance directly from L if window.L is not available
+        const leaflet = (window as any).L || L;
+
+        if (!leaflet || !leaflet.divIcon) {
+            console.warn('Leaflet or divIcon not available');
             return undefined;
         }
 
