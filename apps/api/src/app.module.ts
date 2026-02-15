@@ -26,6 +26,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { MailModule } from './common/mail/mail.module';
 import { NotificationModule } from './common/notifications/notification.module';
 import { BackupModule } from './backup/backup.module';
+import { InventoryModule } from './inventory/inventory.module';
 
 
 @Module({
@@ -56,6 +57,7 @@ import { BackupModule } from './backup/backup.module';
         UsersModule,
         IncidentsModule,
         BackupModule,
+        InventoryModule,
     ],
     providers: [
         {

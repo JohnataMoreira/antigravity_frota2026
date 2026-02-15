@@ -15,6 +15,7 @@ export function DashboardLayout() {
         { name: 'Veículos', href: '/vehicles', icon: Truck },
         { name: 'Abastecimentos', href: '/fuel', icon: Fuel },
         { name: 'Funcionários', href: '/users', icon: Users },
+        { name: 'Estoque', href: '/inventory', icon: Package },
         { name: 'Jornadas', href: '/journeys', icon: Map },
         { name: 'Manutenção', href: '/maintenance', icon: Wrench },
         { name: 'Relatórios', href: '/reports', icon: FileText },

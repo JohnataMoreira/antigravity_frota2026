@@ -88,6 +88,7 @@ model Organization {
   fuelEntries FuelEntry[]
   incidents Incident[]
   maintenanceTemplates MaintenanceTemplate[]
+  inventoryItems InventoryItem[]
   auditLogs AuditLog[]
 }
 
@@ -300,4 +301,36 @@ model MaintenanceTemplate {
   updatedAt      DateTime     @updatedAt
 
   organization   Organization @relation(fields: [organizationId], references: [id])
+}
+
+model InventoryItem {
+  id             String       @id @default(uuid())
+  organizationId String
+  name           String
+  sku            String?
+  category       String       // Filtros, Pneus, Lubrificantes, etc.
+  unit           String       @default("UN") // UN, L, KG
+  minQuantity    Float        @default(0)
+  currentQuantity Float       @default(0)
+  price          Float?       // Último preço de compra
+  
+  movements      StockMovement[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+}
+
+model StockMovement {
+  id             String       @id @default(uuid())
+  inventoryItemId String
+  type           String       // IN, OUT
+  quantity       Float
+  reason         String       // PURCHASE, MAINTENANCE, ADJUSTMENT
+  notes          String?
+  maintenanceId  String?
+  
+  createdAt      DateTime     @default(now())
+
+  item           InventoryItem @relation(fields: [inventoryItemId], references: [id])
 }
