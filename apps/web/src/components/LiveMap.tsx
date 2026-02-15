@@ -46,7 +46,7 @@ const createCarIcon = (status: 'MOVING' | 'STOPPED' | 'OFFLINE' | 'ENGINE_ON', p
             return undefined;
         }
 
-        return leaflet.divIcon({
+        const iconConfig = {
             className: 'custom-car-marker',
             html: `
                 <div class="relative group">
@@ -61,10 +61,12 @@ const createCarIcon = (status: 'MOVING' | 'STOPPED' | 'OFFLINE' | 'ENGINE_ON', p
                     </div>
                 </div>
             `,
-            iconSize: [40, 40],
-            iconAnchor: [20, 20],
-            popupAnchor: [0, -20]
-        });
+            iconSize: [40, 40] as [number, number],
+            iconAnchor: [20, 20] as [number, number],
+            popupAnchor: [0, -20] as [number, number]
+        };
+
+        return leaflet.divIcon(iconConfig);
     } catch (e) {
         console.error('Error creating car icon:', e);
         return undefined;

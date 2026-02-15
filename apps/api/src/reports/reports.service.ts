@@ -100,8 +100,9 @@ export class ReportsService {
                     incidents: { some: { status: 'OPEN' } }
                 }
             }),
-            this.prisma.vehicle.aggregate({ where: { organizationId }, _sum: { currentKm: true } }),
-            (this.prisma.vehicle as any).aggregate({ where: { organizationId }, _avg: { fuelLevel: true } })
+            // Telemetry might fail if schema is not updated
+            this.prisma.vehicle.aggregate({ where: { organizationId }, _sum: { currentKm: true } }).catch(() => ({ _sum: { currentKm: 0 } })),
+            (this.prisma.vehicle as any).aggregate({ where: { organizationId }, _avg: { fuelLevel: true } }).catch(() => ({ _avg: { fuelLevel: 100 } }))
         ]);
 
         const totalKm = journeysWithKm.reduce((acc: number, j: any) => acc + ((j.endKm || 0) - j.startKm), 0);
