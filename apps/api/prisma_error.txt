@@ -1,0 +1,50 @@
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+
+Error: Prisma schema validation - (validate wasm)
+Error code: P1012
+error: Error validating field `journeys` in model `Organization`: The relation field `journeys` on model `Organization` is missing an opposite relation field on the model `Journey`. Either run `prisma format` or add it manually.
+  -->  prisma\schema.prisma:95
+   | 
+94 |   vehicles  Vehicle[]
+95 |   journeys  Journey[]
+
+96 |   maintenances Maintenance[]
+   | 
+error: Error validating field `journeys` in model `User`: The relation field `journeys` on model `User` is missing an opposite relation field on the model `Journey`. Either run `prisma format` or add it manually.
+  -->  prisma\schema.prisma:152
+   | 
+151 |   organization   Organization @relation(fields: [organizationId], references: [id])
+152 |   journeys       Journey[]    @relation("DriverJourneys")
+
+153 |   fuelEntries    FuelEntry[]
+   | 
+error: Error validating field `journeys` in model `Vehicle`: The relation field `journeys` on model `Vehicle` is missing an opposite relation field on the model `Journey`. Either run `prisma format` or add it manually.
+  -->  prisma\schema.prisma:176
+   | 
+175 |   organization   Organization  @relation(fields: [organizationId], references: [id])
+176 |   journeys       Journey[]
+
+177 |   maintenances   Maintenance[]
+   | 
+error: Error validating field `journey` in model `Checklist`: The relation field `journey` on model `Checklist` is missing an opposite relation field on the model `Journey`. Either run `prisma format` or add it manually.
+  -->  prisma\schema.prisma:244
+   | 
+243 | 
+244 |   journey   Journey       @relation(fields: [journeyId], references: [id])
+
+245 | }
+   | 
+error: Error validating field `journey` in model `FuelEntry`: The relation field `journey` on model `FuelEntry` is missing an opposite relation field on the model `Journey`. Either run `prisma format` or add it manually.
+  -->  prisma\schema.prisma:296
+   | 
+295 |   driver         User         @relation(fields: [driverId], references: [id])
+296 |   journey        Journey?     @relation(fields: [journeyId], references: [id])
+
+297 | }
+   | 
+
+Validation Error Count: 5
+[Context: validate]
+
+Prisma CLI Version : 5.22.0

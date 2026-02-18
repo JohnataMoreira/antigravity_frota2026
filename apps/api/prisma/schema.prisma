@@ -61,6 +61,15 @@ enum FuelType {
   OTHER
 }
 
+enum DocumentType {
+  CNH
+  CRLV
+  ANTT
+  INSURANCE
+  MAINTENANCE_INVOICE
+  OTHER
+}
+
 enum PaymentMethod {
   CASH
   DEBIT_CARD
@@ -91,6 +100,7 @@ model Organization {
   inventoryItems InventoryItem[]
   auditLogs AuditLog[]
   geofences Geofence[]
+  documents Document[]
 }
 
 model AuditLog {
@@ -142,6 +152,7 @@ model User {
   journeys       Journey[]    @relation("DriverJourneys")
   fuelEntries    FuelEntry[]
   incidents      Incident[]
+  documents      Document[]
 }
 
 model Vehicle {
@@ -167,6 +178,7 @@ model Vehicle {
   fuelEntries    FuelEntry[]
   incidents      Incident[]
   telemetryRecords TelemetryRecord[]
+  documents      Document[]
 
   @@unique([organizationId, plate])
   @@index([organizationId, status])
@@ -196,6 +208,12 @@ model Journey {
   destinationName  String?
 
   incidents      Incident[]
+  checklists     Checklist[]
+  fuelEntries    FuelEntry[]
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  driver         User         @relation("DriverJourneys", fields: [driverId], references: [id])
+  vehicle        Vehicle      @relation(fields: [vehicleId], references: [id])
 
   @@index([organizationId, status])
   @@index([driverId])
@@ -374,4 +392,32 @@ model TelemetryRecord {
   vehicle        Vehicle  @relation(fields: [vehicleId], references: [id])
 
   @@index([vehicleId, timestamp])
+}
+
+model Document {
+  id             String       @id @default(uuid())
+  organizationId String
+  userId         String?      // Link to Driver/User
+  vehicleId      String?      // Link to Vehicle
+  
+  type           DocumentType
+  name           String       // Friendly name
+  number         String?      // Doc number
+  
+  issueDate      DateTime?
+  expiryDate     DateTime?
+  
+  fileUrl        String
+  fileType       String?      // pdf, png, etc.
+  
+  metadata       Json?
+  
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  user           User?        @relation(fields: [userId], references: [id])
+  vehicle        Vehicle?     @relation(fields: [vehicleId], references: [id])
+
+  @@index([organizationId, expiryDate])
 }
