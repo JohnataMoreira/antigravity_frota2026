@@ -2,8 +2,7 @@ import { PrismaClient, VehicleStatus, JourneyStatus } from '@prisma/client';
 import axios from 'axios';
 
 const prisma = new PrismaClient();
-const API_URL = 'http://localhost:3001/api'; // Testing against local or proxy? 
-// Actually, let's use the local API port defined in docker or main.ts
+const API_URL = 'http://localhost:3000/api';
 
 async function getAdminToken() {
     try {
@@ -20,9 +19,9 @@ async function getAdminToken() {
 
 async function runLoadTest(driverCount: number, durationMinutes: number) {
     console.log(`🚀 Starting load test with ${driverCount} concurrent simulations for ${durationMinutes} minutes...`);
-    
+
     const token = await getAdminToken();
-    
+
     // 1. Get/Create enough vehicles and active journeys
     const org = await prisma.organization.findFirst();
     if (!org) throw new Error('Org not found');
