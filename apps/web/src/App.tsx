@@ -15,6 +15,7 @@ import { InventoryList } from './pages/Inventory';
 import Reports from './pages/Reports';
 import { LiveMap } from './components/LiveMap';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { OfflineStatus } from './components/ui/OfflineStatus';
 
 const queryClient = new QueryClient();
 
@@ -28,31 +29,37 @@ function ProtectedRoute({ children }: { children: JSX.Element }) {
 
 import { Dashboard } from './pages/Dashboard';
 
+import { useSync } from './hooks/useSync';
+
 function AppRoutes() {
+    useSync();
     return (
-        <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
-                <Route index element={<Navigate to="/dashboard" replace />} />
-                <Route path="dashboard" element={<Dashboard />} />
+        <>
+            <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+                    <Route index element={<Navigate to="/dashboard" replace />} />
+                    <Route path="dashboard" element={<Dashboard />} />
 
-                <Route path="vehicles">
-                    <Route index element={<VehiclesList />} />
-                    <Route path="new" element={<VehicleForm />} />
+                    <Route path="vehicles">
+                        <Route index element={<VehiclesList />} />
+                        <Route path="new" element={<VehicleForm />} />
+                    </Route>
+
+                    <Route path="users">
+                        <Route index element={<UsersList />} />
+                    </Route>
+
+                    <Route path="fuel" element={<FuelEntriesList />} />
+                    <Route path="inventory" element={<InventoryList />} />
+                    <Route path="journeys" element={<JourneysList />} />
+                    <Route path="journeys/:id" element={<JourneyDetails />} />
+                    <Route path="maintenance" element={<MaintenanceList />} />
+                    <Route path="reports" element={<Reports />} />
                 </Route>
-
-                <Route path="users">
-                    <Route index element={<UsersList />} />
-                </Route>
-
-                <Route path="fuel" element={<FuelEntriesList />} />
-                <Route path="inventory" element={<InventoryList />} />
-                <Route path="journeys" element={<JourneysList />} />
-                <Route path="journeys/:id" element={<JourneyDetails />} />
-                <Route path="maintenance" element={<MaintenanceList />} />
-                <Route path="reports" element={<Reports />} />
-            </Route>
-        </Routes>
+            </Routes>
+            <OfflineStatus />
+        </>
     );
 }
 

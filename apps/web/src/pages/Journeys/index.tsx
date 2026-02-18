@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/axios';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Map, Search, ClipboardList, CheckCircle2, AlertCircle, X, MapPin, Clock, LayoutGrid, List as ListIcon, Filter, AlertTriangle } from 'lucide-react';
+import { Map, Search, ClipboardList, CheckCircle2, AlertCircle, X, MapPin, Clock, LayoutGrid, List as ListIcon, Filter, AlertTriangle, Flag } from 'lucide-react';
 import { GlassCard } from '../../components/ui/Cards';
 import { formatKm, formatDateTime, formatDuration } from '../../lib/utils';
 
@@ -11,6 +11,7 @@ export function JourneysList() {
     const [filter, setFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState<'ALL' | 'IN_PROGRESS' | 'COMPLETED'>('ALL');
     const [selectedJourney, setSelectedJourney] = useState<any>(null);
+    const [isFinishModalOpen, setIsFinishModalOpen] = useState(false);
     const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
     const { data: journeys = [], isLoading } = useQuery({
@@ -145,13 +146,27 @@ export function JourneysList() {
                                             {journey.endKm ? formatKm(journey.endKm - journey.startKm) : '—'}
                                         </td>
                                         <td className="px-6 py-5 text-right">
-                                            <button
-                                                onClick={() => navigate(`/journeys/${journey.id}`)}
-                                                className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl transition-all"
-                                                title="Ver Detalhes"
-                                            >
-                                                <ClipboardList size={22} />
-                                            </button>
+                                            <div className="flex items-center justify-end gap-2">
+                                                {journey.status === 'IN_PROGRESS' && (
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedJourney(journey);
+                                                            setIsFinishModalOpen(true);
+                                                        }}
+                                                        className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-xl transition-all"
+                                                        title="Finalizar Jornada"
+                                                    >
+                                                        <Flag size={20} />
+                                                    </button>
+                                                )}
+                                                <button
+                                                    onClick={() => navigate(`/journeys/${journey.id}`)}
+                                                    className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-xl transition-all"
+                                                    title="Ver Detalhes"
+                                                >
+                                                    <ClipboardList size={22} />
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -216,6 +231,12 @@ export function JourneysList() {
                     <p className="text-muted-foreground font-medium">Nenhuma jornada encontrada para os termos buscados.</p>
                 </div>
             )}
+
+            <FinishJourneyModal
+                isOpen={isFinishModalOpen}
+                onClose={() => setIsFinishModalOpen(false)}
+                journey={selectedJourney}
+            />
         </div>
     );
 }
