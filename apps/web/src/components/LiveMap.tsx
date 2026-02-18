@@ -3,13 +3,13 @@ import 'leaflet/dist/leaflet.css';
 import { useEffect, useState, useMemo } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from '../context/AuthContext';
-import L from 'leaflet';
+import * as L from 'leaflet';
 import { Clock, AlertTriangle } from 'lucide-react';
 
 // Safe Leaflet Access
 const getLeaflet = () => {
     if (typeof window === 'undefined') return null;
-    return (window as any).L || L;
+    return L;
 };
 
 // Fix Leaflet icons - only on client
@@ -38,8 +38,7 @@ const createCarIcon = (status: 'MOVING' | 'STOPPED' | 'OFFLINE' | 'ENGINE_ON', p
     if (typeof window === 'undefined') return undefined;
 
     try {
-        // Use the Leaflet instance directly from L if window.L is not available
-        const leaflet = (window as any).L || L;
+        const leaflet = L;
 
         if (!leaflet || !leaflet.divIcon) {
             console.warn('Leaflet or divIcon not available');

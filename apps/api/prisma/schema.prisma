@@ -169,6 +169,7 @@ model Vehicle {
   telemetryRecords TelemetryRecord[]
 
   @@unique([organizationId, plate])
+  @@index([organizationId, status])
 }
 
 model Journey {
@@ -374,4 +375,6 @@ model TelemetryRecord {
   engineStatus   Boolean  @default(false) // ON/OFF
   
   vehicle        Vehicle  @relation(fields: [vehicleId], references: [id])
+
+  @@index([vehicleId, timestamp])
 }
