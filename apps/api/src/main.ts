@@ -18,7 +18,7 @@ async function bootstrap() {
         SwaggerModule.setup('api/docs', app, document);
 
         app.enableCors({
-            origin: true, // Allow all temporarily for debugging
+            origin: process.env.NODE_ENV === 'production' ? process.env.CORS_ORIGIN : true,
             methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
             credentials: true,
         });

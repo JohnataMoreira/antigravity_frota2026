@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { Skeleton } from './Skeleton';
 
 interface GlassCardProps {
     children: ReactNode;
@@ -36,6 +37,7 @@ interface StatCardProps {
     icon?: ReactNode;
     gradient?: boolean;
     variant?: 'default' | 'success' | 'warning' | 'danger' | 'info';
+    isLoading?: boolean;
     children?: ReactNode;
 }
 
@@ -45,7 +47,7 @@ interface StatCardProps {
  * High-impact number display with gradients and micro-animations.
  * Designed for maximum visual impact.
  */
-export function StatCard({ label, value, trend, icon, gradient = false, variant = 'default', children }: StatCardProps) {
+export function StatCard({ label, value, trend, icon, gradient = false, variant = 'default', isLoading = false, children }: StatCardProps) {
     const variantClasses = {
         default: '',
         success: 'border-green-500/30 bg-green-500/5',
@@ -60,6 +62,7 @@ export function StatCard({ label, value, trend, icon, gradient = false, variant 
         flex items-start justify-between 
         transition-all duration-300 
         hover:scale-105 hover:shadow-2xl
+        min-h-[140px]
         ${variantClasses[variant]}
         ${gradient ? 'gradient-card border-primary/20' : ''}
       `}
@@ -69,13 +72,17 @@ export function StatCard({ label, value, trend, icon, gradient = false, variant 
                 <p className="text-sm font-bold text-muted-foreground/90 dark:text-muted-foreground mb-2 uppercase tracking-wider">
                     {label}
                 </p>
-                <p className={`
-          text-4xl font-bold tracking-tight
-          ${gradient ? 'gradient-text' : ''}
-        `}>
-                    {value}
-                </p>
-                {trend && (
+                {isLoading ? (
+                    <Skeleton className="h-10 w-24 mt-1" />
+                ) : (
+                    <p className={`
+              text-4xl font-bold tracking-tight
+              ${gradient ? 'gradient-text' : ''}
+            `}>
+                        {value}
+                    </p>
+                )}
+                {trend && !isLoading && (
                     <p className={`text-sm mt-3 flex items-center gap-1.5 font-medium ${trend.isPositive
                         ? 'text-green-500 dark:text-green-400'
                         : 'text-red-500 dark:text-red-400'
@@ -84,6 +91,7 @@ export function StatCard({ label, value, trend, icon, gradient = false, variant 
                         <span>{Math.abs(trend.value)}% vs. semana passada</span>
                     </p>
                 )}
+                {isLoading && <Skeleton className="h-4 w-32 mt-4 opacity-50" />}
             </div>
             {icon && (
                 <div className={`
@@ -95,7 +103,7 @@ export function StatCard({ label, value, trend, icon, gradient = false, variant 
                     {icon}
                 </div>
             )}
-            {children && (
+            {children && !isLoading && (
                 <div className="absolute bottom-0 left-0 right-0 p-4 pt-0">
                     {children}
                 </div>

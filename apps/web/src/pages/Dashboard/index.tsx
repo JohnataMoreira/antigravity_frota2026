@@ -16,7 +16,7 @@ import { formatCurrency, formatKm } from '../../lib/utils';
 const LiveMap = lazy(() => import('../../components/LiveMap').then(m => ({ default: m.LiveMap })));
 
 export function Dashboard() {
-    const { data: reportData } = useQuery({
+    const { data: reportData, isLoading } = useQuery({
         queryKey: ['dashboard-stats'],
         queryFn: async () => {
             const res = await api.get('/reports/overview');
@@ -90,6 +90,7 @@ export function Dashboard() {
                     icon={<Activity className="w-8 h-8" />}
                     variant="info"
                     gradient={true}
+                    isLoading={isLoading}
                 >
                     <div className="flex flex-wrap gap-x-3 gap-y-1 mt-3 pt-3 border-t border-gray-100 dark:border-gray-800/50">
                         <div className="flex items-center gap-1">
@@ -107,6 +108,7 @@ export function Dashboard() {
                     value={stats?.availableVehicles || 0}
                     icon={<CheckCircle className="w-8 h-8" />}
                     variant="success"
+                    isLoading={isLoading}
                 >
                     {renderBreakdown(stats?.breakdown?.available)}
                 </StatCard>
@@ -115,6 +117,7 @@ export function Dashboard() {
                     value={stats?.inUseVehicles || 0}
                     icon={<Truck className="w-8 h-8" />}
                     variant="info"
+                    isLoading={isLoading}
                 >
                     {renderBreakdown(stats?.breakdown?.inUse)}
                 </StatCard>
@@ -123,6 +126,7 @@ export function Dashboard() {
                     value={stats?.maintenanceVehicles || 0}
                     icon={<Wrench className="w-8 h-8" />}
                     variant="warning"
+                    isLoading={isLoading}
                 >
                     {renderBreakdown(stats?.breakdown?.maintenance)}
                 </StatCard>
@@ -130,17 +134,20 @@ export function Dashboard() {
                     label="Custos (Mês)"
                     value={formatCurrency(stats?.monthlyCosts)}
                     icon={<DollarSign className="w-8 h-8" />}
+                    isLoading={isLoading}
                 />
                 <StatCard
                     label="Distância (KM)"
                     value={formatKm(stats?.totalKm)}
                     icon={<Gauge className="w-8 h-8" />}
+                    isLoading={isLoading}
                 />
                 <StatCard
                     label="Combustível Médio"
                     value={`${stats?.avgFuelLevel || 100}%`}
                     icon={<Activity className="w-8 h-8 text-emerald-500" />}
                     variant="success"
+                    isLoading={isLoading}
                 />
             </div>
 
