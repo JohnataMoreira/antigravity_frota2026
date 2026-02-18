@@ -195,15 +195,12 @@ model Journey {
   isDeviated       Boolean   @default(false)
   destinationName  String?
 
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-
-  organization   Organization  @relation(fields: [organizationId], references: [id])
-  driver         User          @relation("DriverJourneys", fields: [driverId], references: [id])
-  vehicle        Vehicle       @relation(fields: [vehicleId], references: [id])
-  checklists     Checklist[]
-  fuelEntries    FuelEntry[]
   incidents      Incident[]
+
+  @@index([organizationId, status])
+  @@index([driverId])
+  @@index([vehicleId])
+  @@index([startTime])
 }
 
 model Geofence {
