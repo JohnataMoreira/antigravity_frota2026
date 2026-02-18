@@ -6,10 +6,10 @@ import { User, Medal, AlertTriangle, Route, Shield, Zap, CheckSquare, AlertOctag
 import { formatKm } from '../../../lib/utils';
 import { ExportActions } from './ExportActions';
 
-export function DriversTab() {
+export function DriversTab({ filters }: { filters: any }) {
     const { data: drivers, isLoading } = useQuery({
-        queryKey: ['reports-driver-ranking'],
-        queryFn: () => reportsService.getDriverRanking()
+        queryKey: ['reports-driver-ranking', filters],
+        queryFn: () => reportsService.getDriverRanking(filters)
     });
 
     if (isLoading) return <div className="text-center py-10">Carregando dados de performance...</div>;

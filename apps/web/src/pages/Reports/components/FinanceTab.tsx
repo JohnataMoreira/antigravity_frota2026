@@ -6,11 +6,11 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { formatCurrency } from '../../../lib/utils';
 import { ExportActions } from './ExportActions';
 
-export function FinanceTab() {
+export function FinanceTab({ filters }: { filters: any }) {
     const { data: financeData, isLoading } = useQuery({
-        queryKey: ['finance-overview'],
+        queryKey: ['finance-overview', filters],
         queryFn: async () => {
-            const response = await api.get('/finance/overview');
+            const response = await api.get('/finance/overview', { params: filters });
             return response.data;
         }
     });

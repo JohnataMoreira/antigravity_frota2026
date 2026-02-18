@@ -44,8 +44,8 @@ export class FuelController {
     @ApiOperation({ summary: 'Obter estatísticas de consumo' })
     async getStats(
         @Request() req: UserRequest,
-        @Query('vehicleId') vehicleId?: string
+        @Query() query: any
     ) {
-        return this.fuelService.getStats(req.user.organizationId, vehicleId);
+        return this.fuelService.getStats(req.user.organizationId, query);
     }
 }

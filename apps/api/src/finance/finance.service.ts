@@ -5,15 +5,34 @@ import { PrismaService } from '../prisma/prisma.service';
 export class FinanceService {
     constructor(private prisma: PrismaService) { }
 
-    async getOverview(organizationId: string) {
+    async getOverview(organizationId: string, filters: any = {}) {
+        const { start, end, vehicleId } = filters;
+
+        const fuelDateFilter = start && end ? {
+            date: { gte: new Date(start), lte: new Date(end) }
+        } : {};
+
+        const maintenanceDateFilter = start && end ? {
+            performedAt: { gte: new Date(start), lte: new Date(end) }
+        } : {};
+
         const fuelExpenses = await this.prisma.fuelEntry.findMany({
-            where: { organizationId },
+            where: {
+                organizationId,
+                ...fuelDateFilter,
+                ...(vehicleId && { vehicleId })
+            },
             select: { date: true, totalValue: true, fuelType: true, paymentMethod: true },
             orderBy: { date: 'desc' },
         });
 
         const maintenanceExpenses = await this.prisma.maintenance.findMany({
-            where: { organizationId },
+            where: {
+                organizationId,
+                status: 'COMPLETED',
+                ...maintenanceDateFilter,
+                ...(vehicleId && { vehicleId })
+            },
             select: { performedAt: true, cost: true, type: true },
             orderBy: { performedAt: 'desc' },
         });

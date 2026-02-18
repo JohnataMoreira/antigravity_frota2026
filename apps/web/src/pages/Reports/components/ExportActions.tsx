@@ -1,7 +1,5 @@
 import { FileText, FileSpreadsheet } from 'lucide-react';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-import * as XLSX from 'xlsx';
+import { ExportService } from '../../../services/exportService';
 
 interface ExportActionsProps {
     data: any[];
@@ -12,38 +10,11 @@ interface ExportActionsProps {
 
 export function ExportActions({ data, columns, filename, title }: ExportActionsProps) {
     const exportToPDF = () => {
-        const doc = new jsPDF();
-
-        // Header
-        doc.setFontSize(20);
-        doc.setTextColor(37, 99, 235); // Blue-600
-        doc.text('GRUPO PARAOPEBA', 14, 22);
-
-        doc.setFontSize(12);
-        doc.setTextColor(100);
-        doc.text(title, 14, 30);
-        doc.text(`Gerado em: ${new Date().toLocaleString()}`, 14, 37);
-
-        // Table
-        (doc as any).autoTable({
-            startY: 45,
-            head: [columns.map(col => col.header)],
-            body: data.map(row => columns.map(col => row[col.dataKey])),
-            theme: 'grid',
-            headStyles: { fillColor: [37, 99, 235], fontSize: 10, fontStyle: 'bold' },
-            bodyStyles: { fontSize: 9 },
-            margin: { top: 45 },
-        });
-
-        doc.save(`${filename}_${new Date().toISOString().split('T')[0]}.pdf`);
+        ExportService.exportToPDF(title, data, columns, filename);
     };
 
     const exportToExcel = () => {
-        // Flatten data for excel if needed, but Utils.json_to_sheet is usually enough
-        const worksheet = XLSX.utils.json_to_sheet(data);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Relatório');
-        XLSX.writeFile(workbook, `${filename}_${new Date().toISOString().split('T')[0]}.xlsx`);
+        ExportService.exportToExcel(data, filename);
     };
 
     return (

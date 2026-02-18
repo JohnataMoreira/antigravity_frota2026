@@ -6,10 +6,10 @@ import { Truck, Wrench, AlertTriangle, TrendingUp } from 'lucide-react';
 import { formatCurrency, formatKm } from '../../../lib/utils';
 import { ExportActions } from './ExportActions';
 
-export function VehiclesTab() {
+export function VehiclesTab({ filters }: { filters: any }) {
     const { data: vehicles, isLoading } = useQuery({
-        queryKey: ['reports-vehicles'],
-        queryFn: () => reportsService.getVehicleUtilization()
+        queryKey: ['reports-vehicles', filters],
+        queryFn: () => reportsService.getVehicleUtilization(filters)
     });
 
     if (isLoading) return <div className="text-center py-10">Carregando dados...</div>;

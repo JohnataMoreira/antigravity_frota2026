@@ -6,15 +6,15 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { formatCurrency, formatKm } from '../../../lib/utils';
 import { ExportActions } from './ExportActions';
 
-export function FuelTab() {
+export function FuelTab({ filters }: { filters: any }) {
     const { data: stats, isLoading: loadingStats } = useQuery({
-        queryKey: ['fuel-stats'],
-        queryFn: () => fuelService.getStats()
+        queryKey: ['fuel-stats', filters],
+        queryFn: () => fuelService.getStats(filters)
     });
 
     const { data: entries, isLoading: loadingEntries } = useQuery({
-        queryKey: ['fuel-entries'],
-        queryFn: () => fuelService.getAllEntries()
+        queryKey: ['fuel-entries', filters],
+        queryFn: () => fuelService.getAllEntries(filters)
     });
 
     if (loadingStats || loadingEntries) return <div className="text-center py-10">Carregando dados...</div>;

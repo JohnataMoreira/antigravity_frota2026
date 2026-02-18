@@ -6,9 +6,24 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ReportsService {
     constructor(private prisma: PrismaService) { }
 
-    async getOverview(organizationId: string) {
-        const now = new Date();
-        const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+    async getOverview(organizationId: string, filters: any = {}) {
+        const { start, end, driverId, vehicleId } = filters;
+
+        const dateFilter = start && end ? {
+            createdAt: { gte: new Date(start), lte: new Date(end) }
+        } : {};
+
+        const performedAtFilter = start && end ? {
+            performedAt: { gte: new Date(start), lte: new Date(end) }
+        } : {
+            performedAt: { gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) }
+        };
+
+        const fuelDateFilter = start && end ? {
+            date: { gte: new Date(start), lte: new Date(end) }
+        } : {
+            date: { gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) }
+        };
 
         const [
             totalVehicles,
@@ -28,18 +43,18 @@ export class ReportsService {
             maintenanceByType,
             recentIncidents,
             journeysWithIncidentsCount,
-            totalVehicleKm, // New variable for total currentKm
-            avgFuelLevel // New variable for average fuel level
+            totalVehicleKm,
+            avgFuelLevel
         ] = await Promise.all([
-            this.prisma.vehicle.count({ where: { organizationId } }),
-            this.prisma.vehicle.count({ where: { organizationId, status: 'AVAILABLE' } }),
-            this.prisma.vehicle.count({ where: { organizationId, status: 'IN_USE' } }),
-            this.prisma.vehicle.count({ where: { organizationId, status: 'MAINTENANCE' } }),
-            this.prisma.vehicle.count({ where: { organizationId, status: 'CRITICAL_ISSUE' } }),
-            this.prisma.journey.count({ where: { organizationId, status: 'IN_PROGRESS' } }),
-            this.prisma.user.count({ where: { organizationId, role: 'DRIVER' } }),
+            this.prisma.vehicle.count({ where: { organizationId, ...(vehicleId && { id: vehicleId }) } }),
+            this.prisma.vehicle.count({ where: { organizationId, status: 'AVAILABLE', ...(vehicleId && { id: vehicleId }) } }),
+            this.prisma.vehicle.count({ where: { organizationId, status: 'IN_USE', ...(vehicleId && { id: vehicleId }) } }),
+            this.prisma.vehicle.count({ where: { organizationId, status: 'MAINTENANCE', ...(vehicleId && { id: vehicleId }) } }),
+            this.prisma.vehicle.count({ where: { organizationId, status: 'CRITICAL_ISSUE', ...(vehicleId && { id: vehicleId }) } }),
+            this.prisma.journey.count({ where: { organizationId, status: 'IN_PROGRESS', ...(driverId && { driverId }), ...(vehicleId && { vehicleId }) } }),
+            this.prisma.user.count({ where: { organizationId, role: 'DRIVER', ...(driverId && { id: driverId }) } }),
             this.prisma.journey.findMany({
-                where: { organizationId },
+                where: { organizationId, ...(driverId && { driverId }), ...(vehicleId && { vehicleId }) },
                 orderBy: { createdAt: 'desc' },
                 take: 5,
                 include: { driver: { select: { name: true } }, vehicle: { select: { plate: true } } }
@@ -48,44 +63,64 @@ export class ReportsService {
                 where: {
                     organizationId,
                     status: 'COMPLETED',
-                    performedAt: { gte: new Date(now.getFullYear(), now.getMonth(), 1) }
+                    ...performedAtFilter,
+                    ...(vehicleId && { vehicleId })
                 },
                 _sum: { cost: true }
             }),
             this.prisma.fuelEntry.aggregate({
                 where: {
                     organizationId,
-                    date: { gte: new Date(now.getFullYear(), now.getMonth(), 1) }
+                    ...fuelDateFilter,
+                    ...(driverId && { driverId }),
+                    ...(vehicleId && { vehicleId })
                 },
                 _sum: { totalValue: true }
             }),
             this.prisma.journey.findMany({
-                where: { organizationId, status: 'COMPLETED' },
+                where: {
+                    organizationId,
+                    status: 'COMPLETED',
+                    ...(start && end ? { endTime: { gte: new Date(start), lte: new Date(end) } } : {}),
+                    ...(driverId && { driverId }),
+                    ...(vehicleId && { vehicleId })
+                },
                 select: { startKm: true, endKm: true }
             }),
             this.prisma.checklist.count({
                 where: {
-                    journey: { organizationId },
+                    journey: {
+                        organizationId,
+                        ...(driverId && { driverId }),
+                        ...(vehicleId && { vehicleId }),
+                        ...(start && end ? { createdAt: { gte: new Date(start), lte: new Date(end) } } : {})
+                    },
                     items: { path: ['$'], array_contains: { status: 'ISSUE' } }
                 }
             }),
             this.prisma.vehicle.groupBy({
                 by: ['type'],
-                where: { organizationId, status: 'AVAILABLE' },
+                where: { organizationId, status: 'AVAILABLE', ...(vehicleId && { id: vehicleId }) },
                 _count: { _all: true }
             }),
             this.prisma.vehicle.groupBy({
                 by: ['type'],
-                where: { organizationId, status: 'IN_USE' },
+                where: { organizationId, status: 'IN_USE', ...(vehicleId && { id: vehicleId }) },
                 _count: { _all: true }
             }),
             this.prisma.vehicle.groupBy({
                 by: ['type'],
-                where: { organizationId, status: 'MAINTENANCE' },
+                where: { organizationId, status: 'MAINTENANCE', ...(vehicleId && { id: vehicleId }) },
                 _count: { _all: true }
             }),
             this.prisma.incident.findMany({
-                where: { organizationId, status: 'OPEN' },
+                where: {
+                    organizationId,
+                    status: 'OPEN',
+                    ...(driverId && { driverId }),
+                    ...(vehicleId && { vehicleId }),
+                    ...dateFilter
+                },
                 orderBy: { createdAt: 'desc' },
                 take: 5,
                 include: {
@@ -97,16 +132,17 @@ export class ReportsService {
                 where: {
                     organizationId,
                     status: 'IN_PROGRESS',
-                    incidents: { some: { status: 'OPEN' } }
+                    incidents: { some: { status: 'OPEN' } },
+                    ...(driverId && { driverId }),
+                    ...(vehicleId && { vehicleId })
                 }
             }),
-            // Telemetry might fail if schema is not updated
-            this.prisma.vehicle.aggregate({ where: { organizationId }, _sum: { currentKm: true } }).catch(() => ({ _sum: { currentKm: 0 } })),
-            (this.prisma.vehicle as any).aggregate({ where: { organizationId }, _avg: { fuelLevel: true } }).catch(() => ({ _avg: { fuelLevel: 100 } }))
+            this.prisma.vehicle.aggregate({ where: { organizationId, ...(vehicleId && { id: vehicleId }) }, _sum: { currentKm: true } }).catch(() => ({ _sum: { currentKm: 0 } })),
+            (this.prisma.vehicle as any).aggregate({ where: { organizationId, ...(vehicleId && { id: vehicleId }) }, _avg: { fuelLevel: true } }).catch(() => ({ _avg: { fuelLevel: 100 } }))
         ]);
 
         const totalKm = journeysWithKm.reduce((acc: number, j: any) => acc + ((j.endKm || 0) - j.startKm), 0);
-        const history = await this.getMonthlyHistory(organizationId, sixMonthsAgo);
+        const history = await this.getMonthlyHistory(organizationId, new Date(new Date().getFullYear(), new Date().getMonth() - 5, 1));
 
         return {
             stats: {
@@ -120,7 +156,7 @@ export class ReportsService {
                 journeysWithoutIncidents: activeJourneys - journeysWithIncidentsCount,
                 totalDrivers,
                 monthlyCosts: (maintenanceCosts._sum?.cost || 0) + (fuelCosts._sum?.totalValue || 0),
-                totalKm: (totalVehicleKm as any)._sum?.currentKm || 0,
+                totalKm: Math.max(totalKm, (totalVehicleKm as any)._sum?.currentKm || 0),
                 avgFuelLevel: Math.round((avgFuelLevel as any)._avg?.fuelLevel || 100),
                 issuesReported: checklistsWithIssues,
                 breakdown: {

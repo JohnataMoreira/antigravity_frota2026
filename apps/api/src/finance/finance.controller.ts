@@ -8,7 +8,7 @@ export class FinanceController {
     constructor(private readonly financeService: FinanceService) { }
 
     @Get('overview')
-    async getOverview(@Request() req: any) {
-        return this.financeService.getOverview(req.user.organizationId);
+    async getOverview(@Request() req: any, @Query() query: any) {
+        return this.financeService.getOverview(req.user.organizationId, query);
     }
 }

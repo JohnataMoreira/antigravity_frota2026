@@ -55,8 +55,17 @@ export class FuelService {
         });
     }
 
-    async getStats(organizationId: string, vehicleId?: string) {
-        const where = { organizationId, ...(vehicleId ? { vehicleId } : {}) };
+    async getStats(organizationId: string, filters: { vehicleId?: string; driverId?: string; start?: string; end?: string } = {}) {
+        const { vehicleId, driverId, start, end } = filters;
+        const where: any = { organizationId };
+
+        if (vehicleId) where.vehicleId = vehicleId;
+        if (driverId) where.driverId = driverId;
+        if (start || end) {
+            where.date = {};
+            if (start) where.date.gte = new Date(start);
+            if (end) where.date.lte = new Date(end);
+        }
 
         const entries = await this.prisma.fuelEntry.findMany({
             where,
@@ -87,15 +96,17 @@ export class FuelService {
         const driverRanking = new Map<string, { name: string, spent: number, count: number }>();
 
         entries.forEach(e => {
-            const v = vehicleRanking.get(e.vehicleId) || { plate: e.vehicle?.plate || '', model: e.vehicle?.model || '', spent: 0, count: 0 };
+            const vId = e.vehicleId;
+            const v = vehicleRanking.get(vId) || { plate: e.vehicle?.plate || '', model: e.vehicle?.model || '', spent: 0, count: 0 };
             v.spent += e.totalValue;
             v.count += 1;
-            vehicleRanking.set(e.vehicleId, v);
+            vehicleRanking.set(vId, v);
 
-            const d = driverRanking.get(e.driverId) || { name: e.driver?.name || 'Desconhecido', spent: 0, count: 0 };
+            const dId = e.driverId;
+            const d = driverRanking.get(dId) || { name: e.driver?.name || 'Desconhecido', spent: 0, count: 0 };
             d.spent += e.totalValue;
             d.count += 1;
-            driverRanking.set(e.driverId, d);
+            driverRanking.set(dId, d);
         });
 
         // Trends (By Month)
@@ -107,10 +118,8 @@ export class FuelService {
             monthsRanking.set(month, m);
         });
 
-        const firstEntry = entries[0];
-        const lastEntry = entries[entries.length - 1];
         const sortedByKm = [...entries].sort((a: any, b: any) => a.km - b.km);
-        const distance = sortedByKm[sortedByKm.length - 1].km - sortedByKm[0].km;
+        const distance = sortedByKm.length > 1 ? sortedByKm[sortedByKm.length - 1].km - sortedByKm[0].km : 0;
         const litersForDistance = sortedByKm.slice(1).reduce((acc: number, e: any) => acc + (e.liters || 0), 0);
 
         return {

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/axios';
 import { GlassCard } from '../../components/ui/Cards';
-import { Download, FileText, Table as TableIcon, Filter, Layers, Users, Truck, Fuel, DollarSign } from 'lucide-react';
+import { Download, FileText, Table as TableIcon, Filter, Layers, Users, Truck, Fuel, Calendar, Search } from 'lucide-react';
 import { DriversTab } from './components/DriversTab';
 import { VehiclesTab } from './components/VehiclesTab';
 import { FuelTab } from './components/FuelTab';
@@ -10,35 +10,83 @@ import { FinanceTab } from './components/FinanceTab';
 import { ExportActions } from './components/ExportActions';
 import { clsx } from 'clsx';
 import { formatCurrency, formatKm } from '../../lib/utils';
+import { ExportService } from '../../services/exportService';
 
 export default function Reports() {
     const [activeTab, setActiveTab] = useState<'overview' | 'drivers' | 'vehicles' | 'fuel' | 'finance'>('overview');
     const [isExporting, setIsExporting] = useState(false);
 
-    const { data: reportData } = useQuery({
-        queryKey: ['reports-detailed'],
+    // Filter State
+    const [filters, setFilters] = useState({
+        start: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
+        end: new Date().toISOString().split('T')[0],
+        driverId: '',
+        vehicleId: ''
+    });
+
+    const { data: reportData, isLoading } = useQuery({
+        queryKey: ['reports-detailed', filters],
         queryFn: async () => {
-            const res = await api.get('/reports/overview');
+            const res = await api.get('/reports/overview', { params: filters });
             return res.data;
         }
     });
 
-    const exportToCSV = () => {
+    const { data: filterOptions } = useQuery({
+        queryKey: ['filter-options'],
+        queryFn: async () => {
+            const [d, v] = await Promise.all([
+                api.get('/users?role=DRIVER'),
+                api.get('/vehicles')
+            ]);
+            return { drivers: d.data, vehicles: v.data };
+        }
+    });
+
+    const handleExport = async (type: 'PDF' | 'EXCEL') => {
         setIsExporting(true);
         try {
-            const history = reportData?.history || [];
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Mes,Custos (R$),Distancia (KM)\n";
-            history.forEach((row: any) => {
-                csvContent += `${row.name},${row.costs},${row.km}\n`;
-            });
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `relatorio_frota_${new Date().toISOString().split('T')[0]}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            if (activeTab === 'overview' || activeTab === 'finance') {
+                const res = await api.get('/reports/export/expenses', { params: filters });
+                const data = res.data;
+
+                if (type === 'PDF') {
+                    await ExportService.exportToPDF(
+                        'Relatório Financeiro de Frota',
+                        data,
+                        [
+                            { header: 'Data', dataKey: 'date' },
+                            { header: 'Categoria', dataKey: 'category' },
+                            { header: 'Descrição', dataKey: 'description' },
+                            { header: 'Veículo', dataKey: 'vehicle' },
+                            { header: 'Custo (R$)', dataKey: 'cost' }
+                        ],
+                        'relatorio_financeiro'
+                    );
+                } else {
+                    await ExportService.exportToExcel(data, 'relatorio_financeiro');
+                }
+            } else if (activeTab === 'drivers' || activeTab === 'vehicles') {
+                const res = await api.get('/reports/export/journeys', { params: filters });
+                const data = res.data;
+
+                if (type === 'PDF') {
+                    await ExportService.exportToPDF(
+                        'Auditoria de Jornadas',
+                        data,
+                        [
+                            { header: 'Fim', dataKey: 'endTime' },
+                            { header: 'Motorista', dataKey: 'driver' },
+                            { header: 'Veículo', dataKey: 'vehicle' },
+                            { header: 'Distância (KM)', dataKey: 'distance' },
+                            { header: 'Incidentes', dataKey: 'incidents' }
+                        ],
+                        'auditoria_jornadas'
+                    );
+                } else {
+                    await ExportService.exportToExcel(data, 'auditoria_jornadas');
+                }
+            }
         } finally {
             setIsExporting(false);
         }
@@ -48,18 +96,88 @@ export default function Reports() {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-4xl font-bold tracking-tight gradient-text">Relatórios Operacionais</h1>
-                    <p className="text-muted-foreground mt-2 text-lg">Exporte e analise os dados da sua frota</p>
+                    <h1 className="text-4xl font-bold tracking-tight gradient-text">Relatórios & BI</h1>
+                    <p className="text-muted-foreground mt-2 text-lg">Inteligência de dados para gestão de frota</p>
                 </div>
-                <button
-                    onClick={exportToCSV}
-                    disabled={isExporting}
-                    className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-bold hover:opacity-90 transition-all disabled:opacity-50"
-                >
-                    <Download className="w-5 h-5" />
-                    {isExporting ? 'Exportando...' : 'Exportar CSV'}
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => handleExport('PDF')}
+                        disabled={isExporting}
+                        className="flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-xl font-bold hover:opacity-90 transition-all disabled:opacity-50 shadow-lg shadow-red-600/20"
+                    >
+                        <FileText className="w-5 h-5" />
+                        {isExporting ? 'Processando...' : 'Exportar PDF'}
+                    </button>
+                    <button
+                        onClick={() => handleExport('EXCEL')}
+                        disabled={isExporting}
+                        className="flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold hover:opacity-90 transition-all disabled:opacity-50 shadow-lg shadow-emerald-600/20"
+                    >
+                        <Download className="w-5 h-5" />
+                        {isExporting ? 'Processando...' : 'Exportar Excel'}
+                    </button>
+                </div>
             </div>
+
+            {/* Advanced Filters */}
+            <GlassCard className="grid grid-cols-1 md:grid-cols-4 gap-4 border-primary/20 bg-primary/5">
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-muted-foreground ml-1">Período Inicial</label>
+                    <div className="relative">
+                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <input
+                            type="date"
+                            value={filters.start}
+                            onChange={e => setFilters(prev => ({ ...prev, start: e.target.value }))}
+                            className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:border-primary transition-all outline-none"
+                        />
+                    </div>
+                </div>
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-muted-foreground ml-1">Período Final</label>
+                    <div className="relative">
+                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <input
+                            type="date"
+                            value={filters.end}
+                            onChange={e => setFilters(prev => ({ ...prev, end: e.target.value }))}
+                            className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:border-primary transition-all outline-none"
+                        />
+                    </div>
+                </div>
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-muted-foreground ml-1">Motorista</label>
+                    <div className="relative">
+                        <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <select
+                            value={filters.driverId}
+                            onChange={e => setFilters(prev => ({ ...prev, driverId: e.target.value }))}
+                            className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:border-primary transition-all outline-none appearance-none"
+                        >
+                            <option value="">Todos os Motoristas</option>
+                            {filterOptions?.drivers.map((d: any) => (
+                                <option key={d.id} value={d.id}>{d.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+                <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase text-muted-foreground ml-1">Veículo</label>
+                    <div className="relative">
+                        <Truck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <select
+                            value={filters.vehicleId}
+                            onChange={e => setFilters(prev => ({ ...prev, vehicleId: e.target.value }))}
+                            className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:border-primary transition-all outline-none appearance-none"
+                        >
+                            <option value="">Todos os Veículos</option>
+                            {filterOptions?.vehicles.map((v: any) => (
+                                <option key={v.id} value={v.id}>{v.plate} - {v.model}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
+            </GlassCard>
 
             {/* Tabs */}
             <div className="flex gap-2 p-1 bg-white/5 rounded-xl w-fit">
@@ -162,10 +280,10 @@ export default function Reports() {
                     </div>
                 )}
 
-                {activeTab === 'drivers' && <DriversTab />}
-                {activeTab === 'vehicles' && <VehiclesTab />}
-                {activeTab === 'fuel' && <FuelTab />}
-                {activeTab === 'finance' && <FinanceTab />}
+                {activeTab === 'drivers' && <DriversTab filters={filters} />}
+                {activeTab === 'vehicles' && <VehiclesTab filters={filters} />}
+                {activeTab === 'fuel' && <FuelTab filters={filters} />}
+                {activeTab === 'finance' && <FinanceTab filters={filters} />}
             </div>
         </div>
     );

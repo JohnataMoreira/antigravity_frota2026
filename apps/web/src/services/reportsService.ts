@@ -43,35 +43,23 @@ export interface DriverRanking {
 }
 
 export const reportsService = {
-    getOverview: async () => {
-        const response = await api.get('/reports/overview');
+    getOverview: async (filters: any = {}) => {
+        const response = await api.get('/reports/overview', { params: filters });
         return response.data;
     },
 
-    getDriverPerformance: async (start?: string, end?: string) => {
-        const params = new URLSearchParams();
-        if (start) params.append('start', start);
-        if (end) params.append('end', end);
-
-        const response = await api.get<DriverPerformance[]>(`/reports/drivers?${params.toString()}`);
+    getDriverPerformance: async (filters: any = {}) => {
+        const response = await api.get<DriverPerformance[]>('/reports/drivers', { params: filters });
         return response.data;
     },
 
-    getDriverRanking: async (start?: string, end?: string) => {
-        const params = new URLSearchParams();
-        if (start) params.append('start', start);
-        if (end) params.append('end', end);
-
-        const response = await api.get<DriverRanking[]>(`/reports/driver-ranking?${params.toString()}`);
+    getDriverRanking: async (filters: any = {}) => {
+        const response = await api.get<DriverRanking[]>('/reports/driver-ranking', { params: filters });
         return response.data;
     },
 
-    getVehicleUtilization: async (start?: string, end?: string) => {
-        const params = new URLSearchParams();
-        if (start) params.append('start', start);
-        if (end) params.append('end', end);
-
-        const response = await api.get<VehicleUtilization[]>(`/reports/vehicles?${params.toString()}`);
+    getVehicleUtilization: async (filters: any = {}) => {
+        const response = await api.get<VehicleUtilization[]>('/reports/vehicles', { params: filters });
         return response.data;
     }
 };
