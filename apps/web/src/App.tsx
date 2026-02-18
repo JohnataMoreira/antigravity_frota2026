@@ -13,6 +13,7 @@ import { MaintenanceList } from './pages/Maintenance';
 import { FuelEntriesList } from './pages/Fuel';
 import { InventoryList } from './pages/Inventory';
 import Reports from './pages/Reports';
+import Compliance from './pages/Compliance';
 import { LiveMap } from './components/LiveMap';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { OfflineStatus } from './components/ui/OfflineStatus';
@@ -55,6 +56,7 @@ function AppRoutes() {
                     <Route path="journeys" element={<JourneysList />} />
                     <Route path="journeys/:id" element={<JourneyDetails />} />
                     <Route path="maintenance" element={<MaintenanceList />} />
+                    <Route path="compliance" element={<Compliance />} />
                     <Route path="reports" element={<Reports />} />
                 </Route>
             </Routes>

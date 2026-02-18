@@ -28,6 +28,7 @@ import { NotificationModule } from './common/notifications/notification.module';
 import { BackupModule } from './backup/backup.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { TelemetryModule } from './telemetry/telemetry.module';
+import { ComplianceModule } from './compliance/compliance.module';
 
 
 @Module({
@@ -60,6 +61,7 @@ import { TelemetryModule } from './telemetry/telemetry.module';
         BackupModule,
         InventoryModule,
         TelemetryModule,
+        ComplianceModule,
     ],
     providers: [
         {
