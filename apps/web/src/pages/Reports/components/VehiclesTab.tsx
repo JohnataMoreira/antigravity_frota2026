@@ -78,7 +78,7 @@ export function VehiclesTab({ filters }: { filters: any }) {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
-                            {vehicles?.map((vehicle) => (
+                            {vehicles?.map((vehicle: any) => (
                                 <tr key={vehicle.plate} className="hover:bg-white/5">
                                     <td className="py-3 font-medium">{vehicle.model}</td>
                                     <td className="py-3">
