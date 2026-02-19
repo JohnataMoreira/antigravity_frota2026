@@ -307,6 +307,7 @@ model Maintenance {
   type      MaintenanceType
   lastKm    Int             @default(0)
   nextDueKm Int
+  nextDueDate DateTime?
 
   status      MaintenanceStatus @default(PENDING)
   performedAt DateTime?
@@ -387,6 +388,7 @@ model MaintenanceTemplate {
   type                String // PREVENTIVE, CORRECTIVE
   vehicleTypes        VehicleType[]
   intervalKm          Int           @default(10000)
+  intervalMonths      Int?          @default(12)
   averageDurationDays Int           @default(1)
 
   createdAt DateTime @default(now())

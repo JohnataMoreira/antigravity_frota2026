@@ -38,6 +38,7 @@ export function VehiclesList() {
     const [viewMode, setViewMode] = useState<'list' | 'grid' | 'kanban'>('grid');
     const [filter, setFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState<string>('ALL');
+    const [typeFilter, setTypeFilter] = useState<string>('ALL');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
     const [isStartJourneyModalOpen, setIsStartJourneyModalOpen] = useState(false);
@@ -57,8 +58,9 @@ export function VehiclesList() {
             (v.brand && v.brand.toLowerCase().includes(filter.toLowerCase()));
 
         const matchesStatus = statusFilter === 'ALL' || v.status === statusFilter;
+        const matchesType = typeFilter === 'ALL' || v.type === typeFilter;
 
-        return matchesSearch && matchesStatus;
+        return matchesSearch && matchesStatus && matchesType;
     });
 
     const deleteMutation = useMutation({
@@ -155,11 +157,26 @@ export function VehiclesList() {
                             onChange={(e) => setStatusFilter(e.target.value)}
                             className="bg-transparent outline-none text-sm font-bold pr-8 py-2"
                         >
-                            <option value="ALL">Todos os Status</option>
+                            <option value="ALL">Status: Todos</option>
                             <option value="AVAILABLE">Disponível</option>
                             <option value="IN_USE">Em Uso</option>
                             <option value="MAINTENANCE">Manutenção</option>
                             <option value="CRITICAL_ISSUE">Problema Crítico</option>
+                        </select>
+                    </div>
+
+                    <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-gray-100 shadow-sm w-full md:w-auto">
+                        <Car size={18} className="text-gray-400 ml-2" />
+                        <select
+                            value={typeFilter}
+                            onChange={(e) => setTypeFilter(e.target.value)}
+                            className="bg-transparent outline-none text-sm font-bold pr-8 py-2"
+                        >
+                            <option value="ALL">Tipo: Todos</option>
+                            <option value="CAR">Carro</option>
+                            <option value="TRUCK">Caminhão</option>
+                            <option value="MOTORCYCLE">Moto</option>
+                            <option value="MACHINE">Máquina / Outro</option>
                         </select>
                     </div>
                 </div>

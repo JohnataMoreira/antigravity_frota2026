@@ -22,6 +22,7 @@ export default function CompliancePage() {
  const queryClient = useQueryClient();
  const [filter, setFilter] = useState<'ALL' | 'EXPIRED' | 'WARNING' | 'VALID'>('ALL');
  const [searchTerm, setSearchTerm] = useState('');
+  const [typeFilter, setTypeFilter] = useState('ALL');
 
  const { data: documents, isLoading } = useQuery({
  queryKey: ['compliance-all', filter],
@@ -51,16 +52,17 @@ export default function CompliancePage() {
  };
 
  const filteredDocs = documents?.filter((doc: any) => {
- const matchesSearch =
+ const matchesType = typeFilter === 'ALL' || doc.type === typeFilter;
+  const matchesSearch =
  doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
  doc.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
  doc.vehicle?.plate?.toLowerCase().includes(searchTerm.toLowerCase());
 
- if (filter === 'ALL') return matchesSearch;
+ if (filter === 'ALL') return matchesSearch && matchesType;
  const status = getStatus(doc.expiryDate);
- if (filter === 'EXPIRED' && status.label === 'Expirado') return matchesSearch;
- if (filter === 'WARNING' && status.label === 'Atenção') return matchesSearch;
- if (filter === 'VALID' && status.label === 'Válido') return matchesSearch;
+ if (filter === 'EXPIRED' && status.label === 'Expirado') return matchesSearch && matchesType;
+ if (filter === 'WARNING' && status.label === 'Atenção') return matchesSearch && matchesType;
+ if (filter === 'VALID' && status.label === 'Válido') return matchesSearch && matchesType;
  return false;
  });
 
@@ -124,7 +126,18 @@ export default function CompliancePage() {
  ))}
  </div>
 
- <div className="relative w-full md:w-96">
+  <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-1">
+            <Filter size={14} className="text-gray-400" />
+            <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} className="bg-transparent border-none text-xs font-bold outline-none pr-6">
+                <option value="ALL">Todos os Tipos</option>
+                <option value="CNH">CNH</option>
+                <option value="CRLV">CRLV</option>
+                <option value="SEGURO">Seguro</option>
+                <option value="ANTT">ANTT</option>
+                <option value="OUTROS">Outros</option>
+            </select>
+          </div>
+          <div className="relative w-full md:w-64">
  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
  <input
  type="text"

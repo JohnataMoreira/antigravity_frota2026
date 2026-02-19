@@ -8,6 +8,7 @@ import {
  Search,
  Filter,
  Clock,
+  Calendar,
  CheckCircle2,
  AlertCircle,
  XCircle,
@@ -25,6 +26,8 @@ import { PurchaseOrderDetailsModal } from './components/PurchaseOrderDetailsModa
 export default function PurchasingList() {
  const [activeTab, setActiveTab] = useState<'ALL' | 'REQUESTED' | 'APPROVED' | 'COMPLETED' | 'CANCELED'>('ALL');
  const [searchTerm, setSearchTerm] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
  const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
@@ -33,7 +36,7 @@ export default function PurchasingList() {
  queryFn: async () => {
  const params: any = {};
  if (activeTab !== 'ALL') params.status = activeTab;
- const res = await api.get('/purchasing/orders', { params });
+ const res = await api.get('/purchasing/orders', { params: { ...params, start: dateFrom, end: dateTo, search: searchTerm } });
  return res.data;
  }
  });
@@ -89,7 +92,15 @@ export default function PurchasingList() {
  ))}
  </div>
 
- <div className="relative w-full md:w-96">
+  <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto items-center">
+            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-1">
+              <Calendar size={14} className="text-gray-400" />
+              <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} className="bg-transparent border-none text-xs font-bold outline-none" />
+              <span className="text-gray-300">/</span>
+              <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} className="bg-transparent border-none text-xs font-bold outline-none" />
+            </div>
+          </div>
+          <div className="relative w-full md:w-64">
  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
  <input
  type="text"

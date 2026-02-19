@@ -4,9 +4,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { StartJourneyDto, EndJourneyDto } from './dto';
 import { JourneyStatus, VehicleStatus, ChecklistType } from '@prisma/client';
 
+import { MaintenanceAlertsService } from '../maintenance/alerts.service';
+
 @Injectable()
 export class JourneysService {
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private prisma: PrismaService,
+        private maintenanceAlertsService: MaintenanceAlertsService
+    ) { }
 
     async start(driverId: string, dto: StartJourneyDto) {
         // 1. Check if vehicle exists and is available (automated isolation)
@@ -106,6 +111,13 @@ export class JourneysService {
                     currentKm: dto.endKm,
                 }
             });
+
+            // Trigger Maintenance Check
+            const organizationId = (updatedJourney as any).organizationId;
+            if (organizationId) {
+                // We fire and forget or wait? Better wait for consistency or use a queue later.
+                await this.maintenanceAlertsService.checkAlerts(organizationId);
+            }
 
             return updatedJourney;
         });

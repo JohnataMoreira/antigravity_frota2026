@@ -23,6 +23,11 @@ export class CreateMaintenanceDto {
     @IsNumber()
     nextDueKm!: number;
 
+    @ApiPropertyOptional({ description: 'Data prevista para a manutenção', example: '2026-12-31' })
+    @IsOptional()
+    @IsString() // Or Date, but string is safer for JSON input
+    nextDueDate?: string;
+
     @ApiPropertyOptional({ description: 'Observações adicionais' })
     @IsOptional()
     @IsString()

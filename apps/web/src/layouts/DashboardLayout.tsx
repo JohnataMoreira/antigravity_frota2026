@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, Truck, Users, Map, Wrench, LogOut, Menu, X, User as UserIcon, FileText, Package, Fuel, ShieldCheck, ShoppingCart, DollarSign, Disc } from 'lucide-react';
+import { LayoutDashboard, Truck, Users, Map, Wrench, LogOut, Menu, X, User as UserIcon, FileText, Package, Fuel, ShieldCheck, ShoppingCart, DollarSign, Disc, Settings } from 'lucide-react';
 
 export function DashboardLayout() {
     const { user, logout } = useAuth();
@@ -11,17 +11,18 @@ export function DashboardLayout() {
 
     const navigation = [
         { name: 'Painel', href: '/dashboard', icon: LayoutDashboard },
-        { name: 'Veículos', href: '/vehicles', icon: Truck },
-        { name: 'Abastecimentos', href: '/fuel', icon: Fuel },
         { name: 'Funcionários', href: '/users', icon: Users },
-        { name: 'Estoque', href: '/inventory', icon: Package },
-        { name: 'Compras', href: '/purchasing', icon: ShoppingCart },
-        { name: 'Financeiro', href: '/finance', icon: DollarSign },
+        { name: 'Veículos', href: '/vehicles', icon: Truck },
         { name: 'Jornadas', href: '/journeys', icon: Map },
+        { name: 'Abastecimentos', href: '/fuel', icon: Fuel },
         { name: 'Manutenção', href: '/maintenance', icon: Wrench },
+        { name: 'Compras', href: '/purchasing', icon: ShoppingCart },
+        { name: 'Estoque', href: '/inventory', icon: Package },
         { name: 'Pneus', href: '/tyres', icon: Disc },
+        { name: 'Financeiro', href: '/finance', icon: DollarSign },
         { name: 'Conformidade', href: '/compliance', icon: ShieldCheck },
         { name: 'Relatórios', href: '/reports', icon: FileText },
+        { name: 'Configurações', href: '/settings', icon: Settings },
     ];
 
     const handleLogout = () => {

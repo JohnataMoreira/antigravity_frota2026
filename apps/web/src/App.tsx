@@ -20,6 +20,7 @@ const Compliance = lazy(() => import('./pages/Compliance'));
 const Purchasing = lazy(() => import('./pages/Purchasing'));
 const Finance = lazy(() => import('./pages/Finance'));
 const Tyres = lazy(() => import('./pages/Tyres'));
+const Settings = lazy(() => import('./pages/Settings'));
 const Users = lazy(() => import('./pages/Users').then(module => ({ default: module.UsersList })));
 
 const queryClient = new QueryClient();
@@ -62,6 +63,7 @@ function AppRoutes() {
                     <Route path="/purchasing" element={<Suspense fallback={<div>Carregando...</div>}><Purchasing /></Suspense>} />
                     <Route path="/finance" element={<Suspense fallback={<div>Carregando...</div>}><Finance /></Suspense>} />
                     <Route path="/reports" element={<Suspense fallback={<div>Carregando...</div>}><Reports /></Suspense>} />
+                    <Route path="/settings" element={<Suspense fallback={<div>Carregando...</div>}><Settings /></Suspense>} />
                 </Route>
             </Routes>
             <OfflineStatus />
