@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { usersApi } from '../services/users';
-import { Users, Plus, Trash2, Edit2, UserPlus, Search, Phone, Calendar, MapPin, SearchCheck, LayoutGrid, List as ListIcon, Camera, Upload } from 'lucide-react';
+import { Users, Plus, Trash2, Edit2, UserPlus, Search, Phone, Calendar, MapPin, SearchCheck, LayoutGrid, List as ListIcon, Camera, Upload, Columns, Map } from 'lucide-react';
 import { GlassCard } from '../components/ui/Cards';
 import { CameraCapture } from '../components/ui/CameraCapture';
 import { api } from '../lib/axios';
+import { KanbanBoard } from '../components/KanbanBoard';
 
 interface User {
     id: string;
@@ -33,6 +34,7 @@ export function Drivers() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const [search, setSearch] = useState('');
+    const [journeys, setJourneys] = useState<any[]>([]);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -57,7 +59,7 @@ export function Drivers() {
     const [tempAvatar, setTempAvatar] = useState<File | null>(null);
     const [isCameraOpen, setIsCameraOpen] = useState(false);
 
-    const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+    const [viewMode, setViewMode] = useState<'list' | 'grid' | 'kanban'>('grid');
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -67,12 +69,16 @@ export function Drivers() {
     }, [search]);
 
     const loadUsers = async (searchTerm?: string) => {
-        setLoading(true); // Ensure loading state is active during search
+        setLoading(true);
         try {
-            const response = await usersApi.getUsers(searchTerm);
-            setUsers(response.data);
+            const [usersRes, journeysRes] = await Promise.all([
+                usersApi.getUsers(searchTerm),
+                api.get('/journeys')
+            ]);
+            setUsers(usersRes.data);
+            setJourneys(journeysRes.data);
         } catch (error) {
-            console.error('Error loading users:', error);
+            console.error('Error loading data:', error);
         } finally {
             setLoading(false);
         }
@@ -257,6 +263,13 @@ export function Drivers() {
                     >
                         <ListIcon size={20} />
                     </button>
+                    <button
+                        onClick={() => setViewMode('kanban')}
+                        className={`p-2.5 rounded-xl transition-all ${viewMode === 'kanban' ? 'bg-white shadow-md text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                        title="Visualização Kanban"
+                    >
+                        <Columns size={20} />
+                    </button>
                 </div>
             </div>
 
@@ -337,7 +350,7 @@ export function Drivers() {
                         </table>
                     </div>
                 </GlassCard>
-            ) : (
+            ) : viewMode === 'grid' ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {users.map((user: User) => (
                         <GlassCard key={user.id} transition={true} className="relative group p-0 overflow-hidden flex flex-col">
@@ -395,6 +408,53 @@ export function Drivers() {
                         </GlassCard>
                     ))}
                 </div>
+            ) : (
+                <KanbanBoard
+                    columns={[
+                        { id: 'IN_JOURNEY', title: 'Em Jornada', count: 0, color: 'bg-green-500' },
+                        { id: 'AVAILABLE', title: 'Disponíveis', count: 0, color: 'bg-blue-500' },
+                        { id: 'INACTIVE', title: 'Inativos/Pendentes', count: 0, color: 'bg-gray-400' },
+                    ]}
+                    items={users}
+                    getItemColumnId={(user) => {
+                        if (!user.active) return 'INACTIVE';
+                        const hasActiveJourney = journeys.some(j => j.driverId === user.id && j.status === 'IN_PROGRESS');
+                        return hasActiveJourney ? 'IN_JOURNEY' : 'AVAILABLE';
+                    }}
+                    renderCard={(user) => (
+                        <GlassCard transition={true} className="!p-4 relative group">
+                            <div className="flex items-center gap-3">
+                                <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
+                                    {user.avatarUrl ? (
+                                        <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                            <Users size={20} />
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h4 className="font-black text-gray-900 uppercase tracking-tighter text-sm truncate">{user.name}</h4>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span className={`text-[8px] font-black uppercase px-1.5 py-0.5 rounded ${user.role === 'ADMIN' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
+                                            {user.role === 'ADMIN' ? 'Admin' : 'Motorista'}
+                                        </span>
+                                        {journeys.some(j => j.driverId === user.id && j.status === 'IN_PROGRESS') && (
+                                            <span className="text-[8px] font-black uppercase text-green-600 flex items-center gap-0.5">
+                                                <Map size={8} /> Em Viagem
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1">
+                                    <button onClick={() => openEditModal(user)} className="p-1.5 hover:bg-blue-50 text-blue-600 rounded-lg">
+                                        <Edit2 size={14} />
+                                    </button>
+                                </div>
+                            </div>
+                        </GlassCard>
+                    )}
+                />
             )}
 
             {(users.length === 0 && !loading) && (
