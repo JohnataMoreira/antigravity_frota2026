@@ -123,7 +123,10 @@ export class JourneysService {
             include: {
                 vehicle: { select: { plate: true, model: true } },
                 driver: { select: { name: true } },
-                checklists: true
+                checklists: {
+                    include: { attachments: true }
+                },
+                attachments: true
             },
             orderBy: { startTime: 'desc' }
         });
@@ -142,5 +145,22 @@ export class JourneysService {
                 isLongRunning: journey.status === JourneyStatus.IN_PROGRESS && durationMs > TWELVE_HOURS_MS
             };
         });
+    }
+
+    async findOne(id: string) {
+        const journey = await this.prisma.journey.findUnique({
+            where: { id },
+            include: {
+                vehicle: true,
+                driver: { select: { name: true } },
+                checklists: {
+                    include: { attachments: true }
+                },
+                attachments: true
+            }
+        });
+
+        if (!journey) throw new NotFoundException('Journey not found');
+        return journey;
     }
 }

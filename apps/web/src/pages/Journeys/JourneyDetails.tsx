@@ -277,13 +277,34 @@ export function JourneyDetails() {
                         <CardContent className="pt-6 space-y-8">
                             <div>
                                 <h3 className="text-xs font-black uppercase text-blue-600 mb-4 tracking-tighter">Fotos de Saída</h3>
-                                <PhotoGallery photos={checkout?.items.filter((i: any) => i.photoUrl).map((i: any) => ({ url: i.photoUrl, caption: i.itemName, status: i.status })) || []} />
+                                <PhotoGallery photos={[
+                                    ...(checkout?.items.filter((i: any) => i.photoUrl).map((i: any) => ({ url: i.photoUrl, caption: i.itemName, status: i.status })) || []),
+                                    ...(checkout?.attachments?.filter((a: any) => a.type === 'IMAGE').map((a: any) => ({ url: a.url, caption: 'Evidência Fotográfica', status: 'PROBLEM' })) || [])
+                                ]} />
                             </div>
 
                             <div className="pt-8 border-t dark:border-gray-800">
                                 <h3 className="text-xs font-black uppercase text-green-500 mb-4 tracking-tighter">Fotos de Retorno</h3>
-                                <PhotoGallery photos={checkin?.items.filter((i: any) => i.photoUrl).map((i: any) => ({ url: i.photoUrl, caption: i.itemName, status: i.status })) || []} />
+                                <PhotoGallery photos={[
+                                    ...(checkin?.items.filter((i: any) => i.photoUrl).map((i: any) => ({ url: i.photoUrl, caption: i.itemName, status: i.status })) || []),
+                                    ...(checkin?.attachments?.filter((a: any) => a.type === 'IMAGE').map((a: any) => ({ url: a.url, caption: 'Evidência Fotográfica', status: 'PROBLEM' })) || [])
+                                ]} />
                             </div>
+
+                            {/* Digital Signature */}
+                            {journey.attachments?.some((a: any) => a.type === 'SIGNATURE') && (
+                                <div className="pt-8 border-t dark:border-gray-800">
+                                    <h3 className="text-xs font-black uppercase text-neutral-900 mb-4 tracking-tighter">Assinatura Digital</h3>
+                                    <div className="bg-white p-4 rounded-xl border border-neutral-100 shadow-sm">
+                                        <img
+                                            src={journey.attachments.find((a: any) => a.type === 'SIGNATURE')?.url}
+                                            alt="Signature"
+                                            className="w-full max-h-24 object-contain grayscale contrast-125"
+                                        />
+                                        <p className="text-[10px] text-center mt-2 text-neutral-400 font-bold uppercase">Validado via App Frota2026</p>
+                                    </div>
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
                 </div>

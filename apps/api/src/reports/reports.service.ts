@@ -55,7 +55,7 @@ export class ReportsService {
             this.prisma.user.count({ where: { organizationId, role: 'DRIVER', ...(driverId && { id: driverId }) } }),
             this.prisma.journey.findMany({
                 where: { organizationId, ...(driverId && { driverId }), ...(vehicleId && { vehicleId }) },
-                orderBy: { createdAt: 'desc' },
+                orderBy: { startTime: 'desc' },
                 take: 5,
                 include: { driver: { select: { name: true } }, vehicle: { select: { plate: true } } }
             }),

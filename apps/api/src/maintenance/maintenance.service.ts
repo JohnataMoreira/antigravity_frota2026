@@ -5,9 +5,14 @@ import { CompleteMaintenanceDto } from './dto/complete-maintenance.dto';
 import { CreateMaintenanceTemplateDto } from './dto/create-template.dto';
 import { MaintenanceStatus, VehicleStatus } from '@prisma/client';
 
+import { FinanceService } from '../finance/finance.service';
+
 @Injectable()
 export class MaintenanceService {
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private prisma: PrismaService,
+        private finance: FinanceService
+    ) { }
 
     async create(data: CreateMaintenanceDto & { organizationId: string }) {
         return this.prisma.$transaction(async (tx) => {
@@ -61,6 +66,22 @@ export class MaintenanceService {
                     lastMaintenanceDate: new Date()
                 }
             });
+
+            // Create financial transaction
+            if (data.cost && data.cost > 0) {
+                await tx.financialTransaction.create({
+                    data: {
+                        organizationId: maintenance.organizationId,
+                        amount: data.cost,
+                        description: `Manutenção: ${maintenance.type} - Veículo ${maintenance.vehicleId}`,
+                        category: 'MAINTENANCE',
+                        type: 'EXPENSE',
+                        status: 'PENDING',
+                        dueDate: new Date(),
+                        maintenanceId: maintenance.id
+                    }
+                });
+            }
 
             return maintenance;
         });

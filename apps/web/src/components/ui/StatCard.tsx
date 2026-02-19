@@ -6,10 +6,15 @@ import { LucideIcon } from 'lucide-react';
 export interface StatCardProps {
     title: string;
     value: string | number;
+    description?: string;
     change?: {
         value: number;
         label: string;
         positive?: boolean;
+    };
+    trend?: {
+        value: number;
+        isPositive: boolean;
     };
     icon?: LucideIcon;
     variant?: 'default' | 'success' | 'warning' | 'danger' | 'info';
@@ -23,7 +28,9 @@ export interface StatCardProps {
 export const StatCard: React.FC<StatCardProps> = ({
     title,
     value,
+    description,
     change,
+    trend,
     icon: Icon,
     variant = 'default',
     loading = false,
@@ -84,23 +91,26 @@ export const StatCard: React.FC<StatCardProps> = ({
             </CardHeader>
             <CardContent>
                 <div className="text-3xl font-bold text-primary-900">{value}</div>
-                {change && (
+                {description && (
+                    <p className="text-xs text-neutral-500 mt-1">{description}</p>
+                )}
+                {(change || trend) && (
                     <p className="text-xs text-neutral-500 mt-2 flex items-center gap-1">
                         <span
                             className={cn(
                                 'font-medium',
-                                change.positive !== undefined
-                                    ? change.positive
+                                (change?.positive ?? trend?.isPositive) !== undefined
+                                    ? (change?.positive ?? trend?.isPositive)
                                         ? 'text-success-600'
                                         : 'text-danger-600'
                                     : 'text-neutral-600'
                             )}
                         >
-                            {change.positive !== undefined && (change.positive ? '↑' : '↓')}
-                            {change.value > 0 ? '+' : ''}
-                            {change.value}%
+                            {(change?.positive ?? trend?.isPositive) !== undefined && ((change?.positive ?? trend?.isPositive) ? '↑' : '↓')}
+                            {(change?.value ?? trend?.value ?? 0) > 0 ? '+' : ''}
+                            {change?.value ?? trend?.value}%
                         </span>
-                        <span>{change.label}</span>
+                        <span>{change?.label || 'em relação ao mês anterior'}</span>
                     </p>
                 )}
             </CardContent>

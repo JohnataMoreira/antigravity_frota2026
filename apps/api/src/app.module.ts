@@ -29,6 +29,9 @@ import { BackupModule } from './backup/backup.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { TelemetryModule } from './telemetry/telemetry.module';
 import { ComplianceModule } from './compliance/compliance.module';
+import { PurchasingModule } from './purchasing/purchasing.module';
+import { AttachmentsModule } from './attachments/attachments.module';
+import { TyresModule } from './tyres/tyres.module';
 
 
 @Module({
@@ -62,6 +65,7 @@ import { ComplianceModule } from './compliance/compliance.module';
         InventoryModule,
         TelemetryModule,
         ComplianceModule,
+        PurchasingModule,
     ],
     providers: [
         {

@@ -36,4 +36,10 @@ export class JourneysController {
     findAll() {
         return this.journeysService.findAll();
     }
+
+    @Get(':id')
+    @ApiOperation({ summary: 'Obter detalhes de uma jornada específica' })
+    findOne(@Param('id') id: string) {
+        return this.journeysService.findOne(id);
+    }
 }

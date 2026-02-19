@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Map, Search, ClipboardList, CheckCircle2, AlertCircle, X, MapPin, Clock, LayoutGrid, List as ListIcon, Filter, AlertTriangle, Flag } from 'lucide-react';
 import { GlassCard } from '../../components/ui/Cards';
 import { formatKm, formatDateTime, formatDuration } from '../../lib/utils';
+import { FinishJourneyModal } from './components/FinishJourneyModal';
 
 export function JourneysList() {
     const navigate = useNavigate();
@@ -232,11 +233,13 @@ export function JourneysList() {
                 </div>
             )}
 
-            <FinishJourneyModal
-                isOpen={isFinishModalOpen}
-                onClose={() => setIsFinishModalOpen(false)}
-                journey={selectedJourney}
-            />
+            {selectedJourney && (
+                <FinishJourneyModal
+                    isOpen={isFinishModalOpen}
+                    onClose={() => setIsFinishModalOpen(false)}
+                    journey={selectedJourney}
+                />
+            )}
         </div>
     );
 }

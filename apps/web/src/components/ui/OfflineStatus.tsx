@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Wifi, WifiOff, CloudSync } from 'lucide-react';
+import { WifiOff, RefreshCw } from 'lucide-react';
 import { db } from '../../lib/offline-db';
 import { useLiveQuery } from 'dexie-react-hooks';
 
@@ -33,7 +33,7 @@ export function OfflineStatus() {
         `}>
             {isOnline ? (
                 <>
-                    <CloudSync className="w-4 h-4" />
+                    <RefreshCw className="w-4 h-4 animate-spin" />
                     <span className="text-xs font-bold uppercase tracking-wider">
                         Sincronizando {pendingCount} pendentes...
                     </span>

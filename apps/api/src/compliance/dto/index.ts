@@ -5,11 +5,11 @@ import { DocumentType } from '@prisma/client';
 export class UploadDocumentDto {
     @ApiProperty({ enum: DocumentType })
     @IsEnum(DocumentType)
-    type: DocumentType;
+    type!: DocumentType;
 
     @ApiProperty()
     @IsString()
-    name: string;
+    name!: string;
 
     @ApiProperty({ required: false })
     @IsOptional()

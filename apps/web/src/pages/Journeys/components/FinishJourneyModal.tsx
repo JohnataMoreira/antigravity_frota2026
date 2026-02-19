@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../../lib/axios';
 import { GlassCard } from '../../../components/ui/Cards';
-import { X, Flag, Gauge, CheckCircle2, AlertTriangle, ArrowRight, ClipboardCheck } from 'lucide-react';
+import { X, Flag, Gauge, CheckCircle2, AlertTriangle, ArrowRight, ClipboardCheck, Camera, PenTool } from 'lucide-react';
 import { formatKm } from '../../../lib/utils';
 import { db } from '../../../lib/offline-db';
+import { CameraCapture } from '../../../components/ui/CameraCapture';
+import { SignaturePad } from '../../../components/ui/SignaturePad';
 
 interface FinishJourneyModalProps {
     isOpen: boolean;
@@ -25,8 +27,11 @@ export function FinishJourneyModal({ isOpen, onClose, journey }: FinishJourneyMo
     const [step, setStep] = useState(1);
     const [endKm, setEndKm] = useState(journey?.startKm || 0);
     const [checklistItems, setChecklistItems] = useState(
-        DEFAULT_CHECKLIST.map(name => ({ itemName: name, status: 'OK' }))
+        DEFAULT_CHECKLIST.map(name => ({ itemName: name, status: 'OK', photo: null as File | null }))
     );
+    const [signature, setSignature] = useState<File | null>(null);
+    const [activeCameraItem, setActiveCameraItem] = useState<string | null>(null);
+    const [isSignatureOpen, setIsSignatureOpen] = useState(false);
 
     const endMutation = useMutation({
         mutationFn: async (data: any) => {
@@ -56,11 +61,46 @@ export function FinishJourneyModal({ isOpen, onClose, journey }: FinishJourneyMo
 
     if (!isOpen) return null;
 
-    const handleEnd = () => {
-        endMutation.mutate({
+    const handleEnd = async () => {
+        // First finish the journey
+        const res = await endMutation.mutateAsync({
             endKm,
-            checklistItems
+            checklistItems: checklistItems.map(({ itemName, status }) => ({ itemName, status }))
         });
+
+        const journeyRes = (res as any).data;
+        const checklistId = journeyRes?.checklists?.find((c: any) => c.type === 'CHECKIN')?.id;
+
+        // Upload photos for problem items
+        for (const item of checklistItems) {
+            if (item.photo && checklistId) {
+                const formData = new FormData();
+                formData.append('file', item.photo);
+                formData.append('type', 'IMAGE');
+                formData.append('checklistId', checklistId);
+                await api.post('/attachments/upload', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+            }
+        }
+
+        // Upload signature
+        if (signature && journey.id) {
+            const formData = new FormData();
+            formData.append('file', signature);
+            formData.append('type', 'SIGNATURE');
+            formData.append('journeyId', journey.id);
+            await api.post('/attachments/upload', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+        }
+    };
+
+    const handlePhotoCapture = (file: File) => {
+        setChecklistItems(prev => prev.map(item =>
+            item.itemName === activeCameraItem ? { ...item, photo: file } : item
+        ));
+        setActiveCameraItem(null);
     };
 
     const toggleItemStatus = (name: string) => {
@@ -131,17 +171,64 @@ export function FinishJourneyModal({ isOpen, onClose, journey }: FinishJourneyMo
                                         `}
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className={`p-2 rounded-xl ${item.status === 'OK' ? 'bg-emerald-100' : 'bg-amber-100'}`}>
-                                                {item.status === 'OK' ? <CheckCircle2 size={18} /> : <AlertTriangle size={18} />}
-                                            </div>
+                                            {item.photo ? (
+                                                <div className="w-10 h-10 rounded-lg overflow-hidden border-2 border-white shadow-sm">
+                                                    <img src={URL.createObjectURL(item.photo)} className="w-full h-full object-cover" />
+                                                </div>
+                                            ) : (
+                                                <div className={`p-2 rounded-xl ${item.status === 'OK' ? 'bg-emerald-100' : 'bg-amber-100'}`}>
+                                                    {item.status === 'OK' ? <CheckCircle2 size={18} /> : <AlertTriangle size={18} />}
+                                                </div>
+                                            )}
                                             <span className="font-bold text-sm uppercase tracking-tight">{item.itemName}</span>
                                         </div>
-                                        <span className="text-[10px] font-black uppercase tracking-widest">
-                                            {item.status === 'OK' ? 'Conforme' : 'Divergência'}
-                                        </span>
+                                        <div className="flex items-center gap-3">
+                                            {item.status === 'PROBLEM' && (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setActiveCameraItem(item.itemName);
+                                                    }}
+                                                    className={`p-2 rounded-lg transition-all ${item.photo ? 'bg-emerald-600 text-white' : 'bg-neutral-200 text-neutral-600'}`}
+                                                >
+                                                    <Camera size={16} />
+                                                </button>
+                                            )}
+                                            <span className="text-[10px] font-black uppercase tracking-widest">
+                                                {item.status === 'OK' ? 'Conforme' : 'Divergência'}
+                                            </span>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
+                        </div>
+                    )}
+
+                    {step === 3 && (
+                        <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
+                            <div className="flex items-center gap-2 text-muted-foreground mb-4">
+                                <PenTool size={16} />
+                                <span className="text-xs font-black uppercase tracking-widest">Formalização e Assinatura</span>
+                            </div>
+
+                            <div
+                                onClick={() => setIsSignatureOpen(true)}
+                                className="border-4 border-dashed border-neutral-200 rounded-3xl p-8 flex flex-col items-center justify-center gap-4 cursor-pointer hover:bg-neutral-50 transition-all min-h-[200px]"
+                            >
+                                {signature ? (
+                                    <img src={URL.createObjectURL(signature)} className="max-h-32 object-contain" />
+                                ) : (
+                                    <>
+                                        <div className="p-4 bg-neutral-100 rounded-full text-neutral-400">
+                                            <PenTool size={32} />
+                                        </div>
+                                        <p className="text-sm font-bold text-neutral-400 uppercase tracking-widest">Clique para assinar</p>
+                                    </>
+                                )}
+                            </div>
+                            <p className="text-center text-[10px] text-muted-foreground uppercase font-medium">
+                                Ao assinar, você confirma que as informações prestadas são verdadeiras e refletem a condição atual do veículo.
+                            </p>
                         </div>
                     )}
                 </div>
@@ -162,9 +249,17 @@ export function FinishJourneyModal({ isOpen, onClose, journey }: FinishJourneyMo
                             Verificar Retorno
                             <ArrowRight size={18} />
                         </button>
+                    ) : step === 2 ? (
+                        <button
+                            onClick={() => setStep(3)}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-emerald-500/20 flex items-center gap-2 transition-all active:scale-95"
+                        >
+                            Próximo: Assinatura
+                            <ArrowRight size={18} />
+                        </button>
                     ) : (
                         <button
-                            disabled={endMutation.isPending}
+                            disabled={endMutation.isPending || !signature}
                             onClick={handleEnd}
                             className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-emerald-500/20 flex items-center gap-2 transition-all active:scale-95"
                         >
@@ -173,6 +268,23 @@ export function FinishJourneyModal({ isOpen, onClose, journey }: FinishJourneyMo
                         </button>
                     )}
                 </div>
+
+                {activeCameraItem && (
+                    <CameraCapture
+                        onCapture={handlePhotoCapture}
+                        onClose={() => setActiveCameraItem(null)}
+                    />
+                )}
+
+                {isSignatureOpen && (
+                    <SignaturePad
+                        onSave={(file) => {
+                            setSignature(file);
+                            setIsSignatureOpen(false);
+                        }}
+                        onCancel={() => setIsSignatureOpen(false)}
+                    />
+                )}
             </GlassCard>
         </div>
     );

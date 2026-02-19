@@ -1,9 +1,74 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { TransactionStatus, TransactionType, PaymentMethod } from '@prisma/client';
 
 @Injectable()
 export class FinanceService {
     constructor(private prisma: PrismaService) { }
+
+    async createTransaction(data: any) {
+        return this.prisma.financialTransaction.create({
+            data: {
+                ...data,
+                dueDate: new Date(data.dueDate),
+                paymentDate: data.paymentDate ? new Date(data.paymentDate) : null
+            }
+        });
+    }
+
+    async createFromSource(source: {
+        organizationId: string,
+        amount: number,
+        description: string,
+        category: string,
+        dueDate: Date,
+        purchaseOrderId?: string,
+        maintenanceId?: string,
+        fuelEntryId?: string,
+        supplierId?: string
+    }) {
+        return this.prisma.financialTransaction.create({
+            data: {
+                ...source,
+                type: 'EXPENSE',
+                status: 'PENDING'
+            }
+        });
+    }
+
+    async getTransactions(organizationId: string, filters: any = {}) {
+        const { status, category, start, end, supplierId } = filters;
+
+        return this.prisma.financialTransaction.findMany({
+            where: {
+                organizationId,
+                ...(status && { status }),
+                ...(category && { category }),
+                ...(start && end && {
+                    dueDate: { gte: new Date(start), lte: new Date(end) }
+                }),
+                ...(supplierId && { supplierId })
+            },
+            include: {
+                supplier: { select: { name: true } },
+                purchaseOrder: { select: { id: true } },
+                maintenance: { select: { type: true } }
+            },
+            orderBy: { dueDate: 'asc' }
+        });
+    }
+
+    async confirmPayment(id: string, paymentData: { paymentDate: Date, paymentMethod: PaymentMethod, attachmentUrl?: string }) {
+        return this.prisma.financialTransaction.update({
+            where: { id },
+            data: {
+                status: 'PAID',
+                paymentDate: new Date(paymentData.paymentDate),
+                paymentMethod: paymentData.paymentMethod,
+                attachmentUrl: paymentData.attachmentUrl
+            }
+        });
+    }
 
     async getOverview(organizationId: string, filters: any = {}) {
         const { start, end, vehicleId } = filters;
@@ -16,61 +81,40 @@ export class FinanceService {
             performedAt: { gte: new Date(start), lte: new Date(end) }
         } : {};
 
-        const fuelExpenses = await this.prisma.fuelEntry.findMany({
-            where: {
-                organizationId,
-                ...fuelDateFilter,
-                ...(vehicleId && { vehicleId })
-            },
-            select: { date: true, totalValue: true, fuelType: true, paymentMethod: true },
-            orderBy: { date: 'desc' },
-        });
+        const transactionsDateFilter = start && end ? {
+            dueDate: { gte: new Date(start), lte: new Date(end) }
+        } : {};
 
-        const maintenanceExpenses = await this.prisma.maintenance.findMany({
-            where: {
-                organizationId,
-                status: 'COMPLETED',
-                ...maintenanceDateFilter,
-                ...(vehicleId && { vehicleId })
-            },
-            select: { performedAt: true, cost: true, type: true },
-            orderBy: { performedAt: 'desc' },
-        });
+        const [fuelExpenses, maintenanceExpenses, financialTransactions] = await Promise.all([
+            this.prisma.fuelEntry.findMany({
+                where: { organizationId, ...fuelDateFilter, ...(vehicleId && { vehicleId }) },
+                select: { date: true, totalValue: true, fuelType: true, paymentMethod: true }
+            }),
+            this.prisma.maintenance.findMany({
+                where: { organizationId, status: 'COMPLETED', ...maintenanceDateFilter, ...(vehicleId && { vehicleId }) },
+                select: { performedAt: true, cost: true, type: true }
+            }),
+            this.prisma.financialTransaction.findMany({
+                where: { organizationId, ...transactionsDateFilter }
+            })
+        ]);
 
-        // Aggregate by month for trends
-        const trendsMap = new Map<string, { month: string; fuel: number; maintenance: number; total: number }>();
-
-        fuelExpenses.forEach((e: any) => {
-            const month = new Date(e.date).toLocaleString('pt-BR', { month: 'short', year: '2-digit' });
-            const current = trendsMap.get(month) || { month, fuel: 0, maintenance: 0, total: 0 };
-            current.fuel += e.totalValue;
-            current.total += e.totalValue;
-            trendsMap.set(month, current);
-        });
-
-        maintenanceExpenses.forEach((m) => {
-            if (!m.performedAt || !m.cost) return;
-            const month = new Date(m.performedAt).toLocaleString('pt-BR', { month: 'short', year: '2-digit' });
-            const current = trendsMap.get(month) || { month, fuel: 0, maintenance: 0, total: 0 };
-            current.maintenance += m.cost;
-            current.total += m.cost;
-            trendsMap.set(month, current);
-        });
-
-        const totalFuel = fuelExpenses.reduce((acc: number, e: any) => acc + e.totalValue, 0);
+        // Aggregate analysis...
+        const totalFuel = fuelExpenses.reduce((acc, e) => acc + e.totalValue, 0);
         const totalMaintenance = maintenanceExpenses.reduce((acc, m) => acc + (m.cost || 0), 0);
+        const totalOther = financialTransactions
+            .filter(t => t.type === 'EXPENSE' && !t.maintenanceId && !t.fuelEntryId)
+            .reduce((acc, t) => acc + t.amount, 0);
 
         return {
             summary: {
                 totalFuel,
                 totalMaintenance,
-                grandTotal: totalFuel + totalMaintenance,
+                totalOther,
+                grandTotal: totalFuel + totalMaintenance + totalOther,
+                pendingPayments: financialTransactions.filter(t => t.status === 'PENDING').length
             },
-            trends: Array.from(trendsMap.values()).slice(-12), // Last 12 months
-            recentExpenses: [
-                ...fuelExpenses.slice(0, 5).map((e: any) => ({ type: 'Combustível', date: e.date, value: e.totalValue, details: e.paymentMethod })),
-                ...maintenanceExpenses.slice(0, 5).map((m: any) => ({ type: 'Manutenção', date: m.performedAt, value: m.cost, details: m.type }))
-            ].sort((a: any, b: any) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime()).slice(0, 10)
+            recentExpenses: financialTransactions.slice(0, 10)
         };
     }
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, Truck, Users, Map, Wrench, LogOut, Menu, X, User as UserIcon, FileText, Package, Fuel, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, Truck, Users, Map, Wrench, LogOut, Menu, X, User as UserIcon, FileText, Package, Fuel, ShieldCheck, ShoppingCart, DollarSign, Disc } from 'lucide-react';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
 
 export function DashboardLayout() {
@@ -16,8 +16,11 @@ export function DashboardLayout() {
         { name: 'Abastecimentos', href: '/fuel', icon: Fuel },
         { name: 'Funcionários', href: '/users', icon: Users },
         { name: 'Estoque', href: '/inventory', icon: Package },
+        { name: 'Compras', href: '/purchasing', icon: ShoppingCart },
+        { name: 'Financeiro', href: '/finance', icon: DollarSign },
         { name: 'Jornadas', href: '/journeys', icon: Map },
         { name: 'Manutenção', href: '/maintenance', icon: Wrench },
+        { name: 'Pneus', href: '/tyres', icon: Disc },
         { name: 'Conformidade', href: '/compliance', icon: ShieldCheck },
         { name: 'Relatórios', href: '/reports', icon: FileText },
     ];

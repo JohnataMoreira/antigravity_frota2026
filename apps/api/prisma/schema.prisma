@@ -70,6 +70,14 @@ enum DocumentType {
   OTHER
 }
 
+enum PurchaseOrderStatus {
+  REQUESTED
+  QUOTING
+  APPROVED
+  COMPLETED
+  CANCELED
+}
+
 enum PaymentMethod {
   CASH
   DEBIT_CARD
@@ -83,6 +91,31 @@ enum PaymentMethod {
   INTERNAL_TANK
 }
 
+enum TransactionType {
+  EXPENSE
+  REVENUE
+}
+
+enum TransactionStatus {
+  PENDING
+  PAID
+  CANCELED
+  OVERDUE
+}
+
+enum AttachmentType {
+  IMAGE
+  SIGNATURE
+  DOCUMENT
+}
+
+enum TyreStatus {
+  STOCK
+  IN_USE
+  RETREADING
+  SCRAP
+}
+
 model Organization {
   id        String   @id @default(uuid())
   name      String
@@ -90,49 +123,54 @@ model Organization {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  users     User[]
-  vehicles  Vehicle[]
-  journeys  Journey[]
-  maintenances Maintenance[]
-  fuelEntries FuelEntry[]
-  incidents Incident[]
-  maintenanceTemplates MaintenanceTemplate[]
-  inventoryItems InventoryItem[]
-  auditLogs AuditLog[]
-  geofences Geofence[]
-  documents Document[]
+  users                 User[]
+  vehicles              Vehicle[]
+  journeys              Journey[]
+  maintenances          Maintenance[]
+  fuelEntries           FuelEntry[]
+  incidents             Incident[]
+  maintenanceTemplates  MaintenanceTemplate[]
+  inventoryItems        InventoryItem[]
+  auditLogs             AuditLog[]
+  geofences             Geofence[]
+  documents             Document[]
+  suppliers             Supplier[]
+  purchaseOrders        PurchaseOrder[]
+  financialTransactions FinancialTransaction[]
+  attachments           Attachment[]
+  tyres                 Tyre[]
 }
 
 model AuditLog {
-  id             String       @id @default(uuid())
+  id             String  @id @default(uuid())
   organizationId String
   userId         String?
-  action         String       // CREATE, UPDATE, DELETE, LOGIN, etc.
-  entity         String       // Vehicle, Journey, User, etc.
-  entityId       String?      // The ID of the affected record
-  
-  // Stored as JSON: { oldValues: any, newValues: any, ip: string, userAgent: string }
-  metadata       Json?
-  
-  createdAt      DateTime     @default(now())
+  action         String // CREATE, UPDATE, DELETE, LOGIN, etc.
+  entity         String // Vehicle, Journey, User, etc.
+  entityId       String? // The ID of the affected record
 
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  // Stored as JSON: { oldValues: any, newValues: any, ip: string, userAgent: string }
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
 }
 
 model User {
-  id             String       @id @default(uuid())
+  id             String    @id @default(uuid())
   organizationId String
-  email          String       @unique
+  email          String    @unique
   passwordHash   String
-  role           Role         @default(DRIVER)
+  role           Role      @default(DRIVER)
   name           String
   firstName      String?
   lastName       String?
   phone          String?
-  cpf            String?      @unique
+  cpf            String?   @unique
   birthDate      DateTime?
   entryDate      DateTime?
-  
+
   // Address fields
   addressStreet       String?
   addressNumber       String?
@@ -142,43 +180,47 @@ model User {
   addressState        String?
   addressZipCode      String?
 
-  licenseNumber  String?
-  pushToken      String?      // Token for Expo/FCM push notifications
-  active         Boolean      @default(true)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  licenseNumber String?
+  pushToken     String? // Token for Expo/FCM push notifications
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  journeys       Journey[]    @relation("DriverJourneys")
-  fuelEntries    FuelEntry[]
-  incidents      Incident[]
-  documents      Document[]
+  organization    Organization    @relation(fields: [organizationId], references: [id])
+  journeys        Journey[]       @relation("DriverJourneys")
+  fuelEntries     FuelEntry[]
+  incidents       Incident[]
+  documents       Document[]
+  requestedOrders PurchaseOrder[] @relation("RequestedOrders")
+  approvedOrders  PurchaseOrder[] @relation("ApprovedOrders")
 }
 
 model Vehicle {
-  id             String        @id @default(uuid())
-  organizationId String
-  plate          String
-  model          String
-  brand          String?
-  year           Int?
-  type           VehicleType
-  currentKm      Int
-  status         VehicleStatus @default(AVAILABLE)
-  fuelLevel      Float         @default(100)
-  photoUrl       String?
+  id                  String        @id @default(uuid())
+  organizationId      String
+  plate               String
+  model               String
+  brand               String?
+  year                Int?
+  type                VehicleType
+  currentKm           Int
+  status              VehicleStatus @default(AVAILABLE)
+  fuelLevel           Float         @default(100)
+  photoUrl            String?
   lastMaintenanceKm   Int?
   lastMaintenanceDate DateTime?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
 
-  organization   Organization  @relation(fields: [organizationId], references: [id])
-  journeys       Journey[]
-  maintenances   Maintenance[]
-  fuelEntries    FuelEntry[]
-  incidents      Incident[]
+  organization     Organization      @relation(fields: [organizationId], references: [id])
+  journeys         Journey[]
+  maintenances     Maintenance[]
+  fuelEntries      FuelEntry[]
+  incidents        Incident[]
   telemetryRecords TelemetryRecord[]
-  documents      Document[]
+  documents        Document[]
+  tyres            Tyre[]
+  tyreMovements    TyreMovement[]
 
   @@unique([organizationId, plate])
   @@index([organizationId, status])
@@ -190,30 +232,34 @@ model Journey {
   driverId       String
   vehicleId      String
   status         JourneyStatus @default(IN_PROGRESS)
-  
-  startKm        Int
-  endKm          Int?
-  
-  startTime      DateTime      @default(now())
-  endTime        DateTime?
-  
+
+  startKm Int
+  endKm   Int?
+
+  startTime DateTime  @default(now())
+  endTime   DateTime?
+
   // Stored as JSON: { lat: number, lng: number, address?: string }
-  startLocation  Json?
-  endLocation    Json?
+  startLocation Json?
+  endLocation   Json?
 
   // Route Optimization (v2.7)
-  plannedRoute     Json?     // Array of lat/lng: [[lat, lng], ...]
-  allowedDeviation Float     @default(500) // in meters
-  isDeviated       Boolean   @default(false)
+  plannedRoute     Json? // Array of lat/lng: [[lat, lng], ...]
+  allowedDeviation Float   @default(500) // in meters
+  isDeviated       Boolean @default(false)
   destinationName  String?
 
-  incidents      Incident[]
-  checklists     Checklist[]
-  fuelEntries    FuelEntry[]
+  incidents   Incident[]
+  checklists  Checklist[]
+  fuelEntries FuelEntry[]
+  attachments Attachment[]
 
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  driver         User         @relation("DriverJourneys", fields: [driverId], references: [id])
-  vehicle        Vehicle      @relation(fields: [vehicleId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  driver       User         @relation("DriverJourneys", fields: [driverId], references: [id])
+  vehicle      Vehicle      @relation(fields: [vehicleId], references: [id])
 
   @@index([organizationId, status])
   @@index([driverId])
@@ -225,199 +271,394 @@ model Geofence {
   id             String   @id @default(uuid())
   organizationId String
   name           String
-  type           String   // CIRCLE, POLYGON
-  coordinates    Json     // CIRCLE: { center: [lat, lng], radius: number }, POLYGON: [[lat, lng], ...]
+  type           String // CIRCLE, POLYGON
+  coordinates    Json // CIRCLE: { center: [lat, lng], radius: number }, POLYGON: [[lat, lng], ...]
   isActive       Boolean  @default(true)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 }
 
 model Checklist {
   id        String        @id @default(uuid())
   journeyId String
   type      ChecklistType
-  
+
   // Stored as JSON array: [{ itemId: string, status: "OK" | "ISSUE", notes?: string, photoUrl?: string }]
-  items     Json
+  items Json
 
   // New field for Scorecard
-  rating         Int?         // 1 to 5 stars (Quality of inspection)
-  
-  createdAt DateTime      @default(now())
+  rating Int? // 1 to 5 stars (Quality of inspection)
 
-  journey   Journey       @relation(fields: [journeyId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  journey Journey @relation(fields: [journeyId], references: [id])
+  attachments Attachment[]
 }
 
 model Maintenance {
-  id             String            @id @default(uuid())
+  id             String @id @default(uuid())
   organizationId String
   vehicleId      String
 
-  type           MaintenanceType
-  lastKm         Int               @default(0)
-  nextDueKm      Int
+  type      MaintenanceType
+  lastKm    Int             @default(0)
+  nextDueKm Int
 
-  status         MaintenanceStatus @default(PENDING)
-  performedAt    DateTime?
-  
-  notes          String?
-  cost           Float?
+  status      MaintenanceStatus @default(PENDING)
+  performedAt DateTime?
 
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+  notes String?
+  cost  Float?
 
-  organization   Organization      @relation(fields: [organizationId], references: [id])
-  vehicle        Vehicle           @relation(fields: [vehicleId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization          Organization           @relation(fields: [organizationId], references: [id])
+  vehicle               Vehicle                @relation(fields: [vehicleId], references: [id])
+  financialTransactions FinancialTransaction[]
 }
 
 model FuelEntry {
-  id             String       @id @default(uuid())
+  id             String  @id @default(uuid())
   organizationId String
   vehicleId      String
   driverId       String
   journeyId      String?
-  
-  date           DateTime     @default(now())
-  km             Int
-  liters         Float
-  totalValue     Float
-  pricePerLiter  Float
-  fuelType       FuelType     @default(GASOLINE)
-  
-  paymentMethod  PaymentMethod @default(CASH)
-  paymentProvider String?     // Ex: Ticket Log, Ipiranga Max Frota
-  paymentReference String?    // Ultimos digitos do cartão ou número da fatura
-  
-  photoUrl       String?      // Foto da nota fiscal
-  notes          String?
-  
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
 
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  vehicle        Vehicle      @relation(fields: [vehicleId], references: [id])
-  driver         User         @relation(fields: [driverId], references: [id])
-  journey        Journey?     @relation(fields: [journeyId], references: [id])
+  date          DateTime @default(now())
+  km            Int
+  liters        Float
+  totalValue    Float
+  pricePerLiter Float
+  fuelType      FuelType @default(GASOLINE)
+
+  paymentMethod    PaymentMethod @default(CASH)
+  paymentProvider  String? // Ex: Ticket Log, Ipiranga Max Frota
+  paymentReference String? // Ultimos digitos do cartão ou número da fatura
+
+  photoUrl String? // Foto da nota fiscal
+  notes    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization          Organization           @relation(fields: [organizationId], references: [id])
+  vehicle               Vehicle                @relation(fields: [vehicleId], references: [id])
+  driver                User                   @relation(fields: [driverId], references: [id])
+  journey               Journey?               @relation(fields: [journeyId], references: [id])
+  financialTransactions FinancialTransaction[]
 }
+
 model Incident {
-  id             String       @id @default(uuid())
+  id             String  @id @default(uuid())
   organizationId String
   journeyId      String?
   driverId       String
   vehicleId      String
 
-  description    String
-  severity       String       @default("MEDIUM") // LOW, MEDIUM, HIGH
-  status         String       @default("OPEN")   // OPEN, RESOLVED
-  photoUrl       String?
-  location       Json?        // { lat: number, lng: number }
-  
+  description String
+  severity    String  @default("MEDIUM") // LOW, MEDIUM, HIGH
+  status      String  @default("OPEN") // OPEN, RESOLVED
+  photoUrl    String?
+  location    Json? // { lat: number, lng: number }
+
   // New field for Scorecard
-  isDriverAtFault Boolean     @default(false)
+  isDriverAtFault Boolean @default(false)
 
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  journey        Journey?     @relation(fields: [journeyId], references: [id])
-  driver         User         @relation(fields: [driverId], references: [id])
-  vehicle        Vehicle      @relation(fields: [vehicleId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+  journey      Journey?     @relation(fields: [journeyId], references: [id])
+  driver       User         @relation(fields: [driverId], references: [id])
+  vehicle      Vehicle      @relation(fields: [vehicleId], references: [id])
+  attachments  Attachment[]
 }
 
 model MaintenanceTemplate {
-  id             String       @id @default(uuid())
-  organizationId String
-  name           String
-  description    String?
-  type           String       // PREVENTIVE, CORRECTIVE
-  vehicleTypes   VehicleType[]
-  intervalKm     Int          @default(10000)
-  averageDurationDays Int     @default(1)
-  
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  id                  String        @id @default(uuid())
+  organizationId      String
+  name                String
+  description         String?
+  type                String // PREVENTIVE, CORRECTIVE
+  vehicleTypes        VehicleType[]
+  intervalKm          Int           @default(10000)
+  averageDurationDays Int           @default(1)
 
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
 }
 
 model InventoryItem {
-  id             String       @id @default(uuid())
-  organizationId String
-  name           String
-  sku            String?
-  category       String       // Filtros, Pneus, Lubrificantes, etc.
-  unit           String       @default("UN") // UN, L, KG
-  minQuantity    Float        @default(0)
-  currentQuantity Float       @default(0)
-  price          Float?       // Último preço de compra
-  
-  movements      StockMovement[]
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  id              String  @id @default(uuid())
+  organizationId  String
+  name            String
+  sku             String?
+  category        String // Filtros, Pneus, Lubrificantes, etc.
+  unit            String  @default("UN") // UN, L, KG
+  minQuantity     Float   @default(0)
+  currentQuantity Float   @default(0)
+  price           Float? // Último preço de compra
 
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  movements          StockMovement[]
+  purchaseOrderItems PurchaseOrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
 }
 
 model StockMovement {
-  id             String       @id @default(uuid())
+  id              String  @id @default(uuid())
   inventoryItemId String
-  type           String       // IN, OUT
-  quantity       Float
-  reason         String       // PURCHASE, MAINTENANCE, ADJUSTMENT
-  notes          String?
-  maintenanceId  String?
-  
-  createdAt      DateTime     @default(now())
+  type            String // IN, OUT
+  quantity        Float
+  reason          String // PURCHASE, MAINTENANCE, ADJUSTMENT
+  notes           String?
+  maintenanceId   String?
 
-  item           InventoryItem @relation(fields: [inventoryItemId], references: [id])
+  createdAt DateTime @default(now())
+
+  item InventoryItem @relation(fields: [inventoryItemId], references: [id])
 }
 
 model TelemetryRecord {
-  id             String   @id @default(uuid())
-  vehicleId      String
-  
+  id        String @id @default(uuid())
+  vehicleId String
+
   // Dados OBD / GPS
-  timestamp      DateTime @default(now())
-  latitude       Float?
-  longitude      Float?
-  speed          Float?
-  odometer       Float?   // KM total
-  fuelLevel      Float?   // Percentual (0-100)
-  rpm            Int?
-  voltage        Float?
-  engineStatus   Boolean  @default(false) // ON/OFF
-  
-  vehicle        Vehicle  @relation(fields: [vehicleId], references: [id])
+  timestamp    DateTime @default(now())
+  latitude     Float?
+  longitude    Float?
+  speed        Float?
+  odometer     Float? // KM total
+  fuelLevel    Float? // Percentual (0-100)
+  rpm          Int?
+  voltage      Float?
+  engineStatus Boolean  @default(false) // ON/OFF
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
 
   @@index([vehicleId, timestamp])
 }
 
 model Document {
-  id             String       @id @default(uuid())
+  id             String  @id @default(uuid())
   organizationId String
-  userId         String?      // Link to Driver/User
-  vehicleId      String?      // Link to Vehicle
-  
-  type           DocumentType
-  name           String       // Friendly name
-  number         String?      // Doc number
-  
-  issueDate      DateTime?
-  expiryDate     DateTime?
-  
-  fileUrl        String
-  fileType       String?      // pdf, png, etc.
-  
-  metadata       Json?
-  
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  userId         String? // Link to Driver/User
+  vehicleId      String? // Link to Vehicle
 
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  user           User?        @relation(fields: [userId], references: [id])
-  vehicle        Vehicle?     @relation(fields: [vehicleId], references: [id])
+  type   DocumentType
+  name   String // Friendly name
+  number String? // Doc number
+
+  issueDate  DateTime?
+  expiryDate DateTime?
+
+  fileUrl  String
+  fileType String? // pdf, png, etc.
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  user         User?        @relation(fields: [userId], references: [id])
+  vehicle      Vehicle?     @relation(fields: [vehicleId], references: [id])
 
   @@index([organizationId, expiryDate])
+}
+
+model Supplier {
+  id             String  @id @default(uuid())
+  organizationId String
+  name           String
+  document       String?
+  category       String?
+  email          String?
+  phone          String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders               PurchaseOrder[]
+  organization         Organization           @relation(fields: [organizationId], references: [id])
+  financialTransactions FinancialTransaction[]
+}
+
+model PurchaseOrder {
+  id             String  @id @default(uuid())
+  organizationId String
+  supplierId     String?
+  requesterId    String
+  approverId     String?
+
+  status     PurchaseOrderStatus @default(REQUESTED)
+  totalValue Float?
+  notes      String?
+
+  items PurchaseOrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization          Organization           @relation(fields: [organizationId], references: [id])
+  supplier              Supplier?              @relation(fields: [supplierId], references: [id])
+  requester             User                   @relation("RequestedOrders", fields: [requesterId], references: [id])
+  approver              User?                  @relation("ApprovedOrders", fields: [approverId], references: [id])
+  financialTransactions FinancialTransaction[]
+}
+
+model PurchaseOrderItem {
+  id              String  @id @default(uuid())
+  purchaseOrderId String
+  inventoryItemId String?
+  description     String
+  quantity        Float
+  unitPrice       Float?
+
+  order         PurchaseOrder  @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  inventoryItem InventoryItem? @relation(fields: [inventoryItemId], references: [id])
+}
+
+model FinancialTransaction {
+  id             String @id @default(uuid())
+  organizationId String
+
+  description String
+  amount      Float
+  type        TransactionType   @default(EXPENSE)
+  status      TransactionStatus @default(PENDING)
+  category    String // FUEL, MAINTENANCE, PURCHASE, TAX, SALARY, OTHER
+
+  dueDate       DateTime
+  paymentDate   DateTime?
+  paymentMethod PaymentMethod?
+
+  // Link to source entities
+  purchaseOrderId String?
+  maintenanceId   String?
+  fuelEntryId     String?
+  supplierId      String?
+
+  notes         String?
+  attachmentUrl String? // Comprovante de pagamento
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization  Organization   @relation(fields: [organizationId], references: [id])
+  purchaseOrder PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id])
+  maintenance   Maintenance?   @relation(fields: [maintenanceId], references: [id])
+  fuelEntry     FuelEntry?     @relation(fields: [fuelEntryId], references: [id])
+  supplier      Supplier?      @relation(fields: [supplierId], references: [id])
+
+  @@index([organizationId, status])
+  @@index([organizationId, dueDate])
+}
+
+model Attachment {
+  id             String         @id @default(uuid())
+  organizationId String
+  checklistId    String?
+  incidentId     String?
+  journeyId      String? // For signatures linked to journeys
+
+  url          String
+  type         AttachmentType @default(IMAGE)
+  mimeType     String?
+  originalName String?
+  size         Int? // in bytes
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  checklist    Checklist?   @relation(fields: [checklistId], references: [id])
+  incident     Incident?    @relation(fields: [incidentId], references: [id])
+  journey      Journey?     @relation(fields: [journeyId], references: [id])
+
+  @@index([organizationId])
+  @@index([checklistId])
+  @@index([incidentId])
+  @@index([journeyId])
+}
+
+model Tyre {
+  id             String     @id @default(uuid())
+  organizationId String
+  vehicleId      String? // Null if in stock
+  
+  identifier     String // ID do Pneu / Nº de Fogo
+  brand          String
+  model          String
+  size           String // Ex: 295/80 R22.5
+  dot            String? // Date of manufacture
+  
+  status         TyreStatus @default(STOCK)
+  currentKm      Int        @default(0) // KM total rodado pelo pneu
+  initialCost    Float?     @default(0)
+  
+  // Position Info
+  axle           Int? // Eixo (1, 2, 3...)
+  position       String? // L (Esquerda), R (Direita), LI (Esquerda Interna), etc.
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization      @relation(fields: [organizationId], references: [id])
+  vehicle      Vehicle?          @relation(fields: [vehicleId], references: [id])
+  movements    TyreMovement[]
+  measurements TyreMeasurement[]
+
+  @@unique([organizationId, identifier])
+  @@index([organizationId])
+  @@index([vehicleId])
+}
+
+model TyreMovement {
+  id             String   @id @default(uuid())
+  organizationId String
+  tyreId         String
+  vehicleId      String?
+  
+  type           String // INSTALL, REMOVE, ROTATION, RETREAD, SCRAP
+  km             Int // KM do veículo no momento da movimentação
+  tyreKm         Int // KM acumulado do pneu no momento
+  
+  axle           Int?
+  position       String?
+  notes          String?
+
+  createdAt DateTime @default(now())
+
+  tyre    Tyre     @relation(fields: [tyreId], references: [id])
+  vehicle Vehicle? @relation(fields: [vehicleId], references: [id])
+
+  @@index([tyreId])
+  @@index([vehicleId])
+}
+
+model TyreMeasurement {
+  id             String   @id @default(uuid())
+  organizationId String
+  tyreId         String
+  
+  treadDepth     Float // Profundidade do sulco em mm
+  pressure       Float? // Pressão em PSI/Bar
+  km             Int // KM do pneu no momento da aferição
+  
+  measuredAt     DateTime @default(now())
+  measuredById   String?
+
+  tyre Tyre @relation(fields: [tyreId], references: [id])
+
+  @@index([tyreId])
 }
