@@ -323,7 +323,7 @@ export function MaintenanceList() {
                                                         </div>
                                                     ) : (
                                                         <div className="flex flex-col items-end">
-                                                            <span className="font-bold text-orange-600">{formatKm(maintenance.nextDueKm)}</span>
+                                                            <span className="font-bold text-orange-600 dark:text-orange-400">{formatKm(maintenance.nextDueKm)}</span>
                                                             <span className="text-[10px]">PREVISTA</span>
                                                         </div>
                                                     )}
@@ -336,7 +336,7 @@ export function MaintenanceList() {
                                                                 setCompleteData(prev => ({ ...prev, lastKm: maintenance.vehicle?.currentKm || 0 }));
                                                                 setIsCompleteModalOpen(true);
                                                             }}
-                                                            className="text-primary hover:underline font-bold"
+                                                            className="text-primary dark:text-blue-400 hover:underline font-bold"
                                                         >
                                                             Concluir
                                                         </button>

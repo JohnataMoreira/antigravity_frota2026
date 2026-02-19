@@ -126,8 +126,8 @@ export default function DashboardHome() {
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 {/* Live Map Placeholder */}
                 <Card variant="glass" className="xl:col-span-2">
-                    <div className="h-96 bg-neutral-100 rounded-lg flex items-center justify-center">
-                        <div className="text-center text-neutral-500">
+                    <div className="h-96 bg-neutral-100 dark:bg-neutral-800/50 rounded-lg flex items-center justify-center">
+                        <div className="text-center text-neutral-500 dark:text-neutral-400">
                             <MapPin className="h-12 w-12 mx-auto mb-4 opacity-50" />
                             <p className="font-medium">Mapa em Tempo Real</p>
                             <p className="text-sm mt-1">
@@ -144,9 +144,9 @@ export default function DashboardHome() {
                     {loading ? (
                         <Card variant="glass">
                             <div className="animate-pulse space-y-3">
-                                <div className="h-4 bg-neutral-200 rounded w-3/4" />
-                                <div className="h-3 bg-neutral-200 rounded w-full" />
-                                <div className="h-3 bg-neutral-200 rounded w-5/6" />
+                                <div className="h-4 bg-neutral-200 dark:bg-neutral-800 rounded w-3/4" />
+                                <div className="h-3 bg-neutral-200 dark:bg-neutral-800 rounded w-full" />
+                                <div className="h-3 bg-neutral-200 dark:bg-neutral-800 rounded w-5/6" />
                             </div>
                         </Card>
                     ) : (
@@ -179,10 +179,10 @@ export default function DashboardHome() {
             {/* Quick Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Card variant="glass">
-                    <h4 className="text-sm font-medium text-neutral-600 mb-2">
+                    <h4 className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-2">
                         Veículos Disponíveis
                     </h4>
-                    <p className="text-3xl font-bold text-primary-900">
+                    <p className="text-3xl font-bold text-primary-900 dark:text-primary-100">
                         {stats?.vehiclesAvailable || 0}
                         <span className="text-lg text-neutral-500">
                             /{stats?.totalVehicles || 0}
@@ -191,19 +191,19 @@ export default function DashboardHome() {
                 </Card>
 
                 <Card variant="glass">
-                    <h4 className="text-sm font-medium text-neutral-600 mb-2">
+                    <h4 className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-2">
                         Eficiência Média
                     </h4>
-                    <p className="text-3xl font-bold text-primary-900">
-                        12.5 <span className="text-lg text-neutral-500">km/L</span>
+                    <p className="text-3xl font-bold text-primary-900 dark:text-primary-100">
+                        12.5 <span className="text-lg text-neutral-500 dark:text-neutral-400">km/L</span>
                     </p>
                 </Card>
 
                 <Card variant="glass">
-                    <h4 className="text-sm font-medium text-neutral-600 mb-2">
+                    <h4 className="text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-2">
                         Tempo Médio de Jornada
                     </h4>
-                    <p className="text-3xl font-bold text-primary-900">
+                    <p className="text-3xl font-bold text-primary-900 dark:text-primary-100">
                         2h 34min
                     </p>
                 </Card>

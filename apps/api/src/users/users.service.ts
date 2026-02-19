@@ -32,6 +32,7 @@ export class UsersService {
                 addressCity: dto.addressCity,
                 addressState: dto.addressState,
                 addressZipCode: dto.addressZipCode,
+                avatarUrl: dto.avatarUrl,
             } as any, // organizationId is injected by Prisma Extension
             select: {
                 id: true,
@@ -73,6 +74,7 @@ export class UsersService {
                 cpf: true,
                 birthDate: true,
                 entryDate: true,
+                avatarUrl: true,
                 active: true,
                 createdAt: true,
             },
@@ -101,6 +103,7 @@ export class UsersService {
                 addressCity: true,
                 addressState: true,
                 addressZipCode: true,
+                avatarUrl: true,
                 createdAt: true,
             },
         });
@@ -128,6 +131,7 @@ export class UsersService {
             addressCity: dto.addressCity,
             addressState: dto.addressState,
             addressZipCode: dto.addressZipCode,
+            avatarUrl: dto.avatarUrl,
         };
 
         if (dto.birthDate) data.birthDate = new Date(dto.birthDate);

@@ -62,4 +62,8 @@ export class UpdateUserDto {
     @IsOptional()
     @IsString()
     addressZipCode?: string;
+
+    @IsOptional()
+    @IsString()
+    avatarUrl?: string;
 }

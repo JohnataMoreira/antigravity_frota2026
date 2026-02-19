@@ -30,24 +30,24 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
     ) => {
         const variants = {
             info: {
-                container: 'bg-accent-50 border-accent-200 text-accent-900',
-                icon: 'text-accent-600',
-                title: 'text-accent-900',
+                container: 'bg-accent-50 dark:bg-accent-900/20 border-accent-200 dark:border-accent-800 text-accent-900 dark:text-accent-100',
+                icon: 'text-accent-600 dark:text-accent-400',
+                title: 'text-accent-900 dark:text-accent-100',
             },
             success: {
-                container: 'bg-success-50 border-success-200 text-success-900',
-                icon: 'text-success-600',
-                title: 'text-success-900',
+                container: 'bg-success-50 dark:bg-success-900/20 border-success-200 dark:border-success-800 text-success-900 dark:text-success-100',
+                icon: 'text-success-600 dark:text-success-400',
+                title: 'text-success-900 dark:text-success-100',
             },
             warning: {
-                container: 'bg-warning-50 border-warning-200 text-warning-900',
-                icon: 'text-warning-600',
-                title: 'text-warning-900',
+                container: 'bg-warning-50 dark:bg-warning-900/20 border-warning-200 dark:border-warning-800 text-warning-900 dark:text-warning-100',
+                icon: 'text-warning-600 dark:text-warning-400',
+                title: 'text-warning-900 dark:text-warning-100',
             },
             danger: {
-                container: 'bg-danger-50 border-danger-200 text-danger-900',
-                icon: 'text-danger-600',
-                title: 'text-danger-900',
+                container: 'bg-danger-50 dark:bg-danger-900/20 border-danger-200 dark:border-danger-800 text-danger-900 dark:text-danger-100',
+                icon: 'text-danger-600 dark:text-danger-400',
+                title: 'text-danger-900 dark:text-danger-100',
             },
         };
 

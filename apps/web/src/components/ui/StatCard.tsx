@@ -37,29 +37,29 @@ export const StatCard: React.FC<StatCardProps> = ({
 }) => {
     const variantColors = {
         default: {
-            bg: 'bg-neutral-50',
-            text: 'text-neutral-600',
-            icon: 'text-neutral-500',
+            bg: 'bg-neutral-50 dark:bg-neutral-800/50',
+            text: 'text-neutral-600 dark:text-neutral-300',
+            icon: 'text-neutral-500 dark:text-neutral-400',
         },
         success: {
-            bg: 'bg-success-50',
-            text: 'text-success-600',
-            icon: 'text-success-500',
+            bg: 'bg-success-50 dark:bg-success-900/20',
+            text: 'text-success-600 dark:text-success-400',
+            icon: 'text-success-500 dark:text-success-400',
         },
         warning: {
-            bg: 'bg-warning-50',
-            text: 'text-warning-600',
-            icon: 'text-warning-500',
+            bg: 'bg-warning-50 dark:bg-warning-900/20',
+            text: 'text-warning-600 dark:text-warning-400',
+            icon: 'text-warning-500 dark:text-warning-400',
         },
         danger: {
-            bg: 'bg-danger-50',
-            text: 'text-danger-600',
-            icon: 'text-danger-500',
+            bg: 'bg-danger-50 dark:bg-danger-900/20',
+            text: 'text-danger-600 dark:text-danger-400',
+            icon: 'text-danger-500 dark:text-danger-400',
         },
         info: {
-            bg: 'bg-accent-50',
-            text: 'text-accent-600',
-            icon: 'text-accent-500',
+            bg: 'bg-accent-50 dark:bg-accent-900/20',
+            text: 'text-accent-600 dark:text-accent-400',
+            icon: 'text-accent-500 dark:text-accent-400',
         },
     };
 

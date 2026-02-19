@@ -86,7 +86,7 @@ export default function FinancePage() {
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-4xl font-black tracking-tight flex items-center gap-3">
-                        <div className="p-2 bg-emerald-500 rounded-2xl text-white shadow-lg shadow-emerald-500/20">
+                        <div className="p-2 bg-emerald-500 dark:bg-emerald-600 rounded-2xl text-white shadow-lg shadow-emerald-500/20 dark:shadow-emerald-600/20">
                             <DollarSign size={32} />
                         </div>
                         Financeiro
@@ -97,7 +97,7 @@ export default function FinancePage() {
                     <Button variant="outline" className="gap-2">
                         <Download size={18} /> Exportar
                     </Button>
-                    <Button className="gap-2 bg-emerald-600 hover:bg-emerald-700">
+                    <Button className="gap-2 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600">
                         <Plus size={18} /> Novo Lançamento
                     </Button>
                 </div>
@@ -143,7 +143,7 @@ export default function FinancePage() {
                                 onClick={() => setFilter(s)}
                                 className={clsx(
                                     "px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all",
-                                    filter === s ? "bg-white dark:bg-gray-800 shadow-sm text-emerald-600" : "text-gray-500 hover:bg-gray-200/50"
+                                    filter === s ? "bg-white dark:bg-gray-800 shadow-sm text-emerald-600 dark:text-emerald-400" : "text-gray-500 hover:bg-gray-200/50"
                                 )}
                             >
                                 {s === 'ALL' ? 'Todos' : s === 'PENDING' ? 'Pendentes' : s === 'PAID' ? 'Pagos' : 'Atrasados'}
@@ -205,7 +205,7 @@ export default function FinancePage() {
                                 <div className="flex items-center justify-between md:justify-end gap-8">
                                     <div className="text-right">
                                         <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-1">Valor</p>
-                                        <p className="text-2xl font-black tracking-tight text-emerald-600">{formatCurrency(t.amount)}</p>
+                                        <p className="text-2xl font-black tracking-tight text-emerald-600 dark:text-emerald-400">{formatCurrency(t.amount)}</p>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         {t.status === 'PENDING' && (

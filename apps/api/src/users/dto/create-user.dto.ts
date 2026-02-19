@@ -63,4 +63,8 @@ export class CreateUserDto {
     @IsOptional()
     @IsString()
     addressZipCode?: string;
+
+    @IsOptional()
+    @IsString()
+    avatarUrl?: string;
 }

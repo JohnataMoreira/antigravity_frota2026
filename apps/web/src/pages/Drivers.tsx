@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { usersApi } from '../services/users';
-import { Users, Plus, Trash2, Edit2, UserPlus, Search, Phone, Calendar, MapPin, SearchCheck, LayoutGrid, List as ListIcon } from 'lucide-react';
+import { Users, Plus, Trash2, Edit2, UserPlus, Search, Phone, Calendar, MapPin, SearchCheck, LayoutGrid, List as ListIcon, Camera, Upload } from 'lucide-react';
 import { GlassCard } from '../components/ui/Cards';
+import { CameraCapture } from '../components/ui/CameraCapture';
+import { api } from '../lib/axios';
 
 interface User {
     id: string;
@@ -20,6 +22,7 @@ interface User {
     addressCity?: string;
     addressState?: string;
     addressZipCode?: string;
+    avatarUrl?: string;
     active: boolean;
     createdAt: string;
 }
@@ -48,7 +51,11 @@ export function Drivers() {
         addressCity: '',
         addressState: '',
         addressZipCode: '',
+        avatarUrl: '',
     });
+
+    const [tempAvatar, setTempAvatar] = useState<File | null>(null);
+    const [isCameraOpen, setIsCameraOpen] = useState(false);
 
     const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
@@ -95,7 +102,20 @@ export function Drivers() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const payload = { ...formData };
+            let avatarUrl = formData.avatarUrl;
+
+            // If there's a new photo, upload it first
+            if (tempAvatar) {
+                const uploadData = new FormData();
+                uploadData.append('file', tempAvatar);
+                uploadData.append('type', 'IMAGE');
+                const uploadRes = await api.post('/attachments/upload', uploadData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                avatarUrl = uploadRes.data.url;
+            }
+
+            const payload = { ...formData, avatarUrl };
             if (editingUser) {
                 await usersApi.updateUser(editingUser.id, payload as any);
             } else {
@@ -141,7 +161,9 @@ export function Drivers() {
             addressCity: user.addressCity || '',
             addressState: user.addressState || '',
             addressZipCode: user.addressZipCode || '',
+            avatarUrl: user.avatarUrl || '',
         });
+        setTempAvatar(null);
         setIsModalOpen(true);
     };
 
@@ -163,7 +185,9 @@ export function Drivers() {
             addressCity: '',
             addressState: '',
             addressZipCode: '',
+            avatarUrl: '',
         });
+        setTempAvatar(null);
         setEditingUser(null);
     };
 
@@ -251,12 +275,16 @@ export function Drivers() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                                {users.map((user) => (
+                                {users.map((user: User) => (
                                     <tr key={user.id} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-all">
                                         <td className="py-5 px-6">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/10 group-hover:scale-110 transition-transform">
-                                                    <Users className="w-6 h-6" />
+                                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/10 group-hover:scale-110 transition-transform overflow-hidden">
+                                                    {user.avatarUrl ? (
+                                                        <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <Users className="w-6 h-6" />
+                                                    )}
                                                 </div>
                                                 <div>
                                                     <div className="font-bold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors uppercase tracking-tight">{user.name}</div>
@@ -308,7 +336,7 @@ export function Drivers() {
                 </GlassCard>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {users.map((user) => (
+                    {users.map((user: User) => (
                         <GlassCard key={user.id} transition={true} className="relative group">
                             <div className="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <button onClick={() => openEditModal(user)} className="p-2 bg-white dark:bg-gray-800 shadow-xl rounded-full text-blue-600 hover:scale-110 active:scale-95 transition-all">
@@ -319,15 +347,21 @@ export function Drivers() {
                                 </button>
                             </div>
 
-                            <div className="flex flex-col items-center text-center mb-6">
-                                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shadow-2xl shadow-blue-500/30 mb-4 group-hover:scale-105 transition-transform">
-                                    <Users className="w-10 h-10" />
+                            <div className="flex items-start justify-between mb-6">
+                                <div className="flex-1 text-left">
+                                    <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight break-words">{user.name}</h3>
+                                    <p className="text-[10px] text-muted-foreground mt-1 mb-3 truncate">{user.email}</p>
+                                    <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400'}`}>
+                                        {user.role === 'ADMIN' ? 'Admin' : 'Condutor'}
+                                    </span>
                                 </div>
-                                <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">{user.name}</h3>
-                                <p className="text-xs text-muted-foreground mt-1 mb-4">{user.email}</p>
-                                <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'}`}>
-                                    {user.role === 'ADMIN' ? 'Administrador' : 'Motorista'}
-                                </span>
+                                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-xl shadow-blue-500/20 group-hover:rotate-3 transition-transform overflow-hidden ml-3 shrink-0">
+                                    {user.avatarUrl ? (
+                                        <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <Users className="w-8 h-8 opacity-40" />
+                                    )}
+                                </div>
                             </div>
 
                             <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
@@ -377,8 +411,57 @@ export function Drivers() {
                                 {/* Seção 1: Dados Pessoais */}
                                 <div className="space-y-6">
                                     <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                                        <Users size={14} /> Dados Profissionais
+                                        <Users size={14} /> Dados Profissionais e Foto
                                     </h3>
+
+                                    <div className="flex items-center gap-6 p-4 bg-gray-50/50 rounded-3xl border border-gray-100 mb-4">
+                                        <div className="w-24 h-24 rounded-2xl bg-white shadow-md overflow-hidden flex items-center justify-center group relative border-2 border-dashed border-gray-200">
+                                            {tempAvatar || formData.avatarUrl ? (
+                                                <img
+                                                    src={tempAvatar ? URL.createObjectURL(tempAvatar) : formData.avatarUrl}
+                                                    className="w-full h-full object-cover"
+                                                    alt="Avatar Preview"
+                                                />
+                                            ) : (
+                                                <Users className="w-10 h-10 text-gray-200" />
+                                            )}
+                                            {(tempAvatar || formData.avatarUrl) && (
+                                                <div
+                                                    className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                                                    onClick={() => {
+                                                        setTempAvatar(null);
+                                                        setFormData(prev => ({ ...prev, avatarUrl: '' }));
+                                                    }}
+                                                >
+                                                    <Trash2 className="text-white w-6 h-6" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="flex-1 space-y-2">
+                                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Foto de Perfil</p>
+                                            <div className="flex gap-2">
+                                                <label className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-50 text-blue-600 rounded-xl font-bold text-xs cursor-pointer hover:bg-blue-100 transition-all border border-blue-100">
+                                                    <Upload size={14} /> Upload
+                                                    <input
+                                                        type="file"
+                                                        className="hidden"
+                                                        accept="image/*"
+                                                        onChange={(e) => {
+                                                            const file = e.target.files?.[0];
+                                                            if (file) setTempAvatar(file);
+                                                        }}
+                                                    />
+                                                </label>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setIsCameraOpen(true)}
+                                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-purple-50 text-purple-600 rounded-xl font-bold text-xs hover:bg-purple-100 transition-all border border-purple-100"
+                                                >
+                                                    <Camera size={14} /> Tirar Foto
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                     <div className="space-y-2">
                                         <label className="text-sm font-bold text-gray-700 ml-1">Nome Completo</label>
@@ -591,6 +674,15 @@ export function Drivers() {
                         </form>
                     </div>
                 </div>
+            )}
+            {isCameraOpen && (
+                <CameraCapture
+                    onCapture={(file) => {
+                        setTempAvatar(file);
+                        setIsCameraOpen(false);
+                    }}
+                    onClose={() => setIsCameraOpen(false)}
+                />
             )}
         </div>
     );

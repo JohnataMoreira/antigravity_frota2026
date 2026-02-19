@@ -17,6 +17,7 @@ interface CreateUserData {
     addressCity?: string;
     addressState?: string;
     addressZipCode?: string;
+    avatarUrl?: string;
 }
 
 interface UpdateUserData extends Partial<Omit<CreateUserData, 'password' | 'email'>> { }

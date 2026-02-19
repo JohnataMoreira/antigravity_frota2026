@@ -59,8 +59,8 @@
     --secondary-foreground: 210 40% 98%;
 
     --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 75%;
-    /* Increased from 65.1% for better contrast */
+    --muted-foreground: 215 20.2% 80%;
+    /* Increased from 75% for better contrast */
 
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
@@ -68,8 +68,9 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
+    --border: 217.2 32.6% 25%;
+    /* Increased from 17.5% for visibility */
+    --input: 217.2 32.6% 25%;
     --ring: 224.3 76.3% 48%;
   }
 
@@ -143,11 +144,13 @@
   .gradient-text {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600;
     -webkit-text-fill-color: transparent;
-    color: theme('colors.blue.600'); /* Fallback */
+    color: theme('colors.blue.600');
+    /* Fallback */
   }
 
   .dark .gradient-text {
     @apply from-blue-400 to-indigo-400;
-    color: theme('colors.blue.400'); /* Fallback */
+    color: theme('colors.blue.400');
+    /* Fallback */
   }
 }
