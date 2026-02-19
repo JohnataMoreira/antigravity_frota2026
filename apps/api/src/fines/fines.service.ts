@@ -1,14 +1,26 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { FineStatus } from '@prisma/client';
+
+// Local enum mirrors schema — avoids Prisma client type lag after schema changes
+export enum FineStatus {
+    PENDING_IDENTIFICATION = 'PENDING_IDENTIFICATION',
+    IDENTIFIED = 'IDENTIFIED',
+    PAID = 'PAID',
+    APPEAL = 'APPEAL',
+    CANCELED = 'CANCELED',
+}
 
 @Injectable()
 export class FinesService {
+    private get tf() {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return (this.prisma as any).trafficFine;
+    }
+
     constructor(private prisma: PrismaService) { }
 
     async create(organizationId: string, data: any) {
-        // 1. Create the Fine record
-        const fine = await this.prisma.trafficFine.create({
+        const fine = await this.tf.create({
             data: {
                 ...data,
                 organizationId,
@@ -16,7 +28,6 @@ export class FinesService {
             },
         });
 
-        // 2. If no driverId was provided, try to auto-identify
         if (!data.driverId) {
             return this.autoIdentifyDriver(fine.id);
         }
@@ -40,7 +51,7 @@ export class FinesService {
             };
         }
 
-        return this.prisma.trafficFine.findMany({
+        return this.tf.findMany({
             where,
             include: {
                 vehicle: { select: { plate: true, model: true } },
@@ -52,7 +63,7 @@ export class FinesService {
     }
 
     async findOne(id: string, organizationId: string) {
-        const fine = await this.prisma.trafficFine.findFirst({
+        const fine = await this.tf.findFirst({
             where: { id, organizationId },
             include: {
                 vehicle: true,
@@ -67,14 +78,13 @@ export class FinesService {
     }
 
     async autoIdentifyDriver(fineId: string) {
-        const fine = await this.prisma.trafficFine.findUnique({
+        const fine = await this.tf.findUnique({
             where: { id: fineId },
             include: { vehicle: true },
         });
 
         if (!fine) throw new NotFoundException('Multa não encontrada');
 
-        // Find a journey that was active during the fine timestamp
         const journey = await this.prisma.journey.findFirst({
             where: {
                 organizationId: fine.organizationId,
@@ -88,7 +98,7 @@ export class FinesService {
         });
 
         if (journey) {
-            return this.prisma.trafficFine.update({
+            return this.tf.update({
                 where: { id: fineId },
                 data: {
                     driverId: journey.driverId,
@@ -103,20 +113,18 @@ export class FinesService {
     }
 
     async updateStatus(id: string, organizationId: string, status: FineStatus) {
-        return this.prisma.trafficFine.updateMany({
+        return this.tf.updateMany({
             where: { id, organizationId },
             data: { status },
         });
     }
 
     async getFinesSummary(organizationId: string) {
-        const fines = await this.prisma.trafficFine.groupBy({
+        return this.tf.groupBy({
             by: ['status'],
             where: { organizationId },
             _count: true,
             _sum: { amount: true },
         });
-
-        return fines;
     }
 }

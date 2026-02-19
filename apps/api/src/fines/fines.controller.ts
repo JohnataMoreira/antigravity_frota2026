@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Query, UseGuards } from '@nestjs/common';
-import { FinesService } from './fines.service';
-import { FineStatus } from '@prisma/client';
+import { FinesService, FineStatus } from './fines.service';
+// import { FineStatus } from '@prisma/client'; // Disabled until prisma generate matches schema
 
 @Controller('fines')
 export class FinesController {

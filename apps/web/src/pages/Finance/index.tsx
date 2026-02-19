@@ -123,29 +123,29 @@ export default function FinancePage() {
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard
-                    title="Total do Mês"
+                    label="Total do Mês"
                     value={overview?.summary?.grandTotal ? formatCurrency(overview.summary.grandTotal) : 'R$ 0,00'}
-                    icon={ArrowDownCircle}
+                    icon={<ArrowDownCircle size={24} />}
                     trend={{ value: 12, isPositive: false }}
                     loading={loadingOverview}
                 />
                 <StatCard
-                    title="Pendente"
+                    label="Pendente"
                     value={overview?.summary?.pendingPayments || 0}
                     description="Contas aguardando pagamento"
-                    icon={Clock}
+                    icon={<Clock size={24} />}
                     loading={loadingOverview}
                 />
                 <StatCard
-                    title="Manutenção"
+                    label="Manutenção"
                     value={overview?.summary?.totalMaintenance ? formatCurrency(overview.summary.totalMaintenance) : 'R$ 0,00'}
-                    icon={CreditCard}
+                    icon={<CreditCard size={24} />}
                     loading={loadingOverview}
                 />
                 <StatCard
-                    title="Combustível"
+                    label="Combustível"
                     value={overview?.summary?.totalFuel ? formatCurrency(overview.summary.totalFuel) : 'R$ 0,00'}
-                    icon={ArrowUpCircle}
+                    icon={<ArrowUpCircle size={24} />}
                     loading={loadingOverview}
                 />
             </div>

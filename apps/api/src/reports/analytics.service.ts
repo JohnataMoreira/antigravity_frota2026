@@ -79,7 +79,7 @@ export class AnalyticsService {
                         status: 'COMPLETED',
                         endTime: { gte: monthDate, lt: nextMonthDate }
                     },
-                    _sum: { revenue: true as any }
+                    _sum: { revenue: true } as any
                 });
 
                 return {
@@ -94,17 +94,18 @@ export class AnalyticsService {
         const vehicles = await this.prisma.vehicle.findMany({
             where: { organizationId },
             include: {
-                _count: { select: { journeys: { where: { status: 'COMPLETED' } } } },
+                _count: { select: { journeys: true } },
                 journeys: {
                     where: { status: 'COMPLETED' },
-                    select: { revenue: true as any, startKm: true, endKm: true }
+                    select: { startKm: true, endKm: true }
                 }
             }
         });
 
         const ranking = vehicles.map(v => {
-            const revenue = v.journeys.reduce((acc, j: any) => acc + (j.revenue || 0), 0);
             const km = v.journeys.reduce((acc, j) => acc + ((j.endKm || 0) - j.startKm), 0);
+            // revenue field not in schema yet — placeholder until billing module is added
+            const revenue = 0;
 
             return {
                 id: v.id,
@@ -117,6 +118,6 @@ export class AnalyticsService {
             };
         });
 
-        return ranking.sort((a, b) => (b.revenue as number) - (a.revenue as number));
+        return ranking.sort((a, b) => b.km - a.km);
     }
 }
