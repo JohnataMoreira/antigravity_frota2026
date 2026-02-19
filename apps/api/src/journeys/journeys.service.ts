@@ -141,7 +141,7 @@ export class JourneysService {
 
             return {
                 ...journey,
-                durationMinutes: Math.floor(durationMs / 60000),
+                durationMinutes: Math.max(0, Math.floor(durationMs / 60000)),
                 isLongRunning: journey.status === JourneyStatus.IN_PROGRESS && durationMs > TWELVE_HOURS_MS
             };
         });

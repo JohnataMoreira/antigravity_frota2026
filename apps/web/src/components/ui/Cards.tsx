@@ -17,7 +17,7 @@ interface GlassCardProps {
 export function GlassCard({ children, className = '', gradient = false, transition = false }: GlassCardProps) {
     return (
         <div className={`
-            glass-card p-6 
+            glass-card p-6 relative
             ${gradient ? 'gradient-card' : ''} 
             ${transition ? 'transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl' : ''}
             ${className}

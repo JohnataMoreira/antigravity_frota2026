@@ -50,7 +50,7 @@ export function FuelTab({ filters }: { filters: any }) {
                         </div>
                         <span className="text-sm text-muted-foreground">Média Geral KM/L</span>
                     </div>
-                    <p className="text-2xl font-bold">{stats?.avgKmL ? `${stats.avgKmL.toFixed(1)} KM/L` : '0 KM/L'}</p>
+                    <p className="text-2xl font-bold">{stats?.avgKmL !== undefined && stats?.avgKmL !== null ? `${Number(stats.avgKmL).toFixed(1)} KM/L` : '0 KM/L'}</p>
                 </GlassCard>
 
                 <GlassCard>
@@ -60,7 +60,7 @@ export function FuelTab({ filters }: { filters: any }) {
                         </div>
                         <span className="text-sm text-muted-foreground">Custo Médio/KM</span>
                     </div>
-                    <p className="text-2xl font-bold">{formatCurrency(stats?.avgCostKm)}/KM</p>
+                    <p className="text-2xl font-bold">{formatCurrency(stats?.avgCostKm || 0)}/KM</p>
                 </GlassCard>
 
                 <GlassCard>
@@ -70,7 +70,7 @@ export function FuelTab({ filters }: { filters: any }) {
                         </div>
                         <span className="text-sm text-muted-foreground">Total Litros</span>
                     </div>
-                    <p className="text-2xl font-bold">{stats?.totalLiters?.toFixed(1) || 0} L</p>
+                    <p className="text-2xl font-bold">{(stats?.totalLiters || 0).toFixed(1)} L</p>
                 </GlassCard>
 
                 <GlassCard>

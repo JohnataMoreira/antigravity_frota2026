@@ -142,9 +142,12 @@
   /* Gradient Utilities with better contrast */
   .gradient-text {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600;
+    -webkit-text-fill-color: transparent;
+    color: theme('colors.blue.600'); /* Fallback */
   }
 
   .dark .gradient-text {
     @apply from-blue-400 to-indigo-400;
+    color: theme('colors.blue.400'); /* Fallback */
   }
 }
