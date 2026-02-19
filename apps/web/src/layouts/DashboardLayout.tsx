@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LayoutDashboard, Truck, Users, Map, Wrench, LogOut, Menu, X, User as UserIcon, FileText, Package, Fuel, ShieldCheck, ShoppingCart, DollarSign, Disc } from 'lucide-react';
-import { ThemeSwitcher } from '../components/ThemeSwitcher';
 
 export function DashboardLayout() {
     const { user, logout } = useAuth();
@@ -31,20 +30,20 @@ export function DashboardLayout() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+        <div className="min-h-screen bg-gray-50 flex">
             {/* Sidebar for Desktop */}
-            <aside className="hidden md:flex flex-col w-64 glass-card h-screen sticky top-0 border-r border-gray-200 dark:border-gray-800">
-                <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-center bg-white dark:bg-transparent">
+            <aside className="hidden md:flex flex-col w-64 glass-card h-screen sticky top-0 border-r border-gray-200">
+                <div className="p-4 border-b border-gray-100 flex justify-center bg-white">
                     <img src="/logo.png" alt="Grupo Paraopeba" className="h-14 w-auto object-contain" />
                 </div>
 
-                <div className="px-6 py-4 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                <div className="px-6 py-4 flex items-center gap-3 border-b border-gray-100 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
                         <UserIcon size={20} />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold truncate text-gray-900 dark:text-gray-100">{user?.name || 'Usuário'}</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
+                        <p className="text-sm font-semibold truncate text-gray-900">{user?.name || 'Usuário'}</p>
+                        <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                     </div>
                 </div>
 
@@ -57,7 +56,7 @@ export function DashboardLayout() {
                                 to={item.href}
                                 className={`flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all ${isActive
                                     ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                                    : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
+                                    : 'text-gray-600 hover:bg-gray-100'
                                     }`}
                             >
                                 <item.icon className={`w-5 h-5 mr-3 ${isActive ? 'text-white' : ''}`} />
@@ -68,12 +67,9 @@ export function DashboardLayout() {
                 </nav>
 
                 <div className="p-4 space-y-2">
-                    <div className="p-2 flex justify-center border-t border-gray-100 dark:border-gray-800 pt-4">
-                        <ThemeSwitcher />
-                    </div>
                     <button
                         onClick={handleLogout}
-                        className="flex items-center w-full px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-colors"
+                        className="flex items-center w-full px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-50 rounded-xl transition-colors"
                     >
                         <LogOut className="w-5 h-5 mr-3" />
                         Sair
@@ -83,8 +79,8 @@ export function DashboardLayout() {
 
             {/* Mobile Header & Content */}
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-                <header className="md:hidden bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between p-4">
-                    <div className="bg-white dark:bg-white/90 p-1 rounded-lg">
+                <header className="md:hidden bg-white border-b border-gray-200 flex items-center justify-between p-4">
+                    <div className="bg-white p-1 rounded-lg">
                         <img src="/logo.png" alt="Grupo Paraopeba" className="h-8 w-auto object-contain" />
                     </div>
                     <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
@@ -94,8 +90,8 @@ export function DashboardLayout() {
 
                 {/* Mobile Menu Overlay */}
                 {isMobileMenuOpen && (
-                    <div className="fixed inset-0 z-50 md:hidden flex flex-col bg-white dark:bg-gray-900 animate-in fade-in slide-in-from-top-4 duration-200">
-                        <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
+                    <div className="fixed inset-0 z-50 md:hidden flex flex-col bg-white animate-in fade-in slide-in-from-top-4 duration-200">
+                        <div className="flex items-center justify-between p-4 border-b border-gray-100">
                             <img src="/logo.png" alt="Grupo Paraopeba" className="h-10 w-auto object-contain" />
                             <button
                                 onClick={() => setIsMobileMenuOpen(false)}
@@ -114,7 +110,7 @@ export function DashboardLayout() {
                                         to={item.href}
                                         className={`flex items-center px-6 py-4 text-lg font-semibold rounded-2xl transition-all ${isActive
                                             ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                                            : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                            : 'text-gray-600 hover:bg-gray-100'
                                             }`}
                                         onClick={() => setIsMobileMenuOpen(false)}
                                     >
@@ -125,10 +121,10 @@ export function DashboardLayout() {
                             })}
                         </nav>
 
-                        <div className="p-6 border-t border-gray-100 dark:border-gray-800">
+                        <div className="p-6 border-t border-gray-100">
                             <button
                                 onClick={handleLogout}
-                                className="flex items-center justify-center w-full px-6 py-4 text-lg font-bold text-red-500 bg-red-50 dark:bg-red-900/10 rounded-2xl"
+                                className="flex items-center justify-center w-full px-6 py-4 text-lg font-bold text-red-500 bg-red-50 rounded-2xl"
                             >
                                 <LogOut className="w-6 h-6 mr-3" />
                                 Sair da Conta

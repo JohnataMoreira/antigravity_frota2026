@@ -236,23 +236,23 @@ export function Drivers() {
                     <input
                         type="text"
                         placeholder="Buscar por nome, email ou CPF..."
-                        className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium"
+                        className="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
 
-                <div className="flex bg-gray-100 dark:bg-gray-800 p-1.5 rounded-2xl border dark:border-gray-700 shadow-sm">
+                <div className="flex bg-gray-100 p-1.5 rounded-2xl border shadow-sm">
                     <button
                         onClick={() => setViewMode('grid')}
-                        className={`p-2.5 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-gray-700 shadow-md text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                        className={`p-2.5 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-white shadow-md text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
                         title="Visualização em Grade"
                     >
                         <LayoutGrid size={20} />
                     </button>
                     <button
                         onClick={() => setViewMode('list')}
-                        className={`p-2.5 rounded-xl transition-all ${viewMode === 'list' ? 'bg-white dark:bg-gray-700 shadow-md text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                        className={`p-2.5 rounded-xl transition-all ${viewMode === 'list' ? 'bg-white shadow-md text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
                         title="Visualização em Lista"
                     >
                         <ListIcon size={20} />
@@ -265,8 +265,8 @@ export function Drivers() {
                 <GlassCard transition={true} className="!p-0 overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">
-                            <thead className="bg-gray-50 dark:bg-gray-800/80 border-b border-gray-100 dark:border-gray-700">
-                                <tr className="text-gray-400 dark:text-gray-400">
+                            <thead className="bg-gray-50 border-b border-gray-100">
+                                <tr className="text-gray-400">
                                     <th className="py-4 px-6 font-bold uppercase tracking-wider">Funcionário</th>
                                     <th className="py-4 px-6 font-bold uppercase tracking-wider">Contato / CPF</th>
                                     <th className="py-4 px-6 font-bold uppercase tracking-wider">Cargo</th>
@@ -274,20 +274,23 @@ export function Drivers() {
                                     <th className="py-4 px-6 font-bold uppercase tracking-wider text-right">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                            <tbody className="divide-y divide-gray-100">
                                 {users.map((user: User) => (
-                                    <tr key={user.id} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-all">
+                                    <tr key={user.id} className="group hover:bg-gray-50/50 transition-all">
                                         <td className="py-5 px-6">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/10 group-hover:scale-110 transition-transform overflow-hidden">
+                                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/10 group-hover:scale-110 transition-transform overflow-hidden relative">
                                                     {user.avatarUrl ? (
                                                         <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
                                                     ) : (
-                                                        <Users className="w-6 h-6" />
+                                                        <div className="flex flex-col items-center justify-center">
+                                                            <Users className="w-6 h-6" />
+                                                            <span className="text-[6px] font-bold uppercase">Sem Foto</span>
+                                                        </div>
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <div className="font-bold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors uppercase tracking-tight">{user.name}</div>
+                                                    <div className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors uppercase tracking-tight">{user.name}</div>
                                                     <div className="text-xs text-muted-foreground">{user.email}</div>
                                                 </div>
                                             </div>
@@ -302,26 +305,26 @@ export function Drivers() {
                                             </div>
                                         </td>
                                         <td className="py-5 px-6">
-                                            <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                                            <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 ' : 'bg-blue-100 text-blue-700'
                                                 }`}>
                                                 {user.role === 'ADMIN' ? 'Administrador' : 'Motorista'}
                                             </span>
                                         </td>
-                                        <td className="py-5 px-6 text-sm font-black text-gray-500 dark:text-gray-400">
+                                        <td className="py-5 px-6 text-sm font-black text-gray-500">
                                             {user.licenseNumber || '—'}
                                         </td>
                                         <td className="py-5 px-6 text-right">
                                             <div className="flex items-center justify-end gap-1">
                                                 <button
                                                     onClick={() => openEditModal(user)}
-                                                    className="p-2.5 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-blue-600 rounded-xl transition-all"
+                                                    className="p-2.5 hover:bg-blue-50 text-blue-600 rounded-xl transition-all"
                                                     title="Editar"
                                                 >
                                                     <Edit2 className="w-4 h-4" />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDelete(user.id)}
-                                                    className="p-2.5 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 rounded-xl transition-all"
+                                                    className="p-2.5 hover:bg-red-50 text-red-600 rounded-xl transition-all"
                                                     title="Excluir"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
@@ -337,45 +340,56 @@ export function Drivers() {
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {users.map((user: User) => (
-                        <GlassCard key={user.id} transition={true} className="relative group">
-                            <div className="absolute top-4 right-4 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button onClick={() => openEditModal(user)} className="p-2 bg-white dark:bg-gray-800 shadow-xl rounded-full text-blue-600 hover:scale-110 active:scale-95 transition-all">
+                        <GlassCard key={user.id} transition={true} className="relative group p-0 overflow-hidden flex flex-col">
+                            {/* Actions Overlay */}
+                            <div className="absolute top-4 right-4 flex gap-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button onClick={() => openEditModal(user)} className="p-2 bg-white shadow-xl rounded-full text-blue-600 hover:scale-110 active:scale-95 transition-all">
                                     <Edit2 size={16} />
                                 </button>
-                                <button onClick={() => handleDelete(user.id)} className="p-2 bg-white dark:bg-gray-800 shadow-xl rounded-full text-red-600 hover:scale-110 active:scale-95 transition-all">
+                                <button onClick={() => handleDelete(user.id)} className="p-2 bg-white shadow-xl rounded-full text-red-600 hover:scale-110 active:scale-95 transition-all">
                                     <Trash2 size={16} />
                                 </button>
                             </div>
 
-                            <div className="flex items-start justify-between mb-6">
-                                <div className="flex-1 text-left">
-                                    <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight break-words">{user.name}</h3>
-                                    <p className="text-[10px] text-muted-foreground mt-1 mb-3 truncate">{user.email}</p>
-                                    <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400'}`}>
+                            {/* Prominent Photo Area */}
+                            <div className="h-48 w-full bg-gray-100 relative group-hover:scale-105 transition-transform duration-500">
+                                {user.avatarUrl ? (
+                                    <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 text-gray-300">
+                                        <Users className="w-16 h-16 opacity-20" />
+                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] mt-2 opacity-50">Sem Foto</span>
+                                        <button
+                                            onClick={() => openEditModal(user)}
+                                            className="mt-4 flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur text-blue-600 rounded-full text-[10px] font-bold shadow-sm hover:bg-white transition-all"
+                                        >
+                                            <Camera size={12} /> Adicionar Foto
+                                        </button>
+                                    </div>
+                                )}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60" />
+                                <div className="absolute bottom-4 left-4 text-white z-10">
+                                    <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${user.role === 'ADMIN' ? 'bg-purple-500' : 'bg-blue-500'}`}>
                                         {user.role === 'ADMIN' ? 'Admin' : 'Condutor'}
                                     </span>
                                 </div>
-                                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-xl shadow-blue-500/20 group-hover:rotate-3 transition-transform overflow-hidden ml-3 shrink-0">
-                                    {user.avatarUrl ? (
-                                        <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <Users className="w-8 h-8 opacity-40" />
-                                    )}
-                                </div>
                             </div>
 
-                            <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
-                                <div className="flex justify-between items-center text-xs">
-                                    <span className="text-gray-400 font-bold uppercase tracking-tighter">CNH</span>
-                                    <span className="font-black text-gray-900 dark:text-white">{user.licenseNumber || '—'}</span>
+                            <div className="p-5 flex-1 flex flex-col">
+                                <div className="mb-4">
+                                    <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight break-words leading-tight">{user.name}</h3>
+                                    <p className="text-[10px] text-muted-foreground mt-1 truncate font-medium">{user.email}</p>
                                 </div>
-                                <div className="flex justify-between items-center text-xs">
-                                    <span className="text-gray-400 font-bold uppercase tracking-tighter">CPF</span>
-                                    <span className="font-mono text-gray-700 dark:text-gray-300">{user.cpf || '—'}</span>
-                                </div>
-                                <div className="flex justify-between items-center text-xs">
-                                    <span className="text-gray-400 font-bold uppercase tracking-tighter">Telefone</span>
-                                    <span className="font-bold text-blue-600 dark:text-blue-400">{user.phone || '—'}</span>
+
+                                <div className="space-y-3 pt-4 border-t border-gray-100 mt-auto">
+                                    <div className="flex justify-between items-center text-xs">
+                                        <span className="text-gray-400 font-bold uppercase tracking-tighter">CNH</span>
+                                        <span className="font-black text-gray-900">{user.licenseNumber || '—'}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-xs">
+                                        <span className="text-gray-400 font-bold uppercase tracking-tighter">Telefone</span>
+                                        <span className="font-bold text-blue-600">{user.phone || '—'}</span>
+                                    </div>
                                 </div>
                             </div>
                         </GlassCard>
@@ -384,8 +398,8 @@ export function Drivers() {
             )}
 
             {(users.length === 0 && !loading) && (
-                <div className="text-center py-20 flex flex-col items-center bg-white/50 dark:bg-gray-800/20 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-700">
-                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-400 mb-4">
+                <div className="text-center py-20 flex flex-col items-center bg-white/50 rounded-3xl border-2 border-dashed border-gray-200">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 mb-4">
                         <SearchCheck size={32} />
                     </div>
                     <h3 className="text-xl font-black">Nenhum funcionário encontrado</h3>
@@ -397,7 +411,7 @@ export function Drivers() {
             {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
-                    <div className="glass-card max-w-4xl w-full p-8 max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl relative">
+                    <div className="glass-card max-w-4xl w-full p-8 max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl relative bg-white">
                         <div className="absolute top-0 right-0 p-4">
                             <button onClick={handleCloseModal} className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400"><Plus className="rotate-45" /></button>
                         </div>

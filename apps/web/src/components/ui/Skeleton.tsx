@@ -1,7 +1,7 @@
 import { HTMLAttributes } from 'react';
 
 interface SkeletonProps extends HTMLAttributes<HTMLDivElement> {
-    className?: string;
+ className?: string;
 }
 
 /**
@@ -11,15 +11,15 @@ interface SkeletonProps extends HTMLAttributes<HTMLDivElement> {
  * Optimized for glassmorphism layouts.
  */
 export function Skeleton({ className = '', ...props }: SkeletonProps) {
-    return (
-        <div
-            className={`
-                animate-pulse 
-                bg-gray-200 dark:bg-gray-800/50 
-                rounded-md 
-                ${className}
-            `}
-            {...props}
-        />
-    );
+ return (
+ <div
+ className={`
+ animate-pulse 
+ bg-gray-200 rounded-md 
+ ${className}
+ `}
+ {...props}
+ />
+ );
 }
+
