@@ -38,21 +38,21 @@ const createCarIcon = (status: 'MOVING' | 'STOPPED' | 'OFFLINE' | 'ENGINE_ON', p
     if (typeof window === 'undefined') return undefined;
 
     try {
-        const leaflet = L;
+        const leaflet = getLeaflet();
 
         if (!leaflet || !leaflet.divIcon) {
             console.warn('Leaflet or divIcon not available');
             return undefined;
         }
 
-        const iconConfig = {
+        const iconConfig: L.DivIconOptions = {
             className: 'custom-car-marker',
             html: `
                 <div class="relative group">
                     <div class="w-10 h-10 rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-transform hover:scale-110 relative" style="background-color: ${color}; ${status === 'OFFLINE' ? 'opacity: 0.5;' : ''}">
                         ${status === 'MOVING' || status === 'ENGINE_ON' ? '<div class="absolute inset-0 rounded-full bg-white/20 animate-ping"></div>' : ''}
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="relative z-10">
-                            <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12a6 6 0 0 0 6 6h12a6 6 0 0 0 6-6c0-4-3.13-5.73-6-6Z"/>
+                            <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12a6 6 0 0 0 8 6h12a6 6 0 0 0 6-6c0-4-3.13-5.73-6-6Z"/>
                         </svg>
                         ${plate.includes('!') ? '<div class="absolute -top-1 -right-1 bg-red-600 text-white w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-black border border-white animate-bounce">!</div>' : ''}
                     </div>
@@ -61,9 +61,9 @@ const createCarIcon = (status: 'MOVING' | 'STOPPED' | 'OFFLINE' | 'ENGINE_ON', p
                     </div>
                 </div>
             `,
-            iconSize: [40, 40] as [number, number],
-            iconAnchor: [20, 20] as [number, number],
-            popupAnchor: [0, -20] as [number, number]
+            iconSize: [40, 40],
+            iconAnchor: [20, 20],
+            popupAnchor: [0, -20]
         };
 
         return leaflet.divIcon(iconConfig);
@@ -229,7 +229,7 @@ export function LiveMap() {
 
                 {activeVehicles.map(v => {
                     const icon = createCarIcon(v.status || 'STOPPED', (v.isDeviated ? '!' : '') + (v.plate || '???'));
-                    if (!icon) return null;
+                    if (!icon || !v.lat || !v.lng) return null;
 
                     return (
                         <Marker
