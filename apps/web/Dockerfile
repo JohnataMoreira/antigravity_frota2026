@@ -10,16 +10,16 @@ COPY . .
 RUN npm install --legacy-peer-deps
 
 # Build the Web app
-RUN npm run build
+RUN npm run build --workspace=web
 
 # Stage 2: Production
 FROM nginx:alpine
 
 # Copy built files
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/apps/web/dist /usr/share/nginx/html
 
 # Copy custom nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
