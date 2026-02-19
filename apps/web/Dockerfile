@@ -3,22 +3,21 @@ FROM node:20 AS builder
 
 WORKDIR /app
 
-# [11/10 STRATEGY] Copy EVERYTHING
 COPY . .
 
-# [11/10 STRATEGY] Sync all dependencies at ROOT
 RUN npm install --legacy-peer-deps
 
 # Build the Web app
 RUN npm run build --workspace=web
 
+# Generate version.json directly after build (no plugin needed)
+RUN echo "{\"version\":\"$(date +%s)\",\"buildTime\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" \
+    > /app/apps/web/dist/version.json
+
 # Stage 2: Production
 FROM nginx:alpine
 
-# Copy built files
 COPY --from=builder /app/apps/web/dist /usr/share/nginx/html
-
-# Copy custom nginx config
 COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
