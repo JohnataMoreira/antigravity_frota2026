@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LayoutDashboard, Truck, Users, Map, Wrench, LogOut, Menu, X, User as UserIcon, FileText, Package, Fuel, ShieldCheck, ShoppingCart, DollarSign, Disc, Settings } from 'lucide-react';
+import { LayoutDashboard, Truck, Users, Map, Wrench, LogOut, Menu, X, User as UserIcon, FileText, Package, Fuel, ShieldCheck, ShoppingCart, DollarSign, Disc, Settings, AlertCircle } from 'lucide-react';
 
 export function DashboardLayout() {
     const { user, logout } = useAuth();
@@ -16,6 +16,7 @@ export function DashboardLayout() {
         { name: 'Jornadas', href: '/journeys', icon: Map },
         { name: 'Abastecimentos', href: '/fuel', icon: Fuel },
         { name: 'Manutenção', href: '/maintenance', icon: Wrench },
+        { name: 'Multas', href: '/fines', icon: AlertCircle },
         { name: 'Compras', href: '/purchasing', icon: ShoppingCart },
         { name: 'Estoque', href: '/inventory', icon: Package },
         { name: 'Pneus', href: '/tyres', icon: Disc },

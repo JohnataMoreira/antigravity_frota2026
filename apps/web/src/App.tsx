@@ -23,6 +23,7 @@ const Finance = lazy(() => import('./pages/Finance'));
 const Tyres = lazy(() => import('./pages/Tyres'));
 const Settings = lazy(() => import('./pages/Settings'));
 const Users = lazy(() => import('./pages/Users').then(module => ({ default: module.UsersList })));
+const Fines = lazy(() => import('./pages/Fines/FinesList'));
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,8 @@ function AppRoutes() {
                     <Route path="journeys/:id" element={<JourneyDetails />} />
                     <Route path="maintenance" element={<MaintenanceList />} />
                     <Route path="tyres" element={<Suspense fallback={<div>Carregando...</div>}><Tyres /></Suspense>} />
+                    <Route path="/tyres" element={<Suspense fallback={<div>Carregando...</div>}><Tyres /></Suspense>} />
+                    <Route path="/fines" element={<Suspense fallback={<div>Carregando...</div>}><Fines /></Suspense>} />
                     <Route path="/compliance" element={<Suspense fallback={<div>Carregando...</div>}><Compliance /></Suspense>} />
                     <Route path="/purchasing" element={<Suspense fallback={<div>Carregando...</div>}><Purchasing /></Suspense>} />
                     <Route path="/finance" element={<Suspense fallback={<div>Carregando...</div>}><Finance /></Suspense>} />
