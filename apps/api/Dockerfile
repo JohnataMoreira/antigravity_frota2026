@@ -47,7 +47,7 @@ EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
-    CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => r.statusCode === 200 ? process.exit(0) : process.exit(1))"
+    CMD node -e "const port = process.env.PORT || 3000; require('http').get(`http://localhost:${port}/api/health`, (r) => r.statusCode === 200 ? process.exit(0) : process.exit(1))"
 
 # Auto-migrate on startup, then start the API
 CMD ["sh", "-c", "npx prisma migrate deploy --schema=./prisma/schema.prisma && node dist/main.js"]
