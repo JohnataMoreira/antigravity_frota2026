@@ -191,12 +191,41 @@ export class AuthService {
     }
 
     async signSocialToken(profile: any) {
-        const user = await this.prisma.user.findUnique({
+        let user = await this.prisma.user.findUnique({
             where: { email: profile.email },
         });
 
         if (!user) {
-            throw new UnauthorizedException('Please register or accept an invite first');
+            console.log(`[AuthService] User ${profile.email} not found during social login. Auto-registering...`);
+
+            // For now, let's find the first organization to bind the auto-registered user
+            // In a real multi-tenant app, you might want to create a new org or ask user
+            const org = await this.prisma.organization.findFirst();
+
+            if (!org) {
+                throw new UnauthorizedException('No organization found to bind user. Please contact administrator.');
+            }
+
+            user = await this.prisma.user.create({
+                data: {
+                    email: profile.email,
+                    name: `${profile.firstName} ${profile.lastName}`.trim(),
+                    firstName: profile.firstName,
+                    lastName: profile.lastName,
+                    passwordHash: 'SOCIAL_AUTH_PROVIDER', // Placeholder since they login via Google
+                    role: 'ADMIN', // Default to ADMIN for auto-registered users for now as requested
+                    organizationId: org.id,
+                },
+            });
+
+            await this.audit.log({
+                organizationId: org.id,
+                userId: user.id,
+                action: AuditAction.CREATE,
+                entity: AuditEntity.USER,
+                entityId: user.id,
+                metadata: { email: user.email, provider: 'google', note: 'Auto-registered' }
+            });
         }
 
         const result = await this.signToken(user.id, user.organizationId, user.email, user.role, user.name);

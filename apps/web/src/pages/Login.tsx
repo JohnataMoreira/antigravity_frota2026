@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../lib/axios';
 import { useNavigate } from 'react-router-dom';
@@ -22,6 +22,24 @@ export function Login() {
     const navigate = useNavigate();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
+    // Handle social login redirect
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+        const userDataStr = params.get('user');
+
+        if (token && userDataStr) {
+            try {
+                const userData = JSON.parse(decodeURIComponent(userDataStr));
+                login(token, userData);
+                navigate('/dashboard');
+            } catch (err) {
+                console.error('Failed to parse social login data', err);
+                setError('Falha ao processar login social');
+            }
+        }
+    }, [login, navigate]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

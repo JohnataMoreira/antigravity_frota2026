@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Get, Request, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import { Body, Controller, Post, Get, Request, Response, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
@@ -41,8 +41,15 @@ export class AuthController {
     @Public()
     @Get('google/callback')
     @UseGuards(AuthGuard('google'))
-    async googleAuthRedirect(@Request() req: any) {
-        return this.authService.signSocialToken(req.user);
+    async googleAuthRedirect(@Request() req: any, @Response() res: any) {
+        const result = await this.authService.signSocialToken(req.user);
+
+        // Redirect to frontend with token and user data (stringified)
+        // In a more secure setup, we might only send the token and have the frontend fetch profile 
+        const frontendUrl = process.env.FRONTEND_URL || 'https://frota.johnatamoreira.com.br';
+        const redirectUrl = `${frontendUrl}/login?token=${result.access_token}&user=${encodeURIComponent(JSON.stringify(result.user))}`;
+
+        return res.redirect(redirectUrl);
     }
 
     @Get('me')
