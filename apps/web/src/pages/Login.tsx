@@ -207,6 +207,25 @@ export function Login() {
                     </button>
                 </form>
 
+                {!isRegistering && (
+                    <div className="space-y-4">
+                        <div className="relative flex items-center py-2">
+                            <div className="flex-grow border-t border-border/50"></div>
+                            <span className="flex-shrink mx-4 text-muted-foreground text-xs uppercase tracking-widest">Ou continue com</span>
+                            <div className="flex-grow border-t border-border/50"></div>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`}
+                            className="w-full py-3 px-6 bg-white/5 border border-border/50 text-foreground rounded-2xl font-semibold flex items-center justify-center gap-3 hover:bg-white/10 transition-all active:scale-[0.98]"
+                        >
+                            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5" alt="Google" />
+                            Entrar com Google
+                        </button>
+                    </div>
+                )}
+
                 <div className="text-center pt-2">
                     <button
                         disabled={loading}

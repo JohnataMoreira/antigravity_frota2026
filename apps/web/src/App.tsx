@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { Login } from './pages/Login';
+import { RegisterInvite } from './pages/RegisterInvite';
 import { DashboardLayout } from './layouts/DashboardLayout';
 import { VehiclesList } from './pages/Vehicles';
 import { VehicleForm } from './pages/Vehicles/VehicleForm';
@@ -42,6 +43,7 @@ function AppRoutes() {
         <>
             <Routes>
                 <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<RegisterInvite />} />
                 <Route path="/" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
                     <Route index element={<Navigate to="/dashboard" replace />} />
                     <Route path="dashboard" element={<Dashboard />} />

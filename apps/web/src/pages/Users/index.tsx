@@ -15,9 +15,12 @@ import {
     Mail,
     Phone,
     Calendar,
-    Edit2
+    Edit2,
+    Link as LinkIcon,
+    Trash2
 } from 'lucide-react';
 import { UserModal } from './UserModal';
+import { InviteModal } from './InviteModal';
 
 export function UsersList() {
     const queryClient = useQueryClient();
@@ -26,6 +29,7 @@ export function UsersList() {
     const [statusFilter, setStatusFilter] = useState<string>('ALL');
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
     const { data: usersData = [], isLoading } = useQuery({
         queryKey: ['users', search, roleFilter],
@@ -37,10 +41,25 @@ export function UsersList() {
         }
     });
 
+    const { data: invites = [] } = useQuery({
+        queryKey: ['invites'],
+        queryFn: async () => {
+            const res = await api.get('/invites');
+            return res.data;
+        }
+    });
+
     const users = usersData.filter((u: any) => {
         if (statusFilter === 'ACTIVE') return u.active === true;
         if (statusFilter === 'INACTIVE') return u.active === false;
         return true;
+    });
+
+    const cancelInviteMutation = useMutation({
+        mutationFn: (id: string) => api.delete(`/invites/${id}`),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['invites'] });
+        }
     });
 
     const toggleStatusMutation = useMutation({
@@ -74,14 +93,60 @@ export function UsersList() {
                     </p>
                 </div>
 
-                <button
-                    onClick={handleAdd}
-                    className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg shadow-blue-500/20 transition-all group"
-                >
-                    <Plus size={20} className="group-hover:rotate-90 transition-transform" />
-                    Novo Funcionário
-                </button>
+                <div className="flex flex-wrap gap-4">
+                    <button
+                        onClick={() => setIsInviteModalOpen(true)}
+                        className="flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 hover:border-blue-500 text-gray-700 hover:text-blue-600 rounded-xl font-bold transition-all group shadow-sm"
+                    >
+                        <LinkIcon size={20} className="group-hover:rotate-12 transition-transform" />
+                        Convidar via Link
+                    </button>
+
+                    <button
+                        onClick={handleAdd}
+                        className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg shadow-blue-500/20 transition-all group"
+                    >
+                        <Plus size={20} className="group-hover:rotate-90 transition-transform" />
+                        Novo Funcionário
+                    </button>
+                </div>
             </div>
+
+            {/* Pending Invites Section */}
+            {invites.some((i: any) => i.status === 'PENDING') && (
+                <div className="animate-in slide-in-from-top-4 duration-300">
+                    <div className="flex items-center gap-3 mb-4">
+                        <Mail className="text-blue-500" size={20} />
+                        <h2 className="text-xl font-bold text-gray-800">Convites Pendentes</h2>
+                        <span className="bg-blue-100 text-blue-600 px-2.5 py-0.5 rounded-full text-xs font-black">
+                            {invites.filter((i: any) => i.status === 'PENDING').length}
+                        </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+                        {invites.filter((i: any) => i.status === 'PENDING').map((invite: any) => (
+                            <div key={invite.id} className="bg-white border border-gray-100 p-4 rounded-2xl flex justify-between items-center shadow-sm group hover:border-blue-200 transition-all">
+                                <div className="space-y-1 overflow-hidden">
+                                    <p className="text-sm font-bold truncate">{invite.email}</p>
+                                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-tighter">
+                                        Papel: {invite.role === 'ADMIN' ? 'Gestor' : 'Motorista'}
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        if (confirm('Deseja cancelar este convite?')) {
+                                            cancelInviteMutation.mutate(invite.id);
+                                        }
+                                    }}
+                                    className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                                >
+                                    <Trash2 size={16} />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Filter Bar */}
             <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
@@ -103,7 +168,7 @@ export function UsersList() {
                             onChange={(e) => setRoleFilter(e.target.value)}
                             className="bg-transparent outline-none text-sm font-bold pr-8 py-2"
                         >
-                                                        <option value="ALL">Papel: Todos</option>
+                            <option value="ALL">Papel: Todos</option>
                             <option value="ADMIN">Gestores</option>
                             <option value="DRIVER">Motoristas</option>
                         </select>
