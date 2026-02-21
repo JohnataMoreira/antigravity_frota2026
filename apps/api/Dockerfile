@@ -46,7 +46,7 @@ RUN node -e "require('@prisma/client'); require('@nestjs/common'); require('@nes
 EXPOSE 3000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=5 \
     CMD node -e "const port = process.env.PORT || 3000; require('http').get(`http://localhost:${port}/api/health`, (r) => r.statusCode === 200 ? process.exit(0) : process.exit(1))"
 
 # Auto-migrate on startup, then start the API

@@ -60,6 +60,12 @@ services:
       - "traefik.http.routers.frota-api.entrypoints=websecure"
       - "traefik.http.routers.frota-api.tls.certresolver=letsencrypt"
       - "traefik.http.services.frota-api.loadbalancer.server.port=3000"
+    deploy:
+      resources:
+        limits:
+          memory: 2048M
+        reservations:
+          memory: 512M
 
   # Web Frontend
   web:
