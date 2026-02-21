@@ -42,14 +42,26 @@ export class AuthController {
     @Get('google/callback')
     @UseGuards(AuthGuard('google'))
     async googleAuthRedirect(@Request() req: any, @Response() res: any) {
-        const result = await this.authService.signSocialToken(req.user);
+        console.log('[AuthController] Google callback received. User profile:', req.user ? JSON.stringify(req.user) : 'UNDEFINED');
 
-        // Redirect to frontend with token and user data (stringified)
-        // In a more secure setup, we might only send the token and have the frontend fetch profile 
-        const frontendUrl = process.env.FRONTEND_URL || 'https://frota.johnatamoreira.com.br';
-        const redirectUrl = `${frontendUrl}/login?token=${result.access_token}&user=${encodeURIComponent(JSON.stringify(result.user))}`;
+        try {
+            if (!req.user) {
+                console.error('[AuthController] No user profile in request');
+                return res.redirect(`${process.env.FRONTEND_URL || 'https://frota.johnatamoreira.com.br'}/login?error=no_profile`);
+            }
 
-        return res.redirect(redirectUrl);
+            const result = await this.authService.signSocialToken(req.user);
+            console.log('[AuthController] Social token signed. Redirecting...');
+
+            const frontendUrl = process.env.FRONTEND_URL || 'https://frota.johnatamoreira.com.br';
+            const redirectUrl = `${frontendUrl}/login?token=${result.access_token}&user=${encodeURIComponent(JSON.stringify(result.user))}`;
+
+            return res.redirect(redirectUrl);
+        } catch (error: any) {
+            console.error('[AuthController] Error during googleAuthRedirect:', error);
+            const frontendUrl = process.env.FRONTEND_URL || 'https://frota.johnatamoreira.com.br';
+            return res.redirect(`${frontendUrl}/login?error=${encodeURIComponent(error.message || 'internal_error')}`);
+        }
     }
 
     @Get('me')
