@@ -15,6 +15,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     }
 
     async validate(accessToken: string, refreshToken: string, profile: any, done: VerifyCallback): Promise<any> {
+        console.log('[GoogleStrategy] Validating profile:', JSON.stringify(profile));
         const { name, emails, photos } = profile;
         const user = {
             email: emails && emails[0] ? emails[0].value : null,
@@ -24,7 +25,10 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
             accessToken,
         };
 
+        console.log('[GoogleStrategy] Extracted user data:', JSON.stringify(user));
+
         if (!user.email) {
+            console.error('[GoogleStrategy] No email found in profile');
             return done(new Error('Email not provided by Google'), undefined);
         }
 
