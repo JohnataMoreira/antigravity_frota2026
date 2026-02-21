@@ -175,7 +175,7 @@ export class AuthService {
         };
 
         const token = await this.jwt.signAsync(payload, {
-            secret: process.env.JWT_SECRET,
+            secret: process.env.JWT_SECRET || 'frota2026_fallback_secret_for_emergency_use_only',
         });
 
         return {
