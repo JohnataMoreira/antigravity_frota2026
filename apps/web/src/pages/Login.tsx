@@ -217,7 +217,10 @@ export function Login() {
 
                         <button
                             type="button"
-                            onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`}
+                            onClick={() => {
+                                const baseUrl = import.meta.env.VITE_API_URL || '/api';
+                                window.location.href = `${baseUrl}/auth/google`;
+                            }}
                             className="w-full py-3 px-6 bg-white/5 border border-border/50 text-foreground rounded-2xl font-semibold flex items-center justify-center gap-3 hover:bg-white/10 transition-all active:scale-[0.98]"
                         >
                             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5" alt="Google" />
