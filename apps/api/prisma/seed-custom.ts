@@ -66,19 +66,23 @@ async function main() {
     // Keep Admin user to avoid lockouts if running multiple times
     // ---------------------------
 
-    // 2. Users (Admin + 19 Drivers = 20 total)
-    console.log('👥 Gerando 20 usuários...');
-    await prisma.user.upsert({
-        where: { email: 'admin@paraopeba.com.br' },
-        update: { organizationId: org.id },
-        create: {
-            name: 'Administrador Paraopeba',
-            email: 'admin@paraopeba.com.br',
-            passwordHash,
-            role: Role.ADMIN,
-            organizationId: org.id,
-        },
-    });
+    // 2. Users (Admins + 19 Drivers = 20+ total)
+    console.log('👥 Gerando usuários...');
+    const adminEmails = ['admin@paraopeba.com.br', 'johnatavinicius@hotmail.com'];
+
+    for (const email of adminEmails) {
+        await prisma.user.upsert({
+            where: { email },
+            update: { organizationId: org.id },
+            create: {
+                name: email === 'johnatavinicius@hotmail.com' ? 'Johnata Moreira' : 'Administrador Paraopeba',
+                email,
+                passwordHash,
+                role: Role.ADMIN,
+                organizationId: org.id,
+            },
+        });
+    }
 
     const drivers = [];
     for (let i = 0; i < 19; i++) {
