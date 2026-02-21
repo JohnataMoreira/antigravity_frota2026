@@ -11,6 +11,7 @@ import {
 } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
+// Instantiate with explicit settings if needed, but usually default is fine
 const prisma = new PrismaClient();
 
 const firstNames = ['João', 'Maria', 'José', 'Ana', 'Carlos', 'Paulo', 'Antônio', 'Marcos', 'Luiz', 'Gabriel', 'Rafael', 'Daniel', 'Marcelo', 'Fernando', 'Ricardo', 'Lucas', 'André', 'Roberto', 'Bruno', 'Tiago', 'Rodrigo', 'Sandro', 'Fabiano', 'Renato', 'Juliana', 'Camila', 'Fernanda', 'Patrícia', 'Aline', 'Sandra', 'Regina', 'Sônia', 'Marcia', 'Cláudia', 'Letícia', 'Tatiana', 'Vanessa', 'Beatriz', 'Bárbara', 'Priscila'];
@@ -57,9 +58,17 @@ async function main() {
         create: { name: 'Grupo Paraopeba S.A.', document: '12.345.678/0001-90' },
     });
 
+    // --- IDEMPOTENCY CLEANUP ---
+    console.log('🧹 Limpando dados antigos para garantir idempotência...');
+    await prisma.journey.deleteMany({ where: { organizationId: org.id } });
+    await prisma.vehicle.deleteMany({ where: { organizationId: org.id } });
+    await prisma.user.deleteMany({ where: { organizationId: org.id, role: Role.DRIVER } });
+    // Keep Admin user to avoid lockouts if running multiple times
+    // ---------------------------
+
     // 2. Users (Admin + 19 Drivers = 20 total)
     console.log('👥 Gerando 20 usuários...');
-    const admin = await prisma.user.upsert({
+    await prisma.user.upsert({
         where: { email: 'admin@paraopeba.com.br' },
         update: { organizationId: org.id },
         create: {
@@ -73,12 +82,13 @@ async function main() {
 
     const drivers = [];
     for (let i = 0; i < 19; i++) {
+        const email = `motorista${i}@paraopeba.com.br`;
         const u = await prisma.user.upsert({
-            where: { email: `motorista${i}@paraopeba.com.br` },
+            where: { email: email },
             update: { organizationId: org.id },
             create: {
                 name: `${pick(firstNames)} ${pick(lastNames)}`,
-                email: `motorista${i}@paraopeba.com.br`,
+                email: email,
                 passwordHash,
                 role: Role.DRIVER,
                 organizationId: org.id,
@@ -151,6 +161,7 @@ async function main() {
     console.log('🔧 Gerando algumas manutenções...');
     for (let i = 0; i < 10; i++) {
         const vehicle = pick(vehicles);
+        const date = new Date(now.getTime() - randInt(5, 60) * 24 * 3600000);
         await prisma.maintenance.create({
             data: {
                 organizationId: org.id,
@@ -158,8 +169,8 @@ async function main() {
                 type: pick([MaintenanceType.OIL, MaintenanceType.INSPECTION]),
                 status: MaintenanceStatus.COMPLETED,
                 cost: randInt(200, 1500),
-                performedAt: new Date(now.getTime() - randInt(5, 60) * 24 * 3600000),
-            }
+                performedAt: date,
+            } as any
         });
     }
 
@@ -168,7 +179,7 @@ async function main() {
 
 main()
     .catch((e) => {
-        console.error(e);
+        console.error('❌ Erro no seed:', e);
         process.exit(1);
     })
     .finally(async () => {
