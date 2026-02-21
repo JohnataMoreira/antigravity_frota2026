@@ -21,10 +21,15 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
                         }
 
                         // Apply organizationId to filters
-                        if (['findFirst', 'findMany', 'count', 'update', 'updateMany', 'delete', 'deleteMany', 'aggregate'].includes(operation)) {
+                        if (['findFirst', 'findMany', 'findUnique', 'count', 'update', 'updateMany', 'delete', 'deleteMany', 'aggregate'].includes(operation)) {
                             /* eslint-disable @typescript-eslint/no-explicit-any */
                             const anyArgs = (args || {}) as any;
-                            anyArgs.where = { ...anyArgs.where, organizationId };
+
+                            // If it's a model that should be isolated and we have an organizationId
+                            if (organizationId) {
+                                anyArgs.where = { ...anyArgs.where, organizationId };
+                            }
+
                             args = anyArgs;
                         }
 

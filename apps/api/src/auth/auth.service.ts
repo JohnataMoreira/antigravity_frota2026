@@ -57,83 +57,112 @@ export class AuthService {
     }
 
     async registerOrg(dto: RegisterOrgDto) {
+        console.log(`[AuthService] Attempting to register organization: ${dto.orgName} for user: ${dto.email}`);
         // Check if user email already exists (global unique)
         const existingUser = await this.prisma.user.findUnique({
             where: { email: dto.email },
         });
-        if (existingUser) throw new ConflictException('User email already exists');
+        if (existingUser) {
+            console.warn(`[AuthService] Registration failed: Email ${dto.email} already exists`);
+            throw new ConflictException('User email already exists');
+        }
 
         // Check if org document already exists if provided
         if (dto.document) {
             const existingOrg = await this.prisma.organization.findUnique({
                 where: { document: dto.document },
             });
-            if (existingOrg) throw new ConflictException('Organization already exists');
+            if (existingOrg) {
+                console.warn(`[AuthService] Registration failed: Organization document ${dto.document} already exists`);
+                throw new ConflictException('Organization already exists');
+            }
         }
 
         // Transaction to create Org + Admin User
-        const { org, user } = await this.prisma.$transaction(async (tx) => {
-            const org = await tx.organization.create({
-                data: {
-                    name: dto.orgName,
-                    document: dto.document || `TEMP-${Date.now()}`,
-                },
+        try {
+            const { org, user } = await this.prisma.$transaction(async (tx) => {
+                const org = await tx.organization.create({
+                    data: {
+                        name: dto.orgName,
+                        document: dto.document || `TEMP-${Date.now()}`,
+                    },
+                });
+
+                const salt = await bcrypt.genSalt();
+                const passwordHash = await bcrypt.hash(dto.password, salt);
+
+                const user = await tx.user.create({
+                    data: {
+                        organizationId: org.id,
+                        email: dto.email,
+                        name: `${dto.firstName} ${dto.lastName}`,
+                        firstName: dto.firstName,
+                        lastName: dto.lastName,
+                        passwordHash,
+                        role: 'ADMIN',
+                    },
+                });
+
+                return { org, user };
             });
 
-            const salt = await bcrypt.genSalt();
-            const passwordHash = await bcrypt.hash(dto.password, salt);
+            console.log(`[AuthService] Successfully registered organization ${org.name} (ID: ${org.id}) and admin ${user.email}`);
 
-            const user = await tx.user.create({
-                data: {
-                    organizationId: org.id,
-                    email: dto.email,
-                    name: `${dto.firstName} ${dto.lastName}`,
-                    firstName: dto.firstName,
-                    lastName: dto.lastName,
-                    passwordHash,
-                    role: 'ADMIN',
-                },
+            await this.audit.log({
+                organizationId: org.id,
+                userId: user.id,
+                action: AuditAction.CREATE,
+                entity: AuditEntity.ORGANIZATION,
+                entityId: org.id,
+                metadata: { email: user.email }
             });
 
-            return { org, user };
-        });
-
-        await this.audit.log({
-            organizationId: org.id,
-            userId: user.id,
-            action: AuditAction.CREATE,
-            entity: AuditEntity.ORGANIZATION,
-            entityId: org.id,
-            metadata: { email: user.email }
-        });
-
-        return this.signToken(user.id, org.id, user.email, user.role, user.name);
+            return this.signToken(user.id, org.id, user.email, user.role, user.name);
+        } catch (error) {
+            console.error(`[AuthService] Critical error during organization registration:`, error);
+            throw error;
+        }
     }
 
     async login(dto: LoginDto) {
-        // 1. Find the user by email globally
-        const user = await this.prisma.user.findUnique({
-            where: { email: dto.email },
-        });
+        console.log(`[AuthService] Login attempt for email: ${dto.email}`);
 
-        if (!user) throw new UnauthorizedException('Credentials incorrect');
+        try {
+            // 1. Find the user by email globally
+            const user = await this.prisma.user.findUnique({
+                where: { email: dto.email },
+            });
 
-        // 2. Verify password
-        const pwMatches = await bcrypt.compare(dto.password, user.passwordHash);
-        if (!pwMatches) throw new UnauthorizedException('Credentials incorrect');
+            if (!user) {
+                console.warn(`[AuthService] Login failed: User not found for email ${dto.email}`);
+                throw new UnauthorizedException('Credentials incorrect');
+            }
 
-        const result = await this.signToken(user.id, user.organizationId, user.email, user.role, user.name);
+            // 2. Verify password
+            const pwMatches = await bcrypt.compare(dto.password, user.passwordHash);
+            if (!pwMatches) {
+                console.warn(`[AuthService] Login failed: Incorrect password for email ${dto.email}`);
+                throw new UnauthorizedException('Credentials incorrect');
+            }
 
-        await this.audit.log({
-            organizationId: user.organizationId,
-            userId: user.id,
-            action: AuditAction.LOGIN,
-            entity: AuditEntity.USER,
-            entityId: user.id,
-            metadata: { email: user.email }
-        });
+            console.log(`[AuthService] Login successful for email: ${dto.email} (OrgID: ${user.organizationId})`);
+            const result = await this.signToken(user.id, user.organizationId, user.email, user.role, user.name);
 
-        return result;
+            await this.audit.log({
+                organizationId: user.organizationId,
+                userId: user.id,
+                action: AuditAction.LOGIN,
+                entity: AuditEntity.USER,
+                entityId: user.id,
+                metadata: { email: user.email }
+            });
+
+            return result;
+        } catch (error) {
+            if (error instanceof UnauthorizedException) throw error;
+            console.error(`[AuthService] Unexpected error during login for ${dto.email}:`, error);
+            throw error;
+        }
     }
 
     async signToken(userId: string, orgId: string, email: string, role: string, name: string) {
