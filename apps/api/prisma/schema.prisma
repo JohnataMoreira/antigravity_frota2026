@@ -116,6 +116,28 @@ enum TyreStatus {
   SCRAP
 }
 
+enum FineStatus {
+  PENDING_IDENTIFICATION
+  IDENTIFIED
+  PAID
+  APPEAL
+  CANCELED
+}
+
+enum AlertSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+enum AlertType {
+  MAINTENANCE
+  DOCUMENT
+  STOCK
+  FINE
+  EXPIRY
+}
+
 model Organization {
   id        String   @id @default(uuid())
   name      String
@@ -140,6 +162,8 @@ model Organization {
   attachments           Attachment[]
   tyres                 Tyre[]
   invites               Invite[]
+  trafficFines          TrafficFine[]
+  alerts                Alert[]
 }
 
 model Invite {
@@ -212,6 +236,7 @@ model User {
   documents       Document[]
   requestedOrders PurchaseOrder[] @relation("RequestedOrders")
   approvedOrders  PurchaseOrder[] @relation("ApprovedOrders")
+  trafficFines    TrafficFine[]
 }
 
 model Vehicle {
@@ -240,6 +265,7 @@ model Vehicle {
   documents        Document[]
   tyres            Tyre[]
   tyreMovements    TyreMovement[]
+  trafficFines     TrafficFine[]
 
   @@unique([organizationId, plate])
   @@index([organizationId, status])
@@ -272,6 +298,7 @@ model Journey {
   checklists  Checklist[]
   fuelEntries FuelEntry[]
   attachments Attachment[]
+  trafficFines TrafficFine[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -568,6 +595,7 @@ model FinancialTransaction {
   maintenanceId   String?
   fuelEntryId     String?
   supplierId      String?
+  trafficFineId   String?
 
   notes         String?
   attachmentUrl String? // Comprovante de pagamento
@@ -580,6 +608,7 @@ model FinancialTransaction {
   maintenance   Maintenance?   @relation(fields: [maintenanceId], references: [id])
   fuelEntry     FuelEntry?     @relation(fields: [fuelEntryId], references: [id])
   supplier      Supplier?      @relation(fields: [supplierId], references: [id])
+  trafficFine   TrafficFine?   @relation(fields: [trafficFineId], references: [id])
 
   @@index([organizationId, status])
   @@index([organizationId, dueDate])
@@ -591,6 +620,7 @@ model Attachment {
   checklistId    String?
   incidentId     String?
   journeyId      String? // For signatures linked to journeys
+  trafficFineId  String?
 
   url          String
   type         AttachmentType @default(IMAGE)
@@ -605,11 +635,13 @@ model Attachment {
   checklist    Checklist?   @relation(fields: [checklistId], references: [id])
   incident     Incident?    @relation(fields: [incidentId], references: [id])
   journey      Journey?     @relation(fields: [journeyId], references: [id])
+  trafficFine  TrafficFine? @relation(fields: [trafficFineId], references: [id])
 
   @@index([organizationId])
   @@index([checklistId])
   @@index([incidentId])
   @@index([journeyId])
+  @@index([trafficFineId])
 }
 
 model Tyre {
@@ -682,4 +714,54 @@ model TyreMeasurement {
   tyre Tyre @relation(fields: [tyreId], references: [id])
 
   @@index([tyreId])
+}
+
+model TrafficFine {
+  id             String @id @default(uuid())
+  organizationId String
+  vehicleId      String
+  driverId       String?
+  journeyId      String?
+
+  code           String // Código da infração
+  description    String
+  occurredAt     DateTime
+  location       String?
+  amount         Float
+  points         Int?
+  status         FineStatus @default(PENDING_IDENTIFICATION)
+  
+  // Link to source entities
+  organization Organization @relation(fields: [organizationId], references: [id])
+  vehicle      Vehicle      @relation(fields: [vehicleId], references: [id])
+  driver       User?        @relation(fields: [driverId], references: [id])
+  journey      Journey?     @relation(fields: [journeyId], references: [id])
+  attachments  Attachment[]
+  financialTransactions FinancialTransaction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organizationId, status])
+  @@index([vehicleId])
+  @@index([driverId])
+}
+
+model Alert {
+  id             String @id @default(uuid())
+  organizationId String
+  
+  type           AlertType
+  severity       AlertSeverity @default(INFO)
+  message        String
+  entityId       String?       // Link to Vehicle, Maintenance, Stock, etc.
+  entityType     String?       // "Vehicle", "Maintenance", etc.
+  isRead         Boolean       @default(false)
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, isRead])
 }

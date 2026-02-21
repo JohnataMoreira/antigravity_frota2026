@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
-// Local enum mirrors schema — avoids Prisma client type lag after schema changes
+// FineStatus enum — Prisma client may lag after schema regen in IDE
 export enum FineStatus {
     PENDING_IDENTIFICATION = 'PENDING_IDENTIFICATION',
     IDENTIFIED = 'IDENTIFIED',
@@ -12,15 +13,13 @@ export enum FineStatus {
 
 @Injectable()
 export class FinesService {
-    private get tf() {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return (this.prisma as any).trafficFine;
-    }
+    // PrismaService uses $extends() which returns 'any'. Cast to PrismaClient for type safety.
+    private get db(): PrismaClient { return this.prisma as unknown as PrismaClient; }
 
     constructor(private prisma: PrismaService) { }
 
     async create(organizationId: string, data: any) {
-        const fine = await this.tf.create({
+        const fine = await this.db.trafficFine.create({
             data: {
                 ...data,
                 organizationId,
@@ -51,7 +50,7 @@ export class FinesService {
             };
         }
 
-        return this.tf.findMany({
+        return this.db.trafficFine.findMany({
             where,
             include: {
                 vehicle: { select: { plate: true, model: true } },
@@ -63,7 +62,7 @@ export class FinesService {
     }
 
     async findOne(id: string, organizationId: string) {
-        const fine = await this.tf.findFirst({
+        const fine = await this.db.trafficFine.findFirst({
             where: { id, organizationId },
             include: {
                 vehicle: true,
@@ -78,7 +77,7 @@ export class FinesService {
     }
 
     async autoIdentifyDriver(fineId: string) {
-        const fine = await this.tf.findUnique({
+        const fine = await this.db.trafficFine.findUnique({
             where: { id: fineId },
             include: { vehicle: true },
         });
@@ -98,7 +97,7 @@ export class FinesService {
         });
 
         if (journey) {
-            return this.tf.update({
+            return this.db.trafficFine.update({
                 where: { id: fineId },
                 data: {
                     driverId: journey.driverId,
@@ -113,14 +112,14 @@ export class FinesService {
     }
 
     async updateStatus(id: string, organizationId: string, status: FineStatus) {
-        return this.tf.updateMany({
+        return this.db.trafficFine.updateMany({
             where: { id, organizationId },
             data: { status },
         });
     }
 
     async getFinesSummary(organizationId: string) {
-        return this.tf.groupBy({
+        return this.db.trafficFine.groupBy({
             by: ['status'],
             where: { organizationId },
             _count: true,
