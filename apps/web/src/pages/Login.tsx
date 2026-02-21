@@ -201,7 +201,7 @@ export function Login() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-4 px-6 bg-primary text-primary-foreground rounded-2xl font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/20 disabled:opacity-50"
+                        className="w-full py-4 px-6 bg-primary text-white rounded-2xl font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-primary/25 disabled:opacity-50 disabled:scale-100 disabled:bg-gray-400"
                     >
                         {loading ? 'Processando...' : (isRegistering ? 'Criar Organização' : 'Entrar')}
                     </button>

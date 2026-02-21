@@ -17,7 +17,7 @@ export default {
             colors: {
                 // Frota2026 Design System Colors
                 primary: {
-                    DEFAULT: '#0F172A', // Slate 900 - Profissional, Sério
+                    DEFAULT: '#2563EB', // Blue 600 - Vibrante e Profissional
                     50: '#F8FAFC',
                     100: '#F1F5F9',
                     200: '#E2E8F0',

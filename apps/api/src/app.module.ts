@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { PrismaModule } from './prisma/prisma.module';
@@ -32,6 +32,7 @@ import { ComplianceModule } from './compliance/compliance.module';
 import { PurchasingModule } from './purchasing/purchasing.module';
 import { AttachmentsModule } from './attachments/attachments.module';
 import { TyresModule } from './tyres/tyres.module';
+import { TenantMiddleware } from './prisma/tenant.middleware';
 
 
 @Module({
@@ -66,6 +67,8 @@ import { TyresModule } from './tyres/tyres.module';
         TelemetryModule,
         ComplianceModule,
         PurchasingModule,
+        TyresModule,
+        AttachmentsModule,
     ],
     providers: [
         {
@@ -86,4 +89,10 @@ import { TyresModule } from './tyres/tyres.module';
         },
     ],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+    configure(consumer: MiddlewareConsumer) {
+        consumer
+            .apply(TenantMiddleware)
+            .forRoutes({ path: '*', method: RequestMethod.ALL });
+    }
+}

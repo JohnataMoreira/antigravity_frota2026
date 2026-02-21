@@ -12,8 +12,11 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
                     async $allOperations({ model, operation, args, query }) {
                         const organizationId = TenantContext.get();
 
+                        // Define models that DO NOT have organizationId (isolation skip)
+                        const skippedModels = ['Checklist', 'StockMovement', 'TelemetryRecord', 'PurchaseOrderItem', 'TyreMeasurement'];
+
                         // Skip isolation for Organization model itself or if no tenant context is available (e.g. login/seed)
-                        if (model === 'Organization' || !organizationId) {
+                        if (model === 'Organization' || skippedModels.includes(model as string) || !organizationId) {
                             return query(args);
                         }
 
