@@ -139,6 +139,24 @@ model Organization {
   financialTransactions FinancialTransaction[]
   attachments           Attachment[]
   tyres                 Tyre[]
+  invites               Invite[]
+}
+
+model Invite {
+  id             String   @id @default(uuid())
+  organizationId String
+  email          String
+  role           Role     @default(DRIVER)
+  token          String   @unique
+  status         String   @default("PENDING") // PENDING, ACCEPTED, EXPIRED
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([token])
+  @@index([organizationId])
 }
 
 model AuditLog {
