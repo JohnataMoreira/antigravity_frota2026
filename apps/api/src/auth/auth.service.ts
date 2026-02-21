@@ -191,55 +191,63 @@ export class AuthService {
     }
 
     async signSocialToken(profile: any) {
-        let user = await this.prisma.user.findUnique({
-            where: { email: profile.email },
-        });
+        console.log(`[AuthService] signSocialToken Profile:`, JSON.stringify(profile));
+        try {
+            let user = await this.prisma.user.findUnique({
+                where: { email: profile.email },
+            });
 
-        if (!user) {
-            console.log(`[AuthService] User ${profile.email} not found during social login. Auto-registering...`);
+            if (!user) {
+                console.log(`[AuthService] User ${profile.email} not found during social login. Auto-registering...`);
 
-            // For now, let's find the first organization to bind the auto-registered user
-            // In a real multi-tenant app, you might want to create a new org or ask user
-            const org = await this.prisma.organization.findFirst();
+                const org = await this.prisma.organization.findFirst();
+                console.log(`[AuthService] Default organization found: ${org?.id}`);
 
-            if (!org) {
-                throw new UnauthorizedException('No organization found to bind user. Please contact administrator.');
+                if (!org) {
+                    console.error(`[AuthService] No organization found to bind user.`);
+                    throw new UnauthorizedException('No organization found to bind user. Please contact administrator.');
+                }
+
+                user = await this.prisma.user.create({
+                    data: {
+                        email: profile.email,
+                        name: `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || profile.email,
+                        firstName: profile.firstName || null,
+                        lastName: profile.lastName || null,
+                        passwordHash: 'SOCIAL_AUTH_PROVIDER',
+                        role: 'ADMIN',
+                        organizationId: org.id,
+                    },
+                });
+                console.log(`[AuthService] User created successfully: ${user.id}`);
+
+                await this.audit.log({
+                    organizationId: org.id,
+                    userId: user.id,
+                    action: AuditAction.CREATE,
+                    entity: AuditEntity.USER,
+                    entityId: user.id,
+                    metadata: { email: user.email, provider: 'google', note: 'Auto-registered' }
+                });
             }
 
-            user = await this.prisma.user.create({
-                data: {
-                    email: profile.email,
-                    name: `${profile.firstName} ${profile.lastName}`.trim(),
-                    firstName: profile.firstName,
-                    lastName: profile.lastName,
-                    passwordHash: 'SOCIAL_AUTH_PROVIDER', // Placeholder since they login via Google
-                    role: 'ADMIN', // Default to ADMIN for auto-registered users for now as requested
-                    organizationId: org.id,
-                },
-            });
+            const result = await this.signToken(user.id, user.organizationId, user.email, user.role, user.name);
+            console.log(`[AuthService] Token signed successfully for: ${user.email}`);
 
             await this.audit.log({
-                organizationId: org.id,
+                organizationId: user.organizationId,
                 userId: user.id,
-                action: AuditAction.CREATE,
+                action: AuditAction.LOGIN,
                 entity: AuditEntity.USER,
                 entityId: user.id,
-                metadata: { email: user.email, provider: 'google', note: 'Auto-registered' }
+                metadata: { email: user.email, provider: 'google' }
             });
+
+            return result;
+        } catch (error) {
+            console.error(`[AuthService] Error in signSocialToken:`, error);
+            throw error;
         }
-
-        const result = await this.signToken(user.id, user.organizationId, user.email, user.role, user.name);
-
-        await this.audit.log({
-            organizationId: user.organizationId,
-            userId: user.id,
-            action: AuditAction.LOGIN,
-            entity: AuditEntity.USER,
-            entityId: user.id,
-            metadata: { email: user.email, provider: 'google' }
-        });
-
-        return result;
     }
 
     async getProfile(userId: string) {

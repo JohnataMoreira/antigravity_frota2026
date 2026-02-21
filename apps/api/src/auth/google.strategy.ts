@@ -17,12 +17,17 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     async validate(accessToken: string, refreshToken: string, profile: any, done: VerifyCallback): Promise<any> {
         const { name, emails, photos } = profile;
         const user = {
-            email: emails[0].value,
-            firstName: name.givenName,
-            lastName: name.familyName,
-            picture: photos[0].value,
+            email: emails && emails[0] ? emails[0].value : null,
+            firstName: name ? name.givenName : null,
+            lastName: name ? name.familyName : null,
+            picture: photos && photos[0] ? photos[0].value : null,
             accessToken,
         };
+
+        if (!user.email) {
+            return done(new Error('Email not provided by Google'), undefined);
+        }
+
         done(null, user);
     }
 }
