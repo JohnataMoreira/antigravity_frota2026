@@ -1,26 +1,43 @@
-import {
-    PrismaClient,
-    VehicleType,
-    VehicleStatus,
-    JourneyStatus,
-    Role,
-    FuelType,
-    FuelEntry,
-    MaintenanceType,
-    MaintenanceStatus,
-    ChecklistType,
-    PaymentMethod,
-    TransactionType,
-    TransactionStatus,
-    PurchaseOrderStatus,
-} from '@prisma/client';
-import * as bcrypt from 'bcrypt';
-
-const prisma = new PrismaClient();
-
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+const client_1 = require("@prisma/client");
+const bcrypt = __importStar(require("bcrypt"));
+const prisma = new client_1.PrismaClient();
 const firstNames = ['João', 'Maria', 'José', 'Ana', 'Carlos', 'Paulo', 'Antônio', 'Marcos', 'Luiz', 'Gabriel', 'Rafael', 'Daniel', 'Marcelo', 'Fernando', 'Ricardo', 'Lucas', 'André', 'Roberto', 'Bruno', 'Tiago', 'Rodrigo', 'Sandro', 'Fabiano', 'Renato', 'Juliana', 'Camila', 'Fernanda', 'Patrícia', 'Aline', 'Sandra'];
 const lastNames = ['Silva', 'Santos', 'Oliveira', 'Souza', 'Rodrigues', 'Ferreira', 'Alves', 'Pereira', 'Lima', 'Gomes', 'Costa', 'Ribeiro', 'Martins', 'Carvalho', 'Almeida', 'Lopes', 'Soares', 'Fernandes', 'Vieira', 'Barbosa'];
-
 const carModels = [
     { brand: 'Fiat', model: 'Strada' }, { brand: 'Fiat', model: 'Toro' }, { brand: 'VW', model: 'Saveiro' },
     { brand: 'GM', model: 'S10' }, { brand: 'Toyota', model: 'Hilux' }, { brand: 'Ford', model: 'Ranger' },
@@ -31,7 +48,6 @@ const truckModels = [
     { brand: 'Mercedes', model: 'Actros 2651' }, { brand: 'Iveco', model: 'S-Way' },
     { brand: 'Ford', model: 'Cargo 2429' }, { brand: 'VW', model: 'Constellation 24.280' },
 ];
-
 const fineDescriptions = [
     { code: '7455', description: 'Velocidade superior à máxima permitida em até 20%', points: 4 },
     { code: '7463', description: 'Velocidade superior à máxima em mais de 20% até 50%', points: 5 },
@@ -42,13 +58,11 @@ const fineDescriptions = [
     { code: '6006', description: 'Estacionar em faixa de pedestres', points: 5 },
     { code: '5290', description: 'Usar aparelho celular ao volante', points: 7 },
 ];
-
 const supplierNames = [
     'Auto Peças Belo Horizonte Ltda', 'Distribuidora Sul Pneus S.A.', 'Posto Shell Contagem',
     'Lubromax Lubrificantes', 'MG Truck Parts', 'AutoCenter Premium', 'Filtros & Cia',
     'Elétrica Veicular MG', 'Mecânica Total Ltda', 'BH Combustíveis',
 ];
-
 const inventoryData = [
     { name: 'Óleo Motor 15W40', sku: 'OIL-15W40', category: 'Lubrificantes', unit: 'L', minQuantity: 20, currentQuantity: 45, price: 18.90 },
     { name: 'Filtro de Óleo Scania', sku: 'FLT-OIL-SCAN', category: 'Filtros', unit: 'UN', minQuantity: 10, currentQuantity: 23, price: 45.00 },
@@ -61,39 +75,38 @@ const inventoryData = [
     { name: 'Lâmpada LED Farol', sku: 'LMP-LED-FR', category: 'Elétrica', unit: 'UN', minQuantity: 10, currentQuantity: 22, price: 35.00 },
     { name: 'Graxa de Chassis', sku: 'GRS-CHS', category: 'Lubrificantes', unit: 'KG', minQuantity: 5, currentQuantity: 12, price: 28.00 },
 ];
-
-function pick<T>(arr: T[]): T {
+function pick(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
-function randInt(min: number, max: number): number {
+function randInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-function randFloat(min: number, max: number): number {
+function randFloat(min, max) {
     return parseFloat((Math.random() * (max - min) + min).toFixed(2));
 }
-function daysAgo(days: number): Date {
+function daysAgo(days) {
     return new Date(Date.now() - days * 24 * 3600000);
 }
-function generatePlate(): string {
+function generatePlate() {
     const L = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const N = '0123456789';
     let p = '';
-    for (let i = 0; i < 3; i++) p += L[randInt(0, 25)];
+    for (let i = 0; i < 3; i++)
+        p += L[randInt(0, 25)];
     p += '-';
-    for (let i = 0; i < 4; i++) p += N[randInt(0, 9)];
+    for (let i = 0; i < 4; i++)
+        p += N[randInt(0, 9)];
     return p;
 }
-function generateCPF(): string {
+function generateCPF() {
     const n = () => randInt(100000000, 999999999);
     return `${n()}-${randInt(10, 99)}`;
 }
-
 async function main() {
     console.log('🏁 Iniciando Seed Completo v2 — Frota2026...');
     const t0 = Date.now();
     const passwordHash = await bcrypt.hash('123456', 10);
     const now = new Date();
-
     // ============================================================
     // 1. Organization
     // ============================================================
@@ -103,14 +116,23 @@ async function main() {
         update: {},
         create: { name: 'Grupo Paraopeba S.A.', document: '12.345.678/0001-90' },
     });
-
     // ============================================================
     // 2. Cleanup (idempotent)
     // ============================================================
     console.log('🧹 Limpando dados antigos...');
     // Wrap new models in try/catch — Prisma Client may not have regenerated yet
-    try { await (prisma as any).alert.deleteMany({ where: { organizationId: org.id } }); } catch (e) { console.warn('  ⚠️ Alert não disponível ainda (pular)'); }
-    try { await (prisma as any).trafficFine.deleteMany({ where: { organizationId: org.id } }); } catch (e) { console.warn('  ⚠️ TrafficFine não disponível ainda (pular)'); }
+    try {
+        await prisma.alert.deleteMany({ where: { organizationId: org.id } });
+    }
+    catch (e) {
+        console.warn('  ⚠️ Alert não disponível ainda (pular)');
+    }
+    try {
+        await prisma.trafficFine.deleteMany({ where: { organizationId: org.id } });
+    }
+    catch (e) {
+        console.warn('  ⚠️ TrafficFine não disponível ainda (pular)');
+    }
     await prisma.attachment.deleteMany({ where: { organizationId: org.id } });
     await prisma.financialTransaction.deleteMany({ where: { organizationId: org.id } });
     await prisma.purchaseOrderItem.deleteMany({});
@@ -127,8 +149,7 @@ async function main() {
     await prisma.journey.deleteMany({ where: { organizationId: org.id } });
     await prisma.telemetryRecord.deleteMany({});
     await prisma.vehicle.deleteMany({ where: { organizationId: org.id } });
-    await prisma.user.deleteMany({ where: { organizationId: org.id, role: Role.DRIVER } });
-
+    await prisma.user.deleteMany({ where: { organizationId: org.id, role: client_1.Role.DRIVER } });
     // ============================================================
     // 3. Users
     // ============================================================
@@ -142,15 +163,14 @@ async function main() {
                 name: email.includes('johnata') ? 'Johnata Moreira' : 'Administrador Paraopeba',
                 email,
                 passwordHash,
-                role: Role.ADMIN,
+                role: client_1.Role.ADMIN,
                 organizationId: org.id,
                 phone: '(31) 9999-9999',
                 licenseNumber: `MG-${randInt(1000000, 9999999)}`,
             },
         });
     }
-
-    const drivers: any[] = [];
+    const drivers = [];
     const driverData = [
         { firstName: 'Carlos', lastName: 'Silva', city: 'Belo Horizonte' },
         { firstName: 'Marcos', lastName: 'Oliveira', city: 'Contagem' },
@@ -184,7 +204,7 @@ async function main() {
                 lastName: d.lastName,
                 email,
                 passwordHash,
-                role: Role.DRIVER,
+                role: client_1.Role.DRIVER,
                 organizationId: org.id,
                 phone: `(31) 9${randInt(1000, 9999)}-${randInt(1000, 9999)}`,
                 licenseNumber: `MG-${randInt(1000000, 9999999)}`,
@@ -196,15 +216,14 @@ async function main() {
         });
         drivers.push(u);
     }
-
     // ============================================================
     // 4. Vehicles (50)
     // ============================================================
     console.log('🚗 Gerando 50 veículos...');
-    const vehicles: any[] = [];
+    const vehicles = [];
     for (let i = 0; i < 50; i++) {
-        const type = i < 22 ? VehicleType.TRUCK : i < 38 ? VehicleType.CAR : i < 44 ? VehicleType.MOTORCYCLE : VehicleType.MACHINE;
-        const models = type === VehicleType.TRUCK ? truckModels : carModels;
+        const type = i < 22 ? client_1.VehicleType.TRUCK : i < 38 ? client_1.VehicleType.CAR : i < 44 ? client_1.VehicleType.MOTORCYCLE : client_1.VehicleType.MACHINE;
+        const models = type === client_1.VehicleType.TRUCK ? truckModels : carModels;
         const m = pick(models);
         const plate = generatePlate();
         const currentKm = randInt(15000, 250000);
@@ -217,7 +236,7 @@ async function main() {
                 brand: m.brand,
                 type,
                 currentKm,
-                status: pick([VehicleStatus.AVAILABLE, VehicleStatus.AVAILABLE, VehicleStatus.AVAILABLE, VehicleStatus.MAINTENANCE, VehicleStatus.IN_USE]),
+                status: pick([client_1.VehicleStatus.AVAILABLE, client_1.VehicleStatus.AVAILABLE, client_1.VehicleStatus.AVAILABLE, client_1.VehicleStatus.MAINTENANCE, client_1.VehicleStatus.IN_USE]),
                 fuelLevel: randFloat(20, 100),
                 year: randInt(2018, 2025),
                 lastMaintenanceKm: currentKm - randInt(1000, 15000),
@@ -227,28 +246,26 @@ async function main() {
         });
         vehicles.push(v);
     }
-
     // ============================================================
     // 5. Maintenance Templates
     // ============================================================
     console.log('📋 Criando catálogo de serviços...');
     const templates = [
-        { name: 'Troca de Óleo e Filtro', type: 'PREVENTIVE', vehicleTypes: [VehicleType.TRUCK, VehicleType.CAR], intervalKm: 10000, intervalMonths: 6 },
-        { name: 'Revisão de Freios', type: 'PREVENTIVE', vehicleTypes: [VehicleType.TRUCK, VehicleType.CAR], intervalKm: 20000, intervalMonths: 12 },
-        { name: 'Alinhamento e Balanceamento', type: 'PREVENTIVE', vehicleTypes: [VehicleType.CAR], intervalKm: 10000, intervalMonths: 6 },
-        { name: 'Revisão de Suspensão', type: 'PREVENTIVE', vehicleTypes: [VehicleType.TRUCK], intervalKm: 30000, intervalMonths: 12 },
-        { name: 'Troca de Correia Dentada', type: 'PREVENTIVE', vehicleTypes: [VehicleType.CAR], intervalKm: 60000, intervalMonths: 48 },
-        { name: 'Revisão Geral Programada', type: 'PREVENTIVE', vehicleTypes: [VehicleType.TRUCK, VehicleType.CAR, VehicleType.MOTORCYCLE], intervalKm: 25000, intervalMonths: 12 },
+        { name: 'Troca de Óleo e Filtro', type: 'PREVENTIVE', vehicleTypes: [client_1.VehicleType.TRUCK, client_1.VehicleType.CAR], intervalKm: 10000, intervalMonths: 6 },
+        { name: 'Revisão de Freios', type: 'PREVENTIVE', vehicleTypes: [client_1.VehicleType.TRUCK, client_1.VehicleType.CAR], intervalKm: 20000, intervalMonths: 12 },
+        { name: 'Alinhamento e Balanceamento', type: 'PREVENTIVE', vehicleTypes: [client_1.VehicleType.CAR], intervalKm: 10000, intervalMonths: 6 },
+        { name: 'Revisão de Suspensão', type: 'PREVENTIVE', vehicleTypes: [client_1.VehicleType.TRUCK], intervalKm: 30000, intervalMonths: 12 },
+        { name: 'Troca de Correia Dentada', type: 'PREVENTIVE', vehicleTypes: [client_1.VehicleType.CAR], intervalKm: 60000, intervalMonths: 48 },
+        { name: 'Revisão Geral Programada', type: 'PREVENTIVE', vehicleTypes: [client_1.VehicleType.TRUCK, client_1.VehicleType.CAR, client_1.VehicleType.MOTORCYCLE], intervalKm: 25000, intervalMonths: 12 },
     ];
     for (const t of templates) {
-        await (prisma.maintenanceTemplate as any).create({ data: { ...t, organizationId: org.id } });
+        await prisma.maintenanceTemplate.create({ data: { ...t, organizationId: org.id } });
     }
-
     // ============================================================
     // 6. Journeys (60) with FuelEntries
     // ============================================================
     console.log('🛣️  Gerando 60 jornadas com abastecimentos...');
-    const journeys: any[] = [];
+    const journeys = [];
     const destinations = ['Vitória/ES', 'Rio de Janeiro/RJ', 'São Paulo/SP', 'Uberlândia/MG', 'Juiz de Fora/MG', 'Montes Claros/MG', 'Governador Valadares/MG'];
     for (let i = 0; i < 60; i++) {
         const vehicle = pick(vehicles);
@@ -260,13 +277,12 @@ async function main() {
         const startKm = vehicle.currentKm - randInt(1000, 5000);
         const kmDriven = randInt(150, 800);
         const endKm = startKm + kmDriven;
-
         const j = await prisma.journey.create({
             data: {
                 organizationId: org.id,
                 driverId: driver.id,
                 vehicleId: vehicle.id,
-                status: i < 55 ? JourneyStatus.COMPLETED : JourneyStatus.IN_PROGRESS,
+                status: i < 55 ? client_1.JourneyStatus.COMPLETED : client_1.JourneyStatus.IN_PROGRESS,
                 startKm,
                 endKm: i < 55 ? endKm : undefined,
                 startTime,
@@ -277,7 +293,7 @@ async function main() {
                 checklists: {
                     create: [
                         {
-                            type: ChecklistType.CHECKOUT,
+                            type: client_1.ChecklistType.CHECKOUT,
                             items: [
                                 { itemId: 'pneus', status: 'OK' },
                                 { itemId: 'oleo', status: 'OK' },
@@ -294,20 +310,18 @@ async function main() {
         });
         journeys.push({ ...j, driver, vehicle });
     }
-
     // ============================================================
     // 7. Fuel Entries (80)
     // ============================================================
     console.log('⛽ Gerando 80 abastecimentos...');
-    const fuelTypes = [FuelType.DIESEL, FuelType.DIESEL, FuelType.DIESEL, FuelType.GASOLINE, FuelType.ETHANOL];
-    const paymentMethods = [PaymentMethod.FUEL_CARD, PaymentMethod.FUEL_CARD, PaymentMethod.CASH, PaymentMethod.PIX, PaymentMethod.CREDIT_CARD];
+    const fuelTypes = [client_1.FuelType.DIESEL, client_1.FuelType.DIESEL, client_1.FuelType.DIESEL, client_1.FuelType.GASOLINE, client_1.FuelType.ETHANOL];
+    const paymentMethods = [client_1.PaymentMethod.FUEL_CARD, client_1.PaymentMethod.FUEL_CARD, client_1.PaymentMethod.CASH, client_1.PaymentMethod.PIX, client_1.PaymentMethod.CREDIT_CARD];
     for (let i = 0; i < 80; i++) {
         const j = pick(journeys);
         const liters = randFloat(30, 250);
         const pricePerLiter = randFloat(5.40, 6.80);
         const totalValue = parseFloat((liters * pricePerLiter).toFixed(2));
-        const fuelType = j.vehicle.type === VehicleType.TRUCK ? FuelType.DIESEL : pick(fuelTypes);
-
+        const fuelType = j.vehicle.type === client_1.VehicleType.TRUCK ? client_1.FuelType.DIESEL : pick(fuelTypes);
         await prisma.fuelEntry.create({
             data: {
                 organizationId: org.id,
@@ -325,12 +339,11 @@ async function main() {
             }
         });
     }
-
     // ============================================================
     // 8. Maintenances (30)
     // ============================================================
     console.log('🔧 Gerando 30 manutenções...');
-    const maintenanceTypes = [MaintenanceType.OIL, MaintenanceType.TIRES, MaintenanceType.INSPECTION, MaintenanceType.OTHER];
+    const maintenanceTypes = [client_1.MaintenanceType.OIL, client_1.MaintenanceType.TIRES, client_1.MaintenanceType.INSPECTION, client_1.MaintenanceType.OTHER];
     for (let i = 0; i < 30; i++) {
         const vehicle = pick(vehicles);
         const type = pick(maintenanceTypes);
@@ -342,22 +355,21 @@ async function main() {
                 organizationId: org.id,
                 vehicleId: vehicle.id,
                 type,
-                status: i < 22 ? MaintenanceStatus.COMPLETED : MaintenanceStatus.PENDING,
+                status: i < 22 ? client_1.MaintenanceStatus.COMPLETED : client_1.MaintenanceStatus.PENDING,
                 lastKm: vehicle.currentKm - randInt(500, 10000),
                 nextDueKm: vehicle.currentKm + randInt(5000, 15000),
                 nextDueDate: new Date(now.getTime() + randInt(30, 180) * 24 * 3600000),
                 cost: i < 22 ? cost : undefined,
                 performedAt: i < 22 ? performedAt : undefined,
                 notes: pick(['Realizado conforme previsto.', 'Necessário retornar em 30 dias.', 'Peça substituída.', undefined, undefined]),
-            } as any
+            }
         });
     }
-
     // ============================================================
     // 9. Suppliers (10)
     // ============================================================
     console.log('🏪 Gerando fornecedores...');
-    const suppliers: any[] = [];
+    const suppliers = [];
     for (let i = 0; i < supplierNames.length; i++) {
         const s = await prisma.supplier.create({
             data: {
@@ -367,16 +379,15 @@ async function main() {
                 phone: `(31) 3${randInt(100, 999)}-${randInt(1000, 9999)}`,
                 email: `contato@${supplierNames[i].toLowerCase().replace(/\s/g, '').substring(0, 12)}.com.br`,
                 category: pick(['Combustível', 'Peças', 'Pneus', 'Manutenção', 'Lubrificantes']),
-            } as any
+            }
         });
         suppliers.push(s);
     }
-
     // ============================================================
     // 10. Inventory Items
     // ============================================================
     console.log('📦 Populando estoque...');
-    const inventoryItems: any[] = [];
+    const inventoryItems = [];
     for (const item of inventoryData) {
         const inv = await prisma.inventoryItem.create({
             data: { ...item, organizationId: org.id }
@@ -393,15 +404,14 @@ async function main() {
             }
         });
     }
-
     // ============================================================
     // 11. Purchase Orders (8)
     // ============================================================
     console.log('🛒 Gerando ordens de compra...');
-    const adminUser = await prisma.user.findFirst({ where: { organizationId: org.id, role: Role.ADMIN } });
+    const adminUser = await prisma.user.findFirst({ where: { organizationId: org.id, role: client_1.Role.ADMIN } });
     for (let i = 0; i < 8; i++) {
         const supplier = pick(suppliers);
-        const status = pick([PurchaseOrderStatus.COMPLETED, PurchaseOrderStatus.COMPLETED, PurchaseOrderStatus.APPROVED, PurchaseOrderStatus.REQUESTED]);
+        const status = pick([client_1.PurchaseOrderStatus.COMPLETED, client_1.PurchaseOrderStatus.COMPLETED, client_1.PurchaseOrderStatus.APPROVED, client_1.PurchaseOrderStatus.REQUESTED]);
         const inv = pick(inventoryItems);
         const qty = randFloat(5, 50);
         const unitPrice = inv.price ?? randFloat(50, 500);
@@ -409,22 +419,21 @@ async function main() {
             data: {
                 organizationId: org.id,
                 supplierId: supplier.id,
-                requesterId: adminUser!.id,
-                approverId: status !== PurchaseOrderStatus.REQUESTED ? adminUser!.id : undefined,
+                requesterId: adminUser.id,
+                approverId: status !== client_1.PurchaseOrderStatus.REQUESTED ? adminUser.id : undefined,
                 status,
                 notes: `Compra de ${inv.name}`,
                 items: {
                     create: [{
-                        inventoryItemId: inv.id,
-                        description: inv.name,
-                        quantity: qty,
-                        unitPrice,
-                    }]
+                            inventoryItemId: inv.id,
+                            description: inv.name,
+                            quantity: qty,
+                            unitPrice,
+                        }]
                 }
             }
         });
     }
-
     // ============================================================
     // 12. Financial Transactions (40)
     // ============================================================
@@ -439,16 +448,15 @@ async function main() {
                 organizationId: org.id,
                 description: `${pick(['Abastecimento', 'Manutenção', 'Pedágio', 'Revisão', 'Seguro', 'IPVA', 'Multa'])} - ${pick(['Jan', 'Fev', 'Mar', 'Abr', 'Mai'])}/${now.getFullYear()}`,
                 amount: randFloat(150, 15000),
-                type: TransactionType.EXPENSE,
-                status: isPaid ? TransactionStatus.PAID : (dueDate < now ? TransactionStatus.OVERDUE : TransactionStatus.PENDING),
+                type: client_1.TransactionType.EXPENSE,
+                status: isPaid ? client_1.TransactionStatus.PAID : (dueDate < now ? client_1.TransactionStatus.OVERDUE : client_1.TransactionStatus.PENDING),
                 category: pick(categories),
                 dueDate,
                 paymentDate: isPaid ? new Date(dueDate.getTime() + randInt(0, 3) * 24 * 3600000) : undefined,
-                paymentMethod: isPaid ? pick([PaymentMethod.PIX, PaymentMethod.CREDIT_CARD, PaymentMethod.CASH]) : undefined,
+                paymentMethod: isPaid ? pick([client_1.PaymentMethod.PIX, client_1.PaymentMethod.CREDIT_CARD, client_1.PaymentMethod.CASH]) : undefined,
             }
         });
     }
-
     // ============================================================
     // 13. Traffic Fines (15)
     // ============================================================
@@ -461,8 +469,7 @@ async function main() {
         const occurredAt = daysAgo(daysBack);
         const hasDriver = randInt(0, 1);
         const amount = pick([130.16, 195.23, 293.47, 880.41, 195.23, 293.47]);
-
-        await (prisma as any).trafficFine.create({
+        await prisma.trafficFine.create({
             data: {
                 organizationId: org.id,
                 vehicleId: vehicle.id,
@@ -478,7 +485,6 @@ async function main() {
             }
         });
     }
-
     // ============================================================
     // 14. Alerts (10)
     // ============================================================
@@ -496,7 +502,7 @@ async function main() {
         { type: 'FINE', severity: 'INFO', message: 'Multa de R$ 293,47 identificada para motorista André Pereira' },
     ];
     for (const alert of alertData) {
-        await (prisma as any).alert.create({
+        await prisma.alert.create({
             data: {
                 organizationId: org.id,
                 ...alert,
@@ -504,7 +510,6 @@ async function main() {
             }
         });
     }
-
     const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
     console.log(`\n✨ Seed completo concluído em ${elapsed}s!`);
     console.log('📊 Resumo:');
@@ -521,13 +526,12 @@ async function main() {
     console.log(`   - 15 multas`);
     console.log(`   - 10 alertas`);
 }
-
 main()
     .catch((e) => {
-        console.error('❌ Erro no seed:');
-        console.dir(e, { depth: null });
-        process.exit(1);
-    })
+    console.error('❌ Erro no seed:');
+    console.dir(e, { depth: null });
+    process.exit(1);
+})
     .finally(async () => {
-        await prisma.$disconnect();
-    });
+    await prisma.$disconnect();
+});

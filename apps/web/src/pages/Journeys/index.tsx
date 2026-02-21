@@ -7,6 +7,22 @@ import { GlassCard } from '../../components/ui/Cards';
 import { formatKm, formatDateTime, formatDuration } from '../../lib/utils';
 import { FinishJourneyModal } from './components/FinishJourneyModal';
 import { KanbanBoard } from '../../components/KanbanBoard';
+import { ExportDropdown } from '../../components/ExportDropdown';
+import { ExportColumn } from '../../lib/export';
+
+const exportColumns: ExportColumn<any>[] = [
+    { header: 'Cód', key: 'id', format: (val) => val.split('-')[0].toUpperCase() },
+    { header: 'Placa', key: 'vehicle', format: (val) => val?.plate || '—' },
+    { header: 'Motorista', key: 'driver', format: (val) => val?.name || '—' },
+    { header: 'Destino', key: 'destinationName', format: (val) => val || '—' },
+    { header: 'Status', key: 'status', format: (val) => val === 'IN_PROGRESS' ? 'Em Jornada' : 'Finalizada' },
+    { header: 'Início', key: 'startTime', format: (val) => formatDateTime(val) },
+    { header: 'Fim', key: 'endTime', format: (val) => val ? formatDateTime(val) : '—' },
+    { header: 'KM Inicial', key: 'startKm', format: (val) => formatKm(val) },
+    { header: 'KM Final', key: 'endKm', format: (val) => val ? formatKm(val) : '—' },
+    { header: 'Distância', key: 'id', format: (_, row) => row.endKm ? formatKm(row.endKm - row.startKm) : '—' },
+    { header: 'Duração', key: 'durationMinutes', format: (val) => formatDuration(val) }
+];
 
 export function JourneysList() {
     const navigate = useNavigate();
@@ -50,6 +66,14 @@ export function JourneysList() {
                     <p className="text-muted-foreground mt-2 text-lg">
                         Acompanhe o histórico de movimentação da sua frota.
                     </p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <ExportDropdown
+                        data={filtered}
+                        columns={exportColumns}
+                        filename={`Frota2026_Jornadas_${new Date().toISOString().split('T')[0]}`}
+                        pdfTitle="Relatório de Jornadas"
+                    />
                 </div>
             </div>
 

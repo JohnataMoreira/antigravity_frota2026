@@ -6,6 +6,8 @@ import { VehicleModal } from '../../components/VehicleModal';
 import { StartJourneyModal } from '../Journeys/components/StartJourneyModal';
 import { formatKm } from '../../lib/utils';
 import { KanbanBoard } from '../../components/KanbanBoard';
+import { ExportDropdown } from '../../components/ExportDropdown';
+import { ExportColumn } from '../../lib/export';
 
 interface Vehicle {
     id: string;
@@ -32,6 +34,18 @@ const typeIconMap = {
     MOTORCYCLE: Bike,
     MACHINE: Cpu,
 };
+
+const exportColumns: ExportColumn<Vehicle>[] = [
+    { header: 'Cód Interno', key: 'id', format: (val) => val.split('-')[0].toUpperCase() },
+    { header: 'Placa', key: 'plate', format: (val) => val.length === 7 ? `${val.slice(0, 3)}-${val.slice(3)}`.toUpperCase() : val.toUpperCase() },
+    { header: 'Marca', key: 'brand' },
+    { header: 'Modelo', key: 'model' },
+    { header: 'Ano', key: 'year', format: (val) => val ? val.toString() : '-' },
+    { header: 'Tipo', key: 'type', format: (val) => val === 'CAR' ? 'Carro' : val === 'TRUCK' ? 'Caminhão' : val === 'MOTORCYCLE' ? 'Moto' : 'Máquina' },
+    { header: 'Status', key: 'status', format: (val) => statusMap[val as keyof typeof statusMap]?.label || val },
+    { header: 'KM Atual', key: 'currentKm', format: (val) => formatKm(val) },
+    { header: 'Combustível', key: 'fuelLevel', format: (val) => val ? `${Math.round(val)}%` : '-' }
+];
 
 export function VehiclesList() {
     const queryClient = useQueryClient();
@@ -129,13 +143,21 @@ export function VehiclesList() {
                     </h1>
                     <p className="text-muted-foreground mt-1">Gerencie os veículos e máquinas da sua empresa.</p>
                 </div>
-                <button
-                    onClick={handleAdd}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-blue-500/20 transition-all font-medium"
-                >
-                    <Plus size={20} />
-                    Adicionar Veículo
-                </button>
+                <div className="flex items-center gap-3">
+                    <ExportDropdown
+                        data={filteredVehicles || []}
+                        columns={exportColumns}
+                        filename={`Frota2026_Veiculos_${new Date().toISOString().split('T')[0]}`}
+                        pdfTitle="Relatório de Frota de Veículos"
+                    />
+                    <button
+                        onClick={handleAdd}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-blue-500/20 transition-all font-medium whitespace-nowrap"
+                    >
+                        <Plus size={20} />
+                        Adicionar Veículo
+                    </button>
+                </div>
             </div>
 
             <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">

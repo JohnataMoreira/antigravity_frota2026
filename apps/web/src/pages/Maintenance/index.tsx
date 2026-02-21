@@ -6,6 +6,33 @@ import { useState, useMemo } from 'react';
 import { formatCurrency, formatKm } from '../../lib/utils';
 import { KanbanBoard } from '../../components/KanbanBoard';
 import { Car } from 'lucide-react';
+import { ExportDropdown } from '../../components/ExportDropdown';
+import { ExportColumn } from '../../lib/export';
+
+const maintenanceTypeMap: Record<string, string> = {
+    'OIL': 'Troca de Óleo',
+    'TIRES': 'Pneus/Rodagem',
+    'INSPECTION': 'Revisão Preventiva',
+    'REPAIR': 'Corretiva/Reparo',
+    'OTHER': 'Outros Serviços'
+};
+
+const statusMap: Record<string, string> = {
+    'PENDING': 'Pendente',
+    'COMPLETED': 'Concluída',
+    'CANCELED': 'Cancelada'
+};
+
+const exportColumns: ExportColumn<any>[] = [
+    { header: 'Cód Interno', key: 'id', format: (val) => val ? val.split('-')[0].toUpperCase() : '' },
+    { header: 'Placa', key: 'vehicle', format: (val) => val?.plate || '—' },
+    { header: 'Serviço', key: 'type', format: (val) => maintenanceTypeMap[val] || val },
+    { header: 'Status', key: 'status', format: (val) => statusMap[val] || val },
+    { header: 'Custo', key: 'cost', format: (val) => val ? formatCurrency(val) : '—' },
+    { header: 'Data', key: 'performedAt', format: (val) => val ? new Date(val).toLocaleDateString('pt-BR') : '—' },
+    { header: 'Próxima KM', key: 'nextDueKm', format: (val) => val ? formatKm(val) : '—' },
+    { header: 'Observações', key: 'notes', format: (val) => val || '-' }
+];
 
 export function MaintenanceList() {
     const queryClient = useQueryClient();
@@ -26,20 +53,6 @@ export function MaintenanceList() {
         nextDueDate: '',
         notes: ''
     });
-
-    const maintenanceTypeMap: Record<string, string> = {
-        'OIL': 'Troca de Óleo',
-        'TIRES': 'Pneus/Rodagem',
-        'INSPECTION': 'Revisão Preventiva',
-        'REPAIR': 'Corretiva/Reparo',
-        'OTHER': 'Outros Serviços'
-    };
-
-    const statusMap: Record<string, string> = {
-        'PENDING': 'Pendente',
-        'COMPLETED': 'Concluída',
-        'CANCELED': 'Cancelada'
-    };
 
     const [completeData, setCompleteData] = useState({
         cost: 0,
@@ -139,6 +152,14 @@ export function MaintenanceList() {
                     <p className="text-muted-foreground mt-2 text-lg">
                         Garantindo a segurança e durabilidade da frota.
                     </p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <ExportDropdown
+                        data={maintenances || []}
+                        columns={exportColumns}
+                        filename={`Frota2026_Manutencoes_${new Date().toISOString().split('T')[0]}`}
+                        pdfTitle="Relatório de Manutenções da Frota"
+                    />
                 </div>
             </div>
 

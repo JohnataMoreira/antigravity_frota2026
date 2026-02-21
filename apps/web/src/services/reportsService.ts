@@ -22,7 +22,7 @@ export interface DashboardStats {
 }
 
 export const reportsApi = {
-    getOverview: () => api.get<DashboardStats>('/reports/overview'),
+    getOverview: (params?: { startDate?: string; endDate?: string }) => api.get<DashboardStats>('/reports/overview', { params }),
     getDriverRanking: (params?: any) => api.get<any[]>('/reports/driver-ranking', { params }).then(res => res.data),
     getVehicleUtilization: (params?: any) => api.get<any[]>('/reports/vehicles', { params }).then(res => res.data),
 };

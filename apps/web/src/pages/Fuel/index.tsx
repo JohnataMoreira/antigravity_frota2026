@@ -5,6 +5,41 @@ import { Fuel as FuelIcon, Search, Calendar, Zap, DollarSign, Droplets, X } from
 import { formatCurrency, formatKm } from '../../lib/utils';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { ExportDropdown } from '../../components/ExportDropdown';
+import { ExportColumn } from '../../lib/export';
+
+const fuelTypeMap: Record<string, string> = {
+    'GASOLINE': 'Gasolina',
+    'ETHANOL': 'Etanol',
+    'DIESEL': 'Diesel',
+    'GNV': 'GNV',
+    'OTHER': 'Outro'
+};
+
+const paymentMethodMap: Record<string, string> = {
+    'CASH': 'Dinheiro',
+    'PIX': 'Pix',
+    'DEBIT_CARD': 'Débito',
+    'CREDIT_CARD': 'Crédito',
+    'FUEL_CARD': 'Cartão Combustível',
+    'INVOICED': 'Faturado',
+    'REIMBURSEMENT': 'Reembolso',
+    'PREPAID_CARD': 'Pré-pago',
+    'VOUCHER': 'Vale',
+    'INTERNAL_TANK': 'Tanque Próprio'
+};
+
+const exportColumns: ExportColumn<any>[] = [
+    { header: 'Placa', key: 'vehicle', format: (val) => val?.plate || '—' },
+    { header: 'Modelo', key: 'vehicle', format: (val) => val?.model || '—' },
+    { header: 'Motorista', key: 'driver', format: (val) => val?.name || '—' },
+    { header: 'Data', key: 'date', format: (val) => val ? format(new Date(val), "dd/MM/yyyy HH:mm") : '—' },
+    { header: 'KM Inicial/Atual', key: 'km', format: (val) => formatKm(val) },
+    { header: 'Litros', key: 'liters', format: (val) => `${val.toFixed(2)} L` },
+    { header: 'Custo Total', key: 'totalValue', format: (val) => formatCurrency(val) },
+    { header: 'Combustível', key: 'fuelType', format: (val) => fuelTypeMap[val] || val },
+    { header: 'Pagamento', key: 'paymentMethod', format: (val) => paymentMethodMap[val] || val }
+];
 
 interface FuelEntry {
     id: string;
@@ -74,27 +109,6 @@ export function FuelEntriesList() {
         avgPrice: entries?.length ? (entries.reduce((acc, curr) => acc + curr.pricePerLiter, 0) / entries.length) : 0,
     };
 
-    const fuelTypeMap: Record<string, string> = {
-        'GASOLINE': 'Gasolina',
-        'ETHANOL': 'Etanol',
-        'DIESEL': 'Diesel',
-        'GNV': 'GNV',
-        'OTHER': 'Outro'
-    };
-
-    const paymentMethodMap: Record<string, string> = {
-        'CASH': 'Dinheiro',
-        'PIX': 'Pix',
-        'DEBIT_CARD': 'Débito',
-        'CREDIT_CARD': 'Crédito',
-        'FUEL_CARD': 'Cartão Combustível',
-        'INVOICED': 'Faturado',
-        'REIMBURSEMENT': 'Reembolso',
-        'PREPAID_CARD': 'Pré-pago',
-        'VOUCHER': 'Vale',
-        'INTERNAL_TANK': 'Tanque Próprio'
-    };
-
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -106,6 +120,14 @@ export function FuelEntriesList() {
                     <p className="text-gray-500 ">
                         Monitoramento em tempo real de consumo e gastos com combustível
                     </p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <ExportDropdown
+                        data={filteredEntries || []}
+                        columns={exportColumns}
+                        filename={`Frota2026_Abastecimentos_${new Date().toISOString().split('T')[0]}`}
+                        pdfTitle="Relatório de Gastos de Combustível da Frota"
+                    />
                 </div>
             </div>
 

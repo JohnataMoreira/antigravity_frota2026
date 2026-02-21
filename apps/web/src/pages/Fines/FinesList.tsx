@@ -6,6 +6,29 @@ import { Search, Filter, Plus, AlertTriangle, User, Calendar, MapPin, DollarSign
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { FineModal } from './components/FineModal';
+import { ExportDropdown } from '../../components/ExportDropdown';
+import { ExportColumn } from '../../lib/export';
+
+const getStatusLabel = (status: string) => {
+    switch (status) {
+        case 'PAID': return 'Pago';
+        case 'IDENTIFIED': return 'Condutor Identificado';
+        case 'PENDING_IDENTIFICATION': return 'Identificação Pendente';
+        case 'APPEAL': return 'Em Recurso';
+        case 'CANCELED': return 'Cancelada';
+        default: return status;
+    }
+};
+
+const exportColumns: ExportColumn<any>[] = [
+    { header: 'Placa', key: 'vehicle', format: (val) => val?.plate || '—' },
+    { header: 'Motorista', key: 'driver', format: (val) => val?.name || 'Não identificado' },
+    { header: 'Infração', key: 'description' },
+    { header: 'Data', key: 'occurredAt', format: (val) => val ? format(new Date(val), "dd/MM/yyyy HH:mm") : '—' },
+    { header: 'Local', key: 'location', format: (val) => val || '—' },
+    { header: 'Status', key: 'status', format: (val) => getStatusLabel(val) },
+    { header: 'Valor (R$)', key: 'amount', format: (val) => val ? val.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '0,00' }
+];
 
 export default function FinesList() {
     const [search, setSearch] = useState('');
@@ -27,17 +50,6 @@ export default function FinesList() {
         }
     };
 
-    const getStatusLabel = (status: string) => {
-        switch (status) {
-            case 'PAID': return 'Pago';
-            case 'IDENTIFIED': return 'Condutor Identificado';
-            case 'PENDING_IDENTIFICATION': return 'Identificação Pendente';
-            case 'APPEAL': return 'Em Recurso';
-            case 'CANCELED': return 'Cancelada';
-            default: return status;
-        }
-    };
-
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
             <div className="flex justify-between items-end">
@@ -45,10 +57,18 @@ export default function FinesList() {
                     <h1 className="text-4xl font-black text-slate-800 tracking-tight uppercase">Gestão de Multas</h1>
                     <p className="text-gray-500 text-sm font-bold uppercase tracking-widest">Controle de Infrações e Conformidade</p>
                 </div>
-                <button className="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95 shadow-xl shadow-slate-200">
-                    <Plus size={18} />
-                    Registrar Multa
-                </button>
+                <div className="flex items-center gap-3">
+                    <ExportDropdown
+                        data={fines || []}
+                        columns={exportColumns}
+                        filename={`Frota2026_Multas_${new Date().toISOString().split('T')[0]}`}
+                        pdfTitle="Relatório de Multas da Frota"
+                    />
+                    <button className="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 transition-all active:scale-95 shadow-xl shadow-slate-200">
+                        <Plus size={18} />
+                        Registrar Multa
+                    </button>
+                </div>
             </div>
 
             <GlassCard className="!p-4 border-2 border-slate-100">
