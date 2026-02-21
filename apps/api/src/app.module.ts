@@ -33,6 +33,7 @@ import { PurchasingModule } from './purchasing/purchasing.module';
 import { AttachmentsModule } from './attachments/attachments.module';
 import { TyresModule } from './tyres/tyres.module';
 import { TenantMiddleware } from './prisma/tenant.middleware';
+import { InviteModule } from './invites/invite.module';
 
 
 @Module({
@@ -69,6 +70,7 @@ import { TenantMiddleware } from './prisma/tenant.middleware';
         PurchasingModule,
         TyresModule,
         AttachmentsModule,
+        InviteModule,
     ],
     providers: [
         {

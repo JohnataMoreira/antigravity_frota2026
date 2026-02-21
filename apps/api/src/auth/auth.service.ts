@@ -14,6 +14,48 @@ export class AuthService {
         private audit: AuditService,
     ) { }
 
+    async registerWithInvite(dto: any) {
+        // 1. Validate Invite Token
+        const invite = await this.prisma.invite.findUnique({
+            where: { token: dto.token },
+        });
+
+        if (!invite || invite.status !== 'PENDING' || new Date() > invite.expiresAt) {
+            throw new UnauthorizedException('Invalid or expired invite token');
+        }
+
+        // 2. Check if user already exists
+        const existingUser = await this.prisma.user.findUnique({
+            where: { email: invite.email },
+        });
+        if (existingUser) throw new ConflictException('User already exists');
+
+        // 3. Create User and Close Invite
+        const { user } = await this.prisma.$transaction(async (tx) => {
+            const salt = await bcrypt.genSalt();
+            const passwordHash = await bcrypt.hash(dto.password, salt);
+
+            const user = await tx.user.create({
+                data: {
+                    organizationId: invite.organizationId,
+                    email: invite.email,
+                    name: dto.name,
+                    passwordHash,
+                    role: invite.role,
+                },
+            });
+
+            await tx.invite.update({
+                where: { id: invite.id },
+                data: { status: 'ACCEPTED' },
+            });
+
+            return { user };
+        });
+
+        return this.signToken(user.id, invite.organizationId, user.email, user.role, user.name);
+    }
+
     async registerOrg(dto: RegisterOrgDto) {
         // Check if user email already exists (global unique)
         const existingUser = await this.prisma.user.findUnique({
@@ -117,6 +159,29 @@ export class AuthService {
                 name: name
             }
         };
+    }
+
+    async signSocialToken(profile: any) {
+        const user = await this.prisma.user.findUnique({
+            where: { email: profile.email },
+        });
+
+        if (!user) {
+            throw new UnauthorizedException('Please register or accept an invite first');
+        }
+
+        const result = await this.signToken(user.id, user.organizationId, user.email, user.role, user.name);
+
+        await this.audit.log({
+            organizationId: user.organizationId,
+            userId: user.id,
+            action: AuditAction.LOGIN,
+            entity: AuditEntity.USER,
+            entityId: user.id,
+            metadata: { email: user.email, provider: 'google' }
+        });
+
+        return result;
     }
 
     async getProfile(userId: string) {

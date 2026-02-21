@@ -1,4 +1,5 @@
 import { Body, Controller, Post, Get, Request, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterOrgDto } from './dto';
@@ -18,12 +19,30 @@ export class AuthController {
         return this.authService.login(dto);
     }
 
-    // Endpoint to bootstrap the first organization
     @Public()
     @Post('register-org')
     @HttpCode(HttpStatus.CREATED)
     registerOrg(@Body() dto: RegisterOrgDto) {
         return this.authService.registerOrg(dto);
+    }
+
+    @Public()
+    @Post('register-invite')
+    @HttpCode(HttpStatus.CREATED)
+    registerInvite(@Body() dto: any) {
+        return this.authService.registerWithInvite(dto);
+    }
+
+    @Public()
+    @Get('google')
+    @UseGuards(AuthGuard('google'))
+    async googleAuth(@Request() req: any) { }
+
+    @Public()
+    @Get('google/callback')
+    @UseGuards(AuthGuard('google'))
+    async googleAuthRedirect(@Request() req: any) {
+        return this.authService.signSocialToken(req.user);
     }
 
     @Get('me')
