@@ -24,21 +24,31 @@ export function useSync() {
 
             for (const item of pending) {
                 try {
-                    // Note: In a real scenario, we would map journeyId to the correct endpoint
-                    // For the Frota2026 Checklists:
-                    await api.post(`/journeys/${item.journeyId}/checklist`, {
-                        items: item.items,
-                        rating: item.rating,
-                        offline: true,
-                        timestamp: item.timestamp
-                    });
+                    if (item.journeyId.startsWith('OFFLINE_')) {
+                        // This is a new journey start performed offline
+                        await api.post('/journeys/start', {
+                            vehicleId: (item as any).vehicleId,
+                            startKm: (item as any).startKm,
+                            plannedRoute: (item as any).plannedRoute,
+                            destinationName: (item as any).destinationName,
+                            checklistItems: item.items,
+                            photos: (item as any).photos // Sync photos too
+                        });
+                    } else {
+                        // This would be a secondary checklist or update
+                        await api.post(`/journeys/${item.journeyId}/checklist`, {
+                            items: item.items,
+                            rating: item.rating,
+                            offline: true,
+                            timestamp: item.timestamp
+                        });
+                    }
 
-                    // Mark as synced
-                    await db.pendingChecklists.update(item.id!, { synced: true });
-                    console.log(`[Sync] Checklist ${item.id} synced successfully.`);
+                    // Delete from local DB instead of just marking (cleaner for mobile)
+                    await db.pendingChecklists.delete(item.id!);
+                    console.log(`[Sync] Item ${item.id} synced and removed from local DB.`);
                 } catch (error) {
-                    console.error(`[Sync] Failed to sync checklist ${item.id}:`, error);
-                    // We don't mark as synced, so it stays in queue for next attempt
+                    console.error(`[Sync] Failed to sync item ${item.id}:`, error);
                 }
             }
         };

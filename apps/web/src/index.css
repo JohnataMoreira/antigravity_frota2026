@@ -41,7 +41,42 @@
     --radius: 0.5rem;
   }
 
-  /* Dark Theme - REMOVED per user request */
+  /* Dark Theme - Cyber-Pro 11/10 Edition */
+  .dark {
+    --background: 222 47% 3%;
+    /* Rich Deep Slate-Black */
+    --foreground: 213 31% 91%;
+    /* Crisp Off-White */
+
+    --card: 222 47% 5%;
+    /* Subtle Depth */
+    --card-foreground: 213 31% 91%;
+
+    --popover: 222 47% 4%;
+    --popover-foreground: 213 31% 91%;
+
+    --primary: 160 84% 39%;
+    /* Sharp Emerald Primary */
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 222 47% 12%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 222 47% 12%;
+    --muted-foreground: 215 20% 65%;
+    /* Soft gray for readability */
+
+    --accent: 222 47% 12%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 222 47% 15%;
+    /* Visible but subtle borders */
+    --input: 222 47% 15%;
+    --ring: 160 84% 39%;
+  }
 
 }
 

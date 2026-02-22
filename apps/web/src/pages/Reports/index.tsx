@@ -2,18 +2,19 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/axios';
 import { GlassCard } from '../../components/ui/Cards';
-import { Download, FileText, Table as TableIcon, Filter, Layers, Users, Truck, Fuel, Calendar, Search } from 'lucide-react';
+import { Download, FileText, Table as TableIcon, Filter, Layers, Users, Truck, Fuel, Package, Calendar, Search } from 'lucide-react';
 import { DriversTab } from './components/DriversTab';
 import { VehiclesTab } from './components/VehiclesTab';
 import { FuelTab } from './components/FuelTab';
 import { FinanceTab } from './components/FinanceTab';
+import { InventoryTab } from './components/InventoryTab';
 import { ExportActions } from './components/ExportActions';
 import { clsx } from 'clsx';
 import { formatCurrency, formatKm } from '../../lib/utils';
 import { ExportService } from '../../services/exportService';
 
 export default function Reports() {
-    const [activeTab, setActiveTab] = useState<'overview' | 'drivers' | 'vehicles' | 'fuel' | 'finance'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'drivers' | 'vehicles' | 'fuel' | 'finance' | 'inventory'>('overview');
     const [isExporting, setIsExporting] = useState(false);
 
     // Filter State
@@ -186,6 +187,7 @@ export default function Reports() {
                     { id: 'drivers', label: 'Motoristas', icon: Users },
                     { id: 'vehicles', label: 'Veículos', icon: Truck },
                     { id: 'fuel', label: 'Combustível', icon: Fuel },
+                    { id: 'inventory', label: 'Estoque', icon: Package },
                 ].map((tab) => (
                     <button
                         key={tab.id}
@@ -284,6 +286,7 @@ export default function Reports() {
                 {activeTab === 'vehicles' && <VehiclesTab filters={filters} />}
                 {activeTab === 'fuel' && <FuelTab filters={filters} />}
                 {activeTab === 'finance' && <FinanceTab filters={filters} />}
+                {activeTab === 'inventory' && <InventoryTab />}
             </div>
         </div>
     );

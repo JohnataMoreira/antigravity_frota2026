@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/axios';
+import { tyreService } from '../../services/tyreService';
 import { Disc, Plus, Search, Filter, ArrowUpRight, AlertTriangle, TrendingDown } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
@@ -13,10 +14,7 @@ export function TyreInventory() {
 
     const { data: tyres, isLoading } = useQuery({
         queryKey: ['tyres'],
-        queryFn: async () => {
-            const res = await api.get('/tyres');
-            return res.data;
-        }
+        queryFn: () => tyreService.getAll()
     });
 
     const filteredTyres = tyres?.filter((t: any) => {
@@ -115,17 +113,17 @@ export function TyreInventory() {
                             onChange={(e) => setSearch(e.target.value)}
                         />
                     </div>
-                                    <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-4 py-2 bg-white rounded-xl text-sm font-bold outline-none ring-1 ring-gray-200 focus:ring-2 focus:ring-blue-500 shadow-sm transition-all w-full md:w-auto"
-                >
-                    <option value="ALL">Todos os Status</option>
-                    <option value="STOCK">Em Estoque</option>
-                    <option value="IN_USE">Em Uso</option>
-                    <option value="RETREADING">Reformando</option>
-                    <option value="SCRAP">Descartado</option>
-                </select>
+                    <select
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="px-4 py-2 bg-white rounded-xl text-sm font-bold outline-none ring-1 ring-gray-200 focus:ring-2 focus:ring-blue-500 shadow-sm transition-all w-full md:w-auto"
+                    >
+                        <option value="ALL">Todos os Status</option>
+                        <option value="STOCK">Em Estoque</option>
+                        <option value="IN_USE">Em Uso</option>
+                        <option value="RETREADING">Reformando</option>
+                        <option value="SCRAP">Descartado</option>
+                    </select>
                 </div>
 
                 <div className="overflow-x-auto">

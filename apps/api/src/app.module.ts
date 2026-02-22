@@ -35,7 +35,6 @@ import { TyresModule } from './tyres/tyres.module';
 import { TenantMiddleware } from './prisma/tenant.middleware';
 import { InviteModule } from './invites/invite.module';
 
-
 @Module({
     controllers: [AppController],
     imports: [
@@ -97,8 +96,10 @@ export class AppModule implements NestModule {
             .apply(TenantMiddleware)
             .exclude(
                 { path: 'auth/(.*)', method: RequestMethod.ALL },
-                { path: 'health', method: RequestMethod.GET },
+                { path: 'locations/public/(.*)', method: RequestMethod.ALL },
+                { path: 'health', method: RequestMethod.ALL }, // health check
+                { path: 'invites/accept', method: RequestMethod.ALL }, // accepts are public
             )
-            .forRoutes({ path: '*', method: RequestMethod.ALL });
+            .forRoutes('*');
     }
 }

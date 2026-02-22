@@ -1,130 +1,130 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateTyreDto, InstallTyreDto, RecordMeasurementDto, TyreRotationDto } from './dto';
 import { TyreStatus } from '@prisma/client';
 
 @Injectable()
 export class TyresService {
     constructor(private prisma: PrismaService) { }
 
-    async create(organizationId: string, dto: CreateTyreDto) {
+    async createTyre(organizationId: string, data: any) {
         return this.prisma.tyre.create({
             data: {
-                ...dto,
                 organizationId,
-                status: TyreStatus.STOCK,
-                currentKm: dto.initialKm || 0,
+                identifier: data.identifier,
+                brand: data.brand,
+                model: data.model,
+                size: data.size,
+                status: 'STOCK',
+                initialCost: data.initialCost || 0
             }
         });
     }
 
-    async findAll(organizationId: string) {
+    async getTyres(organizationId: string, filters: any = {}) {
         return this.prisma.tyre.findMany({
-            where: { organizationId },
-            include: { vehicle: { select: { plate: true } } },
-            orderBy: { identifier: 'asc' }
+            where: {
+                organizationId,
+                ...(filters.status && { status: filters.status as TyreStatus }),
+                ...(filters.vehicleId && { vehicleId: filters.vehicleId }),
+                ...(filters.search && {
+                    OR: [
+                        { identifier: { contains: filters.search, mode: 'insensitive' } },
+                        { brand: { contains: filters.search, mode: 'insensitive' } },
+                    ]
+                })
+            },
+            include: { vehicle: { select: { plate: true, model: true } } },
+            orderBy: { createdAt: 'desc' }
         });
     }
 
-    async findOne(organizationId: string, id: string) {
-        const tyre = await this.prisma.tyre.findFirst({
-            where: { id, organizationId },
-            include: {
-                vehicle: true,
-                movements: { orderBy: { createdAt: 'desc' } },
-                measurements: { orderBy: { measuredAt: 'desc' } }
-            }
-        });
+    async getTyreDashboardStats(organizationId: string) {
+        const [total, stock, inUse, scrap] = await Promise.all([
+            this.prisma.tyre.count({ where: { organizationId } }),
+            this.prisma.tyre.count({ where: { organizationId, status: 'STOCK' } }),
+            this.prisma.tyre.count({ where: { organizationId, status: 'IN_USE' } }),
+            this.prisma.tyre.count({ where: { organizationId, status: 'SCRAP' } }),
+        ]);
 
-        if (!tyre) throw new NotFoundException('Tyre not found');
-        return tyre;
+        return { total, stock, inUse, scrap };
     }
 
-    async install(organizationId: string, tyreId: string, dto: InstallTyreDto) {
-        const tyre = await this.findOne(organizationId, tyreId);
-        if (tyre.status !== TyreStatus.STOCK) {
-            throw new BadRequestException('Tyre is not in stock');
+    async allocateTyre(organizationId: string, tyreId: string, vehicleId: string, installKm: number) {
+        const tyre = await this.prisma.tyre.findUnique({ where: { id: tyreId } });
+
+        if (!tyre || tyre.organizationId !== organizationId) {
+            throw new NotFoundException('Pneu não encontrado.');
+        }
+        if (tyre.status !== 'STOCK') {
+            throw new BadRequestException('Apenas pneus em STOCK podem ser alocados.');
         }
 
         return this.prisma.$transaction(async (tx) => {
-            // 1. Create movement record
+            const updatedTyre = await tx.tyre.update({
+                where: { id: tyreId },
+                data: {
+                    status: 'IN_USE',
+                    vehicleId
+                }
+            });
+
             await tx.tyreMovement.create({
                 data: {
                     organizationId,
                     tyreId,
-                    vehicleId: dto.vehicleId,
+                    vehicleId,
                     type: 'INSTALL',
-                    km: dto.km,
-                    tyreKm: tyre.currentKm,
-                    axle: dto.axle,
-                    position: dto.position
+                    km: installKm,
+                    tyreKm: tyre.currentKm
                 }
             });
 
-            // 2. Update Tyre status
-            return tx.tyre.update({
-                where: { id: tyreId },
-                data: {
-                    vehicleId: dto.vehicleId,
-                    status: TyreStatus.IN_USE,
-                    axle: dto.axle,
-                    position: dto.position
-                }
-            });
+            return updatedTyre;
         });
     }
 
-    async recordMeasurement(organizationId: string, tyreId: string, dto: RecordMeasurementDto) {
-        const tyre = await this.findOne(organizationId, tyreId);
+    async discardTyre(organizationId: string, tyreId: string, currentVehicleKm: number, reason: string) {
+        const tyre = await this.prisma.tyre.findUnique({ where: { id: tyreId } });
 
-        return this.prisma.tyreMeasurement.create({
-            data: {
-                organizationId,
-                tyreId,
-                treadDepth: dto.treadDepth,
-                pressure: dto.pressure,
-                km: dto.km
-            }
-        });
-    }
-
-    async remove(organizationId: string, tyreId: string, km: number, notes?: string) {
-        const tyre = await this.findOne(organizationId, tyreId);
-        if (tyre.status !== TyreStatus.IN_USE) {
-            throw new BadRequestException('Tyre is not in use');
+        if (!tyre || tyre.organizationId !== organizationId) {
+            throw new NotFoundException('Pneu não encontrado.');
         }
 
         return this.prisma.$transaction(async (tx) => {
-            // Calculate KM difference
-            const movement = await tx.tyreMovement.findFirst({
+            // Se estava em uso, soma o KM rodado desde a instalação base
+            const lastInstall = await tx.tyreMovement.findFirst({
                 where: { tyreId, type: 'INSTALL' },
                 orderBy: { createdAt: 'desc' }
             });
 
-            const addedKm = movement ? Math.max(0, km - movement.km) : 0;
+            let newTyreKm = tyre.currentKm;
+            if (tyre.status === 'IN_USE' && lastInstall && tyre.vehicleId) {
+                const distanceDriven = currentVehicleKm - lastInstall.km;
+                newTyreKm += (distanceDriven > 0 ? distanceDriven : 0);
+            }
+
+            const updatedTyre = await tx.tyre.update({
+                where: { id: tyreId },
+                data: {
+                    status: 'SCRAP',
+                    vehicleId: null,
+                    currentKm: newTyreKm
+                }
+            });
 
             await tx.tyreMovement.create({
                 data: {
                     organizationId,
                     tyreId,
-                    vehicleId: tyre.vehicleId,
-                    type: 'REMOVE',
-                    km,
-                    tyreKm: tyre.currentKm + addedKm,
-                    notes
+                    vehicleId: tyre.vehicleId, // Mantém histórico de ONDE foi tirado
+                    type: 'SCRAP',
+                    km: currentVehicleKm,
+                    tyreKm: newTyreKm,
+                    notes: reason
                 }
             });
 
-            return tx.tyre.update({
-                where: { id: tyreId },
-                data: {
-                    vehicleId: null,
-                    status: TyreStatus.STOCK,
-                    axle: null,
-                    position: null,
-                    currentKm: tyre.currentKm + addedKm
-                }
-            });
+            return updatedTyre;
         });
     }
 }

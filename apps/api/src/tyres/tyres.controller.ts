@@ -1,43 +1,56 @@
-import { Controller, Get, Post, Body, Param, Patch, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Put, Param, Body, Req, UseGuards, Query } from '@nestjs/common';
 import { TyresService } from './tyres.service';
-import { CreateTyreDto, InstallTyreDto, RecordMeasurementDto } from './dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { UserRequest } from '../auth/user-request.interface';
-import { ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
 
-@ApiTags('Pneus')
-@UseGuards(JwtAuthGuard)
+// Definir a tipagem extendida do Request do Express que nossa engine de Auth cria
+interface UserRequest extends Request {
+    user?: {
+        organizationId: string;
+        [key: string]: any;
+    };
+}
+
 @Controller('tyres')
+@UseGuards(JwtAuthGuard)
 export class TyresController {
     constructor(private readonly tyresService: TyresService) { }
 
-    @Post()
-    create(@Request() req: UserRequest, @Body() dto: CreateTyreDto) {
-        return this.tyresService.create(req.user.organizationId, dto);
+    @Get('stats')
+    async getDashboardStats(@Req() req: UserRequest) {
+        const organizationId = req.user!.organizationId;
+        return this.tyresService.getTyreDashboardStats(organizationId);
     }
 
     @Get()
-    findAll(@Request() req: UserRequest) {
-        return this.tyresService.findAll(req.user.organizationId);
+    async getTyres(@Req() req: UserRequest, @Query() filters: any) {
+        const organizationId = req.user!.organizationId;
+        return this.tyresService.getTyres(organizationId, filters);
     }
 
-    @Get(':id')
-    findOne(@Request() req: UserRequest, @Param('id') id: string) {
-        return this.tyresService.findOne(req.user.organizationId, id);
+    @Post()
+    async createTyre(@Req() req: UserRequest, @Body() data: any) {
+        const organizationId = req.user!.organizationId;
+        return this.tyresService.createTyre(organizationId, data);
     }
 
-    @Post(':id/install')
-    install(@Request() req: UserRequest, @Param('id') id: string, @Body() dto: InstallTyreDto) {
-        return this.tyresService.install(req.user.organizationId, id, dto);
+    @Put(':id/allocate')
+    async allocateTyre(
+        @Req() req: UserRequest,
+        @Param('id') id: string,
+        @Body() body: { vehicleId: string; installKm: number }
+    ) {
+        const organizationId = req.user!.organizationId;
+        return this.tyresService.allocateTyre(organizationId, id, body.vehicleId, body.installKm);
     }
 
-    @Post(':id/measure')
-    measure(@Request() req: UserRequest, @Param('id') id: string, @Body() dto: RecordMeasurementDto) {
-        return this.tyresService.recordMeasurement(req.user.organizationId, id, dto);
-    }
-
-    @Patch(':id/remove')
-    remove(@Request() req: UserRequest, @Param('id') id: string, @Body() body: { km: number, notes?: string }) {
-        return this.tyresService.remove(req.user.organizationId, id, body.km, body.notes);
+    @Put(':id/discard')
+    async discardTyre(
+        @Req() req: UserRequest,
+        @Param('id') id: string,
+        @Body() body: { currentVehicleKm: number; reason: string }
+    ) {
+        const organizationId = req.user!.organizationId;
+        return this.tyresService.discardTyre(organizationId, id, body.currentVehicleKm, body.reason);
     }
 }

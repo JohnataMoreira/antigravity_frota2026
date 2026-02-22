@@ -15,6 +15,7 @@ import { InventoryList } from './pages/Inventory';
 import { LiveMap } from './components/LiveMap';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { OfflineStatus } from './components/ui/OfflineStatus';
+import { useSync } from './hooks/useSync';
 import React, { Suspense, lazy } from 'react';
 
 const Reports = lazy(() => import('./pages/Reports'));
@@ -39,6 +40,7 @@ function ProtectedRoute({ children }: { children: JSX.Element }) {
 import { Dashboard } from './pages/Dashboard';
 
 function AppRoutes() {
+    useSync();
     return (
         <>
             <Routes>

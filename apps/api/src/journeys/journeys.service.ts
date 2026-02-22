@@ -5,12 +5,14 @@ import { StartJourneyDto, EndJourneyDto } from './dto';
 import { JourneyStatus, VehicleStatus, ChecklistType } from '@prisma/client';
 
 import { MaintenanceAlertsService } from '../maintenance/alerts.service';
+import { ComplianceService } from '../compliance/compliance.service';
 
 @Injectable()
 export class JourneysService {
     constructor(
         private prisma: PrismaService,
-        private maintenanceAlertsService: MaintenanceAlertsService
+        private maintenanceAlertsService: MaintenanceAlertsService,
+        private complianceService: ComplianceService
     ) { }
 
     async start(driverId: string, dto: StartJourneyDto) {
@@ -66,6 +68,45 @@ export class JourneysService {
                 } as any, // organizationId is injected by Prisma Extension
                 include: { vehicle: true, checklists: true }
             });
+
+            // Trigger Compliance Audit (Soft Block)
+            const organizationId = (journey as any).organizationId;
+            if (organizationId) {
+                // Handle Photos (Attachments)
+                if (dto.photos && dto.photos.length > 0) {
+                    const checklist = journey.checklists[0];
+                    if (checklist) {
+                        for (const photo of dto.photos) {
+                            await tx.attachment.create({
+                                data: {
+                                    organizationId,
+                                    checklistId: checklist.id,
+                                    url: photo,
+                                    type: 'IMAGE',
+                                    originalName: 'vistoria_saida.jpg'
+                                }
+                            });
+                        }
+                    }
+                }
+
+                const complianceAlerts = await this.complianceService.getComplianceAlerts(organizationId, dto.vehicleId, driverId);
+                const expiredDocs = complianceAlerts.filter(a => a.isExpired);
+
+                if (expiredDocs.length > 0) {
+                    const docNames = expiredDocs.map(d => d.name).join(', ');
+                    await tx.alert.create({
+                        data: {
+                            organizationId,
+                            type: 'DOCUMENT',
+                            severity: 'CRITICAL',
+                            message: `Jornada Iniciada com Documentos Vencidos: ${docNames}. Motorista foi alertado mas seguiu viagem.`,
+                            entityId: journey.id,
+                            entityType: 'Journey'
+                        }
+                    });
+                }
+            }
 
             return journey;
         });

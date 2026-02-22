@@ -21,6 +21,12 @@ export class ReportsController {
         return this.reportsService.getOverview(req.user.organizationId, query);
     }
 
+    @Get('inventory')
+    @ApiOperation({ summary: 'Estatísticas de inventário e giro' })
+    async getInventoryStats(@Request() req: UserRequest) {
+        return this.reportsService.getInventoryStats(req.user.organizationId);
+    }
+
     @Get('drivers')
     @ApiOperation({ summary: 'Desempenho por motorista' })
     @ApiQuery({ name: 'start', required: false, description: 'Data inicial (ISO)' })

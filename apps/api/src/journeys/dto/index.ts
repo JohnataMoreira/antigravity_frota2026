@@ -28,6 +28,9 @@ export class StartJourneyDto {
 
     @IsOptional()
     destinationName?: string;
+
+    @IsOptional()
+    photos?: string[];
 }
 
 export class EndJourneyDto {

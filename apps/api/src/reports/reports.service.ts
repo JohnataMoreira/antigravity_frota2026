@@ -6,6 +6,46 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ReportsService {
     constructor(private prisma: PrismaService) { }
 
+    async getInventoryStats(organizationId: string) {
+        const [items, movements] = await Promise.all([
+            this.prisma.inventoryItem.findMany({
+                where: { organizationId },
+                include: {
+                    _count: {
+                        select: { movements: { where: { type: 'OUT' } } }
+                    }
+                }
+            }),
+            this.prisma.stockMovement.findMany({
+                where: {
+                    item: { organizationId },
+                    type: 'OUT',
+                    createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } // Last 30 days
+                }
+            })
+        ]);
+
+        const immobilizedValue = items.reduce((acc, item) => acc + (item.currentQuantity * (item.price || 0)), 0);
+        const lowStockItems = items.filter(item => item.currentQuantity <= item.minQuantity);
+
+        // Stock Turnover (Giro) = Total Outs / Avg Stock (simplified for MVP as current stock)
+        const totalOuts = movements.reduce((acc, m) => acc + m.quantity, 0);
+        const totalStock = items.reduce((acc, i) => acc + i.currentQuantity, 0);
+        const turnover = totalStock > 0 ? (totalOuts / totalStock) : 0;
+
+        return {
+            immobilizedValue,
+            lowStockCount: lowStockItems.length,
+            lowStockItems: lowStockItems.map(i => ({ id: i.id, name: i.name, current: i.currentQuantity, min: i.minQuantity })),
+            turnover: Number(turnover.toFixed(2)),
+            totalItems: items.length,
+            topMovingItems: items
+                .sort((a, b) => (b as any)._count.movements - (a as any)._count.movements)
+                .slice(0, 5)
+                .map(i => ({ id: i.id, name: i.name, movements: (i as any)._count.movements }))
+        };
+    }
+
     async getOverview(organizationId: string, filters: any = {}) {
         const { start, end, driverId, vehicleId } = filters;
 
@@ -44,7 +84,10 @@ export class ReportsService {
             recentIncidents,
             journeysWithIncidentsCount,
             totalVehicleKm,
-            avgFuelLevel
+            avgFuelLevel,
+            finesByStatus,
+            inventoryItems,
+            activeJourneysDetail
         ] = await Promise.all([
             this.prisma.vehicle.count({ where: { organizationId, ...(vehicleId && { id: vehicleId }) } }),
             this.prisma.vehicle.count({ where: { organizationId, status: 'AVAILABLE', ...(vehicleId && { id: vehicleId }) } }),
@@ -138,7 +181,24 @@ export class ReportsService {
                 }
             }),
             this.prisma.vehicle.aggregate({ where: { organizationId, ...(vehicleId && { id: vehicleId }) }, _sum: { currentKm: true } }).catch(() => ({ _sum: { currentKm: 0 } })),
-            (this.prisma.vehicle as any).aggregate({ where: { organizationId, ...(vehicleId && { id: vehicleId }) }, _avg: { fuelLevel: true } }).catch(() => ({ _avg: { fuelLevel: 100 } }))
+            (this.prisma.vehicle as any).aggregate({ where: { organizationId, ...(vehicleId && { id: vehicleId }) }, _avg: { fuelLevel: true } }).catch(() => ({ _avg: { fuelLevel: 100 } })),
+            this.prisma.trafficFine.groupBy({
+                by: ['status'],
+                where: { organizationId },
+                _count: true,
+                _sum: { amount: true }
+            }),
+            this.prisma.inventoryItem.findMany({
+                where: { organizationId },
+                select: { currentQuantity: true, price: true }
+            }),
+            this.prisma.journey.findMany({
+                where: { organizationId, status: 'IN_PROGRESS' },
+                include: {
+                    driver: { select: { name: true, avatarUrl: true } },
+                    vehicle: { select: { plate: true, model: true } }
+                }
+            })
         ]);
 
         const totalKm = journeysWithKm.reduce((acc: number, j: any) => acc + ((j.endKm || 0) - j.startKm), 0);
@@ -164,7 +224,22 @@ export class ReportsService {
                     inUse: inUseByType,
                     maintenance: maintenanceByType
                 },
-                recentIncidents
+                recentIncidents,
+                finesSummary: finesByStatus.map(f => ({
+                    status: f.status,
+                    count: f._count,
+                    totalValue: f._sum.amount || 0
+                })),
+                inventoryValue: inventoryItems.reduce((acc, item) => acc + (item.currentQuantity * (item.price || 0)), 0),
+                activeJourneysDetail: activeJourneysDetail.map(j => ({
+                    id: j.id,
+                    driverName: j.driver.name,
+                    driverAvatar: j.driver.avatarUrl,
+                    vehiclePlate: j.vehicle.plate,
+                    vehicleModel: j.vehicle.model,
+                    startTime: j.startTime,
+                    isDeviated: j.isDeviated
+                }))
             },
             history,
             recentActivity: recentJourneys
