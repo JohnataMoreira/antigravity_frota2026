@@ -133,7 +133,11 @@ export function MaintenanceList() {
         return { total, alertCount, totalCost, inWorkshop };
     }, [maintenances, vehicles, alerts]);
 
-    const vehiclesInWorkshop = vehicles.filter((v: any) => v.status === 'MAINTENANCE');
+    const kanbanColumns = [
+        { id: 'PENDING', title: 'Pendentes', count: 0, color: 'bg-amber-500' },
+        { id: 'COMPLETED', title: 'Concluídas', count: 0, color: 'bg-green-500' },
+        { id: 'CANCELED', title: 'Canceladas', count: 0, color: 'bg-red-500' }
+    ];
 
     if (isLoading) return (
         <div className="flex flex-col items-center justify-center py-20 animate-pulse">
@@ -245,11 +249,33 @@ export function MaintenanceList() {
 
                     {viewMode === 'kanban' ? (
                         <KanbanBoard
+                            columns={kanbanColumns}
                             items={maintenances}
-                            onItemClick={(item) => {
-                                setSelectedMaintenance(item);
-                                setIsCompleteModalOpen(true);
-                            }}
+                            getItemColumnId={(item: any) => item.status}
+                            renderCard={(maintenance: any) => (
+                                <GlassCard
+                                    key={maintenance.id}
+                                    className="group hover:border-primary/40 transition-all border border-border p-4"
+                                    onClick={() => {
+                                        setSelectedMaintenance(maintenance);
+                                        setIsCompleteModalOpen(true);
+                                    }}
+                                >
+                                    <div className="flex justify-between items-start mb-4">
+                                        <h3 className="text-lg font-black text-foreground uppercase tracking-tighter">
+                                            {maintenance.vehicle?.plate || '—'}
+                                        </h3>
+                                        <Wrench size={16} className="text-primary/40" />
+                                    </div>
+                                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-3">
+                                        {maintenanceTypeMap[maintenance.type] || maintenance.type}
+                                    </p>
+                                    <div className="flex items-center justify-between pt-3 border-t border-border/50">
+                                        <span className="text-xs font-black text-green-500">{formatCurrency(maintenance.cost)}</span>
+                                        <span className="text-[9px] font-medium text-muted-foreground">{new Date(maintenance.performedAt).toLocaleDateString('pt-BR')}</span>
+                                    </div>
+                                </GlassCard>
+                            )}
                         />
                     ) : viewMode === 'grid' ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
