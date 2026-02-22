@@ -32,20 +32,20 @@ export function DashboardLayout() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex">
+        <div className="min-h-screen bg-background flex text-foreground">
             {/* Sidebar for Desktop */}
-            <aside className="hidden md:flex flex-col w-64 glass-card h-screen sticky top-0 border-r border-gray-200">
-                <div className="p-4 border-b border-gray-100 flex justify-center bg-white">
+            <aside className="hidden md:flex flex-col w-64 h-screen sticky top-0 border-r border-border bg-card">
+                <div className="p-4 border-b border-border flex justify-center bg-card">
                     <img src="/logo.png" alt="Grupo Paraopeba" className="h-14 w-auto object-contain" />
                 </div>
 
-                <div className="px-6 py-4 flex items-center gap-3 border-b border-gray-100 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                <div className="px-6 py-4 flex items-center gap-3 border-b border-border mb-4">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                         <UserIcon size={20} />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold truncate text-gray-900">{user?.name || 'Usuário'}</p>
-                        <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                        <p className="text-sm font-bold truncate text-foreground">{user?.name || 'Usuário'}</p>
+                        <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                     </div>
                 </div>
 
@@ -56,9 +56,9 @@ export function DashboardLayout() {
                             <Link
                                 key={item.name}
                                 to={item.href}
-                                className={`flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all ${isActive
-                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                                    : 'text-gray-600 hover:bg-gray-100'
+                                className={`flex items-center px-4 py-3 text-sm font-bold uppercase tracking-tight rounded-xl transition-all ${isActive
+                                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                                     }`}
                             >
                                 <item.icon className={`w-5 h-5 mr-3 ${isActive ? 'text-white' : ''}`} />
@@ -71,7 +71,7 @@ export function DashboardLayout() {
                 <div className="p-4 space-y-2">
                     <button
                         onClick={handleLogout}
-                        className="flex items-center w-full px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-50 rounded-xl transition-colors"
+                        className="flex items-center w-full px-4 py-2 text-sm font-black uppercase tracking-widest text-destructive hover:bg-destructive/10 rounded-xl transition-colors"
                     >
                         <LogOut className="w-5 h-5 mr-3" />
                         Sair
@@ -81,23 +81,23 @@ export function DashboardLayout() {
 
             {/* Mobile Header & Content */}
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-                <header className="md:hidden bg-white border-b border-gray-200 flex items-center justify-between p-4">
-                    <div className="bg-white p-1 rounded-lg">
+                <header className="md:hidden bg-card border-b border-border flex items-center justify-between p-4">
+                    <div className="p-1 rounded-lg">
                         <img src="/logo.png" alt="Grupo Paraopeba" className="h-8 w-auto object-contain" />
                     </div>
-                    <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+                    <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-foreground">
                         {isMobileMenuOpen ? <X /> : <Menu />}
                     </button>
                 </header>
 
                 {/* Mobile Menu Overlay */}
                 {isMobileMenuOpen && (
-                    <div className="fixed inset-0 z-50 md:hidden flex flex-col bg-white animate-in fade-in slide-in-from-top-4 duration-200">
-                        <div className="flex items-center justify-between p-4 border-b border-gray-100">
+                    <div className="fixed inset-0 z-50 md:hidden flex flex-col bg-background animate-in fade-in slide-in-from-top-4 duration-200">
+                        <div className="flex items-center justify-between p-4 border-b border-border">
                             <img src="/logo.png" alt="Grupo Paraopeba" className="h-10 w-auto object-contain" />
                             <button
                                 onClick={() => setIsMobileMenuOpen(false)}
-                                className="p-2 text-gray-500"
+                                className="p-2 text-muted-foreground"
                             >
                                 <X className="w-6 h-6" />
                             </button>
@@ -110,9 +110,9 @@ export function DashboardLayout() {
                                     <Link
                                         key={item.name}
                                         to={item.href}
-                                        className={`flex items-center px-6 py-4 text-lg font-semibold rounded-2xl transition-all ${isActive
-                                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                                            : 'text-gray-600 hover:bg-gray-100'
+                                        className={`flex items-center px-6 py-4 text-lg font-black uppercase tracking-tight rounded-2xl transition-all ${isActive
+                                            ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                                            : 'text-muted-foreground hover:bg-muted'
                                             }`}
                                         onClick={() => setIsMobileMenuOpen(false)}
                                     >
@@ -123,10 +123,10 @@ export function DashboardLayout() {
                             })}
                         </nav>
 
-                        <div className="p-6 border-t border-gray-100">
+                        <div className="p-6 border-t border-border">
                             <button
                                 onClick={handleLogout}
-                                className="flex items-center justify-center w-full px-6 py-4 text-lg font-bold text-red-500 bg-red-50 rounded-2xl"
+                                className="flex items-center justify-center w-full px-6 py-4 text-lg font-black uppercase tracking-widest text-destructive bg-destructive/10 rounded-2xl"
                             >
                                 <LogOut className="w-6 h-6 mr-3" />
                                 Sair da Conta

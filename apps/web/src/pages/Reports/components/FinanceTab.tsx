@@ -29,51 +29,64 @@ export function FinanceTab({ filters }: { filters: any }) {
         <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {summaryCards.map((card, i) => (
-                    <GlassCard key={i}>
-                        <div className="flex items-center gap-4 mb-2">
-                            <div className={`p-2 rounded ${card.bg} ${card.color}`}>
-                                <card.icon className="w-5 h-5" />
+                    <div key={i} className="bg-card/40 backdrop-blur-sm border border-border/50 p-6 rounded-[32px] shadow-sm hover:shadow-2xl hover:shadow-primary/5 transition-all group">
+                        <div className="flex items-center gap-4 mb-4">
+                            <div className={`w-12 h-12 rounded-2xl ${card.bg} border border-${card.color.split('-')[1]}-500/20 flex items-center justify-center ${card.color} group-hover:scale-110 transition-transform`}>
+                                <card.icon size={24} />
                             </div>
-                            <span className="text-sm text-muted-foreground">{card.label}</span>
+                            <div>
+                                <p className="text-[10px] font-black uppercase text-muted-foreground/40 tracking-widest">{card.label}</p>
+                                <h4 className="text-xl font-black text-foreground uppercase tracking-tight">Saldos & Custos</h4>
+                            </div>
                         </div>
-                        <p className="text-2xl font-bold">{formatCurrency(card.value)}</p>
-                    </GlassCard>
+                        <p className={`text-3xl font-black ${card.color} tracking-tighter`}>
+                            {formatCurrency(card.value || 0)}
+                        </p>
+                    </div>
                 ))}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <GlassCard>
-                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                <div className="bg-card/40 backdrop-blur-sm border border-border/50 p-8 rounded-[40px] shadow-sm">
+                    <h3 className="text-xl font-black text-foreground uppercase tracking-tighter mb-8 flex items-center gap-3">
                         <TrendingUp className="w-5 h-5 text-primary" />
-                        Fluxo de Despesas (Mensal)
+                        Fluxo de Despesas Op.
                     </h3>
-                    <div className="h-[300px] mt-4">
+                    <div className="h-[300px]">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={financeData?.trends || []}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                                <XAxis dataKey="month" stroke="#94a3b8" />
-                                <YAxis stroke="#94a3b8" />
+                                <XAxis dataKey="month" stroke="currentColor" fontSize={10} axisLine={false} tickLine={false} tick={{ fontWeight: 900, opacity: 0.4 }} />
+                                <YAxis hide />
                                 <Tooltip
-                                    contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px' }}
+                                    cursor={{ fill: 'rgba(var(--primary), 0.05)' }}
+                                    contentStyle={{
+                                        backgroundColor: 'rgba(var(--card), 0.95)',
+                                        border: '1px solid rgba(var(--border), 0.5)',
+                                        borderRadius: '24px',
+                                        backdropFilter: 'blur(10px)',
+                                        boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.3)',
+                                        fontSize: '12px',
+                                        fontWeight: '900'
+                                    }}
                                     formatter={(value: any) => [formatCurrency(value), 'Gasto']}
                                 />
-                                <Bar dataKey="fuel" name="Combustível" stackId="a" fill="#2563EB" />
-                                <Bar dataKey="maintenance" name="Manutenção" stackId="a" fill="#F59E0B" />
+                                <Bar dataKey="fuel" name="Combustível" stackId="a" fill="rgba(var(--primary), 0.8)" radius={[12, 12, 0, 0]} barSize={40} />
+                                <Bar dataKey="maintenance" name="Manutenção" stackId="a" fill="rgba(var(--amber-500), 0.8)" radius={[0, 0, 0, 0]} barSize={40} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
-                </GlassCard>
+                </div>
 
-                <GlassCard>
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-bold flex items-center gap-2">
-                            <CreditCard className="w-5 h-5 text-green-500" />
-                            Últimas Transações
+                <div className="bg-card/40 backdrop-blur-sm border border-border/50 p-8 rounded-[40px] shadow-sm flex flex-col h-full">
+                    <div className="flex items-center justify-between mb-8">
+                        <h3 className="text-xl font-black text-foreground uppercase tracking-tighter flex items-center gap-3">
+                            <CreditCard className="w-5 h-5 text-emerald-500" />
+                            Transações Recentes
                         </h3>
                         <ExportActions
                             data={financeData?.recentExpenses || []}
                             filename="relatorio_financeiro"
-                            title="Relatário de Despesas Recentes"
+                            title="Relatório de Despesas Recentes"
                             columns={[
                                 { header: 'Data', dataKey: 'date' },
                                 { header: 'Tipo', dataKey: 'type' },
@@ -82,26 +95,26 @@ export function FinanceTab({ filters }: { filters: any }) {
                             ]}
                         />
                     </div>
-                    <div className="space-y-4">
+                    <div className="space-y-4 overflow-y-auto pr-2 custom-scrollbar">
                         {financeData?.recentExpenses?.map((exp: any, i: number) => (
-                            <div key={i} className="flex justify-between items-center p-3 bg-white/5 rounded-lg border border-white/5">
-                                <div className="flex items-center gap-3">
-                                    <div className={`p-1.5 rounded-full ${exp.type === 'Combustível' ? 'bg-blue-500/20 text-blue-500' : 'bg-amber-500/20 text-amber-500'}`}>
-                                        {exp.type === 'Combustível' ? <Fuel className="w-3 h-3" /> : <Wrench className="w-3 h-3" />}
+                            <div key={i} className="flex justify-between items-center p-5 bg-muted/30 border border-border/50 rounded-2xl group hover:bg-muted/50 transition-all">
+                                <div className="flex items-center gap-4">
+                                    <div className={`w-10 h-10 rounded-xl ${exp.type === 'Combustível' ? 'bg-blue-500/10 text-blue-500' : 'bg-amber-500/10 text-amber-500'} border border-current/20 flex items-center justify-center transition-colors shadow-lg shadow-current/5`}>
+                                        {exp.type === 'Combustível' ? <Fuel size={20} /> : <Wrench size={20} />}
                                     </div>
                                     <div>
-                                        <p className="font-bold text-sm">{exp.type}</p>
-                                        <p className="text-[10px] text-muted-foreground">{new Date(exp.date).toLocaleDateString('pt-BR')}</p>
+                                        <p className="text-[10px] font-black uppercase text-muted-foreground/40 tracking-widest">{new Date(exp.date).toLocaleDateString('pt-BR')}</p>
+                                        <p className="font-black text-foreground tracking-widest uppercase text-sm">{exp.type}</p>
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <p className="font-bold text-primary">{formatCurrency(exp.value)}</p>
-                                    <p className="text-[10px] text-muted-foreground uppercase">{exp.details}</p>
+                                    <p className="font-black text-primary tracking-tighter text-base">{formatCurrency(exp.value)}</p>
+                                    <p className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest">{exp.details}</p>
                                 </div>
                             </div>
                         ))}
                     </div>
-                </GlassCard>
+                </div>
             </div>
         </div>
     );

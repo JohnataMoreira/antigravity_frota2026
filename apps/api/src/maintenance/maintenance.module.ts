@@ -1,10 +1,12 @@
-import { Module } from '@nestjs/common';
+console.log('[DEBUG] Loading MaintenanceModule file...');
+import { Module, Global } from '@nestjs/common';
 import { MaintenanceService } from './maintenance.service';
 import { MaintenanceController } from './maintenance.controller';
 import { MaintenanceTemplateController } from './maintenance-template.controller';
 import { MaintenanceAlertsService } from './alerts.service';
 import { FinanceModule } from '../finance/finance.module';
 
+@Global()
 @Module({
     imports: [FinanceModule],
     controllers: [MaintenanceController, MaintenanceTemplateController],

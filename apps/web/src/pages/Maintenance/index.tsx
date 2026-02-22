@@ -137,8 +137,8 @@ export function MaintenanceList() {
 
     if (isLoading) return (
         <div className="flex flex-col items-center justify-center py-20 animate-pulse">
-            <Wrench className="w-12 h-12 text-purple-200 mb-4" />
-            <div className="text-lg text-muted-foreground font-medium">Carregando manutenções...</div>
+            <Wrench className="w-12 h-12 text-muted-foreground/20 mb-4" />
+            <div className="text-lg text-muted-foreground font-black uppercase tracking-widest opacity-50">Carregando manutenções...</div>
         </div>
     );
 
@@ -146,11 +146,11 @@ export function MaintenanceList() {
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-4xl font-extrabold tracking-tight gradient-text">
+                    <h1 className="text-4xl font-black tracking-tighter uppercase text-foreground">
                         Gestão de Manutenção
                     </h1>
-                    <p className="text-muted-foreground mt-2 text-lg">
-                        Garantindo a segurança e durabilidade da frota.
+                    <p className="text-muted-foreground mt-2 text-lg font-bold uppercase text-[10px] tracking-[0.2em] opacity-60">
+                        Protocolo de Segurança e Durabilidade de Frota
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -164,22 +164,22 @@ export function MaintenanceList() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard label="Total de Registros" value={stats.total} icon={<Wrench className="w-8 h-8" />} />
-                <StatCard label="Alertas de KM" value={stats.alertCount} icon={<AlertTriangle className="w-8 h-8" />} variant={stats.alertCount > 0 ? 'warning' : 'default'} />
-                <StatCard label="Veículos na Oficina" value={stats.inWorkshop} icon={<LayoutGrid className="w-8 h-8" />} variant={stats.inWorkshop > 0 ? 'danger' : 'default'} />
-                <StatCard label="Investimento (Total)" value={formatCurrency(stats.totalCost)} icon={<DollarSign className="w-8 h-8" />} variant="info" />
+                <StatCard label="Total de Registros" value={stats.total} icon={<Wrench className="w-8 h-8" />} variant="silver" />
+                <StatCard label="Alertas de KM" value={stats.alertCount} icon={<AlertTriangle className="w-8 h-8" />} variant={stats.alertCount > 0 ? 'warning' : 'silver'} />
+                <StatCard label="Veículos na Oficina" value={stats.inWorkshop} icon={<LayoutGrid className="w-8 h-8" />} variant={stats.inWorkshop > 0 ? 'danger' : 'silver'} />
+                <StatCard label="Investimento (Total)" value={formatCurrency(stats.totalCost)} icon={<DollarSign className="w-8 h-8" />} variant="emerald" />
             </div>
 
-            <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-2xl w-fit border shadow-inner">
+            <div className="flex items-center gap-1 bg-muted p-1.5 rounded-2xl w-fit border border-border shadow-inner">
                 <button
                     onClick={() => setActiveTab('maintenances')}
-                    className={`px-6 py-2 rounded-xl font-bold transition-all ${activeTab === 'maintenances' ? 'bg-white shadow-md text-blue-600' : 'text-gray-500'}`}
+                    className={`px-6 py-2 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all ${activeTab === 'maintenances' ? 'bg-card shadow-lg text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                 >
                     Gestão de Alertas
                 </button>
                 <button
                     onClick={() => setActiveTab('catalog')}
-                    className={`px-6 py-2 rounded-xl font-bold transition-all ${activeTab === 'catalog' ? 'bg-white shadow-md text-blue-600' : 'text-gray-500'}`}
+                    className={`px-6 py-2 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all ${activeTab === 'catalog' ? 'bg-card shadow-lg text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                 >
                     Catálogo de Serviços
                 </button>
@@ -187,26 +187,26 @@ export function MaintenanceList() {
 
             {activeTab === 'maintenances' ? (
                 <>
-                    <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+                    <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-card p-4 rounded-2xl border border-border">
                         <div className="flex flex-col md:flex-row gap-4 items-center flex-1 w-full max-w-4xl">
-                            <div className="flex items-center gap-3 bg-white p-2 rounded-xl border border-gray-100 shadow-sm flex-1 w-full focus-within:ring-2 focus-within:ring-blue-500/50 transition-all">
-                                <Search size={22} className="text-gray-400 ml-2" />
+                            <div className="flex items-center gap-3 bg-background p-2 rounded-xl border border-border flex-1 w-full focus-within:ring-2 focus-within:ring-primary/50 transition-all">
+                                <Search size={22} className="text-muted-foreground/40 ml-2" />
                                 <input
                                     placeholder="Buscar veículo ou serviço..."
-                                    className="bg-transparent outline-none flex-1 py-2 font-medium"
+                                    className="bg-transparent outline-none flex-1 py-2 font-bold text-sm"
                                 />
                             </div>
 
-                            <div className="flex items-center gap-3 bg-white p-2 rounded-xl border border-gray-100 shadow-sm w-full md:w-auto">
+                            <div className="flex items-center gap-3 bg-background p-2 rounded-xl border border-border w-full md:w-auto">
                                 <input
                                     type="date"
-                                    className="bg-transparent outline-none text-xs font-bold py-1 px-2"
+                                    className="bg-transparent border-none outline-none text-xs font-black uppercase text-primary py-1 px-2"
                                     title="Data Inicial"
                                 />
-                                <span className="text-gray-300">|</span>
+                                <span className="text-border">|</span>
                                 <input
                                     type="date"
-                                    className="bg-transparent outline-none text-xs font-bold py-1 px-2"
+                                    className="bg-transparent border-none outline-none text-xs font-black uppercase text-primary py-1 px-2"
                                     title="Data Final"
                                 />
                             </div>
@@ -215,30 +215,30 @@ export function MaintenanceList() {
                         <div className="flex items-center gap-3">
                             <button
                                 onClick={() => setIsCreateModalOpen(true)}
-                                className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg shadow-blue-500/20 transition-all group"
+                                className="flex items-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-black uppercase tracking-widest text-xs shadow-lg shadow-primary/20 transition-all group"
                             >
                                 <Plus size={20} className="group-hover:rotate-90 transition-transform" />
                                 Nova Manutenção
                             </button>
 
-                            <div className="flex bg-gray-100 p-1.5 rounded-xl border shadow-sm">
+                            <div className="flex bg-muted p-1.5 rounded-xl border border-border">
                                 <button
                                     onClick={() => setViewMode('grid')}
-                                    className={`p-2.5 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-white shadow-md text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                                    className={`p-2.5 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-card shadow-lg text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                                     title="Visualização em Grade"
                                 >
                                     <LayoutGrid size={20} />
                                 </button>
                                 <button
                                     onClick={() => setViewMode('list')}
-                                    className={`p-2.5 rounded-xl transition-all ${viewMode === 'list' ? 'bg-white shadow-md text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                                    className={`p-2.5 rounded-xl transition-all ${viewMode === 'list' ? 'bg-card shadow-lg text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                                     title="Visualização em Lista"
                                 >
                                     <ListIcon size={20} />
                                 </button>
                                 <button
                                     onClick={() => setViewMode('kanban')}
-                                    className={`p-2.5 rounded-xl transition-all ${viewMode === 'kanban' ? 'bg-white shadow-md text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
+                                    className={`p-2.5 rounded-xl transition-all ${viewMode === 'kanban' ? 'bg-card shadow-lg text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                                     title="Visualização em Kanban"
                                 >
                                     <Columns size={20} />
@@ -267,7 +267,7 @@ export function MaintenanceList() {
                             renderCard={(item: any) => (
                                 <GlassCard
                                     key={item.id}
-                                    className={`p-4 rounded-xl border transition-all group bg-white ${item.kanbanType === 'ALERT' ? 'border-l-4 border-l-amber-500' : ''}`}
+                                    className={`p-4 rounded-xl border transition-all group bg-card ${item.kanbanType === 'ALERT' ? 'border-l-4 border-l-amber-500' : 'border-border'}`}
                                     onClick={() => {
                                         if (item.kanbanType === 'ALERT') {
                                             setFormData({
@@ -288,26 +288,26 @@ export function MaintenanceList() {
                                     }}
                                 >
                                     <div className="flex items-center gap-3 mb-3">
-                                        <div className={`p-2 rounded-lg ${item.kanbanType === 'ALERT' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'}`}>
+                                        <div className={`p-2 rounded-lg ${item.kanbanType === 'ALERT' ? 'bg-amber-500/10 text-amber-500' : 'bg-primary/10 text-primary'}`}>
                                             <Wrench size={18} />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <h4 className="font-black text-blue-600 text-sm truncate uppercase tracking-tighter">
+                                            <h4 className="font-black text-primary text-sm truncate uppercase tracking-tighter">
                                                 {item.plate || item.vehicle?.plate}
                                             </h4>
-                                            <p className="text-[10px] text-gray-500 font-bold uppercase truncate">
+                                            <p className="text-[10px] text-muted-foreground font-black uppercase truncate tracking-widest">
                                                 {item.templateName || maintenanceTypeMap[item.type] || item.type}
                                             </p>
                                         </div>
                                     </div>
                                     {item.kanbanType === 'ALERT' ? (
-                                        <div className="bg-amber-50/50 p-2 rounded-lg border border-amber-100 mb-2">
-                                            <p className="text-[10px] font-bold text-amber-700 uppercase leading-tight">
+                                        <div className="bg-amber-500/5 p-2 rounded-lg border border-amber-500/10 mb-2">
+                                            <p className="text-[10px] font-black text-amber-500/80 uppercase leading-tight">
                                                 {item.message}
                                             </p>
                                         </div>
                                     ) : (
-                                        <div className="flex justify-between items-center text-[10px] mb-2 font-bold text-gray-400 uppercase">
+                                        <div className="flex justify-between items-center text-[10px] mb-2 font-black text-muted-foreground/50 uppercase tracking-tighter">
                                             <span>KM: {item.status === 'COMPLETED' ? formatKm(item.lastKm) : formatKm(item.nextDueKm)}</span>
                                             {item.performedAt && <span>{new Date(item.performedAt).toLocaleDateString('pt-BR')}</span>}
                                         </div>
@@ -327,18 +327,18 @@ export function MaintenanceList() {
                                     </h2>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                                         {vehiclesInWorkshop.map((v: any) => (
-                                            <GlassCard key={v.id} className="relative overflow-hidden group border-t-4 border-red-500">
+                                            <GlassCard key={v.id} className="relative overflow-hidden group border-t-4 border-red-500 bg-card">
                                                 <div className="flex items-center gap-3 mb-3">
-                                                    <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 animate-pulse">
+                                                    <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 animate-pulse">
                                                         <Wrench size={20} />
                                                     </div>
                                                     <div>
-                                                        <div className="font-black text-lg text-blue-600 ">{v.plate}</div>
-                                                        <div className="text-[10px] font-bold text-muted-foreground uppercase">{v.model}</div>
+                                                        <div className="font-black text-lg text-primary ">{v.plate}</div>
+                                                        <div className="text-[10px] font-black text-muted-foreground uppercase">{v.model}</div>
                                                     </div>
                                                 </div>
-                                                <div className="text-xs font-bold text-red-500 flex items-center gap-1 uppercase tracking-tighter">
-                                                    <Clock size={12} /> Em Manutenção Crítica
+                                                <div className="text-[10px] font-black text-red-500 flex items-center gap-1 uppercase tracking-widest opacity-80">
+                                                    <Clock size={12} /> Manutenção Crítica
                                                 </div>
                                             </GlassCard>
                                         ))}
@@ -358,28 +358,28 @@ export function MaintenanceList() {
                                                 className={`border-l-4 transition-all flex flex-col ${alert.severity === 'CRITICAL' ? 'border-red-500 shadow-lg shadow-red-500/5' : 'border-amber-500'}`}
                                             >
                                                 <div className="flex justify-between items-start mb-4">
-                                                    <div className={`p-2.5 rounded-xl ${alert.severity === 'CRITICAL' ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600'}`}>
+                                                    <div className={`p-2.5 rounded-xl ${alert.severity === 'CRITICAL' ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500'}`}>
                                                         <Wrench size={24} />
                                                     </div>
-                                                    <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${alert.severity === 'CRITICAL' ? 'bg-red-100 text-red-700 ' : 'bg-amber-100 text-amber-700 '}`}>
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${alert.severity === 'CRITICAL' ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-amber-500/10 text-amber-500 border-amber-500/20'}`}>
                                                         {alert.templateName}
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center justify-between mb-4">
-                                                    <h3 className="text-2xl font-black text-gray-900 ">{alert.plate}</h3>
-                                                    <div className="text-[10px] font-bold text-muted-foreground uppercase">{alert.model}</div>
+                                                    <h3 className="text-2xl font-black text-foreground ">{alert.plate}</h3>
+                                                    <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-60">{alert.model}</div>
                                                 </div>
-                                                <div className="space-y-2 mb-4 flex-grow bg-gray-50/50 p-3 rounded-xl border border-gray-100 ">
-                                                    <div className="flex justify-between text-xs">
-                                                        <span className="text-muted-foreground font-medium">KM Atual:</span>
-                                                        <span className="font-bold">{formatKm(alert.kmSinceLast + alert.baseKm)}</span>
+                                                <div className="space-y-2 mb-4 flex-grow bg-muted/30 p-3 rounded-xl border border-border">
+                                                    <div className="flex justify-between text-[11px] font-bold uppercase tracking-tighter">
+                                                        <span className="text-muted-foreground">KM Atual:</span>
+                                                        <span className="text-foreground">{formatKm(alert.kmSinceLast + alert.baseKm)}</span>
                                                     </div>
-                                                    <div className="flex justify-between text-xs">
-                                                        <span className="text-muted-foreground font-medium">Planificado:</span>
-                                                        <span className="font-bold">{formatKm(alert.nextMaintenanceKm)}</span>
+                                                    <div className="flex justify-between text-[11px] font-bold uppercase tracking-tighter">
+                                                        <span className="text-muted-foreground">Planificado:</span>
+                                                        <span className="text-foreground">{formatKm(alert.nextMaintenanceKm)}</span>
                                                     </div>
-                                                    <div className="pt-2 border-t mt-2">
-                                                        <p className={`text-[11px] font-bold uppercase ${alert.severity === 'CRITICAL' ? 'text-red-500' : 'text-amber-600'}`}>
+                                                    <div className="pt-2 border-t border-border mt-2">
+                                                        <p className={`text-[11px] font-black uppercase tracking-tight ${alert.severity === 'CRITICAL' ? 'text-red-500' : 'text-amber-500'}`}>
                                                             {alert.message}
                                                         </p>
                                                     </div>
@@ -398,7 +398,7 @@ export function MaintenanceList() {
                                                         });
                                                         setIsCreateModalOpen(true);
                                                     }}
-                                                    className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${alert.severity === 'CRITICAL' ? 'bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/20' : 'bg-amber-500 hover:bg-amber-600 text-white'}`}
+                                                    className={`w-full py-4 rounded-xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-all ${alert.severity === 'CRITICAL' ? 'bg-red-600 hover:bg-red-700 text-white shadow-xl shadow-red-500/20' : 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/20'}`}
                                                 >
                                                     <Plus size={18} />
                                                     Iniciar Manutenção
@@ -417,38 +417,38 @@ export function MaintenanceList() {
                                     <GlassCard transition={true} className="!p-0 overflow-hidden">
                                         <div className="overflow-x-auto">
                                             <table className="w-full text-left text-sm">
-                                                <thead className="bg-gray-50 border-b ">
+                                                <thead className="bg-muted/50 border-b border-border">
                                                     <tr>
-                                                        <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 ">Veículo</th>
-                                                        <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 ">Tipo</th>
-                                                        <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 ">Status</th>
-                                                        <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 text-right">Data / KM</th>
-                                                        <th className="px-6 py-4 font-bold uppercase tracking-wider text-gray-400 text-right">Ação</th>
+                                                        <th className="px-6 py-4 font-black uppercase tracking-widest text-[10px] text-muted-foreground/50 ">Veículo</th>
+                                                        <th className="px-6 py-4 font-black uppercase tracking-widest text-[10px] text-muted-foreground/50 ">Tipo</th>
+                                                        <th className="px-6 py-4 font-black uppercase tracking-widest text-[10px] text-muted-foreground/50 ">Status</th>
+                                                        <th className="px-6 py-4 font-black uppercase tracking-widest text-[10px] text-muted-foreground/50 text-right">Data / KM</th>
+                                                        <th className="px-6 py-4 font-black uppercase tracking-widest text-[10px] text-muted-foreground/50 text-right">Ação</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody className="divide-y divide-gray-100 ">
+                                                <tbody className="divide-y divide-border ">
                                                     {maintenances.map((maintenance: any) => (
-                                                        <tr key={maintenance.id} className="group hover:bg-gray-50/50 transition-all">
-                                                            <td className="px-6 py-5 font-bold text-blue-600 ">{maintenance.vehicle?.plate || '—'}</td>
-                                                            <td className="px-6 py-5 font-medium">{maintenanceTypeMap[maintenance.type] || maintenance.type}</td>
+                                                        <tr key={maintenance.id} className="group hover:bg-muted/30 transition-all border-b border-border last:border-0 font-medium">
+                                                            <td className="px-6 py-5 font-black text-lg text-primary tracking-tighter uppercase">{maintenance.vehicle?.plate || '—'}</td>
+                                                            <td className="px-6 py-5 font-bold text-foreground text-xs uppercase tracking-tight">{maintenanceTypeMap[maintenance.type] || maintenance.type}</td>
                                                             <td className="px-6 py-5">
-                                                                <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${maintenance.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700 ' :
-                                                                    maintenance.status === 'COMPLETED' ? 'bg-green-100 text-green-700 ' :
-                                                                        'bg-gray-100 text-gray-700 '
+                                                                <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${maintenance.status === 'PENDING' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                                                                    maintenance.status === 'COMPLETED' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
+                                                                        'bg-muted text-muted-foreground border-border'
                                                                     }`}>
                                                                     {statusMap[maintenance.status] || maintenance.status}
                                                                 </span>
                                                             </td>
-                                                            <td className="px-6 py-5 text-right font-medium text-muted-foreground">
+                                                            <td className="px-6 py-5 text-right font-black">
                                                                 {maintenance.status === 'COMPLETED' ? (
                                                                     <div className="flex flex-col items-end">
-                                                                        <span className="font-bold text-gray-900 ">{formatCurrency(maintenance.cost)}</span>
-                                                                        <span className="text-[10px]">{new Date(maintenance.performedAt).toLocaleDateString('pt-BR')}</span>
+                                                                        <span className="text-foreground text-sm ">{formatCurrency(maintenance.cost)}</span>
+                                                                        <span className="text-[9px] text-muted-foreground/50 uppercase tracking-widest">{new Date(maintenance.performedAt).toLocaleDateString('pt-BR')}</span>
                                                                     </div>
                                                                 ) : (
                                                                     <div className="flex flex-col items-end">
-                                                                        <span className="font-bold text-orange-600 ">{formatKm(maintenance.nextDueKm)}</span>
-                                                                        <span className="text-[10px]">PREVISTA</span>
+                                                                        <span className="text-amber-500 text-sm ">{formatKm(maintenance.nextDueKm)}</span>
+                                                                        <span className="text-[9px] text-amber-500/50 uppercase tracking-widest">PREVISTA</span>
                                                                     </div>
                                                                 )}
                                                             </td>
@@ -460,7 +460,7 @@ export function MaintenanceList() {
                                                                             setCompleteData(prev => ({ ...prev, lastKm: maintenance.vehicle?.currentKm || 0 }));
                                                                             setIsCompleteModalOpen(true);
                                                                         }}
-                                                                        className="text-primary hover:underline font-bold"
+                                                                        className="text-primary hover:text-primary/80 font-black uppercase tracking-widest text-[10px]"
                                                                     >
                                                                         Concluir
                                                                     </button>
@@ -477,24 +477,24 @@ export function MaintenanceList() {
                                         {maintenances.map((maintenance: any) => (
                                             <GlassCard key={maintenance.id} transition={true}>
                                                 <div className="flex items-center gap-3 mb-4">
-                                                    <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
+                                                    <div className="p-2 rounded-lg bg-primary/10 text-primary">
                                                         <Wrench size={20} />
                                                     </div>
                                                     <div>
-                                                        <div className="font-black text-lg text-blue-600 ">{maintenance.vehicle?.plate || '—'}</div>
-                                                        <div className="text-xs font-bold text-muted-foreground uppercase">{maintenanceTypeMap[maintenance.type] || maintenance.type}</div>
+                                                        <div className="font-black text-xl text-primary tracking-tighter uppercase">{maintenance.vehicle?.plate || '—'}</div>
+                                                        <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{maintenanceTypeMap[maintenance.type] || maintenance.type}</div>
                                                     </div>
                                                 </div>
                                                 <div className="space-y-2 mb-4">
-                                                    <div className="flex justify-between text-xs font-bold uppercase text-gray-400">
-                                                        <span>Status</span>
-                                                        <span className={maintenance.status === 'COMPLETED' ? 'text-green-600' : 'text-yellow-600'}>
+                                                    <div className="flex justify-between text-[10px] font-black uppercase text-muted-foreground/50 tracking-widest">
+                                                        <span className="flex-1 border-b border-white/5 pb-1">Status</span>
+                                                        <span className={`pb-1 ${maintenance.status === 'COMPLETED' ? 'text-emerald-500' : 'text-amber-500'}`}>
                                                             {statusMap[maintenance.status] || maintenance.status}
                                                         </span>
                                                     </div>
-                                                    <div className="flex justify-between text-xs font-bold uppercase text-gray-400">
-                                                        <span>{maintenance.status === 'COMPLETED' ? 'Custo' : 'KM Prevista'}</span>
-                                                        <span className="text-gray-900">
+                                                    <div className="flex justify-between text-[10px] font-black uppercase text-muted-foreground/50 tracking-widest">
+                                                        <span className="flex-1"> {maintenance.status === 'COMPLETED' ? 'Custo' : 'KM Prevista'}</span>
+                                                        <span className="text-foreground">
                                                             {maintenance.status === 'COMPLETED' ? formatCurrency(maintenance.cost) : formatKm(maintenance.nextDueKm)}
                                                         </span>
                                                     </div>
@@ -506,7 +506,7 @@ export function MaintenanceList() {
                                                             setCompleteData(prev => ({ ...prev, lastKm: maintenance.vehicle?.currentKm || 0 }));
                                                             setIsCompleteModalOpen(true);
                                                         }}
-                                                        className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-all"
+                                                        className="w-full py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-black uppercase tracking-widest text-[10px] transition-all shadow-lg shadow-primary/20"
                                                     >
                                                         Concluir
                                                     </button>
@@ -521,13 +521,13 @@ export function MaintenanceList() {
                 </>
             ) : (
                 <div className="space-y-6">
-                    <div className="flex justify-between items-center">
-                        <h2 className="text-xl font-bold flex items-center gap-2">
-                            <ListIcon className="text-blue-500" /> Catálogo de Serviços
+                    <div className="flex justify-between items-center bg-card p-6 rounded-3xl border border-border">
+                        <h2 className="text-2xl font-black flex items-center gap-3 text-foreground uppercase tracking-tighter">
+                            <ListIcon className="text-primary w-8 h-8" /> Catálogo de Serviços
                         </h2>
                         <button
                             onClick={() => setIsTemplateModalOpen(true)}
-                            className="flex items-center gap-2 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-lg shadow-blue-500/20 transition-all"
+                            className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/20 transition-all active:scale-95"
                         >
                             <Plus size={18} /> Cadastrar Novo Serviço
                         </button>
@@ -535,32 +535,32 @@ export function MaintenanceList() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {templates.map((template: any) => (
-                            <GlassCard key={template.id} className="border-t-4 border-blue-500">
+                            <GlassCard key={template.id} className="border-t-4 border-primary bg-card">
                                 <div className="flex justify-between items-start mb-4">
-                                    <div className="bg-blue-50 p-2 rounded-lg text-blue-600">
+                                    <div className="bg-primary/10 p-2 rounded-lg text-primary">
                                         <Wrench size={20} />
                                     </div>
-                                    <span className="text-[10px] font-black bg-blue-100 text-blue-700 px-2 py-1 rounded uppercase">
+                                    <span className={`text-[9px] font-black px-2 py-1 rounded-full uppercase tracking-widest border border-primary/20 ${template.type === 'PREVENTIVE' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}`}>
                                         {template.type === 'PREVENTIVE' ? 'Preventiva' : 'Corretiva'}
                                     </span>
                                 </div>
-                                <h3 className="text-lg font-bold text-gray-900 mb-2">{template.name}</h3>
+                                <h3 className="text-xl font-black text-foreground mb-2 uppercase tracking-tight">{template.name}</h3>
                                 <div className="space-y-2 mb-4 flex-grow">
                                     <div className="flex flex-wrap gap-1">
                                         {template.vehicleTypes.map((vt: string) => (
-                                            <span key={vt} className="text-[9px] font-bold bg-gray-100 px-1.5 py-0.5 rounded text-gray-500">
+                                            <span key={vt} className="text-[8px] font-black bg-muted px-2 py-0.5 rounded-full text-muted-foreground border border-white/5 uppercase tracking-widest">
                                                 {vt}
                                             </span>
                                         ))}
                                     </div>
-                                    <div className="bg-gray-50 p-3 rounded-xl space-y-2 mt-3 text-xs">
-                                        <div className="flex justify-between">
-                                            <span className="text-muted-foreground">Intervalo:</span>
-                                            <span className="font-bold text-blue-600">{formatKm(template.intervalKm)}</span>
+                                    <div className="bg-muted/50 p-4 rounded-2xl space-y-3 mt-4 text-[11px] font-bold border border-white/5">
+                                        <div className="flex justify-between border-b border-white/5 pb-2">
+                                            <span className="text-muted-foreground uppercase tracking-widest">Intervalo:</span>
+                                            <span className="text-primary font-black">{formatKm(template.intervalKm)}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-muted-foreground">Tempo Médio:</span>
-                                            <span className="font-bold">{template.averageDurationDays} dias</span>
+                                            <span className="text-muted-foreground uppercase tracking-widest">Tempo Médio:</span>
+                                            <span className="text-foreground">{template.averageDurationDays} dias</span>
                                         </div>
                                     </div>
                                     {template.description && (
@@ -578,7 +578,7 @@ export function MaintenanceList() {
                                             });
                                         }
                                     }}
-                                    className="text-[10px] font-bold text-red-400 hover:text-red-500 uppercase tracking-tighter self-end"
+                                    className="text-[10px] font-black text-destructive/40 hover:text-destructive uppercase tracking-widest self-end transition-colors"
                                 >
                                     Excluir
                                 </button>
@@ -587,10 +587,10 @@ export function MaintenanceList() {
                     </div>
 
                     {templates.length === 0 && (
-                        <div className="bg-gray-50 border border-dashed rounded-3xl py-20 flex flex-col items-center justify-center text-center">
-                            <Wrench className="w-12 h-12 text-gray-300 mb-4" />
-                            <h3 className="text-xl font-bold text-gray-400">Nenhum serviço catalogado</h3>
-                            <p className="text-muted-foreground max-w-sm mt-2">Cadastre os tipos de manutenção frequentes para agilizar o agendamento da sua frota.</p>
+                        <div className="bg-card border-2 border-dashed border-border rounded-3xl py-20 flex flex-col items-center justify-center text-center">
+                            <Wrench className="w-16 h-16 text-muted-foreground/20 mb-4" />
+                            <h3 className="text-2xl font-black text-foreground uppercase tracking-tight">Cátalogo Vazio</h3>
+                            <p className="text-muted-foreground font-medium max-w-sm mt-2">Cadastre os tipos de manutenção frequentes para agilizar o agendamento da sua frota.</p>
                         </div>
                     )}
                 </div>
@@ -601,9 +601,9 @@ export function MaintenanceList() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
                     <div className="w-full max-w-md bg-background rounded-3xl shadow-2xl border border-border p-6 animate-in zoom-in-95 duration-200">
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold">Nova Manutenção</h2>
-                            <button onClick={() => setIsCreateModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors">
-                                <X size={20} />
+                            <h2 className="text-2xl font-black uppercase tracking-tighter">Nova Manutenção</h2>
+                            <button onClick={() => setIsCreateModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground">
+                                <X size={24} />
                             </button>
                         </div>
 
@@ -612,7 +612,7 @@ export function MaintenanceList() {
                             createMutation.mutate(formData);
                         }} className="space-y-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-bold ml-1">Veículo</label>
+                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Veículo</label>
                                 <select
                                     className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
                                     value={formData.vehicleId}
@@ -641,7 +641,7 @@ export function MaintenanceList() {
                                     </select>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold ml-1">Prevista para (KM)</label>
+                                    <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Prevista para (KM)</label>
                                     <input
                                         type="number"
                                         className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
@@ -654,7 +654,7 @@ export function MaintenanceList() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-bold ml-1">Data Prevista (Opcional)</label>
+                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Data Prevista (Opcional)</label>
                                 <input
                                     type="date"
                                     className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
@@ -664,7 +664,7 @@ export function MaintenanceList() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-bold ml-1">Observações</label>
+                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Observações</label>
                                 <textarea
                                     className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary min-h-[100px]"
                                     placeholder="Detalhes do serviço planejado..."
@@ -676,7 +676,7 @@ export function MaintenanceList() {
                             <button
                                 type="submit"
                                 disabled={createMutation.isPending}
-                                className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+                                className="w-full py-5 bg-primary text-primary-foreground rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 shadow-xl shadow-primary/20"
                             >
                                 {createMutation.isPending ? 'Agendando...' : 'Agendar Manutenção'}
                             </button>
@@ -690,19 +690,19 @@ export function MaintenanceList() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
                     <div className="w-full max-w-md bg-background rounded-3xl shadow-2xl border border-border p-6 animate-in zoom-in-95 duration-200">
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold">Concluir Serviço</h2>
-                            <button onClick={() => setIsCompleteModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors">
-                                <X size={20} />
+                            <h2 className="text-2xl font-black uppercase tracking-tighter">Concluir Serviço</h2>
+                            <button onClick={() => setIsCompleteModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground">
+                                <X size={24} />
                             </button>
                         </div>
 
-                        <div className="mb-6 p-4 bg-primary/5 rounded-2xl border border-primary/10 flex items-center gap-4">
+                        <div className="mb-6 p-4 bg-primary/10 rounded-2xl border border-primary/20 flex items-center gap-4">
                             <div className="bg-primary/20 p-3 rounded-xl text-primary">
                                 <Wrench size={24} />
                             </div>
                             <div>
-                                <div className="font-black text-lg">{selectedMaintenance.vehicle?.plate}</div>
-                                <div className="text-sm text-muted-foreground uppercase font-bold tracking-wider">{maintenanceTypeMap[selectedMaintenance.type] || selectedMaintenance.type}</div>
+                                <div className="font-black text-2xl tracking-tighter text-primary uppercase">{selectedMaintenance.vehicle?.plate}</div>
+                                <div className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">{maintenanceTypeMap[selectedMaintenance.type] || selectedMaintenance.type}</div>
                             </div>
                         </div>
 
@@ -712,8 +712,8 @@ export function MaintenanceList() {
                         }} className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold ml-1 flex items-center gap-1">
-                                        <DollarSign size={14} /> Custo Real
+                                    <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1 flex items-center gap-1">
+                                        <DollarSign size={14} className="text-primary" /> Custo Real
                                     </label>
                                     <input
                                         type="number"
@@ -726,8 +726,8 @@ export function MaintenanceList() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold ml-1 flex items-center gap-1">
-                                        <ArrowRight size={14} /> KM do Serviço
+                                    <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1 flex items-center gap-1">
+                                        <ArrowRight size={14} className="text-primary" /> KM do Serviço
                                     </label>
                                     <input
                                         type="number"
@@ -741,7 +741,7 @@ export function MaintenanceList() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-bold ml-1">Relatório Técnico</label>
+                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Relatório Técnico</label>
                                 <textarea
                                     className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary min-h-[100px]"
                                     placeholder="Descreva o que foi realizado..."
@@ -753,7 +753,7 @@ export function MaintenanceList() {
                             <button
                                 type="submit"
                                 disabled={completeMutation.isPending}
-                                className="w-full py-4 bg-green-600 hover:bg-green-700 text-white rounded-2xl font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+                                className="w-full py-5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 shadow-xl shadow-emerald-500/20"
                             >
                                 {completeMutation.isPending ? 'Finalizando...' : 'Confirmar Conclusão'}
                             </button>
@@ -767,9 +767,9 @@ export function MaintenanceList() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
                     <div className="w-full max-w-md bg-background rounded-3xl shadow-2xl border border-border p-6 animate-in zoom-in-95 duration-200">
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold">Novo Serviço no Catálogo</h2>
-                            <button onClick={() => setIsTemplateModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors">
-                                <X size={20} />
+                            <h2 className="text-2xl font-black uppercase tracking-tighter">Novo Serviço</h2>
+                            <button onClick={() => setIsTemplateModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground">
+                                <X size={24} />
                             </button>
                         </div>
 
@@ -796,7 +796,7 @@ export function MaintenanceList() {
                             templateMutation.mutate({ name, description, type, averageDurationDays: avgDays, intervalKm, intervalMonths, vehicleTypes: selectedTypes });
                         }} className="space-y-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-bold ml-1">Nome do Serviço</label>
+                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Nome do Serviço</label>
                                 <input
                                     name="name"
                                     className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
@@ -806,7 +806,7 @@ export function MaintenanceList() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-bold ml-1">Descrição (Opcional)</label>
+                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Descrição (Opcional)</label>
                                 <textarea
                                     name="description"
                                     className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary min-h-[60px]"
@@ -815,7 +815,7 @@ export function MaintenanceList() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-bold ml-1">Tipos de Veículo</label>
+                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Tipos de Veículo</label>
                                 <div className="grid grid-cols-2 gap-2">
                                     {[
                                         { label: 'Carro', value: 'CAR' },
@@ -828,9 +828,9 @@ export function MaintenanceList() {
                                                 type="checkbox"
                                                 name="vehicleTypes"
                                                 value={type.value}
-                                                className="w-4 h-4 text-blue-600 rounded bg-gray-100 border-gray-300 focus:ring-blue-500"
+                                                className="w-4 h-4 text-primary rounded bg-muted border-border focus:ring-primary"
                                             />
-                                            <span className="text-sm font-medium">{type.label}</span>
+                                            <span className="text-sm font-bold uppercase tracking-widest text-[10px]">{type.label}</span>
                                         </label>
                                     ))}
                                 </div>
@@ -848,7 +848,7 @@ export function MaintenanceList() {
                                     </select>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold ml-1">Intervalo (KM)</label>
+                                    <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Intervalo (KM)</label>
                                     <input
                                         name="intervalKm"
                                         type="number"
@@ -860,7 +860,7 @@ export function MaintenanceList() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-bold ml-1">Intervalo (Meses) — Opcional</label>
+                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Intervalo (Meses)</label>
                                 <input
                                     name="intervalMonths"
                                     type="number"
@@ -871,7 +871,7 @@ export function MaintenanceList() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-bold ml-1">Duração Média (Dias)</label>
+                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Duração Média (Dias)</label>
                                 <input
                                     name="avgDays"
                                     type="number"
@@ -884,7 +884,7 @@ export function MaintenanceList() {
                             <button
                                 type="submit"
                                 disabled={templateMutation.isPending}
-                                className="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold text-lg hover:scale-[1.02] transition-all disabled:opacity-50"
+                                className="w-full py-5 bg-primary text-primary-foreground rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-[1.02] transition-all disabled:opacity-50 shadow-xl shadow-primary/20"
                             >
                                 {templateMutation.isPending ? 'Salvando...' : 'Cadastrar Serviço'}
                             </button>

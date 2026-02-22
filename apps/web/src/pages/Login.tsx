@@ -85,19 +85,19 @@ export function Login() {
     return (
         <div className="flex min-h-screen items-center justify-center bg-background p-4 relative overflow-hidden">
             {/* Background Blobs */}
-            <div className="absolute top-0 -left-4 w-72 h-72 bg-primary/20 rounded-full blur-3xl filter opacity-30 animate-pulse" />
-            <div className="absolute bottom-0 -right-4 w-72 h-72 bg-accent/20 rounded-full blur-3xl filter opacity-30 animate-pulse delay-1000" />
+            <div className="absolute top-0 -left-4 w-96 h-96 bg-primary/30 rounded-full blur-3xl filter opacity-20 animate-pulse" />
+            <div className="absolute bottom-0 -right-4 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl filter opacity-20 animate-pulse delay-1000" />
 
             <div className="w-full max-w-md space-y-8 p-8 glass-card relative z-10 border border-border/50 shadow-2xl">
                 <div className="text-center space-y-2">
-                    <div className="flex justify-center mb-8 bg-white/90 p-4 rounded-3xl shadow-inner">
-                        <img src="/logo.png" alt="Paraopeba Transportes" className="h-[120px] w-auto object-contain drop-shadow-xl" />
+                    <div className="flex justify-center mb-8 bg-white p-4 rounded-3xl shadow-xl">
+                        <img src="/logo.png" alt="Paraopeba Transportes" className="h-[120px] w-auto object-contain" />
                     </div>
-                    <h2 className="text-4xl font-bold tracking-tight gradient-text">
-                        {isRegistering ? 'Nova Organização' : 'Entrar no Sistema'}
+                    <h2 className="text-4xl font-black tracking-tighter uppercase text-foreground">
+                        {isRegistering ? 'Nova Organização' : 'Acesso Restrito'}
                     </h2>
-                    <p className="text-muted-foreground">
-                        {isRegistering ? 'Preencha os dados da sua empresa' : 'Seja bem-vindo de volta'}
+                    <p className="text-muted-foreground font-bold uppercase text-[10px] tracking-widest opacity-60">
+                        {isRegistering ? 'Preencha os dados da sua empresa' : 'Sistema de Gestão de Frota 2026'}
                     </p>
                 </div>
 
@@ -219,9 +219,9 @@ export function Login() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-4 px-6 bg-primary text-white rounded-2xl font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-primary/25 disabled:opacity-50 disabled:scale-100 disabled:bg-gray-400"
+                        className="w-full py-4 px-6 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/20 disabled:opacity-50 disabled:scale-100"
                     >
-                        {loading ? 'Processando...' : (isRegistering ? 'Criar Organização' : 'Entrar')}
+                        {loading ? 'Processando...' : (isRegistering ? 'Criar Organização' : 'Entrar no Sistema')}
                     </button>
                 </form>
 
@@ -264,24 +264,25 @@ export function Login() {
             <style>{`
                 .auth-input {
                     width: 100%;
-                    padding: 0.75rem 1rem;
-                    padding-left: 3rem !important; /* Force padding for icons */
-                    background: rgba(255, 255, 255, 0.03);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    padding: 0.85rem 1rem;
+                    padding-left: 3rem !important;
+                    background: var(--muted);
+                    border: 1px solid var(--border);
                     border-radius: 1rem;
                     outline: none;
                     transition: all 0.2s;
                     color: var(--foreground);
+                    font-weight: 600;
+                    font-size: 0.875rem;
                 }
                 .auth-input:focus {
-                    background: rgba(255, 255, 255, 0.05);
                     border-color: var(--primary);
-                    box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.1);
+                    background: var(--card);
                 }
                 .glass-card {
-                    background: rgba(var(--background-rgb), 0.7);
-                    backdrop-filter: blur(20px);
-                    border-radius: 2rem;
+                    background: var(--card);
+                    border: 1px solid var(--border);
+                    border-radius: 2.5rem;
                 }
                 @keyframes shake {
                     0%, 100% { transform: translateX(0); }

@@ -18,7 +18,7 @@ export interface StatCardProps {
         isPositive: boolean;
     };
     icon?: React.ReactNode | LucideIcon;
-    variant?: 'default' | 'success' | 'warning' | 'danger' | 'info';
+    variant?: 'default' | 'success' | 'warning' | 'danger' | 'info' | 'silver' | 'emerald';
     loading?: boolean;
     gradient?: boolean;
 }
@@ -41,29 +41,39 @@ export const StatCard: React.FC<StatCardProps> = ({
 }) => {
     const variantColors = {
         default: {
-            bg: 'bg-neutral-50 ',
-            text: 'text-neutral-600 ',
-            icon: 'text-neutral-500 ',
+            bg: 'bg-muted/50',
+            text: 'text-foreground',
+            icon: 'text-muted-foreground',
         },
         success: {
-            bg: 'bg-success-50 ',
-            text: 'text-success-600 ',
-            icon: 'text-success-500 ',
+            bg: 'bg-emerald-500/10',
+            text: 'text-emerald-500',
+            icon: 'text-emerald-500',
         },
         warning: {
-            bg: 'bg-warning-50 ',
-            text: 'text-warning-600 ',
-            icon: 'text-warning-500 ',
+            bg: 'bg-amber-500/10',
+            text: 'text-amber-500',
+            icon: 'text-amber-500',
         },
         danger: {
-            bg: 'bg-danger-50 ',
-            text: 'text-danger-600 ',
-            icon: 'text-danger-500 ',
+            bg: 'bg-red-500/10',
+            text: 'text-red-500',
+            icon: 'text-red-500',
         },
         info: {
-            bg: 'bg-accent-50 ',
-            text: 'text-accent-600 ',
-            icon: 'text-accent-500 ',
+            bg: 'bg-blue-500/10',
+            text: 'text-blue-500',
+            icon: 'text-blue-500',
+        },
+        silver: {
+            bg: 'bg-muted/50 border border-border',
+            text: 'text-foreground',
+            icon: 'text-muted-foreground',
+        },
+        emerald: {
+            bg: 'bg-emerald-500/10 border border-emerald-500/20',
+            text: 'text-emerald-500',
+            icon: 'text-emerald-500',
         },
     };
 
@@ -75,9 +85,9 @@ export const StatCard: React.FC<StatCardProps> = ({
         return (
             <Card variant="glass">
                 <div className="animate-pulse">
-                    <div className="h-4 bg-neutral-200 rounded w-1/2 mb-4" />
-                    <div className="h-8 bg-neutral-300 rounded w-3/4 mb-2" />
-                    <div className="h-3 bg-neutral-200 rounded w-1/3" />
+                    <div className="h-4 bg-muted rounded w-1/2 mb-4" />
+                    <div className="h-8 bg-muted rounded w-3/4 mb-2" />
+                    <div className="h-3 bg-muted rounded w-1/3" />
                 </div>
             </Card>
         );
@@ -92,7 +102,7 @@ export const StatCard: React.FC<StatCardProps> = ({
             )}
         >
             <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-neutral-600">
+                <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground/80">
                     {displayTitle}
                 </CardTitle>
                 {icon && (
@@ -111,9 +121,9 @@ export const StatCard: React.FC<StatCardProps> = ({
                 )}
             </CardHeader>
             <CardContent>
-                <div className="text-3xl font-bold text-primary-900">{value}</div>
+                <div className="text-3xl font-black tracking-tight text-foreground">{value}</div>
                 {description && (
-                    <p className="text-xs text-neutral-500 mt-1">{description}</p>
+                    <p className="text-[10px] font-bold uppercase text-muted-foreground/60 mt-1">{description}</p>
                 )}
                 {(change || trend) && (
                     <p className="text-xs text-neutral-500 mt-2 flex items-center gap-1">

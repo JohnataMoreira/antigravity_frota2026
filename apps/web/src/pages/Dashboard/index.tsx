@@ -53,7 +53,7 @@ export function Dashboard() {
     const renderBreakdown = (items: any[]) => {
         if (!items || items.length === 0) return null;
         return (
-            <div className="flex flex-wrap gap-x-3 gap-y-1 mt-3 pt-3 border-t border-gray-100 ">
+            <div className="flex flex-wrap gap-x-3 gap-y-1 mt-3 pt-3 border-t border-white/10 ">
                 {items.map((item: any) => (
                     <div key={item.type} className="flex items-center gap-1">
                         <span className="text-[10px] font-black uppercase text-muted-foreground">
@@ -97,7 +97,7 @@ export function Dashboard() {
                     gradient={true}
                     isLoading={isLoading}
                 >
-                    <div className="flex flex-wrap gap-x-3 gap-y-1 mt-3 pt-3 border-t border-gray-100 ">
+                    <div className="flex flex-wrap gap-x-3 gap-y-1 mt-3 pt-3 border-t border-white/10 ">
                         <div className="flex items-center gap-1">
                             <span className="text-[10px] font-black uppercase text-muted-foreground">normais:</span>
                             <span className="text-xs font-bold text-green-500">{stats?.journeysWithoutIncidents || 0}</span>
@@ -135,7 +135,7 @@ export function Dashboard() {
                     variant="warning"
                     isLoading={isLoading}
                 >
-                    <p className="text-[10px] font-black uppercase text-amber-600 mt-2 font-bold">
+                    <p className="text-[10px] font-black uppercase text-amber-500 mt-2 font-bold">
                         Total em aberto: {formatCurrency(totalFinesValue)}
                     </p>
                 </StatCard>
@@ -163,7 +163,7 @@ export function Dashboard() {
                         </h2>
                         <ErrorBoundary>
                             <Suspense fallback={
-                                <div className="h-[400px] w-full flex items-center justify-center bg-gray-50 rounded-xl border border-dashed animate-pulse">
+                                <div className="h-[400px] w-full flex items-center justify-center bg-muted/30 rounded-xl border border-dashed border-white/10 animate-pulse">
                                     <div className="text-center">
                                         <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                                         <p className="text-muted-foreground font-medium">Carregando mapa em tempo real...</p>
@@ -185,19 +185,33 @@ export function Dashboard() {
                             <div className="h-[250px] w-full">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <BarChart data={history}>
-                                        <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                                        <XAxis dataKey="name" />
-                                        <YAxis />
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" opacity={0.1} />
+                                        <XAxis
+                                            dataKey="name"
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }}
+                                            className="text-muted-foreground"
+                                        />
+                                        <YAxis
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }}
+                                            className="text-muted-foreground"
+                                        />
                                         <Tooltip
                                             contentStyle={{
-                                                backgroundColor: 'rgba(0,0,0,0.8)',
-                                                border: 'none',
-                                                borderRadius: '8px',
-                                                color: '#fff'
+                                                backgroundColor: 'var(--card)',
+                                                border: '1px solid var(--border)',
+                                                borderRadius: '12px',
+                                                color: 'var(--foreground)',
+                                                boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
                                             }}
+                                            itemStyle={{ color: 'var(--foreground)', fontWeight: 700, fontSize: '12px' }}
+                                            cursor={{ fill: 'rgba(0,0,0,0.05)' }}
                                             formatter={(value: any) => [formatCurrency(value), 'Gasto']}
                                         />
-                                        <Bar dataKey="costs" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                                        <Bar dataKey="costs" fill="var(--primary)" radius={[4, 4, 0, 0]} />
                                     </BarChart>
                                 </ResponsiveContainer>
                             </div>
@@ -211,25 +225,38 @@ export function Dashboard() {
                             <div className="h-[250px] w-full">
                                 <ResponsiveContainer width="100%" height="100%">
                                     <LineChart data={history}>
-                                        <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                                        <XAxis dataKey="name" />
-                                        <YAxis />
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" opacity={0.1} />
+                                        <XAxis
+                                            dataKey="name"
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }}
+                                            className="text-muted-foreground"
+                                        />
+                                        <YAxis
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{ fill: 'currentColor', fontSize: 10, fontWeight: 700 }}
+                                            className="text-muted-foreground"
+                                        />
                                         <Tooltip
                                             contentStyle={{
-                                                backgroundColor: 'rgba(0,0,0,0.8)',
-                                                border: 'none',
-                                                borderRadius: '8px',
-                                                color: '#fff'
+                                                backgroundColor: 'var(--card)',
+                                                border: '1px solid var(--border)',
+                                                borderRadius: '12px',
+                                                color: 'var(--foreground)',
+                                                boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
                                             }}
+                                            itemStyle={{ color: 'var(--foreground)', fontWeight: 700, fontSize: '12px' }}
                                             formatter={(value: any) => [formatKm(value), 'Distância']}
                                         />
                                         <Line
                                             type="monotone"
                                             dataKey="km"
                                             stroke="#10b981"
-                                            strokeWidth={3}
-                                            dot={{ r: 6 }}
-                                            activeDot={{ r: 8 }}
+                                            strokeWidth={4}
+                                            dot={{ r: 4, fill: '#10b981', strokeWidth: 2, stroke: '#fff' }}
+                                            activeDot={{ r: 6, strokeWidth: 0 }}
                                         />
                                     </LineChart>
                                 </ResponsiveContainer>

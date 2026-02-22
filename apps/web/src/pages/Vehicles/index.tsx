@@ -22,10 +22,10 @@ interface Vehicle {
 }
 
 const statusMap = {
-    AVAILABLE: { label: 'Disponível', color: 'bg-green-100 text-green-700 ' },
-    IN_USE: { label: 'Em Uso', color: 'bg-blue-100 text-blue-700 ' },
-    MAINTENANCE: { label: 'Manutenção', color: 'bg-yellow-100 text-yellow-700 ' },
-    CRITICAL_ISSUE: { label: 'Problema Crítico', color: 'bg-red-100 text-red-700 ' },
+    AVAILABLE: { label: 'Disponível', color: 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' },
+    IN_USE: { label: 'Em Uso', color: 'bg-blue-500/10 text-blue-500 border border-blue-500/20' },
+    MAINTENANCE: { label: 'Manutenção', color: 'bg-amber-500/10 text-amber-500 border border-amber-500/20' },
+    CRITICAL_ISSUE: { label: 'Problema Crítico', color: 'bg-red-500/10 text-red-500 border border-red-500/20' },
 };
 
 const typeIconMap = {
@@ -99,8 +99,8 @@ export function VehiclesList() {
 
     if (isLoading) return (
         <div className="flex flex-col items-center justify-center py-20 animate-pulse">
-            <TruckIcon className="w-12 h-12 text-blue-200 mb-4" />
-            <div className="text-lg text-muted-foreground font-medium">Carregando frota...</div>
+            <TruckIcon className="w-12 h-12 text-muted-foreground/20 mb-4" />
+            <div className="text-lg text-muted-foreground font-bold uppercase tracking-widest opacity-50">Carregando frota...</div>
         </div>
     );
 
@@ -138,7 +138,7 @@ export function VehiclesList() {
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-black tracking-tighter uppercase text-foreground">
                         Frota de Veículos
                     </h1>
                     <p className="text-muted-foreground mt-1">Gerencie os veículos e máquinas da sua empresa.</p>
@@ -152,7 +152,7 @@ export function VehiclesList() {
                     />
                     <button
                         onClick={handleAdd}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-blue-500/20 transition-all font-medium whitespace-nowrap"
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-primary/20 transition-all font-black uppercase tracking-widest text-xs whitespace-nowrap"
                     >
                         <Plus size={20} />
                         Adicionar Veículo
@@ -160,9 +160,9 @@ export function VehiclesList() {
                 </div>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-card p-4 rounded-2xl border border-border">
                 <div className="flex flex-col md:flex-row gap-4 items-center flex-1 w-full max-w-2xl">
-                    <div className="flex items-center gap-3 bg-white p-2 rounded-xl border border-gray-100 shadow-sm flex-1 w-full focus-within:ring-2 focus-within:ring-blue-500/50 transition-all">
+                    <div className="flex items-center gap-3 bg-background p-2 rounded-xl border border-border flex-1 w-full focus-within:ring-2 focus-within:ring-primary/50 transition-all">
                         <Search size={20} className="text-gray-400 ml-2" />
                         <input
                             placeholder="Buscar por placa, modelo ou marca..."
@@ -172,7 +172,7 @@ export function VehiclesList() {
                         />
                     </div>
 
-                    <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-gray-100 shadow-sm w-full md:w-auto">
+                    <div className="flex items-center gap-2 bg-background p-2 rounded-xl border border-border shadow-sm w-full md:w-auto">
                         <Filter size={18} className="text-gray-400 ml-2" />
                         <select
                             value={statusFilter}
@@ -187,7 +187,7 @@ export function VehiclesList() {
                         </select>
                     </div>
 
-                    <div className="flex items-center gap-2 bg-white p-2 rounded-xl border border-gray-100 shadow-sm w-full md:w-auto">
+                    <div className="flex items-center gap-2 bg-background p-2 rounded-xl border border-border w-full md:w-auto">
                         <Car size={18} className="text-gray-400 ml-2" />
                         <select
                             value={typeFilter}
@@ -203,24 +203,24 @@ export function VehiclesList() {
                     </div>
                 </div>
 
-                <div className="flex bg-gray-100 p-1.5 rounded-xl border shadow-sm">
+                <div className="flex bg-muted p-1.5 rounded-xl border border-border">
                     <button
                         onClick={() => setViewMode('grid')}
-                        className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                        className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-card shadow-lg text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                         title="Visualização em Cards"
                     >
                         <LayoutGrid size={20} />
                     </button>
                     <button
                         onClick={() => setViewMode('list')}
-                        className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                        className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-card shadow-lg text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                         title="Visualização em Lista"
                     >
                         <ListIcon size={20} />
                     </button>
                     <button
                         onClick={() => setViewMode('kanban')}
-                        className={`p-2 rounded-lg transition-all ${viewMode === 'kanban' ? 'bg-white shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                        className={`p-2 rounded-lg transition-all ${viewMode === 'kanban' ? 'bg-card shadow-lg text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                         title="Visualização Kanban"
                     >
                         <Columns size={20} />
@@ -229,33 +229,33 @@ export function VehiclesList() {
             </div>
 
             {viewMode === 'list' ? (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="bg-card rounded-2xl border border-border overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">
-                            <thead className="bg-gray-50 border-b ">
+                            <thead className="bg-muted/50 border-b border-border">
                                 <tr>
-                                    <th className="px-6 py-4 font-bold text-gray-500 ">Placa</th>
-                                    <th className="px-6 py-4 font-bold text-gray-500 ">Marca/Modelo</th>
-                                    <th className="px-6 py-4 font-bold text-gray-500 text-center">Tipo</th>
-                                    <th className="px-6 py-4 font-bold text-gray-500 ">Status</th>
-                                    <th className="px-6 py-4 font-bold text-gray-500 ">KM Atual</th>
-                                    <th className="px-6 py-4 font-bold text-gray-500 text-right">Ações</th>
+                                    <th className="px-6 py-4 font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Placa</th>
+                                    <th className="px-6 py-4 font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Marca/Modelo</th>
+                                    <th className="px-6 py-4 font-bold text-muted-foreground uppercase text-[10px] tracking-widest text-center">Tipo</th>
+                                    <th className="px-6 py-4 font-bold text-muted-foreground uppercase text-[10px] tracking-widest">Status</th>
+                                    <th className="px-6 py-4 font-bold text-muted-foreground uppercase text-[10px] tracking-widest">KM Atual</th>
+                                    <th className="px-6 py-4 font-bold text-muted-foreground uppercase text-[10px] tracking-widest text-right">Ações</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y ">
                                 {filteredVehicles?.map((vehicle) => (
-                                    <tr key={vehicle.id} className="hover:bg-gray-50/80 transition-colors">
-                                        <td className="px-6 py-4 font-bold text-blue-600 whitespace-nowrap uppercase">
+                                    <tr key={vehicle.id} className="hover:bg-muted/30 transition-colors border-b border-border last:border-0">
+                                        <td className="px-6 py-4 font-black text-primary whitespace-nowrap uppercase tracking-tighter text-lg">
                                             {vehicle.plate.length === 7
                                                 ? `${vehicle.plate.slice(0, 3)}-${vehicle.plate.slice(3)}`
                                                 : vehicle.plate}
                                         </td>
-                                        <td className="px-6 py-4 text-gray-700 ">
-                                            <div className="font-semibold">{vehicle.model}</div>
-                                            <div className="text-xs text-gray-500 ">{vehicle.brand} {vehicle.year}</div>
+                                        <td className="px-6 py-4 text-foreground ">
+                                            <div className="font-bold text-base">{vehicle.model}</div>
+                                            <div className="text-xs text-muted-foreground font-bold uppercase">{vehicle.brand} {vehicle.year}</div>
                                         </td>
                                         <td className="px-6 py-4 text-center">
-                                            <div className="inline-flex p-2 bg-gray-100 rounded-lg text-gray-500">
+                                            <div className="inline-flex p-2 bg-muted rounded-lg text-muted-foreground border border-white/5">
                                                 {(() => {
                                                     const Icon = (typeIconMap as any)[vehicle.type] || Car;
                                                     return <Icon size={18} />;
@@ -273,7 +273,7 @@ export function VehiclesList() {
                                         <td className="px-6 py-4 text-right space-x-2">
                                             <button
                                                 onClick={() => handleEdit(vehicle)}
-                                                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                                className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-all"
                                                 title="Editar Veículo"
                                             >
                                                 <Edit size={18} />
@@ -295,45 +295,45 @@ export function VehiclesList() {
             ) : viewMode === 'grid' ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {filteredVehicles?.map((vehicle) => (
-                        <div key={vehicle.id} className="glass-card p-5 rounded-2xl border border-gray-200 hover:shadow-xl hover:-translate-y-1 transition-all group overflow-hidden relative">
+                        <div key={vehicle.id} className="bg-card p-5 rounded-3xl border border-border hover:shadow-xl hover:-translate-y-1 transition-all group overflow-hidden relative">
                             <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                                <button onClick={() => handleEdit(vehicle)} className="p-2 bg-white shadow-lg rounded-full text-blue-600 hover:scale-110 active:scale-95 transition-all">
+                                <button onClick={() => handleEdit(vehicle)} className="p-2 bg-background border border-border shadow-lg rounded-full text-primary hover:scale-110 active:scale-95 transition-all">
                                     <Edit size={16} />
                                 </button>
-                                <button onClick={() => handleDelete(vehicle.id)} className="p-2 bg-white shadow-lg rounded-full text-red-600 hover:scale-110 active:scale-95 transition-all">
+                                <button onClick={() => handleDelete(vehicle.id)} className="p-2 bg-background border border-border shadow-lg rounded-full text-destructive hover:scale-110 active:scale-95 transition-all">
                                     <Trash size={16} />
                                 </button>
                             </div>
 
                             <div className="flex items-start gap-4 mb-4">
-                                <div className="p-3 rounded-2xl bg-blue-50 text-blue-600 ring-4 ring-blue-50/50 ">
+                                <div className="p-3 rounded-2xl bg-primary/10 text-primary ring-4 ring-primary/5 ">
                                     {(() => {
                                         const Icon = (typeIconMap as any)[vehicle.type] || Car;
                                         return <Icon size={28} />;
                                     })()}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <div className="text-xl font-bold text-gray-900 truncate">{vehicle.model}</div>
-                                    <div className="text-sm text-gray-500 font-medium truncate">{vehicle.brand}</div>
+                                    <div className="text-xl font-black text-foreground truncate tracking-tighter uppercase">{vehicle.model}</div>
+                                    <div className="text-[10px] text-muted-foreground font-black uppercase tracking-widest truncate">{vehicle.brand}</div>
                                 </div>
                             </div>
 
                             <div className="space-y-3">
-                                <div className="flex justify-between items-center text-sm p-2 bg-gray-50 rounded-lg">
-                                    <span className="text-gray-500">Placa</span>
-                                    <span className="font-bold text-blue-600 uppercase">{vehicle.plate}</span>
+                                <div className="flex justify-between items-center text-xs p-2.5 bg-muted/50 rounded-xl border border-white/5">
+                                    <span className="text-muted-foreground font-bold uppercase tracking-widest text-[9px]">Placa</span>
+                                    <span className="font-black text-primary uppercase text-sm tracking-widest">{vehicle.plate}</span>
                                 </div>
 
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-500">Quilometragem</span>
-                                    <span className="font-semibold text-gray-900 uppercase">{formatKm(vehicle.currentKm)}</span>
+                                <div className="flex justify-between items-center text-xs px-2">
+                                    <span className="text-muted-foreground font-bold uppercase tracking-widest text-[9px]">Quilometragem</span>
+                                    <span className="font-black text-foreground uppercase text-xs">{formatKm(vehicle.currentKm)}</span>
                                 </div>
 
-                                <div className="flex justify-between items-center pt-2">
+                                <div className="flex justify-between items-center pt-2 px-2">
                                     <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${statusMap[vehicle.status].color}`}>
                                         {statusMap[vehicle.status].label}
                                     </span>
-                                    <div className="text-[10px] text-gray-400 font-bold uppercase">Cod: {vehicle.id.split('-')[0]}</div>
+                                    <div className="text-[10px] text-muted-foreground/40 font-black uppercase">Cod: {vehicle.id.split('-')[0]}</div>
                                 </div>
 
                                 {vehicle.status === 'AVAILABLE' && (
@@ -343,9 +343,9 @@ export function VehiclesList() {
                                             setVehicleToStart(vehicle);
                                             setIsStartJourneyModalOpen(true);
                                         }}
-                                        className="w-full mt-2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+                                        className="w-full mt-2 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-primary/20 transition-all active:scale-95 flex items-center justify-center gap-2"
                                     >
-                                        <Play size={12} fill="white" />
+                                        <Play size={12} fill="currentColor" />
                                         Iniciar Jornada
                                     </button>
                                 )}
@@ -364,23 +364,23 @@ export function VehiclesList() {
                     items={filteredVehicles || []}
                     getItemColumnId={(vehicle) => vehicle.status}
                     renderCard={(vehicle) => (
-                        <div key={vehicle.id} className="glass-card p-4 rounded-xl border border-gray-100 hover:shadow-md transition-all group bg-white">
+                        <div key={vehicle.id} className="bg-card p-4 rounded-2xl border border-border hover:shadow-lg transition-all group">
                             <div className="flex items-center gap-3 mb-3">
-                                <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
+                                <div className="p-2 rounded-lg bg-primary/10 text-primary">
                                     {(() => {
                                         const Icon = (typeIconMap as any)[vehicle.type] || Car;
                                         return <Icon size={20} />;
                                     })()}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <h4 className="font-bold text-gray-900 text-sm truncate uppercase tracking-tighter">{vehicle.model}</h4>
-                                    <p className="text-[10px] text-gray-500 font-bold uppercase">{vehicle.plate}</p>
+                                    <h4 className="font-black text-foreground text-sm truncate uppercase tracking-tighter">{vehicle.model}</h4>
+                                    <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">{vehicle.plate}</p>
                                 </div>
                             </div>
                             <div className="flex justify-between items-center text-[10px]">
-                                <span className="font-bold text-gray-400 uppercase">KM: {formatKm(vehicle.currentKm)}</span>
+                                <span className="font-black text-muted-foreground/60 uppercase">KM: {formatKm(vehicle.currentKm)}</span>
                                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button onClick={() => handleEdit(vehicle)} className="text-blue-600 p-1 hover:bg-blue-50 rounded">
+                                    <button onClick={() => handleEdit(vehicle)} className="text-primary p-1 hover:bg-primary/10 rounded">
                                         <Edit size={14} />
                                     </button>
                                 </div>
@@ -391,12 +391,12 @@ export function VehiclesList() {
             )}
 
             {filteredVehicles?.length === 0 && (
-                <div className="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-gray-200 ">
-                    <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 mb-4">
+                <div className="text-center py-20 bg-card rounded-3xl border-2 border-dashed border-border ">
+                    <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center text-muted-foreground/30 mb-4">
                         <Search size={32} />
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900 ">Nenhum veículo encontrado</h3>
-                    <p className="text-muted-foreground">Tente ajustar sua busca ou adicione um novo veículo.</p>
+                    <h3 className="text-xl font-black text-foreground uppercase tracking-tight">Nenhum veículo encontrado</h3>
+                    <p className="text-muted-foreground font-medium">Tente ajustar sua busca ou adicione um novo veículo.</p>
                 </div>
             )}
             <VehicleModal

@@ -1,17 +1,27 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, Inject, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { LoginDto, RegisterOrgDto } from './dto';
 import { AuditService } from '../common/audit/audit.service';
 import { AuditAction, AuditEntity } from '../common/audit/audit.types';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
+    private readonly logger = new Logger(AuthService.name);
+
     constructor(
         private prisma: PrismaService,
         private jwt: JwtService,
         private audit: AuditService,
+        private usersService: UsersService,
+        private configService: ConfigService,
+        @Inject(CACHE_MANAGER) private cacheManager: Cache,
     ) { }
 
     async registerWithInvite(dto: any) {
@@ -35,7 +45,7 @@ export class AuthService {
             const salt = await bcrypt.genSalt();
             const passwordHash = await bcrypt.hash(dto.password, salt);
 
-            const user = await tx.user.create({
+            const newUser = await tx.user.create({
                 data: {
                     organizationId: invite.organizationId,
                     email: invite.email,
@@ -50,38 +60,33 @@ export class AuthService {
                 data: { status: 'ACCEPTED' },
             });
 
-            return { user };
+            return { user: newUser };
         });
 
-        return this.signToken(user.id, invite.organizationId, user.email, user.role, user.name);
+        const tokens = await this.generateTokenPair(user.id, invite.organizationId, user.email, user.role, user.name);
+        await this.usersService.saveRefreshTokenHash(user.id, tokens.refresh_token);
+
+        return tokens;
     }
 
     async registerOrg(dto: RegisterOrgDto) {
-        console.log(`[AuthService] Attempting to register organization: ${dto.orgName} for user: ${dto.email}`);
-        // Check if user email already exists (global unique)
+        this.logger.log(`Attempting to register organization: ${dto.orgName} for user: ${dto.email}`);
+
         const existingUser = await this.prisma.user.findUnique({
             where: { email: dto.email },
         });
-        if (existingUser) {
-            console.warn(`[AuthService] Registration failed: Email ${dto.email} already exists`);
-            throw new ConflictException('User email already exists');
-        }
+        if (existingUser) throw new ConflictException('User email already exists');
 
-        // Check if org document already exists if provided
         if (dto.document) {
             const existingOrg = await this.prisma.organization.findUnique({
                 where: { document: dto.document },
             });
-            if (existingOrg) {
-                console.warn(`[AuthService] Registration failed: Organization document ${dto.document} already exists`);
-                throw new ConflictException('Organization already exists');
-            }
+            if (existingOrg) throw new ConflictException('Organization already exists');
         }
 
-        // Transaction to create Org + Admin User
         try {
             const { org, user } = await this.prisma.$transaction(async (tx) => {
-                const org = await tx.organization.create({
+                const newOrg = await tx.organization.create({
                     data: {
                         name: dto.orgName,
                         document: dto.document || `TEMP-${Date.now()}`,
@@ -91,9 +96,9 @@ export class AuthService {
                 const salt = await bcrypt.genSalt();
                 const passwordHash = await bcrypt.hash(dto.password, salt);
 
-                const user = await tx.user.create({
+                const newUser = await tx.user.create({
                     data: {
-                        organizationId: org.id,
+                        organizationId: newOrg.id,
                         email: dto.email,
                         name: `${dto.firstName} ${dto.lastName}`,
                         firstName: dto.firstName,
@@ -103,10 +108,8 @@ export class AuthService {
                     },
                 });
 
-                return { org, user };
+                return { org: newOrg, user: newUser };
             });
-
-            console.log(`[AuthService] Successfully registered organization ${org.name} (ID: ${org.id}) and admin ${user.email}`);
 
             await this.audit.log({
                 organizationId: org.id,
@@ -117,69 +120,125 @@ export class AuthService {
                 metadata: { email: user.email }
             });
 
-            return this.signToken(user.id, org.id, user.email, user.role, user.name);
+            const tokens = await this.generateTokenPair(user.id, org.id, user.email, user.role, user.name);
+            await this.usersService.saveRefreshTokenHash(user.id, tokens.refresh_token);
+
+            return tokens;
         } catch (error) {
-            console.error(`[AuthService] Critical error during organization registration:`, error);
+            this.logger.error(`Critical error during organization registration:`, error);
             throw error;
         }
     }
 
-    async login(dto: LoginDto) {
-        console.log(`[AuthService] Login attempt for email: ${dto.email}`);
+    async login(dto: LoginDto, ip?: string) {
+        this.logger.log(`Login attempt for email: ${dto.email}`);
 
-        try {
-            // 1. Find the user by email globally
-            const user = await this.prisma.user.findUnique({
-                where: { email: dto.email },
-            });
+        const user = await this.usersService.findByEmailForAuth(dto.email);
 
-            if (!user) {
-                console.warn(`[AuthService] Login failed: User not found for email ${dto.email}`);
-                throw new UnauthorizedException('Credentials incorrect');
+        const dummyHash = '$2b$12$invalidhashpaddingtomatchtime.invalid.hash.here';
+        const passwordToCompare = (user as any)?.passwordHash ?? dummyHash;
+        const pwMatches = await bcrypt.compare(dto.password, passwordToCompare);
+
+        const genericError = new UnauthorizedException('Credenciais incorretas');
+
+        if (!user || !pwMatches) {
+            if (user) {
+                await this.usersService.recordFailedLogin(user.id, ip || 'unknown');
             }
-
-            // 2. Verify password
-            const pwMatches = await bcrypt.compare(dto.password, user.passwordHash);
-            if (!pwMatches) {
-                console.warn(`[AuthService] Login failed: Incorrect password for email ${dto.email}`);
-                throw new UnauthorizedException('Credentials incorrect');
-            }
-
-            console.log(`[AuthService] Login successful for email: ${dto.email} (OrgID: ${user.organizationId})`);
-            const result = await this.signToken(user.id, user.organizationId, user.email, user.role, user.name);
-
-            await this.audit.log({
-                organizationId: user.organizationId,
-                userId: user.id,
-                action: AuditAction.LOGIN,
-                entity: AuditEntity.USER,
-                entityId: user.id,
-                metadata: { email: user.email }
-            });
-
-            return result;
-        } catch (error) {
-            if (error instanceof UnauthorizedException) throw error;
-            console.error(`[AuthService] Unexpected error during login for ${dto.email}:`, error);
-            throw error;
+            throw genericError;
         }
+
+        if ((user as any).lockedUntil && (user as any).lockedUntil > new Date()) {
+            const minutesLeft = Math.ceil(((user as any).lockedUntil.getTime() - Date.now()) / 60000);
+            throw new UnauthorizedException(`Conta bloqueada. Tente novamente em ${minutesLeft} minuto(s).`);
+        }
+
+        if (!user.active) {
+            throw new UnauthorizedException('Esta conta está inativada');
+        }
+
+        const result = await this.generateTokenPair(user.id, user.organizationId, user.email, user.role, user.name);
+
+        await this.usersService.saveRefreshTokenHash(user.id, result.refresh_token);
+        await this.usersService.recordSuccessfulLogin(user.id, ip || 'unknown');
+
+        await this.audit.log({
+            organizationId: user.organizationId,
+            userId: user.id,
+            action: AuditAction.LOGIN,
+            entity: AuditEntity.USER,
+            entityId: user.id,
+            metadata: { email: user.email }
+        });
+
+        return result;
     }
 
-    async signToken(userId: string, orgId: string, email: string, role: string, name: string) {
+    async refreshTokens(userId: string, incomingRefreshToken: string) {
+        const isRevoked = await this.isTokenRevoked(incomingRefreshToken);
+        if (isRevoked) {
+            this.logger.warn(`Tentativa de uso de refresh token revogado para o usuário ${userId}`);
+            await this.usersService.clearRefreshToken(userId);
+            throw new UnauthorizedException('Sessão inválida. Faça login novamente.');
+        }
+
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user || !(user as any).hashedRefreshToken || !user.active) {
+            throw new UnauthorizedException('Sessão expirada ou usuário inativo');
+        }
+
+        const isTokenValid = await bcrypt.compare(incomingRefreshToken, (user as any).hashedRefreshToken);
+        if (!isTokenValid) {
+            this.logger.warn(`Refresh token inválido (reuso detectado) para o usuário ${userId}`);
+            await this.usersService.clearRefreshToken(userId);
+            throw new UnauthorizedException('Sessão comprometida. Faça login novamente.');
+        }
+
+        await this.revokeToken(incomingRefreshToken);
+
+        const tokens = await this.generateTokenPair(user.id, user.organizationId, user.email, user.role, user.name);
+        await this.usersService.saveRefreshTokenHash(user.id, tokens.refresh_token);
+
+        return tokens;
+    }
+
+    async logout(userId: string, refreshToken?: string) {
+        if (refreshToken) {
+            await this.revokeToken(refreshToken);
+        }
+        await this.usersService.clearRefreshToken(userId);
+        this.logger.log(`Logout realizado para o usuário ${userId}`);
+    }
+
+    private async generateTokenPair(userId: string, orgId: string, email: string, role: string, name: string) {
+        const jti = crypto.randomBytes(16).toString('hex');
+
         const payload = {
             sub: userId,
             orgId,
             organizationId: orgId,
             email,
             role,
+            jti,
         };
 
-        const token = await this.jwt.signAsync(payload, {
-            secret: process.env.JWT_SECRET || 'frota2026_fallback_secret_for_emergency_use_only',
-        });
+        const [accessToken, refreshToken] = await Promise.all([
+            this.jwt.signAsync(payload, {
+                secret: this.configService.get('JWT_ACCESS_SECRET'),
+                expiresIn: '15m',
+            }),
+            this.jwt.signAsync(
+                { sub: userId, email },
+                {
+                    secret: this.configService.get('JWT_REFRESH_SECRET'),
+                    expiresIn: '7d',
+                }
+            ),
+        ]);
 
         return {
-            access_token: token,
+            access_token: accessToken,
+            refresh_token: refreshToken,
             user: {
                 id: userId,
                 email,
@@ -190,23 +249,45 @@ export class AuthService {
         };
     }
 
-    async signSocialToken(profile: any) {
-        console.log(`[AuthService] signSocialToken Profile:`, JSON.stringify(profile));
+    private async revokeToken(token: string) {
+        try {
+            const decoded = this.jwt.decode(token) as any;
+            if (!decoded?.exp) return;
+
+            const ttl = decoded.exp - Math.floor(Date.now() / 1000);
+            if (ttl <= 0) return;
+
+            const key = `revoked:rt:${this.hashTokenForCache(token)}`;
+            await this.cacheManager.set(key, '1', ttl * 1000);
+        } catch (error: any) {
+            this.logger.warn('Falha ao registrar revogação de token no Redis', error.message);
+        }
+    }
+
+    private async isTokenRevoked(token: string): Promise<boolean> {
+        try {
+            const key = `revoked:rt:${this.hashTokenForCache(token)}`;
+            const value = await this.cacheManager.get(key);
+            return value === '1';
+        } catch {
+            return false;
+        }
+    }
+
+    private hashTokenForCache(token: string): string {
+        return crypto.createHash('sha256').update(token).digest('hex');
+    }
+
+    async signSocialToken(profile: any, ip?: string) {
+        this.logger.log(`Social login: ${profile.email}`);
         try {
             let user = await this.prisma.user.findUnique({
                 where: { email: profile.email },
             });
 
             if (!user) {
-                console.log(`[AuthService] User ${profile.email} not found during social login. Auto-registering...`);
-
                 const org = await this.prisma.organization.findFirst();
-                console.log(`[AuthService] Default organization found: ${org?.id}`);
-
-                if (!org) {
-                    console.error(`[AuthService] No organization found to bind user.`);
-                    throw new UnauthorizedException('No organization found to bind user. Please contact administrator.');
-                }
+                if (!org) throw new UnauthorizedException('No organization found');
 
                 user = await this.prisma.user.create({
                     data: {
@@ -217,35 +298,19 @@ export class AuthService {
                         passwordHash: 'SOCIAL_AUTH_PROVIDER',
                         role: 'ADMIN',
                         organizationId: org.id,
+                        provider: 'GOOGLE',
+                        isEmailVerified: true,
                     },
-                });
-                console.log(`[AuthService] User created successfully: ${user.id}`);
-
-                await this.audit.log({
-                    organizationId: org.id,
-                    userId: user.id,
-                    action: AuditAction.CREATE,
-                    entity: AuditEntity.USER,
-                    entityId: user.id,
-                    metadata: { email: user.email, provider: 'google', note: 'Auto-registered' }
                 });
             }
 
-            const result = await this.signToken(user.id, user.organizationId, user.email, user.role, user.name);
-            console.log(`[AuthService] Token signed successfully for: ${user.email}`);
+            const tokens = await this.generateTokenPair(user.id, user.organizationId, user.email, user.role, user.name);
+            await this.usersService.saveRefreshTokenHash(user.id, tokens.refresh_token);
+            await this.usersService.recordSuccessfulLogin(user.id, ip || 'unknown');
 
-            await this.audit.log({
-                organizationId: user.organizationId,
-                userId: user.id,
-                action: AuditAction.LOGIN,
-                entity: AuditEntity.USER,
-                entityId: user.id,
-                metadata: { email: user.email, provider: 'google' }
-            });
-
-            return result;
+            return tokens;
         } catch (error) {
-            console.error(`[AuthService] Error in signSocialToken:`, error);
+            this.logger.error(`Error in signSocialToken:`, error);
             throw error;
         }
     }

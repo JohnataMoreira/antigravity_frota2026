@@ -97,14 +97,19 @@ export default function Reports() {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-4xl font-bold tracking-tight gradient-text">Relatórios & BI</h1>
-                    <p className="text-muted-foreground mt-2 text-lg">Inteligência de dados para gestão de frota</p>
+                    <h1 className="text-4xl font-black tracking-tighter flex items-center gap-3 uppercase bg-gradient-to-r from-primary to-emerald-500 bg-clip-text text-transparent">
+                        <div className="p-2 bg-primary rounded-2xl text-primary-foreground shadow-lg shadow-primary/20 shrink-0">
+                            <Layers size={32} />
+                        </div>
+                        Relatórios & BI
+                    </h1>
+                    <p className="text-muted-foreground/60 font-black uppercase tracking-[0.2em] mt-2 text-[10px]">Inteligência de dados para gestão estratégica da frota</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                     <button
                         onClick={() => handleExport('PDF')}
                         disabled={isExporting}
-                        className="flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-xl font-bold hover:opacity-90 transition-all disabled:opacity-50 shadow-lg shadow-red-600/20"
+                        className="flex items-center gap-2 bg-red-500/10 text-red-500 border border-red-500/20 px-6 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-red-500/20 transition-all disabled:opacity-50 shadow-xl shadow-red-500/5 active:scale-95"
                     >
                         <FileText className="w-5 h-5" />
                         {isExporting ? 'Processando...' : 'Exportar PDF'}
@@ -112,7 +117,7 @@ export default function Reports() {
                     <button
                         onClick={() => handleExport('EXCEL')}
                         disabled={isExporting}
-                        className="flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold hover:opacity-90 transition-all disabled:opacity-50 shadow-lg shadow-emerald-600/20"
+                        className="flex items-center gap-2 bg-emerald-500 text-white px-6 py-3.5 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-emerald-600 transition-all disabled:opacity-50 shadow-xl shadow-emerald-500/20 active:scale-95"
                     >
                         <Download className="w-5 h-5" />
                         {isExporting ? 'Processando...' : 'Exportar Excel'}
@@ -121,39 +126,39 @@ export default function Reports() {
             </div>
 
             {/* Advanced Filters */}
-            <GlassCard className="grid grid-cols-1 md:grid-cols-4 gap-4 border-primary/20 bg-primary/5">
+            <div className="bg-card/40 backdrop-blur-sm border border-border/50 p-6 rounded-[32px] grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-muted-foreground ml-1">Período Inicial</label>
-                    <div className="relative">
-                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <label className="text-[10px] font-black uppercase text-muted-foreground/40 block tracking-widest px-1">Período Inicial</label>
+                    <div className="relative group">
+                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
                         <input
                             type="date"
                             value={filters.start}
                             onChange={e => setFilters(prev => ({ ...prev, start: e.target.value }))}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:border-primary transition-all outline-none"
+                            className="w-full bg-muted/30 border border-border/50 rounded-2xl py-3.5 pl-11 pr-4 text-xs font-black uppercase tracking-tight focus:ring-2 focus:ring-primary/50 outline-none transition-all text-foreground"
                         />
                     </div>
                 </div>
                 <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-muted-foreground ml-1">Período Final</label>
-                    <div className="relative">
-                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <label className="text-[10px] font-black uppercase text-muted-foreground/40 block tracking-widest px-1">Período Final</label>
+                    <div className="relative group">
+                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
                         <input
                             type="date"
                             value={filters.end}
                             onChange={e => setFilters(prev => ({ ...prev, end: e.target.value }))}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:border-primary transition-all outline-none"
+                            className="w-full bg-muted/30 border border-border/50 rounded-2xl py-3.5 pl-11 pr-4 text-xs font-black uppercase tracking-tight focus:ring-2 focus:ring-primary/50 outline-none transition-all text-foreground"
                         />
                     </div>
                 </div>
                 <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-muted-foreground ml-1">Motorista</label>
-                    <div className="relative">
-                        <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <label className="text-[10px] font-black uppercase text-muted-foreground/40 block tracking-widest px-1">Motorista</label>
+                    <div className="relative group">
+                        <Users className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
                         <select
                             value={filters.driverId}
                             onChange={e => setFilters(prev => ({ ...prev, driverId: e.target.value }))}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:border-primary transition-all outline-none appearance-none"
+                            className="w-full bg-muted/30 border border-border/50 rounded-2xl py-3.5 pl-11 pr-4 text-xs font-black uppercase tracking-tight focus:ring-2 focus:ring-primary/50 outline-none transition-all text-foreground appearance-none"
                         >
                             <option value="">Todos os Motoristas</option>
                             {filterOptions?.drivers.map((d: any) => (
@@ -163,13 +168,13 @@ export default function Reports() {
                     </div>
                 </div>
                 <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-muted-foreground ml-1">Veículo</label>
-                    <div className="relative">
-                        <Truck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <label className="text-[10px] font-black uppercase text-muted-foreground/40 block tracking-widest px-1">Veículo</label>
+                    <div className="relative group">
+                        <Truck className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/40 group-focus-within:text-primary transition-colors" />
                         <select
                             value={filters.vehicleId}
                             onChange={e => setFilters(prev => ({ ...prev, vehicleId: e.target.value }))}
-                            className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-10 pr-4 text-sm focus:border-primary transition-all outline-none appearance-none"
+                            className="w-full bg-muted/30 border border-border/50 rounded-2xl py-3.5 pl-11 pr-4 text-xs font-black uppercase tracking-tight focus:ring-2 focus:ring-primary/50 outline-none transition-all text-foreground appearance-none"
                         >
                             <option value="">Todos os Veículos</option>
                             {filterOptions?.vehicles.map((v: any) => (
@@ -178,10 +183,10 @@ export default function Reports() {
                         </select>
                     </div>
                 </div>
-            </GlassCard>
+            </div>
 
             {/* Tabs */}
-            <div className="flex gap-2 p-1 bg-white/5 rounded-xl w-fit">
+            <div className="flex gap-2 p-1.5 bg-card/30 backdrop-blur-sm border border-border/50 rounded-2xl w-fit overflow-x-auto max-w-full no-scrollbar">
                 {[
                     { id: 'overview', label: 'Visão Geral', icon: Layers },
                     { id: 'drivers', label: 'Motoristas', icon: Users },
@@ -193,10 +198,10 @@ export default function Reports() {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id as any)}
                         className={clsx(
-                            "flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium transition-all",
+                            "flex items-center gap-2 px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap active:scale-95",
                             activeTab === tab.id
-                                ? "bg-primary text-white shadow-lg"
-                                : "text-muted-foreground hover:bg-white/5 hover:text-white"
+                                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                                : "text-muted-foreground/40 hover:text-foreground hover:bg-muted/50"
                         )}
                     >
                         <tab.icon className="w-4 h-4" />
@@ -210,43 +215,61 @@ export default function Reports() {
                 {activeTab === 'overview' && (
                     <div className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <GlassCard>
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="p-3 bg-blue-500/20 rounded-lg text-blue-500">
-                                        <FileText className="w-6 h-6" />
+                            <div className="bg-card/40 backdrop-blur-sm border border-border/50 p-6 rounded-[32px] shadow-sm hover:shadow-2xl hover:shadow-primary/5 transition-all group">
+                                <div className="flex items-center gap-5 mb-6">
+                                    <div className="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
+                                        <FileText size={28} />
                                     </div>
-                                    <h3 className="text-lg font-bold">Resumo Financeiro</h3>
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase text-muted-foreground/40 tracking-[0.2em] mb-1">Resumo Financeiro</p>
+                                        <h3 className="text-xl font-black text-foreground uppercase tracking-tight">Investimento em Período</h3>
+                                    </div>
                                 </div>
-                                <p className="text-muted-foreground text-sm mb-4">Total investido em manutenção no período:</p>
-                                <p className="text-3xl font-bold text-primary">{formatCurrency(reportData?.stats?.monthlyCosts || 0)}</p>
-                            </GlassCard>
+                                <div className="p-4 bg-muted/30 border border-border/40 rounded-2xl">
+                                    <p className="text-[10px] font-black text-muted-foreground/30 uppercase tracking-widest mb-1">Manutenção total no ciclo:</p>
+                                    <p className="text-3xl font-black text-primary tracking-tighter">{formatCurrency(reportData?.stats?.monthlyCosts || 0)}</p>
+                                </div>
+                            </div>
 
-                            <GlassCard>
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="p-3 bg-green-500/20 rounded-lg text-green-500">
-                                        <TableIcon className="w-6 h-6" />
+                            <div className="bg-card/40 backdrop-blur-sm border border-border/50 p-6 rounded-[32px] shadow-sm hover:shadow-2xl hover:shadow-emerald-500/5 transition-all group">
+                                <div className="flex items-center gap-5 mb-6">
+                                    <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform">
+                                        <TableIcon size={28} />
                                     </div>
-                                    <h3 className="text-lg font-bold">Eficiência</h3>
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase text-muted-foreground/40 tracking-[0.2em] mb-1">Eficiência Operacional</p>
+                                        <h3 className="text-xl font-black text-foreground uppercase tracking-tight">Produtividade da Frota</h3>
+                                    </div>
                                 </div>
-                                <p className="text-muted-foreground text-sm mb-4">Quilometragem total controlada:</p>
-                                <p className="text-3xl font-bold text-primary">{formatKm(reportData?.stats?.totalKm || 0)}</p>
-                            </GlassCard>
+                                <div className="p-4 bg-muted/30 border border-border/40 rounded-2xl">
+                                    <p className="text-[10px] font-black text-muted-foreground/30 uppercase tracking-widest mb-1">Quilometragem total controlada:</p>
+                                    <p className="text-3xl font-black text-emerald-500 tracking-tighter">{formatKm(reportData?.stats?.totalKm || 0)}</p>
+                                </div>
+                            </div>
 
-                            <GlassCard>
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="p-3 bg-amber-500/20 rounded-lg text-amber-500">
-                                        <Filter className="w-6 h-6" />
+                            <div className="bg-card/40 backdrop-blur-sm border border-border/50 p-6 rounded-[32px] shadow-sm hover:shadow-2xl hover:shadow-amber-500/5 transition-all group">
+                                <div className="flex items-center gap-5 mb-6">
+                                    <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 group-hover:scale-110 transition-transform">
+                                        <Filter size={28} />
                                     </div>
-                                    <h3 className="text-lg font-bold">Status de Saúde</h3>
+                                    <div>
+                                        <p className="text-[10px] font-black uppercase text-muted-foreground/40 tracking-[0.2em] mb-1">Saúde & Compliance</p>
+                                        <h3 className="text-xl font-black text-foreground uppercase tracking-tight">Status de Saúde</h3>
+                                    </div>
                                 </div>
-                                <p className="text-muted-foreground text-sm mb-4">Pendências identificadas em checklists:</p>
-                                <p className="text-3xl font-bold text-primary">{reportData?.stats?.issuesReported || 0}</p>
-                            </GlassCard>
+                                <div className="p-4 bg-muted/30 border border-border/40 rounded-2xl">
+                                    <p className="text-[10px] font-black text-muted-foreground/30 uppercase tracking-widest mb-1">Pendências identificadas em checklists:</p>
+                                    <p className="text-3xl font-black text-amber-500 tracking-tighter">{reportData?.stats?.issuesReported || 0}</p>
+                                </div>
+                            </div>
                         </div>
 
-                        <GlassCard>
-                            <div className="flex items-center justify-between mb-6">
-                                <h3 className="text-xl font-bold">Histórico Detalhado</h3>
+                        <div className="bg-card/40 backdrop-blur-sm border border-border/50 rounded-[40px] overflow-hidden shadow-sm">
+                            <div className="p-8 border-b border-border/50 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-muted/20">
+                                <div>
+                                    <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter">Histórico Detalhado</h3>
+                                    <p className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest mt-1">Análise temporal de custos e rodagem</p>
+                                </div>
                                 <ExportActions
                                     data={reportData?.history || []}
                                     filename="relatorio_geral"
@@ -261,24 +284,24 @@ export default function Reports() {
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left">
                                     <thead>
-                                        <tr className="border-b border-white/10">
-                                            <th className="pb-4 font-bold">Mês</th>
-                                            <th className="pb-4 font-bold">Custos</th>
-                                            <th className="pb-4 font-bold">Km Percorrido</th>
+                                        <tr className="bg-muted/50 border-b border-border/50">
+                                            <th className="px-8 py-5 text-[10px] font-black text-muted-foreground/40 uppercase tracking-[0.2em]">Mês / Período</th>
+                                            <th className="px-8 py-5 text-[10px] font-black text-muted-foreground/40 uppercase tracking-[0.2em]">Custos Totais</th>
+                                            <th className="px-8 py-5 text-[10px] font-black text-muted-foreground/40 uppercase tracking-[0.2em]">KM Percorrido</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-white/5">
+                                    <tbody className="divide-y divide-border/30">
                                         {reportData?.history?.map((row: any) => (
-                                            <tr key={row.name} className="hover:bg-white/5 transition-colors">
-                                                <td className="py-4">{row.name}</td>
-                                                <td className="py-4 font-bold">{formatCurrency(row.costs)}</td>
-                                                <td className="py-4 font-bold">{formatKm(row.km)}</td>
+                                            <tr key={row.name} className="hover:bg-primary/[0.02] transition-colors group">
+                                                <td className="px-8 py-6 font-black text-foreground uppercase text-xs tracking-tight group-hover:text-primary transition-colors">{row.name}</td>
+                                                <td className="px-8 py-6 text-sm font-black text-primary tracking-tighter">{formatCurrency(row.costs)}</td>
+                                                <td className="px-8 py-6 text-sm font-black text-foreground/60 tracking-tighter group-hover:text-foreground transition-colors">{formatKm(row.km)}</td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
                             </div>
-                        </GlassCard>
+                        </div>
                     </div>
                 )}
 

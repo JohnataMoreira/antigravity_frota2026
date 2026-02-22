@@ -128,8 +128,17 @@
     border: 1px solid rgba(255, 255, 255, 0.18);
   }
 
+  .dark .glass {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
   .glass-card {
-    @apply glass shadow-lg rounded-lg border border-white/10;
+    @apply glass shadow-lg rounded-3xl border border-white/10;
+  }
+
+  .dark .glass-card {
+    @apply shadow-[0_0_30px_rgba(0, 0, 0, 0.5)] border-white/5;
   }
 
 

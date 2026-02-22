@@ -2,11 +2,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto, UpdateUserDto } from './dto';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-    constructor(private prisma: PrismaService) { }
+    constructor(
+        private prisma: PrismaService,
+        private configService: ConfigService,
+    ) { }
 
     async create(dto: CreateUserDto) {
         // Hash password
@@ -179,5 +183,90 @@ export class UsersService {
         });
 
         return { message: 'User deleted successfully' };
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // SEGURANÇA: Métodos internos de autenticação
+    // ─────────────────────────────────────────────────────────────
+
+    async findByEmailForAuth(email: string) {
+        // Retorna o usuário com campos sensíveis (passwordHash, etc)
+        // Usado apenas internamente por AuthService
+        return this.prisma.user.findUnique({
+            where: { email: email.toLowerCase() },
+        });
+    }
+
+    async recordFailedLogin(userId: string, ip: string) {
+        const user = await this.prisma.user.findUnique({ where: { id: userId } });
+        if (!user) return;
+
+        const failedAttempts = (user as any).failedLoginAttempts + 1;
+        let lockedUntil: Date | null = null;
+
+        // Bloqueio progressivo: 5 falhas = 5min, 10 falhas = 30min, 15+ falhas = 24h
+        if (failedAttempts >= 15) {
+            lockedUntil = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        } else if (failedAttempts >= 10) {
+            lockedUntil = new Date(Date.now() + 30 * 60 * 1000);
+        } else if (failedAttempts >= 5) {
+            lockedUntil = new Date(Date.now() + 5 * 60 * 1000);
+        }
+
+        await (this.prisma.user as any).update({
+            where: { id: userId },
+            data: {
+                failedLoginAttempts: failedAttempts,
+                lockedUntil,
+                lastLoginIp: ip,
+            },
+        });
+    }
+
+    async recordSuccessfulLogin(userId: string, ip: string) {
+        await (this.prisma.user as any).update({
+            where: { id: userId },
+            data: {
+                failedLoginAttempts: 0,
+                lockedUntil: null,
+                lastLoginAt: new Date(),
+                lastLoginIp: ip,
+            },
+        });
+    }
+
+    async saveRefreshTokenHash(userId: string, token: string) {
+        const bcryptRounds = this.configService.get<number>('BCRYPT_ROUNDS', 12);
+        const salt = await bcrypt.genSalt(bcryptRounds);
+        const hash = await bcrypt.hash(token, salt);
+
+        await (this.prisma.user as any).update({
+            where: { id: userId },
+            data: {
+                hashedRefreshToken: hash,
+            },
+        });
+    }
+
+    async clearRefreshToken(userId: string) {
+        await (this.prisma.user as any).update({
+            where: { id: userId },
+            data: {
+                hashedRefreshToken: null,
+            },
+        });
+    }
+
+    async cleanExpiredData() {
+        // Desbloqueia contas cujo tempo de penalidade já expirou
+        await (this.prisma.user as any).updateMany({
+            where: {
+                lockedUntil: { lt: new Date() },
+            },
+            data: {
+                lockedUntil: null,
+                failedLoginAttempts: 0,
+            },
+        });
     }
 }

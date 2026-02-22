@@ -5,7 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 @Module({
     imports: [
         JwtModule.register({
-            secret: process.env.JWT_SECRET,
+            secret: process.env.JWT_SECRET || 'super-secret-key-change-in-prod',
             signOptions: { expiresIn: '1d' },
         }),
     ],

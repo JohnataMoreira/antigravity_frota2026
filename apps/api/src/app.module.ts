@@ -1,5 +1,6 @@
 import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { validateConfig } from './common/config/env.validation';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
@@ -34,11 +35,15 @@ import { AttachmentsModule } from './attachments/attachments.module';
 import { TyresModule } from './tyres/tyres.module';
 import { TenantMiddleware } from './prisma/tenant.middleware';
 import { InviteModule } from './invites/invite.module';
+import { SecurityMiddleware } from './common/middleware/security.middleware';
 
 @Module({
     controllers: [AppController],
     imports: [
-        ConfigModule.forRoot({ isGlobal: true }),
+        ConfigModule.forRoot({
+            isGlobal: true,
+            validate: validateConfig,
+        }),
         ScheduleModule.forRoot(),
         ThrottlerModule.forRoot([{
             ttl: 60000,
@@ -48,6 +53,8 @@ import { InviteModule } from './invites/invite.module';
         AuditModule,
         MailModule,
         NotificationModule,
+        ComplianceModule,
+        MaintenanceModule,
         AuthModule,
         VehiclesModule,
         DriversModule,
@@ -58,14 +65,12 @@ import { InviteModule } from './invites/invite.module';
         LocationsModule,
         HealthModule,
         FinanceModule,
-        MaintenanceModule,
         FuelModule,
         UsersModule,
         IncidentsModule,
         BackupModule,
         InventoryModule,
         TelemetryModule,
-        ComplianceModule,
         PurchasingModule,
         TyresModule,
         AttachmentsModule,
@@ -92,13 +97,19 @@ import { InviteModule } from './invites/invite.module';
 })
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
+        // Primeiro as proteções de baixo nível
+        consumer
+            .apply(SecurityMiddleware)
+            .forRoutes('*');
+
+        // Depois o contexto de multitenancy
         consumer
             .apply(TenantMiddleware)
             .exclude(
                 { path: 'auth/(.*)', method: RequestMethod.ALL },
                 { path: 'locations/public/(.*)', method: RequestMethod.ALL },
-                { path: 'health', method: RequestMethod.ALL }, // health check
-                { path: 'invites/accept', method: RequestMethod.ALL }, // accepts are public
+                { path: 'health', method: RequestMethod.ALL },
+                { path: 'invites/accept', method: RequestMethod.ALL },
             )
             .forRoutes('*');
     }

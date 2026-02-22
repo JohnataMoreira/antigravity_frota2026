@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { Injectable, BadRequestException, NotFoundException, ConflictException } from '@nestjs/common';
+console.log('[DEBUG] Loading JourneysService file...');
+import { Injectable, BadRequestException, NotFoundException, ConflictException, Inject, forwardRef } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { StartJourneyDto, EndJourneyDto } from './dto';
 import { JourneyStatus, VehicleStatus, ChecklistType } from '@prisma/client';
@@ -11,7 +11,9 @@ import { ComplianceService } from '../compliance/compliance.service';
 export class JourneysService {
     constructor(
         private prisma: PrismaService,
+        @Inject(forwardRef(() => MaintenanceAlertsService))
         private maintenanceAlertsService: MaintenanceAlertsService,
+        @Inject(forwardRef(() => ComplianceService))
         private complianceService: ComplianceService
     ) { }
 

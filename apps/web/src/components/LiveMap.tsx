@@ -8,46 +8,46 @@ import { Clock, AlertTriangle } from 'lucide-react';
 
 // Safe Leaflet Access
 const getLeaflet = () => {
- if (typeof window === 'undefined') return null;
- return L;
+    if (typeof window === 'undefined') return null;
+    return L;
 };
 
 // Fix Leaflet icons - only on client
 const fixLeafletIcons = () => {
- const leaflet = getLeaflet();
- if (leaflet && leaflet.Icon && leaflet.Icon.Default) {
- try {
- if (leaflet.Icon.Default.prototype) {
- delete (leaflet.Icon.Default.prototype as any)._getIconUrl;
- leaflet.Icon.Default.mergeOptions({
- iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
- iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
- shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
- });
- }
- } catch (e) {
- console.warn('Leaflet icon fix failed', e);
- }
- }
+    const leaflet = getLeaflet();
+    if (leaflet && leaflet.Icon && leaflet.Icon.Default) {
+        try {
+            if (leaflet.Icon.Default.prototype) {
+                delete (leaflet.Icon.Default.prototype as any)._getIconUrl;
+                leaflet.Icon.Default.mergeOptions({
+                    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+                    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+                });
+            }
+        } catch (e) {
+            console.warn('Leaflet icon fix failed', e);
+        }
+    }
 };
 
 // Custom Car Icon Factory
 const createCarIcon = (status: 'MOVING' | 'STOPPED' | 'OFFLINE' | 'ENGINE_ON', plate: string) => {
- const color = status === 'MOVING' ? '#10b981' : (status === 'ENGINE_ON' ? '#3b82f6' : (status === 'STOPPED' ? '#ef4444' : '#6b7280'));
+    const color = status === 'MOVING' ? '#10b981' : (status === 'ENGINE_ON' ? '#3b82f6' : (status === 'STOPPED' ? '#ef4444' : '#6b7280'));
 
- if (typeof window === 'undefined') return undefined;
+    if (typeof window === 'undefined') return undefined;
 
- try {
- const leaflet = getLeaflet();
+    try {
+        const leaflet = getLeaflet();
 
- if (!leaflet || !leaflet.divIcon) {
- console.warn('Leaflet or divIcon not available');
- return undefined;
- }
+        if (!leaflet || !leaflet.divIcon) {
+            console.warn('Leaflet or divIcon not available');
+            return undefined;
+        }
 
- const iconConfig: L.DivIconOptions = {
- className: 'custom-car-marker',
- html: `
+        const iconConfig: L.DivIconOptions = {
+            className: 'custom-car-marker',
+            html: `
  <div class="relative group">
  <div class="w-10 h-10 rounded-full border-2 border-white shadow-lg flex items-center justify-center transition-transform hover:scale-110 relative" style="background-color: ${color}; ${status === 'OFFLINE' ? 'opacity: 0.5;' : ''}">
  ${status === 'MOVING' || status === 'ENGINE_ON' ? '<div class="absolute inset-0 rounded-full bg-white/20 animate-ping"></div>' : ''}
@@ -61,220 +61,226 @@ const createCarIcon = (status: 'MOVING' | 'STOPPED' | 'OFFLINE' | 'ENGINE_ON', p
  </div>
  </div>
  `,
- iconSize: [40, 40],
- iconAnchor: [20, 20],
- popupAnchor: [0, -20]
- };
+            iconSize: [40, 40],
+            iconAnchor: [20, 20],
+            popupAnchor: [0, -20]
+        };
 
- return leaflet.divIcon(iconConfig);
- } catch (e) {
- console.error('Error creating car icon:', e);
- return undefined;
- }
+        return leaflet.divIcon(iconConfig);
+    } catch (e) {
+        console.error('Error creating car icon:', e);
+        return undefined;
+    }
 };
 
 interface VehicleLocation {
- vehicleId: string;
- lat: number;
- lng: number;
- plate?: string;
- speed?: number;
- fuelLevel?: number;
- engineStatus?: boolean;
- status?: 'MOVING' | 'STOPPED' | 'OFFLINE' | 'ENGINE_ON';
- isDeviated?: boolean;
- plannedRoute?: [number, number][];
- lastUpdate?: string;
+    vehicleId: string;
+    lat: number;
+    lng: number;
+    plate?: string;
+    speed?: number;
+    fuelLevel?: number;
+    engineStatus?: boolean;
+    status?: 'MOVING' | 'STOPPED' | 'OFFLINE' | 'ENGINE_ON';
+    isDeviated?: boolean;
+    plannedRoute?: [number, number][];
+    lastUpdate?: string;
 }
 
 // Auto Center Component
 function AutoCenter({ vehicles }: { vehicles: VehicleLocation[] }) {
- const map = useMap();
+    const map = useMap();
 
- useEffect(() => {
- if (typeof window === 'undefined' || vehicles.length === 0 || !map) return;
+    useEffect(() => {
+        if (typeof window === 'undefined' || vehicles.length === 0 || !map) return;
 
- try {
- const leaflet = getLeaflet();
- if (!leaflet || !leaflet.latLngBounds) return;
+        try {
+            const leaflet = getLeaflet();
+            if (!leaflet || !leaflet.latLngBounds) return;
 
- const points = vehicles.map(v => [v.lat, v.lng] as L.LatLngExpression);
- if (points.length > 0) {
- const bounds = leaflet.latLngBounds(points);
- map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
- }
- } catch (e) {
- console.error('Error fitting bounds', e);
- }
- }, [vehicles, map]);
+            const points = vehicles.map(v => [v.lat, v.lng] as L.LatLngExpression);
+            if (points.length > 0) {
+                const bounds = leaflet.latLngBounds(points);
+                map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+            }
+        } catch (e) {
+            console.error('Error fitting bounds', e);
+        }
+    }, [vehicles, map]);
 
- return null;
+    return null;
 }
 
 export function LiveMap() {
- const { user } = useAuth();
- const [locations, setLocations] = useState<Record<string, VehicleLocation>>({});
- const [incidents, setIncidents] = useState<any[]>([]);
- const [isMounted, setIsMounted] = useState(false);
+    const { user } = useAuth();
+    const [locations, setLocations] = useState<Record<string, VehicleLocation>>({});
+    const [incidents, setIncidents] = useState<any[]>([]);
+    const [isMounted, setIsMounted] = useState(false);
 
- useEffect(() => {
- setIsMounted(true);
+    useEffect(() => {
+        setIsMounted(true);
 
- const timer = setTimeout(() => {
- fixLeafletIcons();
- }, 100);
+        const timer = setTimeout(() => {
+            fixLeafletIcons();
+        }, 100);
 
- if (!user?.organizationId) return () => clearTimeout(timer);
+        if (!user?.organizationId) return () => clearTimeout(timer);
 
- const isProd = !window.location.host.includes('localhost');
- const SOCKET_URL = isProd ? window.location.origin : 'http://localhost:3000';
+        const isProd = !window.location.host.includes('localhost');
+        const SOCKET_URL = isProd ? window.location.origin : 'http://localhost:3000';
 
- const socket = io(`${SOCKET_URL}/locations`, {
- transports: ['websocket', 'polling'],
- auth: {
- token: localStorage.getItem('token')
- }
- });
+        const socket = io(`${SOCKET_URL}/locations`, {
+            transports: ['websocket', 'polling'],
+            auth: {
+                token: localStorage.getItem('token')
+            }
+        });
 
- socket.on('connect', () => {
- socket.emit('join_organization', user.organizationId);
- });
+        socket.on('connect', () => {
+            socket.emit('join_organization', user.organizationId);
+        });
 
- socket.on('vehicle_location_updated', (payload: VehicleLocation) => {
- setLocations(prev => ({
- ...prev,
- [payload.vehicleId]: {
- ...payload,
- status: (payload.speed || 0) > 0 ? 'MOVING' : 'STOPPED',
- lastUpdate: new Date().toISOString()
- }
- }));
- });
+        socket.on('vehicle_location_updated', (payload: VehicleLocation) => {
+            setLocations(prev => ({
+                ...prev,
+                [payload.vehicleId]: {
+                    ...payload,
+                    status: (payload.speed || 0) > 0 ? 'MOVING' : 'STOPPED',
+                    lastUpdate: new Date().toISOString()
+                }
+            }));
+        });
 
- socket.on('vehicleUpdate', (payload: any) => {
- setLocations(prev => ({
- ...prev,
- [payload.vehicleId]: {
- vehicleId: payload.vehicleId,
- lat: payload.latitude,
- lng: payload.longitude,
- plate: payload.plate,
- speed: payload.speed,
- fuelLevel: payload.fuelLevel,
- engineStatus: payload.engineStatus,
- isDeviated: payload.isDeviated,
- plannedRoute: payload.plannedRoute,
- status: payload.speed > 0 ? 'MOVING' : (payload.engineStatus ? 'ENGINE_ON' : 'STOPPED'),
- lastUpdate: payload.timestamp
- }
- }));
- });
+        socket.on('vehicleUpdate', (payload: any) => {
+            setLocations(prev => ({
+                ...prev,
+                [payload.vehicleId]: {
+                    vehicleId: payload.vehicleId,
+                    lat: payload.latitude,
+                    lng: payload.longitude,
+                    plate: payload.plate,
+                    speed: payload.speed,
+                    fuelLevel: payload.fuelLevel,
+                    engineStatus: payload.engineStatus,
+                    isDeviated: payload.isDeviated,
+                    plannedRoute: payload.plannedRoute,
+                    status: payload.speed > 0 ? 'MOVING' : (payload.engineStatus ? 'ENGINE_ON' : 'STOPPED'),
+                    lastUpdate: payload.timestamp
+                }
+            }));
+        });
 
- socket.on('new_incident', (payload: any) => {
- setIncidents(prev => [...prev, payload]);
+        socket.on('new_incident', (payload: any) => {
+            setIncidents(prev => [...prev, payload]);
 
- // Auto remove after 30 mins
- setTimeout(() => {
- setIncidents(prev => prev.filter(i => i.id !== payload.id));
- }, 30 * 60 * 1000);
- });
+            // Auto remove after 30 mins
+            setTimeout(() => {
+                setIncidents(prev => prev.filter(i => i.id !== payload.id));
+            }, 30 * 60 * 1000);
+        });
 
- return () => {
- clearTimeout(timer);
- socket.disconnect();
- };
- }, [user]);
+        return () => {
+            clearTimeout(timer);
+            socket.disconnect();
+        };
+    }, [user]);
 
- const activeVehicles = useMemo(() => {
- return Object.values(locations).filter(v =>
- typeof v.lat === 'number' &&
- typeof v.lng === 'number' &&
- !isNaN(v.lat) &&
- !isNaN(v.lng)
- );
- }, [locations]);
+    const activeVehicles = useMemo(() => {
+        return Object.values(locations).filter(v =>
+            typeof v.lat === 'number' &&
+            typeof v.lng === 'number' &&
+            !isNaN(v.lat) &&
+            !isNaN(v.lng)
+        );
+    }, [locations]);
 
- if (!isMounted) return <div className="h-[400px] bg-gray-100 animate-pulse rounded-lg" />;
+    if (!isMounted) return <div className="h-[400px] bg-muted animate-pulse rounded-lg" />;
 
- return (
- <div className="h-[400px] w-full rounded-lg overflow-hidden border shadow-sm relative z-0">
- {activeVehicles.length === 0 && (
- <div className="absolute inset-0 bg-gray-50/50 backdrop-blur-[2px] z-10 flex items-center justify-center">
- <div className="text-center p-6 bg-white rounded-3xl shadow-2xl border ">
- <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
- <p className="font-bold text-sm">Aguardando sinais de GPS...</p>
- <p className="text-[10px] text-muted-foreground uppercase mt-1 tracking-widest font-black">Organização #{user?.organizationId?.slice(0, 8)}</p>
- </div>
- </div>
- )}
+    return (
+        <div className="h-[400px] w-full rounded-lg overflow-hidden border shadow-sm relative z-0">
+            {activeVehicles.length === 0 && (
+                <div className="absolute inset-0 bg-background/50 backdrop-blur-[2px] z-[400] flex items-center justify-center">
+                    <div className="text-center p-6 bg-card rounded-3xl shadow-2xl border ">
+                        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                        <p className="font-bold text-sm">Aguardando sinais de GPS...</p>
+                        <p className="text-[10px] text-muted-foreground uppercase mt-1 tracking-widest font-black">Organização #{user?.organizationId?.slice(0, 8)}</p>
+                    </div>
+                </div>
+            )}
 
- <MapContainer center={[-23.55052, -46.633309]} zoom={13} style={{ height: '100%', width: '100%' }} zoomControl={false}>
- <TileLayer
- url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
- attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
- />
+            <MapContainer
+                center={[-23.55052, -46.633309]}
+                zoom={13}
+                style={{ height: '100%', width: '100%' }}
+                zoomControl={false}
+                className="z-0 dark:invert-[0.9] dark:hue-rotate-[180deg] dark:contrast-[0.9]"
+            >
+                <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
 
- <AutoCenter vehicles={activeVehicles} />
+                <AutoCenter vehicles={activeVehicles} />
 
- {activeVehicles.map(v => v.plannedRoute && (
- <Polyline
- key={`route-${v.vehicleId}`}
- positions={v.plannedRoute}
- color="#3b82f6"
- weight={4}
- opacity={0.5}
- dashArray="10, 10"
- />
- ))}
+                {activeVehicles.map(v => v.plannedRoute && (
+                    <Polyline
+                        key={`route-${v.vehicleId}`}
+                        positions={v.plannedRoute}
+                        color="#3b82f6"
+                        weight={4}
+                        opacity={0.5}
+                        dashArray="10, 10"
+                    />
+                ))}
 
- {activeVehicles.map(v => {
- const icon = createCarIcon(v.status || 'STOPPED', (v.isDeviated ? '!' : '') + (v.plate || '???'));
- if (!icon || !v.lat || !v.lng) return null;
+                {activeVehicles.map(v => {
+                    const icon = createCarIcon(v.status || 'STOPPED', (v.isDeviated ? '!' : '') + (v.plate || '???'));
+                    if (!icon || !v.lat || !v.lng) return null;
 
- return (
- <Marker
- key={v.vehicleId}
- position={[v.lat, v.lng]}
- icon={icon}
- >
- <Popup className="custom-popup">
- <div className="p-1 min-w-[150px]">
- <h3 className="font-black text-base mb-1 text-primary">{v.plate || v.vehicleId}</h3>
- <div className="space-y-1.5 text-xs font-bold">
- <div className="flex justify-between items-center gap-4 py-1 border-b ">
- <span className="text-muted-foreground uppercase text-[10px]">Velocidade:</span>
- <span className="font-mono text-foreground">{v.speed ? v.speed.toFixed(0) : 0} km/h</span>
- </div>
- <div className="flex justify-between items-center gap-4 py-1 border-b ">
- <span className="text-muted-foreground uppercase text-[10px]">Combustível:</span>
- <span className={`font-mono ${v.fuelLevel && v.fuelLevel < 20 ? 'text-red-500' : 'text-emerald-500'}`}>
- {v.fuelLevel ? v.fuelLevel.toFixed(0) : 100}%
- </span>
- </div>
- <div className="flex justify-between items-center gap-4 py-1 border-b ">
- <span className="text-muted-foreground uppercase text-[10px]">Status:</span>
- <span className={`px-2 py-0.5 rounded-full text-[9px] uppercase ${v.status === 'MOVING' ? 'bg-green-500/20 text-green-500' : (v.status === 'ENGINE_ON' ? 'bg-blue-500/20 text-blue-500' : 'bg-red-500/20 text-red-500')}`}>
- {v.status === 'MOVING' ? 'Em Movimento' : (v.status === 'ENGINE_ON' ? 'Motor Ligado' : 'Parado')}
- </span>
- </div>
- <div className="pt-2 text-[9px] text-muted-foreground/60 text-right flex items-center justify-end gap-1">
- <Clock size={10} /> {v.lastUpdate ? new Date(v.lastUpdate).toLocaleTimeString() : ''}
- </div>
- </div>
- </div>
- </Popup>
- </Marker>
- );
- })}
+                    return (
+                        <Marker
+                            key={v.vehicleId}
+                            position={[v.lat, v.lng]}
+                            icon={icon}
+                        >
+                            <Popup className="custom-popup">
+                                <div className="p-1 min-w-[150px]">
+                                    <h3 className="font-black text-base mb-1 text-foreground">{v.plate || v.vehicleId}</h3>
+                                    <div className="space-y-1.5 text-xs font-bold">
+                                        <div className="flex justify-between items-center gap-4 py-1 border-b ">
+                                            <span className="text-foreground/70 uppercase text-[10px]">Velocidade:</span>
+                                            <span className="font-mono text-foreground">{v.speed ? v.speed.toFixed(0) : 0} km/h</span>
+                                        </div>
+                                        <div className="flex justify-between items-center gap-4 py-1 border-b ">
+                                            <span className="text-foreground/70 uppercase text-[10px]">Combustível:</span>
+                                            <span className={`font-mono ${v.fuelLevel && v.fuelLevel < 20 ? 'text-red-500' : 'text-emerald-500'}`}>
+                                                {v.fuelLevel ? v.fuelLevel.toFixed(0) : 100}%
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-center gap-4 py-1 border-b ">
+                                            <span className="text-foreground/70 uppercase text-[10px]">Status:</span>
+                                            <span className={`px-2 py-0.5 rounded-full text-[9px] uppercase ${v.status === 'MOVING' ? 'bg-green-500/20 text-green-500' : (v.status === 'ENGINE_ON' ? 'bg-blue-500/20 text-blue-500' : 'bg-red-500/20 text-red-500')}`}>
+                                                {v.status === 'MOVING' ? 'Em Movimento' : (v.status === 'ENGINE_ON' ? 'Motor Ligado' : 'Parado')}
+                                            </span>
+                                        </div>
+                                        <div className="pt-2 text-[9px] text-foreground/50 text-right flex items-center justify-end gap-1">
+                                            <Clock size={10} /> {v.lastUpdate ? new Date(v.lastUpdate).toLocaleTimeString() : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            </Popup>
+                        </Marker>
+                    );
+                })}
 
- {/* Incident Markers */}
- {incidents.map(incident => incident.location && (
- <Marker
- key={incident.id}
- position={[incident.location.lat, incident.location.lng]}
- icon={L.divIcon({
- className: 'incident-marker',
- html: `
+                {/* Incident Markers */}
+                {incidents.map(incident => incident.location && (
+                    <Marker
+                        key={incident.id}
+                        position={[incident.location.lat, incident.location.lng]}
+                        icon={L.divIcon({
+                            className: 'incident-marker',
+                            html: `
  <div class="relative animate-bounce">
  <div class="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center border-2 border-white shadow-xl">
  <span class="text-white font-black text-xs">!</span>
@@ -284,38 +290,37 @@ export function LiveMap() {
  </div>
  </div>
  `,
- iconSize: [32, 32],
- iconAnchor: [16, 16]
- })}
- >
- <Popup>
- <div className="p-2">
- <h4 className="text-red-600 font-black text-xs uppercase mb-1">INCIDENTE RELATADO</h4>
- <p className="text-[11px] font-bold text-gray-700 ">"{incident.description}"</p>
- <p className="text-[9px] text-gray-400 mt-2 uppercase font-black">{incident.driver?.name}</p>
- </div>
- </Popup>
- </Marker>
- ))}
- </MapContainer>
+                            iconSize: [32, 32],
+                            iconAnchor: [16, 16]
+                        })}
+                    >
+                        <Popup>
+                            <div className="p-2">
+                                <h4 className="text-red-600 font-black text-xs uppercase mb-1">INCIDENTE RELATADO</h4>
+                                <p className="text-[11px] font-bold text-foreground ">"{incident.description}"</p>
+                                <p className="text-[9px] text-foreground/60 mt-2 uppercase font-black">{incident.driver?.name}</p>
+                            </div>
+                        </Popup>
+                    </Marker>
+                ))}
+            </MapContainer>
 
- <div className="absolute top-4 right-4 bg-white/95 backdrop-blur p-3 rounded-2xl shadow-2xl border text-[10px] z-[400] font-black uppercase tracking-widest">
- <div className="flex flex-col gap-2.5">
- <div className="flex items-center gap-2.5">
- <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
- <span className="text-foreground/80 font-bold">Em Movimento</span>
- </div>
- <div className="flex items-center gap-2.5">
- <div className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
- <span className="text-foreground/80 font-bold">Motor Ligado</span>
- </div>
- <div className="flex items-center gap-2.5">
- <div className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]"></div>
- <span className="text-foreground/80 font-bold">Parado</span>
- </div>
- </div>
- </div>
- </div>
- );
+            <div className="absolute top-4 right-4 bg-card/95 backdrop-blur p-3 rounded-2xl shadow-2xl border text-[10px] z-[400] font-black uppercase tracking-widest">
+                <div className="flex flex-col gap-2.5">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                        <span className="text-foreground font-bold">Em Movimento</span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
+                        <span className="text-foreground font-bold">Motor Ligado</span>
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]"></div>
+                        <span className="text-foreground font-bold">Parado</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 }
-
