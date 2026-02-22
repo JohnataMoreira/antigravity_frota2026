@@ -35,7 +35,7 @@ RUN apt-get update && apt-get install -y openssl postgresql-client && rm -rf /va
 # [11/10 STRATEGY] Copy the entire production node_modules from root
 COPY --from=builder /app/node_modules ./node_modules
 # Copy API artifacts and migrations (monorepo paths)
-COPY --from=builder /app/dist/apps/api ./dist
+COPY --from=builder /app/apps/api/dist ./dist
 COPY --from=builder /app/apps/api/prisma ./prisma
 # Force refresh migrations (v3.7.1)
 COPY --from=builder /app/apps/api/package.json ./package.json
