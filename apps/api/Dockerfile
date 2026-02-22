@@ -44,7 +44,7 @@ COPY --from=builder /app/apps/api/verify-internal.js ./verify-internal.js
 # [11/10 STRATEGY] MULTI-MODULE SANITY CHECK
 # This command MUST pass for the image to be created.
 # It proves that the core runtime is actually complete.
-RUN node -e "require('@prisma/client'); require('@nestjs/common'); require('@nestjs/jwt'); console.log('✅ ENV IS IMMUNE')"
+RUN node -e "require('@prisma/client'); require('@nestjs/common'); require('@nestjs/jwt'); require('@nestjs/cache-manager'); console.log('✅ ENV IS IMMUNE')"
 
 EXPOSE 3000
 
