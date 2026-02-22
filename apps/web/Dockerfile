@@ -11,7 +11,9 @@ RUN npm install --legacy-peer-deps
 RUN npm run build --workspace=web
 
 # Generate version.json directly after build (no plugin needed)
-RUN echo "{\"version\":\"$(date +%s)\",\"buildTime\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" \
+# Ensure the directory exists before writing
+RUN mkdir -p /app/apps/web/dist && \
+    echo "{\"version\":\"$(date +%s)\",\"buildTime\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" \
     > /app/apps/web/dist/version.json
 
 # Stage 2: Production
