@@ -215,33 +215,29 @@ export function MaintenanceList() {
                         <div className="flex items-center gap-3">
                             <button
                                 onClick={() => setIsCreateModalOpen(true)}
-                                className="flex items-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-black uppercase tracking-widest text-xs shadow-lg shadow-primary/20 transition-all group"
+                                className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-black uppercase tracking-widest text-[10px] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-lg shadow-primary/20"
                             >
-                                <Plus size={20} className="group-hover:rotate-90 transition-transform" />
+                                <Plus size={16} />
                                 Nova Manutenção
                             </button>
-
-                            <div className="flex bg-muted p-1.5 rounded-xl border border-border">
+                            <div className="flex items-center gap-1 bg-background p-1 rounded-xl border border-border">
                                 <button
                                     onClick={() => setViewMode('grid')}
-                                    className={`p-2.5 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-card shadow-lg text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-                                    title="Visualização em Grade"
+                                    className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                                 >
-                                    <LayoutGrid size={20} />
+                                    <LayoutGrid size={18} />
                                 </button>
                                 <button
                                     onClick={() => setViewMode('list')}
-                                    className={`p-2.5 rounded-xl transition-all ${viewMode === 'list' ? 'bg-card shadow-lg text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-                                    title="Visualização em Lista"
+                                    className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                                 >
-                                    <ListIcon size={20} />
+                                    <ListIcon size={18} />
                                 </button>
                                 <button
                                     onClick={() => setViewMode('kanban')}
-                                    className={`p-2.5 rounded-xl transition-all ${viewMode === 'kanban' ? 'bg-card shadow-lg text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-                                    title="Visualização em Kanban"
+                                    className={`p-2 rounded-lg transition-all ${viewMode === 'kanban' ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                                 >
-                                    <Columns size={20} />
+                                    <Columns size={18} />
                                 </button>
                             </div>
                         </div>
@@ -249,650 +245,329 @@ export function MaintenanceList() {
 
                     {viewMode === 'kanban' ? (
                         <KanbanBoard
-                            columns={[
-                                { id: 'SCHEDULED', title: 'Alertas / Agendados', count: 0, color: 'bg-amber-500' },
-                                { id: 'IN_PROGRESS', title: 'Em Manutenção', count: 0, color: 'bg-blue-500' },
-                                { id: 'COMPLETED', title: 'Concluídos', count: 0, color: 'bg-green-500' },
-                            ]}
-                            items={[
-                                ...alerts.map((a: any) => ({ ...a, kanbanType: 'ALERT' })),
-                                ...maintenances.map((m: any) => ({ ...m, kanbanType: 'MAINTENANCE' }))
-                            ]}
-                            getItemColumnId={(item: any) => {
-                                if (item.kanbanType === 'ALERT') return 'SCHEDULED';
-                                if (item.status === 'COMPLETED') return 'COMPLETED';
-                                if (item.vehicle?.status === 'MAINTENANCE' || vehicles.find((v: any) => v.id === item.vehicleId)?.status === 'MAINTENANCE') return 'IN_PROGRESS';
-                                return 'SCHEDULED';
+                            items={maintenances}
+                            onItemClick={(item) => {
+                                setSelectedMaintenance(item);
+                                setIsCompleteModalOpen(true);
                             }}
-                            renderCard={(item: any) => (
+                        />
+                    ) : viewMode === 'grid' ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {maintenances.map((maintenance: any) => (
                                 <GlassCard
-                                    key={item.id}
-                                    className={`p-4 rounded-xl border transition-all group bg-card ${item.kanbanType === 'ALERT' ? 'border-l-4 border-l-amber-500' : 'border-border'}`}
-                                    onClick={() => {
-                                        if (item.kanbanType === 'ALERT') {
-                                            setFormData({
-                                                vehicleId: item.vehicleId,
-                                                type: 'OTHER',
-                                                nextDueKm: item.nextMaintenanceKm,
-                                                nextDueDate: item.nextMaintenanceDate
-                                                    ? new Date(item.nextMaintenanceDate).toISOString().split('T')[0]
-                                                    : '',
-                                                notes: `Gerado por alerta de ${item.templateName}`
-                                            });
-                                            setIsCreateModalOpen(true);
-                                        } else if (item.status === 'PENDING') {
-                                            setSelectedMaintenance(item);
-                                            setCompleteData(prev => ({ ...prev, lastKm: item.vehicle?.currentKm || 0 }));
-                                            setIsCompleteModalOpen(true);
-                                        }
-                                    }}
+                                    key={maintenance.id}
+                                    className="group hover:border-primary/40 transition-all border border-border"
                                 >
-                                    <div className="flex items-center gap-3 mb-3">
-                                        <div className={`p-2 rounded-lg ${item.kanbanType === 'ALERT' ? 'bg-amber-500/10 text-amber-500' : 'bg-primary/10 text-primary'}`}>
-                                            <Wrench size={18} />
+                                    <div className="flex justify-between items-start mb-6">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                                                <Car size={28} />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter leading-none">
+                                                    {maintenance.vehicle?.plate || '—'}
+                                                </h3>
+                                                <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest mt-1">
+                                                    {maintenance.vehicle?.model || 'Modelo não informado'}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div className="flex-1 min-w-0">
-                                            <h4 className="font-black text-primary text-sm truncate uppercase tracking-tighter">
-                                                {item.plate || item.vehicle?.plate}
-                                            </h4>
-                                            <p className="text-[10px] text-muted-foreground font-black uppercase truncate tracking-widest">
-                                                {item.templateName || maintenanceTypeMap[item.type] || item.type}
-                                            </p>
-                                        </div>
+                                        <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${maintenance.status === 'PENDING' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                                            maintenance.status === 'COMPLETED' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
+                                                'bg-muted text-muted-foreground border-border'
+                                            }`}>
+                                            {statusMap[maintenance.status] || maintenance.status}
+                                        </span>
                                     </div>
-                                    {item.kanbanType === 'ALERT' ? (
-                                        <div className="bg-amber-500/5 p-2 rounded-lg border border-amber-500/10 mb-2">
-                                            <p className="text-[10px] font-black text-amber-500/80 uppercase leading-tight">
-                                                {item.message}
-                                            </p>
+
+                                    <div className="space-y-4 mb-6">
+                                        <div className="flex items-center gap-3 text-sm">
+                                            <Wrench size={16} className="text-primary" />
+                                            <span className="font-bold text-foreground">{maintenanceTypeMap[maintenance.type] || maintenance.type}</span>
                                         </div>
-                                    ) : (
-                                        <div className="flex justify-between items-center text-[10px] mb-2 font-black text-muted-foreground/50 uppercase tracking-tighter">
-                                            <span>KM: {item.status === 'COMPLETED' ? formatKm(item.lastKm) : formatKm(item.nextDueKm)}</span>
-                                            {item.performedAt && <span>{new Date(item.performedAt).toLocaleDateString('pt-BR')}</span>}
+                                        <div className="flex items-center gap-3 text-sm">
+                                            <Clock size={16} className="text-primary" />
+                                            <span className="font-medium text-muted-foreground">Realizado em {new Date(maintenance.performedAt).toLocaleDateString('pt-BR')}</span>
                                         </div>
-                                    )}
-                                    <div className="flex justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <span className="text-[10px] font-black text-blue-600 uppercase">Ver detalhes →</span>
+                                        {maintenance.cost > 0 && (
+                                            <div className="flex items-center gap-3 text-sm">
+                                                <DollarSign size={16} className="text-green-500" />
+                                                <span className="font-black text-green-500">{formatCurrency(maintenance.cost)}</span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="pt-4 border-t border-border flex gap-2">
+                                        <button
+                                            onClick={() => {
+                                                setSelectedMaintenance(maintenance);
+                                                setIsCompleteModalOpen(true);
+                                            }}
+                                            className="flex-1 py-2.5 bg-primary/5 hover:bg-primary/10 text-primary rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
+                                        >
+                                            Ver Detalhes
+                                        </button>
+                                        <button className="p-2.5 hover:bg-muted rounded-xl text-muted-foreground transition-all">
+                                            <ArrowRight size={18} />
+                                        </button>
                                     </div>
                                 </GlassCard>
-                            )}
-                        />
+                            ))}
+                        </div>
                     ) : (
-                        <>
-                            {vehiclesInWorkshop.length > 0 && (
-                                <div className="space-y-4">
-                                    <h2 className="text-xl font-bold flex items-center gap-2 text-primary">
-                                        <LayoutGrid className="w-6 h-6" /> Veículos na Oficina
-                                    </h2>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                                        {vehiclesInWorkshop.map((v: any) => (
-                                            <GlassCard key={v.id} className="relative overflow-hidden group border-t-4 border-red-500 bg-card">
-                                                <div className="flex items-center gap-3 mb-3">
-                                                    <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 animate-pulse">
-                                                        <Wrench size={20} />
-                                                    </div>
-                                                    <div>
-                                                        <div className="font-black text-lg text-primary ">{v.plate}</div>
-                                                        <div className="text-[10px] font-black text-muted-foreground uppercase">{v.model}</div>
-                                                    </div>
-                                                </div>
-                                                <div className="text-[10px] font-black text-red-500 flex items-center gap-1 uppercase tracking-widest opacity-80">
-                                                    <Clock size={12} /> Manutenção Crítica
-                                                </div>
-                                            </GlassCard>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {alerts.length > 0 && (
-                                <div className="space-y-4">
-                                    <h2 className="text-xl font-bold flex items-center gap-2 text-amber-500">
-                                        <AlertTriangle className="w-6 h-6" /> Alertas Preventivos
-                                    </h2>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {alerts.map((alert: any) => (
-                                            <GlassCard
-                                                key={alert.id}
-                                                className={`border-l-4 transition-all flex flex-col ${alert.severity === 'CRITICAL' ? 'border-red-500 shadow-lg shadow-red-500/5' : 'border-amber-500'}`}
-                                            >
-                                                <div className="flex justify-between items-start mb-4">
-                                                    <div className={`p-2.5 rounded-xl ${alert.severity === 'CRITICAL' ? 'bg-red-500/10 text-red-500' : 'bg-amber-500/10 text-amber-500'}`}>
-                                                        <Wrench size={24} />
-                                                    </div>
-                                                    <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${alert.severity === 'CRITICAL' ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-amber-500/10 text-amber-500 border-amber-500/20'}`}>
-                                                        {alert.templateName}
-                                                    </span>
-                                                </div>
-                                                <div className="flex items-center justify-between mb-4">
-                                                    <h3 className="text-2xl font-black text-foreground ">{alert.plate}</h3>
-                                                    <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-60">{alert.model}</div>
-                                                </div>
-                                                <div className="space-y-2 mb-4 flex-grow bg-muted/30 p-3 rounded-xl border border-border">
-                                                    <div className="flex justify-between text-[11px] font-bold uppercase tracking-tighter">
-                                                        <span className="text-muted-foreground">KM Atual:</span>
-                                                        <span className="text-foreground">{formatKm(alert.kmSinceLast + alert.baseKm)}</span>
-                                                    </div>
-                                                    <div className="flex justify-between text-[11px] font-bold uppercase tracking-tighter">
-                                                        <span className="text-muted-foreground">Planificado:</span>
-                                                        <span className="text-foreground">{formatKm(alert.nextMaintenanceKm)}</span>
-                                                    </div>
-                                                    <div className="pt-2 border-t border-border mt-2">
-                                                        <p className={`text-[11px] font-black uppercase tracking-tight ${alert.severity === 'CRITICAL' ? 'text-red-500' : 'text-amber-500'}`}>
-                                                            {alert.message}
-                                                        </p>
-                                                    </div>
-                                                </div>
-
-                                                <button
-                                                    onClick={() => {
-                                                        setFormData({
-                                                            vehicleId: alert.vehicleId,
-                                                            type: 'OTHER',
-                                                            nextDueKm: alert.nextMaintenanceKm,
-                                                            nextDueDate: alert.nextMaintenanceDate
-                                                                ? new Date(alert.nextMaintenanceDate).toISOString().split('T')[0]
-                                                                : '',
-                                                            notes: `Gerado por alerta de ${alert.templateName}`
-                                                        });
-                                                        setIsCreateModalOpen(true);
-                                                    }}
-                                                    className={`w-full py-4 rounded-xl font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 transition-all ${alert.severity === 'CRITICAL' ? 'bg-red-600 hover:bg-red-700 text-white shadow-xl shadow-red-500/20' : 'bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/20'}`}
-                                                >
-                                                    <Plus size={18} />
-                                                    Iniciar Manutenção
-                                                </button>
-                                            </GlassCard>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            <div className="space-y-4">
-                                <h2 className="text-xl font-bold flex items-center gap-2 text-foreground">
-                                    <CheckCircle2 className="w-6 h-6 text-green-500" /> Histórico de Serviços
-                                </h2>
-                                {viewMode === 'list' ? (
-                                    <GlassCard transition={true} className="!p-0 overflow-hidden">
-                                        <div className="overflow-x-auto">
-                                            <table className="w-full text-left text-sm">
-                                                <thead className="bg-muted/50 border-b border-border">
-                                                    <tr>
-                                                        <th className="px-6 py-4 font-black uppercase tracking-widest text-[10px] text-muted-foreground/50 ">Veículo</th>
-                                                        <th className="px-6 py-4 font-black uppercase tracking-widest text-[10px] text-muted-foreground/50 ">Tipo</th>
-                                                        <th className="px-6 py-4 font-black uppercase tracking-widest text-[10px] text-muted-foreground/50 ">Status</th>
-                                                        <th className="px-6 py-4 font-black uppercase tracking-widest text-[10px] text-muted-foreground/50 text-right">Data / KM</th>
-                                                        <th className="px-6 py-4 font-black uppercase tracking-widest text-[10px] text-muted-foreground/50 text-right">Ação</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-border ">
-                                                    {maintenances.map((maintenance: any) => (
-                                                        <tr key={maintenance.id} className="group hover:bg-muted/30 transition-all border-b border-border last:border-0 font-medium">
-                                                            <td className="px-6 py-5 font-black text-lg text-primary tracking-tighter uppercase">{maintenance.vehicle?.plate || '—'}</td>
-                                                            <td className="px-6 py-5 font-bold text-foreground text-xs uppercase tracking-tight">{maintenanceTypeMap[maintenance.type] || maintenance.type}</td>
-                                                            <td className="px-6 py-5">
-                                                                <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${maintenance.status === 'PENDING' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
-                                                                    maintenance.status === 'COMPLETED' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
-                                                                        'bg-muted text-muted-foreground border-border'
-                                                                    }`}>
-                                                                    {statusMap[maintenance.status] || maintenance.status}
-                                                                </span>
-                                                            </td>
-                                                            <td className="px-6 py-5 text-right font-black">
-                                                                {maintenance.status === 'COMPLETED' ? (
-                                                                    <div className="flex flex-col items-end">
-                                                                        <span className="text-foreground text-sm ">{formatCurrency(maintenance.cost)}</span>
-                                                                        <span className="text-[9px] text-muted-foreground/50 uppercase tracking-widest">{new Date(maintenance.performedAt).toLocaleDateString('pt-BR')}</span>
-                                                                    </div>
-                                                                ) : (
-                                                                    <div className="flex flex-col items-end">
-                                                                        <span className="text-amber-500 text-sm ">{formatKm(maintenance.nextDueKm)}</span>
-                                                                        <span className="text-[9px] text-amber-500/50 uppercase tracking-widest">PREVISTA</span>
-                                                                    </div>
-                                                                )}
-                                                            </td>
-                                                            <td className="px-6 py-5 text-right">
-                                                                {maintenance.status === 'PENDING' && (
-                                                                    <button
-                                                                        onClick={() => {
-                                                                            setSelectedMaintenance(maintenance);
-                                                                            setCompleteData(prev => ({ ...prev, lastKm: maintenance.vehicle?.currentKm || 0 }));
-                                                                            setIsCompleteModalOpen(true);
-                                                                        }}
-                                                                        className="text-primary hover:text-primary/80 font-black uppercase tracking-widest text-[10px]"
-                                                                    >
-                                                                        Concluir
-                                                                    </button>
-                                                                )}
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </GlassCard>
-                                ) : (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-xl">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="bg-muted/50 border-b border-border">
+                                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Veículo</th>
+                                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Serviço</th>
+                                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Status</th>
+                                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Custo</th>
+                                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Data</th>
+                                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-border">
                                         {maintenances.map((maintenance: any) => (
-                                            <GlassCard key={maintenance.id} transition={true}>
-                                                <div className="flex items-center gap-3 mb-4">
-                                                    <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                                                        <Wrench size={20} />
-                                                    </div>
-                                                    <div>
-                                                        <div className="font-black text-xl text-primary tracking-tighter uppercase">{maintenance.vehicle?.plate || '—'}</div>
-                                                        <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{maintenanceTypeMap[maintenance.type] || maintenance.type}</div>
-                                                    </div>
-                                                </div>
-                                                <div className="space-y-2 mb-4">
-                                                    <div className="flex justify-between text-[10px] font-black uppercase text-muted-foreground/50 tracking-widest">
-                                                        <span className="flex-1 border-b border-white/5 pb-1">Status</span>
-                                                        <span className={`pb-1 ${maintenance.status === 'COMPLETED' ? 'text-emerald-500' : 'text-amber-500'}`}>
-                                                            {statusMap[maintenance.status] || maintenance.status}
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex justify-between text-[10px] font-black uppercase text-muted-foreground/50 tracking-widest">
-                                                        <span className="flex-1"> {maintenance.status === 'COMPLETED' ? 'Custo' : 'KM Prevista'}</span>
-                                                        <span className="text-foreground">
-                                                            {maintenance.status === 'COMPLETED' ? formatCurrency(maintenance.cost) : formatKm(maintenance.nextDueKm)}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                {maintenance.status === 'PENDING' && (
+                                            <tr key={maintenance.id} className="hover:bg-muted/30 transition-colors group">
+                                                <td className="px-6 py-5 font-black text-lg text-primary tracking-tighter uppercase">{maintenance.vehicle?.plate || '—'}</td>
+                                                <td className="px-6 py-5 font-bold text-foreground text-xs uppercase tracking-tight">{maintenanceTypeMap[maintenance.type] || maintenance.type}</td>
+                                                <td className="px-6 py-5">
+                                                    <span className={`px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${maintenance.status === 'PENDING' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                                                        maintenance.status === 'COMPLETED' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
+                                                            'bg-muted text-muted-foreground border-border'
+                                                        }`}>
+                                                        {statusMap[maintenance.status] || maintenance.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-5 font-black text-green-500">{formatCurrency(maintenance.cost)}</td>
+                                                <td className="px-6 py-5 font-medium text-muted-foreground text-sm">{new Date(maintenance.performedAt).toLocaleDateString('pt-BR')}</td>
+                                                <td className="px-6 py-5 text-right">
                                                     <button
                                                         onClick={() => {
                                                             setSelectedMaintenance(maintenance);
-                                                            setCompleteData(prev => ({ ...prev, lastKm: maintenance.vehicle?.currentKm || 0 }));
                                                             setIsCompleteModalOpen(true);
                                                         }}
-                                                        className="w-full py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-black uppercase tracking-widest text-[10px] transition-all shadow-lg shadow-primary/20"
+                                                        className="p-2 hover:bg-primary/10 text-primary rounded-lg transition-all"
                                                     >
-                                                        Concluir
+                                                        <ArrowRight size={20} />
                                                     </button>
-                                                )}
-                                            </GlassCard>
+                                                </td>
+                                            </tr>
                                         ))}
-                                    </div>
-                                )}
+                                    </tbody>
+                                </table>
                             </div>
-                        </>
+                        </div>
                     )}
                 </>
             ) : (
-                <div className="space-y-6">
-                    <div className="flex justify-between items-center bg-card p-6 rounded-3xl border border-border">
-                        <h2 className="text-2xl font-black flex items-center gap-3 text-foreground uppercase tracking-tighter">
-                            <ListIcon className="text-primary w-8 h-8" /> Catálogo de Serviços
-                        </h2>
-                        <button
-                            onClick={() => setIsTemplateModalOpen(true)}
-                            className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/20 transition-all active:scale-95"
-                        >
-                            <Plus size={18} /> Cadastrar Novo Serviço
-                        </button>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {templates.map((template: any) => (
-                            <GlassCard key={template.id} className="border-t-4 border-primary bg-card">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="bg-primary/10 p-2 rounded-lg text-primary">
-                                        <Wrench size={20} />
-                                    </div>
-                                    <span className={`text-[9px] font-black px-2 py-1 rounded-full uppercase tracking-widest border border-primary/20 ${template.type === 'PREVENTIVE' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}`}>
-                                        {template.type === 'PREVENTIVE' ? 'Preventiva' : 'Corretiva'}
-                                    </span>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {templates.map((template: any) => (
+                        <GlassCard key={template.id} className="group hover:border-primary/40 transition-all border border-border">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="bg-primary/10 p-2 rounded-lg text-primary">
+                                    <Wrench size={20} />
                                 </div>
-                                <h3 className="text-xl font-black text-foreground mb-2 uppercase tracking-tight">{template.name}</h3>
-                                <div className="space-y-2 mb-4 flex-grow">
-                                    <div className="flex flex-wrap gap-1">
-                                        {template.vehicleTypes.map((vt: string) => (
-                                            <span key={vt} className="text-[8px] font-black bg-muted px-2 py-0.5 rounded-full text-muted-foreground border border-white/5 uppercase tracking-widest">
-                                                {vt}
-                                            </span>
-                                        ))}
-                                    </div>
-                                    <div className="bg-muted/50 p-4 rounded-2xl space-y-3 mt-4 text-[11px] font-bold border border-white/5">
-                                        <div className="flex justify-between border-b border-white/5 pb-2">
-                                            <span className="text-muted-foreground uppercase tracking-widest">Intervalo:</span>
-                                            <span className="text-primary font-black">{formatKm(template.intervalKm)}</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-muted-foreground uppercase tracking-widest">Tempo Médio:</span>
-                                            <span className="text-foreground">{template.averageDurationDays} dias</span>
-                                        </div>
-                                    </div>
-                                    {template.description && (
-                                        <p className="text-[10px] text-muted-foreground italic line-clamp-2 mt-2">
-                                            "{template.description}"
-                                        </p>
-                                    )}
+                                <span className={`text-[9px] font-black px-2 py-1 rounded-full uppercase tracking-widest border border-primary/20 ${template.type === 'PREVENTIVE' ? 'bg-green-500/10 text-green-500' : 'bg-amber-500/10 text-amber-500'}`}>
+                                    {template.type === 'PREVENTIVE' ? 'Preventiva' : 'Corretiva'}
+                                </span>
+                            </div>
+                            <h3 className="text-xl font-black text-foreground mb-2 uppercase tracking-tight">{template.name}</h3>
+                            <p className="text-xs text-muted-foreground font-medium mb-6 line-clamp-2">{template.description}</p>
+                            <div className="flex items-center justify-between pt-4 border-t border-border">
+                                <div className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+                                    <Clock size={14} />
+                                    <span>A cada {formatKm(template.intervalKm)}</span>
                                 </div>
-                                <button
-                                    onClick={() => {
-                                        if (confirm('Deseja excluir este serviço do catálogo?')) {
-                                            api.delete(`/maintenance-templates/${template.id}`).then(() => {
-                                                queryClient.invalidateQueries({ queryKey: ['maintenance-templates'] });
-                                                queryClient.invalidateQueries({ queryKey: ['maintenance-alerts'] });
-                                            });
-                                        }
-                                    }}
-                                    className="text-[10px] font-black text-destructive/40 hover:text-destructive uppercase tracking-widest self-end transition-colors"
-                                >
-                                    Excluir
-                                </button>
-                            </GlassCard>
-                        ))}
-                    </div>
-
-                    {templates.length === 0 && (
-                        <div className="bg-card border-2 border-dashed border-border rounded-3xl py-20 flex flex-col items-center justify-center text-center">
-                            <Wrench className="w-16 h-16 text-muted-foreground/20 mb-4" />
-                            <h3 className="text-2xl font-black text-foreground uppercase tracking-tight">Cátalogo Vazio</h3>
-                            <p className="text-muted-foreground font-medium max-w-sm mt-2">Cadastre os tipos de manutenção frequentes para agilizar o agendamento da sua frota.</p>
-                        </div>
-                    )}
+                                <button className="text-primary hover:underline font-black text-[10px] uppercase tracking-widest">Usar Molde</button>
+                            </div>
+                        </GlassCard>
+                    ))}
                 </div>
             )}
 
-            {/* Create Modal */}
+            {/* Create Maintenance Modal */}
             {isCreateModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="w-full max-w-md bg-background rounded-3xl shadow-2xl border border-border p-6 animate-in zoom-in-95 duration-200">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-black uppercase tracking-tighter">Nova Manutenção</h2>
-                            <button onClick={() => setIsCreateModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground">
-                                <X size={24} />
-                            </button>
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
+                    <GlassCard className="w-full max-w-xl p-8 border border-border shadow-2xl relative">
+                        <button
+                            onClick={() => setIsCreateModalOpen(false)}
+                            className="absolute top-6 right-6 p-2 hover:bg-muted rounded-xl text-muted-foreground transition-all"
+                        >
+                            <X size={20} />
+                        </button>
+
+                        <div className="mb-8">
+                            <h2 className="text-3xl font-black text-foreground uppercase tracking-tighter">Registrar Manutenção</h2>
+                            <p className="text-muted-foreground font-bold uppercase text-[10px] tracking-widest mt-1 opacity-60">Inserção de registro no protocolo de frota</p>
                         </div>
 
-                        <form onSubmit={(e) => {
+                        <form className="space-y-6" onSubmit={(e) => {
                             e.preventDefault();
                             createMutation.mutate(formData);
-                        }} className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Veículo</label>
-                                <select
-                                    className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
-                                    value={formData.vehicleId}
-                                    onChange={e => setFormData({ ...formData, vehicleId: e.target.value })}
-                                    required
-                                >
-                                    <option value="">Selecione um veículo</option>
-                                    {vehicles.map((v: any) => (
-                                        <option key={v.id} value={v.id}>{v.plate} - {v.model}</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
+                        }}>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold ml-1">Tipo</label>
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Veículo</label>
                                     <select
-                                        className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
-                                        value={formData.type}
-                                        onChange={e => setFormData({ ...formData, type: e.target.value })}
+                                        className="w-full bg-muted border border-border p-3 rounded-xl outline-none focus:ring-2 focus:ring-primary/50 transition-all font-bold text-sm appearance-none"
+                                        value={formData.vehicleId}
+                                        onChange={(e) => setFormData({ ...formData, vehicleId: e.target.value })}
+                                        required
                                     >
-                                        <option value="OIL">Troca de Óleo</option>
-                                        <option value="TIRES">Pneus</option>
-                                        <option value="INSPECTION">Inspeção</option>
-                                        <option value="OTHER">Outros</option>
+                                        <option value="">Selecione um veículo</option>
+                                        {vehicles.map((v: any) => (
+                                            <option key={v.id} value={v.id}>{v.plate} - {v.model}</option>
+                                        ))}
                                     </select>
                                 </div>
+
                                 <div className="space-y-2">
-                                    <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Prevista para (KM)</label>
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Tipo de Serviço</label>
+                                    <select
+                                        className="w-full bg-muted border border-border p-3 rounded-xl outline-none focus:ring-2 focus:ring-primary/50 transition-all font-bold text-sm appearance-none"
+                                        value={formData.type}
+                                        onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
+                                        required
+                                    >
+                                        {Object.entries(maintenanceTypeMap).map(([key, value]) => (
+                                            <option key={key} value={key}>{value}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Próxima KM</label>
                                     <input
                                         type="number"
-                                        className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
-                                        placeholder="0"
+                                        className="w-full bg-muted border border-border p-3 rounded-xl outline-none focus:ring-2 focus:ring-primary/50 transition-all font-bold text-sm"
+                                        placeholder="KM para próxima revisão"
                                         value={formData.nextDueKm}
-                                        onChange={e => setFormData({ ...formData, nextDueKm: Number(e.target.value) })}
+                                        onChange={(e) => setFormData({ ...formData, nextDueKm: Number(e.target.value) })}
                                         required
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Data Prevista</label>
+                                    <input
+                                        type="date"
+                                        className="w-full bg-muted border border-border p-3 rounded-xl outline-none focus:ring-2 focus:ring-primary/50 transition-all font-bold text-sm"
+                                        value={formData.nextDueDate}
+                                        onChange={(e) => setFormData({ ...formData, nextDueDate: e.target.value })}
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Data Prevista (Opcional)</label>
-                                <input
-                                    type="date"
-                                    className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
-                                    value={formData.nextDueDate}
-                                    onChange={e => setFormData({ ...formData, nextDueDate: e.target.value })}
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Observações</label>
+                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Observações Iniciais</label>
                                 <textarea
-                                    className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary min-h-[100px]"
-                                    placeholder="Detalhes do serviço planejado..."
+                                    className="w-full bg-muted border border-border p-3 rounded-xl outline-none focus:ring-2 focus:ring-primary/50 transition-all font-bold text-sm min-h-[100px] resize-none"
+                                    placeholder="Detalhes sobre o problema ou serviço solicitado..."
                                     value={formData.notes}
-                                    onChange={e => setFormData({ ...formData, notes: e.target.value })}
+                                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                                 />
                             </div>
 
                             <button
                                 type="submit"
                                 disabled={createMutation.isPending}
-                                className="w-full py-5 bg-primary text-primary-foreground rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 shadow-xl shadow-primary/20"
+                                className="w-full py-4 bg-primary text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 shadow-xl shadow-primary/20"
                             >
-                                {createMutation.isPending ? 'Agendando...' : 'Agendar Manutenção'}
+                                {createMutation.isPending ? 'Registrando...' : 'Criar Registro de Manutenção'}
                             </button>
                         </form>
-                    </div>
+                    </GlassCard>
                 </div>
             )}
 
-            {/* Complete Modal */}
+            {/* Complete Maintenance Modal */}
             {isCompleteModalOpen && selectedMaintenance && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="w-full max-w-md bg-background rounded-3xl shadow-2xl border border-border p-6 animate-in zoom-in-95 duration-200">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-black uppercase tracking-tighter">Concluir Serviço</h2>
-                            <button onClick={() => setIsCompleteModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground">
-                                <X size={24} />
-                            </button>
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
+                    <GlassCard className="w-full max-w-xl p-8 border border-border shadow-2xl relative">
+                        <button
+                            onClick={() => {
+                                setIsCompleteModalOpen(false);
+                                setSelectedMaintenance(null);
+                            }}
+                            className="absolute top-6 right-6 p-2 hover:bg-muted rounded-xl text-muted-foreground transition-all"
+                        >
+                            <X size={20} />
+                        </button>
+
+                        <div className="mb-8">
+                            <h2 className="text-3xl font-black text-foreground uppercase tracking-tighter">Finalizar Manutenção</h2>
+                            <p className="text-muted-foreground font-bold uppercase text-[10px] tracking-widest mt-1 opacity-60">Fechamento de protocolo e registro de custos</p>
                         </div>
 
-                        <div className="mb-6 p-4 bg-primary/10 rounded-2xl border border-primary/20 flex items-center gap-4">
-                            <div className="bg-primary/20 p-3 rounded-xl text-primary">
-                                <Wrench size={24} />
+                        <div className="grid grid-cols-2 gap-4 mb-8 bg-muted/50 p-4 rounded-2xl border border-border">
+                            <div className="space-y-1">
+                                <span className="text-[9px] font-black uppercase text-muted-foreground/60 tracking-widest">Veículo</span>
+                                <p className="font-black text-primary uppercase">{selectedMaintenance.vehicle?.plate}</p>
                             </div>
-                            <div>
-                                <div className="font-black text-2xl tracking-tighter text-primary uppercase">{selectedMaintenance.vehicle?.plate}</div>
-                                <div className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">{maintenanceTypeMap[selectedMaintenance.type] || selectedMaintenance.type}</div>
+                            <div className="space-y-1">
+                                <span className="text-[9px] font-black uppercase text-muted-foreground/60 tracking-widest">Serviço</span>
+                                <p className="font-black text-foreground uppercase">{maintenanceTypeMap[selectedMaintenance.type]}</p>
                             </div>
                         </div>
 
-                        <form onSubmit={(e) => {
+                        <form className="space-y-6" onSubmit={(e) => {
                             e.preventDefault();
                             completeMutation.mutate(completeData);
-                        }} className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
+                        }}>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1 flex items-center gap-1">
-                                        <DollarSign size={14} className="text-primary" /> Custo Real
-                                    </label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
-                                        placeholder="0,00"
-                                        value={completeData.cost}
-                                        onChange={e => setCompleteData({ ...completeData, cost: Number(e.target.value) })}
-                                        required
-                                    />
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Custo Final (R$)</label>
+                                    <div className="relative">
+                                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/40" size={18} />
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            className="w-full bg-muted border border-border pl-10 pr-4 py-3 rounded-xl outline-none focus:ring-2 focus:ring-primary/50 transition-all font-bold text-sm"
+                                            placeholder="0,00"
+                                            value={completeData.cost}
+                                            onChange={(e) => setCompleteData({ ...completeData, cost: Number(e.target.value) })}
+                                            required
+                                        />
+                                    </div>
                                 </div>
+
                                 <div className="space-y-2">
-                                    <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1 flex items-center gap-1">
-                                        <ArrowRight size={14} className="text-primary" /> KM do Serviço
-                                    </label>
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">KM Atual</label>
                                     <input
                                         type="number"
-                                        className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
-                                        placeholder="0"
+                                        className="w-full bg-muted border border-border p-3 rounded-xl outline-none focus:ring-2 focus:ring-primary/50 transition-all font-bold text-sm"
+                                        placeholder="KM no fechamento"
                                         value={completeData.lastKm}
-                                        onChange={e => setCompleteData({ ...completeData, lastKm: Number(e.target.value) })}
+                                        onChange={(e) => setCompleteData({ ...completeData, lastKm: Number(e.target.value) })}
                                         required
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Relatório Técnico</label>
+                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Relatório Técnico / Notas</label>
                                 <textarea
-                                    className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary min-h-[100px]"
-                                    placeholder="Descreva o que foi realizado..."
+                                    className="w-full bg-muted border border-border p-3 rounded-xl outline-none focus:ring-2 focus:ring-primary/50 transition-all font-bold text-sm min-h-[120px] resize-none"
+                                    placeholder="Descreva o que foi feito, peças trocadas, etc..."
                                     value={completeData.notes}
-                                    onChange={e => setCompleteData({ ...completeData, notes: e.target.value })}
+                                    onChange={(e) => setCompleteData({ ...completeData, notes: e.target.value })}
                                 />
                             </div>
 
                             <button
                                 type="submit"
                                 disabled={completeMutation.isPending}
-                                className="w-full py-5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 shadow-xl shadow-emerald-500/20"
+                                className="w-full py-5 bg-green-600 hover:bg-green-700 text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 shadow-xl shadow-green-500/20"
                             >
                                 {completeMutation.isPending ? 'Finalizando...' : 'Confirmar Conclusão'}
                             </button>
                         </form>
-                    </div>
-                </div>
-            )}
-
-            {/* Template Modal */}
-            {isTemplateModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="w-full max-w-md bg-background rounded-3xl shadow-2xl border border-border p-6 animate-in zoom-in-95 duration-200">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-black uppercase tracking-tighter">Novo Serviço</h2>
-                            <button onClick={() => setIsTemplateModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground">
-                                <X size={24} />
-                            </button>
-                        </div>
-
-                        <form onSubmit={(e) => {
-                            e.preventDefault();
-                            const form = e.target as HTMLFormElement;
-                            const name = (form.elements.namedItem('name') as HTMLInputElement).value;
-                            const description = (form.elements.namedItem('description') as HTMLTextAreaElement).value;
-                            const type = (form.elements.namedItem('type') as HTMLSelectElement).value;
-                            const avgDays = Number((form.elements.namedItem('avgDays') as HTMLInputElement).value);
-                            const intervalKm = Number((form.elements.namedItem('intervalKm') as HTMLInputElement).value);
-
-                            // Get selected vehicle types
-                            const selectedTypes = Array.from(form.querySelectorAll('input[name="vehicleTypes"]:checked'))
-                                .map((cb: any) => cb.value);
-
-                            if (selectedTypes.length === 0) {
-                                alert('Selecione pelo menos um tipo de veículo');
-                                return;
-                            }
-
-                            const intervalMonths = Number((form.elements.namedItem('intervalMonths') as HTMLInputElement)?.value || 12);
-
-                            templateMutation.mutate({ name, description, type, averageDurationDays: avgDays, intervalKm, intervalMonths, vehicleTypes: selectedTypes });
-                        }} className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Nome do Serviço</label>
-                                <input
-                                    name="name"
-                                    className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
-                                    placeholder="Ex: Troca de Óleo, Revisão de Freios..."
-                                    required
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Descrição (Opcional)</label>
-                                <textarea
-                                    name="description"
-                                    className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary min-h-[60px]"
-                                    placeholder="Detalhes sobre o que este plano cobre..."
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Tipos de Veículo</label>
-                                <div className="grid grid-cols-2 gap-2">
-                                    {[
-                                        { label: 'Carro', value: 'CAR' },
-                                        { label: 'Caminhão', value: 'TRUCK' },
-                                        { label: 'Moto', value: 'MOTORCYCLE' },
-                                        { label: 'Máquina', value: 'MACHINE' }
-                                    ].map((type) => (
-                                        <label key={type.value} className="flex items-center gap-2 p-2 border rounded-lg hover:bg-muted/50 cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                name="vehicleTypes"
-                                                value={type.value}
-                                                className="w-4 h-4 text-primary rounded bg-muted border-border focus:ring-primary"
-                                            />
-                                            <span className="text-sm font-bold uppercase tracking-widest text-[10px]">{type.label}</span>
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold ml-1">Tipo</label>
-                                    <select
-                                        name="type"
-                                        className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
-                                    >
-                                        <option value="PREVENTIVE">Preventiva</option>
-                                        <option value="CORRECTIVE">Corretiva</option>
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Intervalo (KM)</label>
-                                    <input
-                                        name="intervalKm"
-                                        type="number"
-                                        className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
-                                        defaultValue={10000}
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Intervalo (Meses)</label>
-                                <input
-                                    name="intervalMonths"
-                                    type="number"
-                                    className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
-                                    placeholder="Ex: 12 para anual"
-                                    defaultValue={12}
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60 ml-1">Duração Média (Dias)</label>
-                                <input
-                                    name="avgDays"
-                                    type="number"
-                                    className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
-                                    defaultValue={1}
-                                    required
-                                />
-                            </div>
-
-                            <button
-                                type="submit"
-                                disabled={templateMutation.isPending}
-                                className="w-full py-5 bg-primary text-primary-foreground rounded-2xl font-black uppercase tracking-widest text-sm hover:scale-[1.02] transition-all disabled:opacity-50 shadow-xl shadow-primary/20"
-                            >
-                                {templateMutation.isPending ? 'Salvando...' : 'Cadastrar Serviço'}
-                            </button>
-                        </form>
-                    </div>
+                    </GlassCard>
                 </div>
             )}
         </div>
     );
 }
-
