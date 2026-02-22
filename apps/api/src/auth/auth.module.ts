@@ -10,7 +10,7 @@ import { AuditModule } from '../common/audit/audit.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { UsersModule } from '../users/users.module';
 import { AuthScheduler } from './auth.scheduler';
-import { redisStore } from 'cache-manager-redis-yet';
+import { createKeyv } from '@keyv/redis';
 
 @Module({
     imports: [
@@ -20,11 +20,9 @@ import { redisStore } from 'cache-manager-redis-yet';
         ConfigModule,
         CacheModule.registerAsync({
             inject: [ConfigService],
-            useFactory: async (config: ConfigService) => ({
-                store: await redisStore({
-                    url: config.get('REDIS_URL'),
-                    ttl: 600000, // 10 min default
-                }),
+            useFactory: (config: ConfigService) => ({
+                stores: [createKeyv(config.get('REDIS_URL') || 'redis://localhost:6379')],
+                ttl: 600000, // 10 min default
             }),
         }),
         JwtModule.registerAsync({
