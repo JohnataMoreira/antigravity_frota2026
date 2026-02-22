@@ -164,10 +164,10 @@ export function MaintenanceList() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard label="Total de Registros" value={stats.total} icon={<Wrench className="w-8 h-8" />} variant="silver" />
-                <StatCard label="Alertas de KM" value={stats.alertCount} icon={<AlertTriangle className="w-8 h-8" />} variant={stats.alertCount > 0 ? 'warning' : 'silver'} />
-                <StatCard label="Veículos na Oficina" value={stats.inWorkshop} icon={<LayoutGrid className="w-8 h-8" />} variant={stats.inWorkshop > 0 ? 'danger' : 'silver'} />
-                <StatCard label="Investimento (Total)" value={formatCurrency(stats.totalCost)} icon={<DollarSign className="w-8 h-8" />} variant="emerald" />
+                <StatCard label="Total de Registros" value={stats.total} icon={<Wrench className="w-8 h-8" />} variant="default" />
+                <StatCard label="Alertas de KM" value={stats.alertCount} icon={<AlertTriangle className="w-8 h-8" />} variant={stats.alertCount > 0 ? 'warning' : 'default'} />
+                <StatCard label="Veículos na Oficina" value={stats.inWorkshop} icon={<LayoutGrid className="w-8 h-8" />} variant={stats.inWorkshop > 0 ? 'danger' : 'default'} />
+                <StatCard label="Investimento (Total)" value={formatCurrency(stats.totalCost)} icon={<DollarSign className="w-8 h-8" />} variant="success" />
             </div>
 
             <div className="flex items-center gap-1 bg-muted p-1.5 rounded-2xl w-fit border border-border shadow-inner">
