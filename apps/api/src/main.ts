@@ -1,6 +1,6 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
@@ -23,6 +23,7 @@ async function bootstrap() {
             credentials: true,
         });
         app.setGlobalPrefix('api');
+        app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
         app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
         const port = process.env.PORT || 3000;
