@@ -97,9 +97,25 @@ export default {
                 // Legacy compatibility
                 border: "hsl(var(--border))",
                 input: "hsl(var(--input))",
-                ring: "#3B82F6",
-                background: "#F8FAFC",
-                foreground: "#0F172A",
+                ring: "hsl(var(--ring))",
+                background: "hsl(var(--background))",
+                foreground: "hsl(var(--foreground))",
+                card: {
+                    DEFAULT: "hsl(var(--card))",
+                    foreground: "hsl(var(--card-foreground))",
+                },
+                popover: {
+                    DEFAULT: "hsl(var(--popover))",
+                    foreground: "hsl(var(--popover-foreground))",
+                },
+                muted: {
+                    DEFAULT: "hsl(var(--muted))",
+                    foreground: "hsl(var(--muted-foreground))",
+                },
+                secondary: {
+                    DEFAULT: "hsl(var(--secondary))",
+                    foreground: "hsl(var(--secondary-foreground))",
+                },
             },
             borderRadius: {
                 lg: "16px",

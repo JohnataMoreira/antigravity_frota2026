@@ -11,16 +11,11 @@ import {
     TrendingUp,
     AlertCircle,
 } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
 import { calculateFleetHealth, formatCurrency } from '@/lib/utils';
-
-interface DashboardStats {
-    fleetHealth: number;
-    activeJourneys: number;
-    pendingAlerts: number;
-    monthlyCost: number;
-    vehiclesAvailable: number;
-    totalVehicles: number;
-}
+import { reportsApi, DashboardStats } from '@/services/reportsService';
+import { LiveMap } from '@/components/LiveMap';
+import { clsx } from 'clsx';
 
 /**
  * Dashboard Home - Main KPI overview page
@@ -30,25 +25,17 @@ export default function DashboardHome() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // TODO: Fetch real data from API
-        // Simulating API call for now
-        setTimeout(() => {
-            const mockStats: DashboardStats = {
-                fleetHealth: calculateFleetHealth({
-                    vehiclesAvailable: 18,
-                    totalVehicles: 20,
-                    lowMaintenancePercent: 85,
-                    safeDriversPercent: 92,
-                }),
-                activeJourneys: 12,
-                pendingAlerts: 3,
-                monthlyCost: 45890.5,
-                vehiclesAvailable: 18,
-                totalVehicles: 20,
-            };
-            setStats(mockStats);
-            setLoading(false);
-        }, 800);
+        const fetchStats = async () => {
+            try {
+                const data = await reportsApi.getOverview();
+                setStats(data);
+            } catch (error) {
+                console.error('Error fetching dashboard stats:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStats();
     }, []);
 
     const getHealthVariant = (score: number) => {
@@ -68,75 +55,65 @@ export default function DashboardHome() {
                 onDismiss={() => console.log('dismissed')}
             >
                 Sua frota está operando com{' '}
-                <strong>{stats?.fleetHealth || 0}% de eficiência</strong>. Continue o
+                <strong>{stats?.stats.availableVehicles || 0} veículos disponíveis</strong>. Continue o
                 ótimo trabalho!
             </Alert>
 
             {/* KPI Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                 <StatCard
-                    title="Saúde da Frota"
-                    value={`${stats?.fleetHealth || 0}%`}
-                    change={{
-                        value: 5.2,
-                        label: 'vs mês anterior',
-                        positive: true,
-                    }}
-                    icon={Activity}
-                    variant={stats ? getHealthVariant(stats.fleetHealth) : 'default'}
-                    loading={loading}
-                />
-
-                <StatCard
                     title="Jornadas Ativas"
-                    value={stats?.activeJourneys || 0}
-                    change={{
-                        value: -2,
-                        label: 'vs ontem',
-                        positive: false,
-                    }}
+                    value={stats?.stats.activeJourneys || 0}
+                    description={stats?.stats.activeJourneys ? `${stats.stats.journeysWithIncidents || 0} com incidentes` : "Sem viagens no momento"}
                     icon={MapPin}
                     variant="info"
                     loading={loading}
                 />
 
                 <StatCard
-                    title="Alertas Pendentes"
-                    value={stats?.pendingAlerts || 0}
-                    icon={AlertTriangle}
-                    variant={stats && stats.pendingAlerts > 5 ? 'danger' : 'warning'}
+                    title="Veí. Disponíveis"
+                    value={stats?.stats.availableVehicles || 0}
+                    description="Prontos para operação"
+                    icon={Car}
+                    variant="success"
                     loading={loading}
                 />
 
                 <StatCard
-                    title="Custo Mensal"
-                    value={stats ? formatCurrency(stats.monthlyCost) : 'R$ 0,00'}
-                    change={{
-                        value: 3.1,
-                        label: 'vs mês anterior',
-                        positive: false,
-                    }}
-                    icon={DollarSign}
-                    variant="default"
+                    title="Veí. em Uso"
+                    value={stats?.stats.inUseVehicles || 0}
+                    description="Em trânsito ou operação"
+                    icon={Activity}
+                    variant="info"
+                    loading={loading}
+                />
+
+                <StatCard
+                    title="Em Manutenção"
+                    value={stats?.stats.maintenanceVehicles || 0}
+                    description="Na oficina ou aguardando"
+                    icon={AlertTriangle}
+                    variant={stats && stats.stats.maintenanceVehicles > 5 ? 'danger' : 'warning'}
                     loading={loading}
                 />
             </div>
 
+            {/* Live Map Section */}
+            <Card variant="glass" className="overflow-hidden border-border/50">
+                <div className="p-4 border-b border-border flex justify-between items-center bg-muted/20">
+                    <div className="flex items-center gap-2">
+                        <MapPin className="text-primary w-5 h-5" />
+                        <h3 className="font-black uppercase tracking-tighter text-sm">Monitoramento em Tempo Real</h3>
+                    </div>
+                    <a href="/journeys" className="text-[10px] font-black uppercase text-primary hover:underline transition-all">Ver detalhes das rotas →</a>
+                </div>
+                <div className="h-[450px]">
+                    <LiveMap />
+                </div>
+            </Card>
+
             {/* Main Content Grid */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                {/* Live Map Placeholder */}
-                <Card variant="glass" className="xl:col-span-2">
-                    <div className="h-96 bg-neutral-100 rounded-lg flex items-center justify-center">
-                        <div className="text-center text-neutral-500">
-                            <MapPin className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                            <p className="font-medium">Mapa em Tempo Real</p>
-                            <p className="text-sm mt-1">
-                                {stats?.activeJourneys || 0} veículos em movimento
-                            </p>
-                        </div>
-                    </div>
-                </Card>
-
                 {/* Alerts Sidebar */}
                 <div className="space-y-4">
                     <h3 className="text-h3 font-semibold">Alertas Recentes</h3>
@@ -174,38 +151,32 @@ export default function DashboardHome() {
                         </>
                     )}
                 </div>
-            </div>
 
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card variant="glass">
-                    <h4 className="text-sm font-medium text-neutral-600 mb-2">
-                        Veículos Disponíveis
-                    </h4>
-                    <p className="text-3xl font-bold text-primary-900">
-                        {stats?.vehiclesAvailable || 0}
-                        <span className="text-lg text-neutral-500">
-                            /{stats?.totalVehicles || 0}
-                        </span>
-                    </p>
-                </Card>
-
-                <Card variant="glass">
-                    <h4 className="text-sm font-medium text-neutral-600 mb-2">
-                        Eficiência Média
-                    </h4>
-                    <p className="text-3xl font-bold text-primary-900">
-                        12.5 <span className="text-lg text-neutral-500">km/L</span>
-                    </p>
-                </Card>
-
-                <Card variant="glass">
-                    <h4 className="text-sm font-medium text-neutral-600 mb-2">
-                        Tempo Médio de Jornada
-                    </h4>
-                    <p className="text-3xl font-bold text-primary-900">
-                        2h 34min
-                    </p>
+                {/* History Chart Placeholder */}
+                <Card variant="glass" className="xl:col-span-2">
+                    <div className="p-4 border-b border-border flex justify-between items-center bg-muted/20 mb-4">
+                        <h3 className="font-black uppercase tracking-tighter text-sm">Histórico de Atividade</h3>
+                    </div>
+                    <div className="h-80 w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={stats?.history || []}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold' }} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold' }} />
+                                <RechartsTooltip
+                                    contentStyle={{
+                                        backgroundColor: 'hsl(var(--card))',
+                                        borderRadius: '12px',
+                                        border: '1px solid hsl(var(--border))',
+                                        fontSize: '10px',
+                                        fontWeight: 'bold'
+                                    }}
+                                />
+                                <Line type="monotone" dataKey="costs" stroke="hsl(var(--primary))" strokeWidth={3} dot={false} />
+                                <Line type="monotone" dataKey="km" stroke="hsl(var(--emerald-500))" strokeWidth={3} dot={false} />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
                 </Card>
             </div>
         </div>

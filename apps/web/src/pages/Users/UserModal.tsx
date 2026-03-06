@@ -111,7 +111,11 @@ export function UserModal({ isOpen, onClose, user }: UserModalProps) {
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+<<<<<<< Updated upstream
             <div className="w-full max-w-2xl bg-white dark:bg-gray-950 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 p-8 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
+=======
+            <div className="w-full max-w-2xl bg-card rounded-3xl shadow-2xl border border-border p-8 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
+>>>>>>> Stashed changes
                 <div className="flex justify-between items-center mb-8">
                     <div>
                         <h2 className="text-3xl font-black">{isEdit ? 'Editar Funcionário' : 'Novo Funcionário'}</h2>
@@ -153,14 +157,22 @@ export function UserModal({ isOpen, onClose, user }: UserModalProps) {
                                     <button
                                         type="button"
                                         onClick={() => setFormData({ ...formData, role: 'DRIVER' })}
+<<<<<<< Updated upstream
                                         className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all ${formData.role === 'DRIVER' ? 'bg-white dark:bg-gray-800 text-blue-600 shadow-sm' : 'text-gray-400'}`}
+=======
+                                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all ${formData.role === 'DRIVER' ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground'}`}
+>>>>>>> Stashed changes
                                     >
                                         <Truck size={18} /> Motorista
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => setFormData({ ...formData, role: 'ADMIN' })}
+<<<<<<< Updated upstream
                                         className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all ${formData.role === 'ADMIN' ? 'bg-white dark:bg-gray-800 text-purple-600 shadow-sm' : 'text-gray-400'}`}
+=======
+                                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all ${formData.role === 'ADMIN' ? 'bg-background text-purple-500 shadow-sm' : 'text-muted-foreground'}`}
+>>>>>>> Stashed changes
                                     >
                                         <Shield size={18} /> Gestor
                                     </button>
@@ -175,7 +187,11 @@ export function UserModal({ isOpen, onClose, user }: UserModalProps) {
                                     </div>
                                     <input
                                         required
+<<<<<<< Updated upstream
                                         className="w-full pl-12 pr-4 py-3.5 bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium"
+=======
+                                        className="w-full pl-12 pr-4 py-3.5 bg-muted/50 border border-border rounded-2xl outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+>>>>>>> Stashed changes
                                         value={formData.name}
                                         onChange={e => setFormData({ ...formData, name: e.target.value })}
                                     />
