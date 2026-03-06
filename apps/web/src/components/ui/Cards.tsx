@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { Skeleton } from './Skeleton';
 
-interface GlassCardProps {
+interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
     children: ReactNode;
     className?: string;
     gradient?: boolean;
@@ -14,14 +14,17 @@ interface GlassCardProps {
  * Enhanced glassmorphism card with optional gradient background.
  * Optimized for vibrant purple theme.
  */
-export function GlassCard({ children, className = '', gradient = false, transition = false }: GlassCardProps) {
+export function GlassCard({ children, className = '', gradient = false, transition = false, ...props }: GlassCardProps) {
     return (
-        <div className={`
+        <div
+            className={`
             glass-card p-6 relative
             ${gradient ? 'gradient-card' : ''} 
             ${transition ? 'transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl' : ''}
             ${className}
-        `}>
+        `}
+            {...props}
+        >
             {children}
         </div>
     );

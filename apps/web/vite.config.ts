@@ -2,12 +2,14 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import path from 'path'
+import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
     plugins: [
         react(),
         VitePWA({
             registerType: 'autoUpdate',
+<<<<<<< Updated upstream
             includeAssets: ['logo.png', 'robots.txt', 'apple-touch-icon.png'],
             manifest: {
                 name: 'Frota2026 - Logística Inteligente',
@@ -19,18 +21,36 @@ export default defineConfig({
                 icons: [
                     {
                         src: 'logo.png',
+=======
+            injectRegister: 'auto',
+            manifest: {
+                name: 'Frota2026',
+                short_name: 'Frota2026',
+                description: 'Gestão de Frotas Avançada',
+                theme_color: '#ffffff',
+                icons: [
+                    {
+                        src: 'pwa-192x192.png',
+>>>>>>> Stashed changes
                         sizes: '192x192',
                         type: 'image/png'
                     },
                     {
+<<<<<<< Updated upstream
                         src: 'logo.png',
                         sizes: '512x512',
                         type: 'image/png',
                         purpose: 'any maskable'
+=======
+                        src: 'pwa-512x512.png',
+                        sizes: '512x512',
+                        type: 'image/png'
+>>>>>>> Stashed changes
                     }
                 ]
             },
             workbox: {
+<<<<<<< Updated upstream
                 globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
                 runtimeCaching: [
                     {
@@ -60,6 +80,9 @@ export default defineConfig({
                         }
                     }
                 ]
+=======
+                globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+>>>>>>> Stashed changes
             }
         })
     ],
@@ -73,7 +96,23 @@ export default defineConfig({
     },
     build: {
         outDir: 'dist',
+<<<<<<< Updated upstream
         sourcemap: false
+=======
+        sourcemap: false,
+        rollupOptions: {
+            output: {
+                entryFileNames: `assets/[name].[hash].js`,
+                chunkFileNames: `assets/[name].[hash].js`,
+                assetFileNames: `assets/[name].[hash].[ext]`,
+                manualChunks: {
+                    'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+                    'vendor-ui': ['lucide-react', 'recharts'],
+                    'vendor-utils': ['axios', 'date-fns', 'clsx', 'tailwind-merge']
+                }
+            }
+        }
+>>>>>>> Stashed changes
     },
     server: {
         proxy: {

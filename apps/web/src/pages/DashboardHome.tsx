@@ -27,8 +27,8 @@ export default function DashboardHome() {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const data = await reportsApi.getOverview();
-                setStats(data);
+                const response = await reportsApi.getOverview();
+                setStats(response.data);
             } catch (error) {
                 console.error('Error fetching dashboard stats:', error);
             } finally {

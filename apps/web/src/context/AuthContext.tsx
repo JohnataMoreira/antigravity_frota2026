@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { api } from '../lib/axios';
+import { applyThemeColor } from '../lib/utils';
+import { usePushNotifications } from '../hooks/usePushNotifications';
 
 interface User {
     id: string;
@@ -7,6 +9,11 @@ interface User {
     name: string;
     role: 'ADMIN' | 'DRIVER';
     organizationId: string;
+    organization?: {
+        name: string;
+        logoUrl?: string | null;
+        primaryColor?: string | null;
+    };
 }
 
 interface AuthContextType {
@@ -22,6 +29,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { subscribeToPush } = usePushNotifications();
 
     useEffect(() => {
         const validateSession = async () => {
@@ -35,8 +43,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 // Set default header for the initial validation
                 api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
                 const res = await api.get('/auth/me');
-                setUser(res.data);
-                localStorage.setItem('user', JSON.stringify(res.data));
+                const userData = res.data;
+                setUser(userData);
+                localStorage.setItem('user', JSON.stringify(userData));
+
+                // Apply white-label branding if available
+                if (userData?.organization?.primaryColor) {
+                    applyThemeColor(userData.organization.primaryColor);
+                }
             } catch (error) {
                 console.error('Invalid session:', error);
                 logout();
@@ -53,6 +67,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+        // Apply white-label branding if available
+        if (userData?.organization?.primaryColor) {
+            applyThemeColor(userData.organization.primaryColor);
+        }
+
+        // Ask for push notifications
+        subscribeToPush().catch(err => console.error("Falha ao registrar push:", err));
     };
 
     const logout = () => {
@@ -60,6 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.removeItem('user');
         setUser(null);
         delete api.defaults.headers.common['Authorization'];
+        applyThemeColor(null); // Reset theme
     };
 
     return (

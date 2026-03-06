@@ -1,0 +1,7 @@
+src/pages/DashboardHome.tsx(31,26): error TS2345: Argument of type 'AxiosResponse<DashboardStats, any, {}>' is not assignable to parameter of type 'SetStateAction<DashboardStats | null>'.
+src/pages/Fines/FinesList.tsx(112,29): error TS2322: Type '{ children: Element; key: any; onClick: () => void; className: string; }' is not assignable to type 'IntrinsicAttributes & GlassCardProps'.
+  Property 'onClick' does not exist on type 'IntrinsicAttributes & GlassCardProps'.
+src/pages/Journeys/index.tsx(287,29): error TS2322: Type '{ children: Element[]; key: any; transition: true; className: string; onClick: () => void | Promise<void>; }' is not assignable to type 'IntrinsicAttributes & GlassCardProps'.
+  Property 'onClick' does not exist on type 'IntrinsicAttributes & GlassCardProps'.
+src/pages/Maintenance/index.tsx(245,37): error TS2322: Type '{ children: Element[]; key: any; className: string; onClick: () => void; }' is not assignable to type 'IntrinsicAttributes & GlassCardProps'.
+  Property 'onClick' does not exist on type 'IntrinsicAttributes & GlassCardProps'.

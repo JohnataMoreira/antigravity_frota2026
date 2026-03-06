@@ -1,0 +1,31 @@
+src/pages/Purchasing/index.tsx(24,1): error TS1185: Merge conflict marker encountered.
+src/pages/Purchasing/index.tsx(31,1): error TS1185: Merge conflict marker encountered.
+src/pages/Purchasing/index.tsx(46,1): error TS1185: Merge conflict marker encountered.
+src/pages/Purchasing/index.tsx(69,1): error TS1185: Merge conflict marker encountered.
+src/pages/Purchasing/index.tsx(152,6): error TS17008: JSX element 'div' has no corresponding closing tag.
+src/pages/Purchasing/index.tsx(336,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/Purchasing/index.tsx(336,2): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/Purchasing/index.tsx(336,3): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/Purchasing/index.tsx(336,4): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/Purchasing/index.tsx(336,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/Purchasing/index.tsx(336,6): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/Purchasing/index.tsx(336,7): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/Users/UserModal.tsx(113,146): error TS1005: '</' expected.
+src/pages/Users/UserModal.tsx(114,1): error TS1185: Merge conflict marker encountered.
+src/pages/Users/UserModal.tsx(118,1): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/Users/UserModal.tsx(118,2): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/Users/UserModal.tsx(118,3): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/Users/UserModal.tsx(118,4): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/Users/UserModal.tsx(118,5): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/Users/UserModal.tsx(118,6): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/Users/UserModal.tsx(118,7): error TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+src/pages/Users/UserModal.tsx(160,1): error TS1185: Merge conflict marker encountered.
+src/pages/Users/UserModal.tsx(162,1): error TS1185: Merge conflict marker encountered.
+src/pages/Users/UserModal.tsx(164,1): error TS1185: Merge conflict marker encountered.
+src/pages/Users/UserModal.tsx(171,1): error TS1185: Merge conflict marker encountered.
+src/pages/Users/UserModal.tsx(173,1): error TS1185: Merge conflict marker encountered.
+src/pages/Users/UserModal.tsx(175,1): error TS1185: Merge conflict marker encountered.
+src/pages/Users/UserModal.tsx(190,1): error TS1185: Merge conflict marker encountered.
+src/pages/Users/UserModal.tsx(192,1): error TS1185: Merge conflict marker encountered.
+src/pages/Users/UserModal.tsx(194,1): error TS1185: Merge conflict marker encountered.
+src/pages/Users/UserModal.tsx(396,5): error TS1128: Declaration or statement expected.

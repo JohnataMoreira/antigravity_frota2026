@@ -29,6 +29,7 @@ WORKDIR /app
 # Install system dependencies + postgresql-client for backups
 RUN apt-get update && apt-get install -y openssl postgresql-client && rm -rf /var/lib/apt/lists/*
 
+<<<<<<< Updated upstream
 # [11/10 STRATEGY] Copy the entire production node_modules from root
 COPY --from=builder /app/node_modules ./node_modules
 # Copy API artifacts and migrations
@@ -42,6 +43,28 @@ COPY --from=builder /app/apps/api/verify-internal.js ./verify-internal.js
 # This command MUST pass for the image to be created.
 # It proves that the core runtime is actually complete.
 RUN node -e "require('@prisma/client'); require('@nestjs/common'); require('@nestjs/jwt'); console.log('✅ ENV IS IMMUNE')"
+=======
+# Copy only file configs
+COPY apps/api/package*.json ./
+COPY apps/api/prisma ./prisma/
+
+# Install ONLY production dependencies and clean cache
+RUN npm ci --omit=dev --legacy-peer-deps && \
+    npx prisma generate && \
+    npm cache clean --force
+
+# Stage 3: Runner
+FROM node:22-alpine AS production
+WORKDIR /app
+
+RUN apk add --no-cache openssl && \
+    rm -rf /var/cache/apk/*
+
+# Copy only what is strictly necessary
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=deps /app/prisma ./prisma
+>>>>>>> Stashed changes
 
 EXPOSE 3000
 

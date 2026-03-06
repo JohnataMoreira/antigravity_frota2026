@@ -124,3 +124,56 @@ export function debounce<T extends (...args: any[]) => any>(
         timeout = setTimeout(later, wait);
     };
 }
+
+/**
+ * Convert HEX color to HSL string compatible with Tailwind CSS variables,
+ * check luminance, and apply dynamically to :root
+ * Example: "#2563EB" -> "221.2 83.2% 53.3%"
+ */
+export function applyThemeColor(hex: string | undefined | null) {
+    if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) {
+        document.documentElement.style.removeProperty('--primary');
+        document.documentElement.style.removeProperty('--primary-foreground');
+        return;
+    }
+
+    // Convert hex to rgb
+    const hexVal = hex.replace(/^#/, '');
+    const r = parseInt(hexVal.substring(0, 2), 16) / 255;
+    const g = parseInt(hexVal.substring(2, 4), 16) / 255;
+    const b = parseInt(hexVal.substring(4, 6), 16) / 255;
+
+    // Calculate luminance for foreground color (relative luminance in grayscale)
+    const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h = 0;
+    let s = 0;
+    const l = (max + min) / 2;
+
+    if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+    }
+
+    const hMath = Math.round(h * 360 * 10) / 10;
+    const sMath = Math.round(s * 100 * 10) / 10;
+    const lMath = Math.round(l * 100 * 10) / 10;
+
+    // Apply primary color variable
+    document.documentElement.style.setProperty('--primary', `${hMath} ${sMath}% ${lMath}%`);
+
+    // Set appropriate foreground based on luminance (above 0.5 means color is too light, needs dark text)
+    if (luminance > 0.6) {
+        document.documentElement.style.setProperty('--primary-foreground', '222.2 47.4% 11.2%'); // Dark text
+    } else {
+        document.documentElement.style.setProperty('--primary-foreground', '210 40% 98%'); // Light text
+    }
+}
