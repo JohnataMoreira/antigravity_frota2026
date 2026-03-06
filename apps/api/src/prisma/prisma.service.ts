@@ -12,9 +12,35 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
                     async $allOperations({ model, operation, args, query }) {
                         const organizationId = TenantContext.get();
 
+<<<<<<< Updated upstream
                         // Skip isolation for Organization model itself or if no tenant context is available (e.g. login/seed)
                         if (model === 'Organization' || !organizationId) {
+=======
+                        // Define models that DO NOT have organizationId (isolation skip)
+                        const skippedModels = ['Checklist', 'StockMovement', 'TelemetryRecord', 'PurchaseOrderItem', 'TyreMeasurement'];
+
+                        // 1. Skip isolation for Organization model itself
+                        if (model === 'Organization') {
+>>>>>>> Stashed changes
                             return query(args);
+                        }
+
+                        // 2. Models that don't have organizationId
+                        if (skippedModels.includes(model as string)) {
+                            return query(args);
+                        }
+
+                        // 3. SECURE CHECK: If an isolated model is accessed without organizationId, FAIL instead of leaking
+                        // Logic: Allow if it's a CREATE operation with organizationId already in data, 
+                        // or if it's a model that doesn't have organizationId.
+                        if (!organizationId) {
+                            const anyArgs = (args || {}) as any;
+                            const isCreateWithOrg = (['create', 'createMany', 'upsert'].includes(operation)) &&
+                                (anyArgs?.data?.organizationId || anyArgs?.create?.organizationId);
+
+                            if (!isCreateWithOrg) {
+                                throw new Error(`CRITICAL: Accessing isolated model ${model as string} without organizationId context.`);
+                            }
                         }
 
                         // Apply organizationId to filters

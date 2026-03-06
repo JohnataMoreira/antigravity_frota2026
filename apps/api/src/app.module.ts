@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { PrismaModule } from './prisma/prisma.module';
@@ -106,4 +106,18 @@ import { WebNotificationsModule } from './notifications/notifications.module';
         },
     ],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+    configure(consumer: MiddlewareConsumer) {
+        consumer
+            .apply(SecurityMiddleware)
+            .forRoutes('*');
+
+        consumer
+            .apply(TenantMiddleware)
+            .exclude(
+                { path: 'api/auth/(.*)', method: RequestMethod.ALL },
+                { path: 'api/health', method: RequestMethod.GET },
+            )
+            .forRoutes('*');
+    }
+}

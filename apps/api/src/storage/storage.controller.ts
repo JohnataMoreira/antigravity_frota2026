@@ -34,9 +34,14 @@ export class StorageController {
         try {
             const url = await this.storageService.upload(file);
             return { url };
-        } catch {
-            // Fallback or generic error
-            return { success: false, message: 'Upload failed' };
+        } catch (error) {
+            console.error('Upload Error Original:', error);
+            return {
+                success: false,
+                message: 'Upload failed',
+                error: error.message,
+                details: error.stack
+            };
         }
     }
 }

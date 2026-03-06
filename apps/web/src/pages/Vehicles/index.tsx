@@ -47,7 +47,8 @@ export function VehiclesList() {
         queryFn: async () => {
             const res = await api.get('/vehicles');
             return res.data;
-        }
+        },
+        placeholderData: (previousData) => previousData
     });
 
     const filteredVehicles = vehicles?.filter(v => {
@@ -80,6 +81,7 @@ export function VehiclesList() {
         }
     });
 
+<<<<<<< Updated upstream
     if (isLoading) return (
         <div className="flex flex-col items-center justify-center py-20 animate-pulse">
             <TruckIcon className="w-12 h-12 text-blue-200 mb-4" />
@@ -96,6 +98,12 @@ export function VehiclesList() {
             <p className="text-muted-foreground mt-1">Não foi possível carregar os veículos. Verifique o servidor.</p>
         </div>
     );
+=======
+    const totalVehicles = vehicles?.length || 0;
+    const availableTotal = vehicles?.filter(v => v.status === 'AVAILABLE').length || 0;
+    const inUseTotal = vehicles?.filter(v => v.status === 'IN_USE').length || 0;
+    const maintenanceTotal = vehicles?.filter(v => v.status === 'MAINTENANCE' || v.status === 'CRITICAL_ISSUE').length || 0;
+>>>>>>> Stashed changes
 
     const handleSave = (data: Partial<Vehicle>) => {
         saveMutation.mutate(data);
@@ -120,11 +128,24 @@ export function VehiclesList() {
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+<<<<<<< Updated upstream
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                         Frota de Veículos
                     </h1>
                     <p className="text-muted-foreground mt-1">Gerencie os veículos e máquinas da sua empresa.</p>
+=======
+                <div className="flex items-start gap-4">
+                    <div className="p-3 bg-primary/10 text-primary rounded-2xl">
+                        <TruckIcon size={32} />
+                    </div>
+                    <div>
+                        <h1 className="text-4xl font-black tracking-tighter gradient-text">
+                            FROTA DE VEÍCULOS
+                        </h1>
+                        <p className="text-muted-foreground mt-1">Gerencie os veículos e máquinas da sua empresa.</p>
+                    </div>
+>>>>>>> Stashed changes
                 </div>
                 <button
                     onClick={handleAdd}
@@ -135,7 +156,51 @@ export function VehiclesList() {
                 </button>
             </div>
 
+<<<<<<< Updated upstream
             <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white dark:bg-gray-800/20 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
+=======
+            {/* Vehícles Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-card p-4 rounded-2xl border border-border flex items-center gap-3">
+                    <div className="p-2 bg-blue-500/10 text-blue-500 rounded-lg">
+                        <TruckIcon size={20} />
+                    </div>
+                    <div>
+                        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Total</p>
+                        <p className="text-2xl font-black text-foreground">{totalVehicles}</p>
+                    </div>
+                </div>
+                <div className="bg-card p-4 rounded-2xl border border-border flex items-center gap-3">
+                    <div className="p-2 bg-emerald-500/10 text-emerald-500 rounded-lg">
+                        <Car size={20} />
+                    </div>
+                    <div>
+                        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Disponíveis</p>
+                        <p className="text-2xl font-black text-foreground">{availableTotal}</p>
+                    </div>
+                </div>
+                <div className="bg-card p-4 rounded-2xl border border-border flex items-center gap-3">
+                    <div className="p-2 bg-primary/10 text-primary rounded-lg">
+                        <Play size={20} />
+                    </div>
+                    <div>
+                        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Em Jornada</p>
+                        <p className="text-2xl font-black text-foreground">{inUseTotal}</p>
+                    </div>
+                </div>
+                <div className="bg-card p-4 rounded-2xl border border-border flex items-center gap-3">
+                    <div className="p-2 bg-amber-500/10 text-amber-500 rounded-lg">
+                        <Cpu size={20} />
+                    </div>
+                    <div>
+                        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Manutenção</p>
+                        <p className="text-2xl font-black text-foreground">{maintenanceTotal}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-card p-4 rounded-2xl border border-border">
+>>>>>>> Stashed changes
                 <div className="flex flex-col md:flex-row gap-4 items-center flex-1 w-full max-w-2xl">
                     <div className="flex items-center gap-3 bg-white dark:bg-gray-800/50 p-2 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex-1 w-full focus-within:ring-2 focus-within:ring-blue-500/50 transition-all">
                         <Search size={20} className="text-gray-400 ml-2" />

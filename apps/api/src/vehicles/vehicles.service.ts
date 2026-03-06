@@ -14,14 +14,15 @@ export class VehiclesService {
     }
 
     async findAll() {
-        return this.prisma.vehicle.findMany({
+        return (this.prisma.vehicle as any).findMany({
+            where: { active: true },
             orderBy: { plate: 'asc' },
         });
     }
 
     async findOne(id: string) {
-        const vehicle = await this.prisma.vehicle.findFirst({
-            where: { id },
+        const vehicle = await (this.prisma.vehicle as any).findFirst({
+            where: { id, active: true },
         });
 
         if (!vehicle) throw new NotFoundException('Vehicle not found');
@@ -42,8 +43,9 @@ export class VehiclesService {
         // Check existence and ownership (automated by extension)
         await this.findOne(id);
 
-        return this.prisma.vehicle.delete({
+        return (this.prisma.vehicle as any).update({
             where: { id },
+            data: { active: false },
         });
     }
 }

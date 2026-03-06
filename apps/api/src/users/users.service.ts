@@ -1,7 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto, UpdateUserDto } from './dto';
+<<<<<<< Updated upstream
+=======
+import { ConfigService } from '@nestjs/config';
+import { TenantContext } from '../prisma/tenant.context';
+>>>>>>> Stashed changes
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -13,9 +17,12 @@ export class UsersService {
         const salt = await bcrypt.genSalt();
         const passwordHash = await bcrypt.hash(dto.password, salt);
 
-        // Create user (organizationId added by extension)
+        // Create user (Pass organizationId explicitly for safety)
+        const organizationId = TenantContext.get();
+
         const user = await this.prisma.user.create({
             data: {
+                organizationId: organizationId as string,
                 name: dto.name,
                 email: dto.email,
                 passwordHash,

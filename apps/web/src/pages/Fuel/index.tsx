@@ -72,9 +72,17 @@ export function FuelEntriesList() {
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
+<<<<<<< Updated upstream
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                         <FuelIcon className="text-blue-600" />
                         Gestão de Abastecimentos
+=======
+                    <h1 className="text-4xl font-black tracking-tighter flex items-center gap-3 uppercase gradient-text">
+                        <div className="p-2 bg-primary rounded-2xl text-primary-foreground shadow-lg shadow-primary/20 shrink-0">
+                            <FuelIcon size={32} />
+                        </div>
+                        Abastecimentos
+>>>>>>> Stashed changes
                     </h1>
                     <p className="text-gray-500 dark:text-gray-400">
                         Monitoramento em tempo real de consumo e gastos com combustível

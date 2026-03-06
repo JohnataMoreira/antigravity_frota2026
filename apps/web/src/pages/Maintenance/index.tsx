@@ -129,6 +129,7 @@ export function MaintenanceList() {
     return (
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<<<<<<< Updated upstream
                 <div>
                     <h1 className="text-4xl font-extrabold tracking-tight gradient-text">
                         Gestão de Manutenção
@@ -136,6 +137,20 @@ export function MaintenanceList() {
                     <p className="text-muted-foreground mt-2 text-lg">
                         Garantindo a segurança e durabilidade da frota.
                     </p>
+=======
+                <div className="flex items-center gap-4">
+                    <div className="p-2 bg-primary rounded-2xl text-primary-foreground shadow-lg shadow-primary/20 shrink-0">
+                        <Wrench size={32} />
+                    </div>
+                    <div>
+                        <h1 className="text-4xl font-black tracking-tighter uppercase gradient-text">
+                            Gestão de Manutenção
+                        </h1>
+                        <p className="text-muted-foreground mt-1 text-lg font-bold uppercase text-[10px] tracking-[0.2em] opacity-60">
+                            Protocolo de Segurança e Durabilidade de Frota
+                        </p>
+                    </div>
+>>>>>>> Stashed changes
                 </div>
             </div>
 
@@ -402,6 +417,7 @@ export function MaintenanceList() {
                                 </div>
                                 <button
                                     onClick={() => {
+<<<<<<< Updated upstream
                                         if (confirm('Deseja excluir este serviço do catálogo?')) {
                                             api.delete(`/maintenance-templates/${template.id}`).then(() => {
                                                 queryClient.invalidateQueries({ queryKey: ['maintenance-templates'] });
@@ -424,6 +440,22 @@ export function MaintenanceList() {
                             <p className="text-muted-foreground max-w-sm mt-2">Cadastre os tipos de manutenção frequentes para agilizar o agendamento da sua frota.</p>
                         </div>
                     )}
+=======
+                                        setFormData({
+                                            ...formData,
+                                            type: template.type === 'PREVENTIVE' ? 'INSPECTION' : 'REPAIR',
+                                            notes: `Baseado no modelo: ${template.name}`
+                                        });
+                                        setIsCreateModalOpen(true);
+                                    }}
+                                    className="text-primary hover:underline font-black text-[10px] uppercase tracking-widest"
+                                >
+                                    Usar Molde
+                                </button>
+                            </div>
+                        </GlassCard>
+                    ))}
+>>>>>>> Stashed changes
                 </div>
             )}
 

@@ -209,6 +209,7 @@ model Vehicle {
   photoUrl            String?
   lastMaintenanceKm   Int?
   lastMaintenanceDate DateTime?
+  active              Boolean       @default(true)
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 

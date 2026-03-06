@@ -50,8 +50,13 @@ export function UsersList() {
                 params: { search, role: roleFilter }
             });
             return res.data;
-        }
+        },
+        placeholderData: (previousData) => previousData
     });
+
+    const activeCount = usersData.filter((u: any) => u.active).length;
+    const driverCount = usersData.filter((u: any) => u.role === 'DRIVER').length;
+    const adminCount = usersData.filter((u: any) => u.role === 'ADMIN').length;
 
     const { data: invites = [] } = useQuery({
         queryKey: ['invites'],
@@ -91,18 +96,21 @@ export function UsersList() {
         setIsModalOpen(true);
     };
 
-    if (isLoading) return <div className="p-8 text-center animate-pulse">Carregando usuários...</div>;
-
     return (
         <div className="space-y-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-4xl font-extrabold tracking-tight gradient-text">
-                        Recursos Humanos
-                    </h1>
-                    <p className="text-muted-foreground mt-2 text-lg">
-                        Administre gestores e motoristas da sua organização.
-                    </p>
+                <div className="flex items-start gap-4">
+                    <div className="p-3 bg-blue-600/10 text-blue-600 rounded-2xl">
+                        <UsersIcon size={32} />
+                    </div>
+                    <div>
+                        <h1 className="text-4xl font-extrabold tracking-tight gradient-text">
+                            Recursos Humanos
+                        </h1>
+                        <p className="text-muted-foreground mt-1 text-lg">
+                            Administre gestores e motoristas da sua organização.
+                        </p>
+                    </div>
                 </div>
 
                 <div className="flex flex-wrap gap-4 items-center">
@@ -244,8 +252,8 @@ export function UsersList() {
 
                             <div className="space-y-2 text-sm font-medium">
                                 <div className="flex items-center gap-2 text-muted-foreground/90 ">
-                                    <Mail size={14} className="text-primary/70" />
-                                    <span className="truncate">{user.email}</span>
+                                    <Mail size={14} className="text-primary/70 shrink-0" />
+                                    <span className="truncate flex-1">{user.email}</span>
                                 </div>
                                 {user.phone && (
                                     <div className="flex items-center gap-2 text-muted-foreground/90 ">
