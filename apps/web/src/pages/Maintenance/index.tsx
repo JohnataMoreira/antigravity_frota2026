@@ -128,29 +128,19 @@ export function MaintenanceList() {
 
     return (
         <div className="space-y-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-<<<<<<< Updated upstream
-                <div>
-                    <h1 className="text-4xl font-extrabold tracking-tight gradient-text">
-                        Gestão de Manutenção
-                    </h1>
-                    <p className="text-muted-foreground mt-2 text-lg">
-                        Garantindo a segurança e durabilidade da frota.
-                    </p>
-=======
-                <div className="flex items-center gap-4">
-                    <div className="p-2 bg-primary rounded-2xl text-primary-foreground shadow-lg shadow-primary/20 shrink-0">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex items-start gap-4">
+                    <div className="p-3 bg-primary/10 text-primary rounded-2xl">
                         <Wrench size={32} />
                     </div>
                     <div>
-                        <h1 className="text-4xl font-black tracking-tighter uppercase gradient-text">
+                        <h1 className="text-4xl font-black tracking-tighter gradient-text uppercase">
                             Gestão de Manutenção
                         </h1>
-                        <p className="text-muted-foreground mt-1 text-lg font-bold uppercase text-[10px] tracking-[0.2em] opacity-60">
-                            Protocolo de Segurança e Durabilidade de Frota
+                        <p className="text-muted-foreground/60 font-black uppercase tracking-[0.2em] mt-1 text-[10px]">
+                            Protocolo de segurança e durabilidade da frota
                         </p>
                     </div>
->>>>>>> Stashed changes
                 </div>
             </div>
 
@@ -415,20 +405,34 @@ export function MaintenanceList() {
                                         </p>
                                     )}
                                 </div>
-                                <button
-                                    onClick={() => {
-<<<<<<< Updated upstream
-                                        if (confirm('Deseja excluir este serviço do catálogo?')) {
-                                            api.delete(`/maintenance-templates/${template.id}`).then(() => {
-                                                queryClient.invalidateQueries({ queryKey: ['maintenance-templates'] });
-                                                queryClient.invalidateQueries({ queryKey: ['maintenance-alerts'] });
+                                <div className="flex justify-between items-center mt-3">
+                                    <button
+                                        onClick={() => {
+                                            if (confirm('Deseja excluir este serviço do catálogo?')) {
+                                                api.delete(`/maintenance-templates/${template.id}`).then(() => {
+                                                    queryClient.invalidateQueries({ queryKey: ['maintenance-templates'] });
+                                                    queryClient.invalidateQueries({ queryKey: ['maintenance-alerts'] });
+                                                });
+                                            }
+                                        }}
+                                        className="text-[10px] font-bold text-red-400 hover:text-red-500 uppercase tracking-tighter"
+                                    >
+                                        Excluir
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setFormData({
+                                                ...formData,
+                                                type: template.type === 'PREVENTIVE' ? 'INSPECTION' : 'REPAIR',
+                                                notes: `Baseado no modelo: ${template.name}`
                                             });
-                                        }
-                                    }}
-                                    className="text-[10px] font-bold text-red-400 hover:text-red-500 uppercase tracking-tighter self-end"
-                                >
-                                    Excluir
-                                </button>
+                                            setIsCreateModalOpen(true);
+                                        }}
+                                        className="text-primary hover:underline font-black text-[10px] uppercase tracking-widest"
+                                    >
+                                        Usar Molde
+                                    </button>
+                                </div>
                             </GlassCard>
                         ))}
                     </div>
@@ -440,298 +444,288 @@ export function MaintenanceList() {
                             <p className="text-muted-foreground max-w-sm mt-2">Cadastre os tipos de manutenção frequentes para agilizar o agendamento da sua frota.</p>
                         </div>
                     )}
-=======
-                                        setFormData({
-                                            ...formData,
-                                            type: template.type === 'PREVENTIVE' ? 'INSPECTION' : 'REPAIR',
-                                            notes: `Baseado no modelo: ${template.name}`
-                                        });
-                                        setIsCreateModalOpen(true);
-                                    }}
-                                    className="text-primary hover:underline font-black text-[10px] uppercase tracking-widest"
-                                >
-                                    Usar Molde
-                                </button>
-                            </div>
-                        </GlassCard>
-                    ))}
->>>>>>> Stashed changes
-                </div>
+                </div >
             )}
 
             {/* Create Modal */}
-            {isCreateModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="w-full max-w-md bg-background rounded-3xl shadow-2xl border border-border p-6 animate-in zoom-in-95 duration-200">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold">Nova Manutenção</h2>
-                            <button onClick={() => setIsCreateModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors">
-                                <X size={20} />
-                            </button>
-                        </div>
-
-                        <form onSubmit={(e) => {
-                            e.preventDefault();
-                            createMutation.mutate(formData);
-                        }} className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold ml-1">Veículo</label>
-                                <select
-                                    className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
-                                    value={formData.vehicleId}
-                                    onChange={e => setFormData({ ...formData, vehicleId: e.target.value })}
-                                    required
-                                >
-                                    <option value="">Selecione um veículo</option>
-                                    {vehicles.map((v: any) => (
-                                        <option key={v.id} value={v.id}>{v.plate} - {v.model}</option>
-                                    ))}
-                                </select>
+            {
+                isCreateModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+                        <div className="w-full max-w-md bg-background rounded-3xl shadow-2xl border border-border p-6 animate-in zoom-in-95 duration-200">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-2xl font-bold">Nova Manutenção</h2>
+                                <button onClick={() => setIsCreateModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors">
+                                    <X size={20} />
+                                </button>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <form onSubmit={(e) => {
+                                e.preventDefault();
+                                createMutation.mutate(formData);
+                            }} className="space-y-4">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold ml-1">Tipo</label>
+                                    <label className="text-sm font-bold ml-1">Veículo</label>
                                     <select
                                         className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
-                                        value={formData.type}
-                                        onChange={e => setFormData({ ...formData, type: e.target.value })}
+                                        value={formData.vehicleId}
+                                        onChange={e => setFormData({ ...formData, vehicleId: e.target.value })}
+                                        required
                                     >
-                                        <option value="OIL">Troca de Óleo</option>
-                                        <option value="TIRES">Pneus</option>
-                                        <option value="INSPECTION">Inspeção</option>
-                                        <option value="OTHER">Outros</option>
+                                        <option value="">Selecione um veículo</option>
+                                        {vehicles.map((v: any) => (
+                                            <option key={v.id} value={v.id}>{v.plate} - {v.model}</option>
+                                        ))}
                                     </select>
                                 </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold ml-1">Tipo</label>
+                                        <select
+                                            className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
+                                            value={formData.type}
+                                            onChange={e => setFormData({ ...formData, type: e.target.value })}
+                                        >
+                                            <option value="OIL">Troca de Óleo</option>
+                                            <option value="TIRES">Pneus</option>
+                                            <option value="INSPECTION">Inspeção</option>
+                                            <option value="OTHER">Outros</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold ml-1">Prevista para (KM)</label>
+                                        <input
+                                            type="number"
+                                            className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
+                                            placeholder="0"
+                                            value={formData.nextDueKm}
+                                            onChange={e => setFormData({ ...formData, nextDueKm: Number(e.target.value) })}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold ml-1">Prevista para (KM)</label>
-                                    <input
-                                        type="number"
-                                        className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
-                                        placeholder="0"
-                                        value={formData.nextDueKm}
-                                        onChange={e => setFormData({ ...formData, nextDueKm: Number(e.target.value) })}
-                                        required
+                                    <label className="text-sm font-bold ml-1">Observações</label>
+                                    <textarea
+                                        className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary min-h-[100px]"
+                                        placeholder="Detalhes do serviço planejado..."
+                                        value={formData.notes}
+                                        onChange={e => setFormData({ ...formData, notes: e.target.value })}
                                     />
                                 </div>
-                            </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold ml-1">Observações</label>
-                                <textarea
-                                    className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary min-h-[100px]"
-                                    placeholder="Detalhes do serviço planejado..."
-                                    value={formData.notes}
-                                    onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                                />
-                            </div>
-
-                            <button
-                                type="submit"
-                                disabled={createMutation.isPending}
-                                className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
-                            >
-                                {createMutation.isPending ? 'Agendando...' : 'Agendar Manutenção'}
-                            </button>
-                        </form>
+                                <button
+                                    type="submit"
+                                    disabled={createMutation.isPending}
+                                    className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+                                >
+                                    {createMutation.isPending ? 'Agendando...' : 'Agendar Manutenção'}
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Complete Modal */}
-            {isCompleteModalOpen && selectedMaintenance && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="w-full max-w-md bg-background rounded-3xl shadow-2xl border border-border p-6 animate-in zoom-in-95 duration-200">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold">Concluir Serviço</h2>
-                            <button onClick={() => setIsCompleteModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors">
-                                <X size={20} />
-                            </button>
-                        </div>
-
-                        <div className="mb-6 p-4 bg-primary/5 rounded-2xl border border-primary/10 flex items-center gap-4">
-                            <div className="bg-primary/20 p-3 rounded-xl text-primary">
-                                <Wrench size={24} />
+            {
+                isCompleteModalOpen && selectedMaintenance && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+                        <div className="w-full max-w-md bg-background rounded-3xl shadow-2xl border border-border p-6 animate-in zoom-in-95 duration-200">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-2xl font-bold">Concluir Serviço</h2>
+                                <button onClick={() => setIsCompleteModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors">
+                                    <X size={20} />
+                                </button>
                             </div>
-                            <div>
-                                <div className="font-black text-lg">{selectedMaintenance.vehicle?.plate}</div>
-                                <div className="text-sm text-muted-foreground uppercase font-bold tracking-wider">{maintenanceTypeMap[selectedMaintenance.type] || selectedMaintenance.type}</div>
-                            </div>
-                        </div>
 
-                        <form onSubmit={(e) => {
-                            e.preventDefault();
-                            completeMutation.mutate(completeData);
-                        }} className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold ml-1 flex items-center gap-1">
-                                        <DollarSign size={14} /> Custo Real
-                                    </label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
-                                        placeholder="0,00"
-                                        value={completeData.cost}
-                                        onChange={e => setCompleteData({ ...completeData, cost: Number(e.target.value) })}
-                                        required
-                                    />
+                            <div className="mb-6 p-4 bg-primary/5 rounded-2xl border border-primary/10 flex items-center gap-4">
+                                <div className="bg-primary/20 p-3 rounded-xl text-primary">
+                                    <Wrench size={24} />
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold ml-1 flex items-center gap-1">
-                                        <ArrowRight size={14} /> KM do Serviço
-                                    </label>
-                                    <input
-                                        type="number"
-                                        className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
-                                        placeholder="0"
-                                        value={completeData.lastKm}
-                                        onChange={e => setCompleteData({ ...completeData, lastKm: Number(e.target.value) })}
-                                        required
-                                    />
+                                <div>
+                                    <div className="font-black text-lg">{selectedMaintenance.vehicle?.plate}</div>
+                                    <div className="text-sm text-muted-foreground uppercase font-bold tracking-wider">{maintenanceTypeMap[selectedMaintenance.type] || selectedMaintenance.type}</div>
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold ml-1">Relatório Técnico</label>
-                                <textarea
-                                    className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary min-h-[100px]"
-                                    placeholder="Descreva o que foi realizado..."
-                                    value={completeData.notes}
-                                    onChange={e => setCompleteData({ ...completeData, notes: e.target.value })}
-                                />
-                            </div>
+                            <form onSubmit={(e) => {
+                                e.preventDefault();
+                                completeMutation.mutate(completeData);
+                            }} className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold ml-1 flex items-center gap-1">
+                                            <DollarSign size={14} /> Custo Real
+                                        </label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
+                                            placeholder="0,00"
+                                            value={completeData.cost}
+                                            onChange={e => setCompleteData({ ...completeData, cost: Number(e.target.value) })}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold ml-1 flex items-center gap-1">
+                                            <ArrowRight size={14} /> KM do Serviço
+                                        </label>
+                                        <input
+                                            type="number"
+                                            className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
+                                            placeholder="0"
+                                            value={completeData.lastKm}
+                                            onChange={e => setCompleteData({ ...completeData, lastKm: Number(e.target.value) })}
+                                            required
+                                        />
+                                    </div>
+                                </div>
 
-                            <button
-                                type="submit"
-                                disabled={completeMutation.isPending}
-                                className="w-full py-4 bg-green-600 hover:bg-green-700 text-white rounded-2xl font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
-                            >
-                                {completeMutation.isPending ? 'Finalizando...' : 'Confirmar Conclusão'}
-                            </button>
-                        </form>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold ml-1">Relatório Técnico</label>
+                                    <textarea
+                                        className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary min-h-[100px]"
+                                        placeholder="Descreva o que foi realizado..."
+                                        value={completeData.notes}
+                                        onChange={e => setCompleteData({ ...completeData, notes: e.target.value })}
+                                    />
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={completeMutation.isPending}
+                                    className="w-full py-4 bg-green-600 hover:bg-green-700 text-white rounded-2xl font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+                                >
+                                    {completeMutation.isPending ? 'Finalizando...' : 'Confirmar Conclusão'}
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Template Modal */}
-            {isTemplateModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
-                    <div className="w-full max-w-md bg-background rounded-3xl shadow-2xl border border-border p-6 animate-in zoom-in-95 duration-200">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold">Novo Serviço no Catálogo</h2>
-                            <button onClick={() => setIsTemplateModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors">
-                                <X size={20} />
-                            </button>
-                        </div>
-
-                        <form onSubmit={(e) => {
-                            e.preventDefault();
-                            const form = e.target as HTMLFormElement;
-                            const name = (form.elements.namedItem('name') as HTMLInputElement).value;
-                            const description = (form.elements.namedItem('description') as HTMLTextAreaElement).value;
-                            const type = (form.elements.namedItem('type') as HTMLSelectElement).value;
-                            const avgDays = Number((form.elements.namedItem('avgDays') as HTMLInputElement).value);
-                            const intervalKm = Number((form.elements.namedItem('intervalKm') as HTMLInputElement).value);
-
-                            // Get selected vehicle types
-                            const selectedTypes = Array.from(form.querySelectorAll('input[name="vehicleTypes"]:checked'))
-                                .map((cb: any) => cb.value);
-
-                            if (selectedTypes.length === 0) {
-                                alert('Selecione pelo menos um tipo de veículo');
-                                return;
-                            }
-
-                            templateMutation.mutate({ name, description, type, averageDurationDays: avgDays, intervalKm, vehicleTypes: selectedTypes });
-                        }} className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold ml-1">Nome do Serviço</label>
-                                <input
-                                    name="name"
-                                    className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
-                                    placeholder="Ex: Troca de Óleo, Revisão de Freios..."
-                                    required
-                                />
+            {
+                isTemplateModalOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+                        <div className="w-full max-w-md bg-background rounded-3xl shadow-2xl border border-border p-6 animate-in zoom-in-95 duration-200">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-2xl font-bold">Novo Serviço no Catálogo</h2>
+                                <button onClick={() => setIsTemplateModalOpen(false)} className="p-2 hover:bg-muted rounded-full transition-colors">
+                                    <X size={20} />
+                                </button>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold ml-1">Descrição (Opcional)</label>
-                                <textarea
-                                    name="description"
-                                    className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary min-h-[60px]"
-                                    placeholder="Detalhes sobre o que este plano cobre..."
-                                />
-                            </div>
+                            <form onSubmit={(e) => {
+                                e.preventDefault();
+                                const form = e.target as HTMLFormElement;
+                                const name = (form.elements.namedItem('name') as HTMLInputElement).value;
+                                const description = (form.elements.namedItem('description') as HTMLTextAreaElement).value;
+                                const type = (form.elements.namedItem('type') as HTMLSelectElement).value;
+                                const avgDays = Number((form.elements.namedItem('avgDays') as HTMLInputElement).value);
+                                const intervalKm = Number((form.elements.namedItem('intervalKm') as HTMLInputElement).value);
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold ml-1">Tipos de Veículo</label>
-                                <div className="grid grid-cols-2 gap-2">
-                                    {[
-                                        { label: 'Carro', value: 'CAR' },
-                                        { label: 'Caminhão', value: 'TRUCK' },
-                                        { label: 'Moto', value: 'MOTORCYCLE' },
-                                        { label: 'Máquina', value: 'MACHINE' }
-                                    ].map((type) => (
-                                        <label key={type.value} className="flex items-center gap-2 p-2 border rounded-lg hover:bg-muted/50 cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                name="vehicleTypes"
-                                                value={type.value}
-                                                className="w-4 h-4 text-blue-600 rounded bg-gray-100 border-gray-300 focus:ring-blue-500"
-                                            />
-                                            <span className="text-sm font-medium">{type.label}</span>
-                                        </label>
-                                    ))}
-                                </div>
-                            </div>
+                                // Get selected vehicle types
+                                const selectedTypes = Array.from(form.querySelectorAll('input[name="vehicleTypes"]:checked'))
+                                    .map((cb: any) => cb.value);
 
-                            <div className="grid grid-cols-2 gap-4">
+                                if (selectedTypes.length === 0) {
+                                    alert('Selecione pelo menos um tipo de veículo');
+                                    return;
+                                }
+
+                                templateMutation.mutate({ name, description, type, averageDurationDays: avgDays, intervalKm, vehicleTypes: selectedTypes });
+                            }} className="space-y-4">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold ml-1">Tipo</label>
-                                    <select
-                                        name="type"
-                                        className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
-                                    >
-                                        <option value="PREVENTIVE">Preventiva</option>
-                                        <option value="CORRECTIVE">Corretiva</option>
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold ml-1">Intervalo (KM)</label>
+                                    <label className="text-sm font-bold ml-1">Nome do Serviço</label>
                                     <input
-                                        name="intervalKm"
-                                        type="number"
+                                        name="name"
                                         className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
-                                        defaultValue={10000}
+                                        placeholder="Ex: Troca de Óleo, Revisão de Freios..."
                                         required
                                     />
                                 </div>
-                            </div>
 
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold ml-1">Duração Média (Dias)</label>
-                                <input
-                                    name="avgDays"
-                                    type="number"
-                                    className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
-                                    defaultValue={1}
-                                    required
-                                />
-                            </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold ml-1">Descrição (Opcional)</label>
+                                    <textarea
+                                        name="description"
+                                        className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary min-h-[60px]"
+                                        placeholder="Detalhes sobre o que este plano cobre..."
+                                    />
+                                </div>
 
-                            <button
-                                type="submit"
-                                disabled={templateMutation.isPending}
-                                className="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold text-lg hover:scale-[1.02] transition-all disabled:opacity-50"
-                            >
-                                {templateMutation.isPending ? 'Salvando...' : 'Cadastrar Serviço'}
-                            </button>
-                        </form>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold ml-1">Tipos de Veículo</label>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {[
+                                            { label: 'Carro', value: 'CAR' },
+                                            { label: 'Caminhão', value: 'TRUCK' },
+                                            { label: 'Moto', value: 'MOTORCYCLE' },
+                                            { label: 'Máquina', value: 'MACHINE' }
+                                        ].map((type) => (
+                                            <label key={type.value} className="flex items-center gap-2 p-2 border rounded-lg hover:bg-muted/50 cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    name="vehicleTypes"
+                                                    value={type.value}
+                                                    className="w-4 h-4 text-blue-600 rounded bg-gray-100 border-gray-300 focus:ring-blue-500"
+                                                />
+                                                <span className="text-sm font-medium">{type.label}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold ml-1">Tipo</label>
+                                        <select
+                                            name="type"
+                                            className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
+                                        >
+                                            <option value="PREVENTIVE">Preventiva</option>
+                                            <option value="CORRECTIVE">Corretiva</option>
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold ml-1">Intervalo (KM)</label>
+                                        <input
+                                            name="intervalKm"
+                                            type="number"
+                                            className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
+                                            defaultValue={10000}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold ml-1">Duração Média (Dias)</label>
+                                    <input
+                                        name="avgDays"
+                                        type="number"
+                                        className="w-full p-3 bg-muted/30 border rounded-xl outline-none focus:border-primary"
+                                        defaultValue={1}
+                                        required
+                                    />
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={templateMutation.isPending}
+                                    className="w-full py-4 bg-blue-600 text-white rounded-2xl font-bold text-lg hover:scale-[1.02] transition-all disabled:opacity-50"
+                                >
+                                    {templateMutation.isPending ? 'Salvando...' : 'Cadastrar Serviço'}
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 }

@@ -94,10 +94,19 @@ export default function Reports() {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-4xl font-bold tracking-tight gradient-text">Relatórios & BI</h1>
-                    <p className="text-muted-foreground mt-2 text-lg">Inteligência de dados para gestão de frota</p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex items-start gap-4">
+                    <div className="p-3 bg-primary/10 text-primary rounded-2xl">
+                        <Layers size={32} />
+                    </div>
+                    <div>
+                        <h1 className="text-4xl font-black tracking-tighter gradient-text uppercase">
+                            Relatórios & BI
+                        </h1>
+                        <p className="text-muted-foreground/60 font-black uppercase tracking-[0.2em] mt-1 text-[10px]">
+                            Inteligência de dados para gestão de frota
+                        </p>
+                    </div>
                 </div>
                 <div className="flex gap-2">
                     <button

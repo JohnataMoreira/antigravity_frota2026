@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { VehicleModal } from '../../components/VehicleModal';
 import { StartJourneyModal } from '../Journeys/components/StartJourneyModal';
 import { formatKm } from '../../lib/utils';
+import { GlassCard, StatCard } from '../../components/ui/Cards';
 
 interface Vehicle {
     id: string;
@@ -81,7 +82,6 @@ export function VehiclesList() {
         }
     });
 
-<<<<<<< Updated upstream
     if (isLoading) return (
         <div className="flex flex-col items-center justify-center py-20 animate-pulse">
             <TruckIcon className="w-12 h-12 text-blue-200 mb-4" />
@@ -98,12 +98,11 @@ export function VehiclesList() {
             <p className="text-muted-foreground mt-1">Não foi possível carregar os veículos. Verifique o servidor.</p>
         </div>
     );
-=======
+
     const totalVehicles = vehicles?.length || 0;
-    const availableTotal = vehicles?.filter(v => v.status === 'AVAILABLE').length || 0;
-    const inUseTotal = vehicles?.filter(v => v.status === 'IN_USE').length || 0;
-    const maintenanceTotal = vehicles?.filter(v => v.status === 'MAINTENANCE' || v.status === 'CRITICAL_ISSUE').length || 0;
->>>>>>> Stashed changes
+    const carsCount = vehicles?.filter(v => v.type === 'CAR').length || 0;
+    const trucksCount = vehicles?.filter(v => v.type === 'TRUCK').length || 0;
+    const machinesCount = vehicles?.filter(v => ['MACHINE', 'MOTORCYCLE'].includes(v.type)).length || 0;
 
     const handleSave = (data: Partial<Vehicle>) => {
         saveMutation.mutate(data);
@@ -126,119 +125,96 @@ export function VehiclesList() {
     };
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-<<<<<<< Updated upstream
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                        Frota de Veículos
-                    </h1>
-                    <p className="text-muted-foreground mt-1">Gerencie os veículos e máquinas da sua empresa.</p>
-=======
+        <div className="space-y-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="flex items-start gap-4">
                     <div className="p-3 bg-primary/10 text-primary rounded-2xl">
                         <TruckIcon size={32} />
                     </div>
                     <div>
-                        <h1 className="text-4xl font-black tracking-tighter gradient-text">
-                            FROTA DE VEÍCULOS
+                        <h1 className="text-4xl font-black tracking-tighter gradient-text uppercase">
+                            Frota de Veículos
                         </h1>
-                        <p className="text-muted-foreground mt-1">Gerencie os veículos e máquinas da sua empresa.</p>
+                        <p className="text-muted-foreground/60 font-black uppercase tracking-[0.2em] mt-1 text-[10px]">
+                            Gestão e monitoramento de ativos e maquinário
+                        </p>
                     </div>
->>>>>>> Stashed changes
                 </div>
                 <button
                     onClick={handleAdd}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl flex items-center gap-2 shadow-lg shadow-blue-500/20 transition-all font-medium"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 shadow-lg shadow-blue-500/20 transition-all font-bold group"
                 >
-                    <Plus size={20} />
+                    <Plus size={20} className="group-hover:rotate-90 transition-transform duration-300" />
                     Adicionar Veículo
                 </button>
             </div>
 
-<<<<<<< Updated upstream
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-white dark:bg-gray-800/20 p-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm">
-=======
-            {/* Vehícles Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-card p-4 rounded-2xl border border-border flex items-center gap-3">
-                    <div className="p-2 bg-blue-500/10 text-blue-500 rounded-lg">
-                        <TruckIcon size={20} />
-                    </div>
-                    <div>
-                        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Total</p>
-                        <p className="text-2xl font-black text-foreground">{totalVehicles}</p>
-                    </div>
-                </div>
-                <div className="bg-card p-4 rounded-2xl border border-border flex items-center gap-3">
-                    <div className="p-2 bg-emerald-500/10 text-emerald-500 rounded-lg">
-                        <Car size={20} />
-                    </div>
-                    <div>
-                        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Disponíveis</p>
-                        <p className="text-2xl font-black text-foreground">{availableTotal}</p>
-                    </div>
-                </div>
-                <div className="bg-card p-4 rounded-2xl border border-border flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 text-primary rounded-lg">
-                        <Play size={20} />
-                    </div>
-                    <div>
-                        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Em Jornada</p>
-                        <p className="text-2xl font-black text-foreground">{inUseTotal}</p>
-                    </div>
-                </div>
-                <div className="bg-card p-4 rounded-2xl border border-border flex items-center gap-3">
-                    <div className="p-2 bg-amber-500/10 text-amber-500 rounded-lg">
-                        <Cpu size={20} />
-                    </div>
-                    <div>
-                        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Manutenção</p>
-                        <p className="text-2xl font-black text-foreground">{maintenanceTotal}</p>
-                    </div>
-                </div>
+            {/* Vehicles Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <StatCard
+                    label="Total da Frota"
+                    value={totalVehicles}
+                    icon={<TruckIcon className="w-8 h-8" />}
+                />
+                <StatCard
+                    label="Veículos Leves"
+                    value={carsCount}
+                    icon={<Car className="w-8 h-8" />}
+                    variant="info"
+                />
+                <StatCard
+                    label="Pesados / Caminhões"
+                    value={trucksCount}
+                    icon={<TruckIcon className="w-8 h-8" />}
+                    variant="success"
+                />
+                <StatCard
+                    label="Maquinário / Motos"
+                    value={machinesCount}
+                    icon={<Cpu className="w-8 h-8" />}
+                    variant="warning"
+                />
             </div>
 
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-card p-4 rounded-2xl border border-border">
->>>>>>> Stashed changes
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-card p-4 rounded-2xl border border-border shadow-sm">
                 <div className="flex flex-col md:flex-row gap-4 items-center flex-1 w-full max-w-2xl">
-                    <div className="flex items-center gap-3 bg-white dark:bg-gray-800/50 p-2 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex-1 w-full focus-within:ring-2 focus-within:ring-blue-500/50 transition-all">
-                        <Search size={20} className="text-gray-400 ml-2" />
+                    <div className="flex items-center gap-3 bg-muted p-2 rounded-xl border border-border shadow-sm flex-1 w-full focus-within:ring-2 focus-within:ring-primary/50 transition-all">
+                        <Search size={22} className="text-muted-foreground ml-2" />
                         <input
                             placeholder="Buscar por placa, modelo ou marca..."
-                            className="bg-transparent outline-none flex-1 py-2 text-sm font-medium"
+                            className="bg-transparent outline-none flex-1 py-2 font-medium"
                             value={filter}
                             onChange={(e) => setFilter(e.target.value)}
                         />
                     </div>
 
-                    <div className="flex items-center gap-2 bg-white dark:bg-gray-800/50 p-2 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm w-full md:w-auto">
-                        <Filter size={18} className="text-gray-400 ml-2" />
+                    <div className="flex items-center gap-2 bg-muted p-2 rounded-xl border border-border shadow-sm w-full md:w-auto">
+                        <Filter size={20} className="text-muted-foreground ml-2" />
                         <select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="bg-transparent outline-none text-sm font-bold pr-8 py-2"
+                            className="bg-transparent outline-none text-sm font-bold pr-8 py-2 text-foreground"
                         >
-                            <option value="ALL">Todos os Status</option>
-                            <option value="AVAILABLE">Disponível</option>
-                            <option value="IN_USE">Em Uso</option>
-                            <option value="MAINTENANCE">Manutenção</option>
-                            <option value="CRITICAL_ISSUE">Problema Crítico</option>
+                            <option value="ALL" className="bg-card">Todos os Status</option>
+                            <option value="AVAILABLE" className="bg-card">Disponível</option>
+                            <option value="IN_USE" className="bg-card">Em Uso</option>
+                            <option value="MAINTENANCE" className="bg-card">Manutenção</option>
+                            <option value="CRITICAL_ISSUE" className="bg-card">Problema Crítico</option>
                         </select>
                     </div>
                 </div>
 
-                <div className="flex bg-gray-100 dark:bg-gray-800 p-1.5 rounded-xl border dark:border-gray-700 shadow-sm">
+                <div className="flex bg-muted p-1 rounded-xl border border-border">
                     <button
                         onClick={() => setViewMode('grid')}
-                        className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                        className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-card shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                         title="Visualização em Cards"
                     >
                         <LayoutGrid size={20} />
                     </button>
                     <button
                         onClick={() => setViewMode('list')}
-                        className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                        className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-card shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
                         title="Visualização em Lista"
                     >
                         <ListIcon size={20} />
@@ -247,61 +223,61 @@ export function VehiclesList() {
             </div>
 
             {viewMode === 'list' ? (
-                <div className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <GlassCard className="!p-0 overflow-hidden border border-border">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm">
-                            <thead className="bg-gray-50 dark:bg-gray-800/80 border-b dark:border-gray-700">
+                            <thead className="bg-muted/50 border-b border-border">
                                 <tr>
-                                    <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400">Placa</th>
-                                    <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400">Marca/Modelo</th>
-                                    <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400 text-center">Tipo</th>
-                                    <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400">Status</th>
-                                    <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400">KM Atual</th>
-                                    <th className="px-6 py-4 font-bold text-gray-500 dark:text-gray-400 text-right">Ações</th>
+                                    <th className="px-6 py-5 font-bold uppercase tracking-wider text-muted-foreground">Placa</th>
+                                    <th className="px-6 py-5 font-bold uppercase tracking-wider text-muted-foreground">Marca/Modelo</th>
+                                    <th className="px-6 py-5 font-bold uppercase tracking-wider text-muted-foreground text-center">Tipo</th>
+                                    <th className="px-6 py-5 font-bold uppercase tracking-wider text-muted-foreground">Status</th>
+                                    <th className="px-6 py-5 font-bold uppercase tracking-wider text-muted-foreground">KM Atual</th>
+                                    <th className="px-6 py-5 font-bold uppercase tracking-wider text-muted-foreground text-right">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y dark:divide-gray-700">
+                            <tbody className="divide-y divide-border">
                                 {filteredVehicles?.map((vehicle) => (
-                                    <tr key={vehicle.id} className="hover:bg-gray-50/80 dark:hover:bg-gray-700/30 transition-colors">
-                                        <td className="px-6 py-4 font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap uppercase">
+                                    <tr key={vehicle.id} className="hover:bg-primary/5 transition-colors">
+                                        <td className="px-6 py-5 font-bold text-primary whitespace-nowrap uppercase">
                                             {vehicle.plate.length === 7
                                                 ? `${vehicle.plate.slice(0, 3)}-${vehicle.plate.slice(3)}`
                                                 : vehicle.plate}
                                         </td>
-                                        <td className="px-6 py-4 text-gray-700 dark:text-gray-300">
-                                            <div className="font-semibold">{vehicle.model}</div>
-                                            <div className="text-xs text-gray-500 dark:text-gray-400">{vehicle.brand} {vehicle.year}</div>
+                                        <td className="px-6 py-5 text-foreground">
+                                            <div className="font-bold">{vehicle.model}</div>
+                                            <div className="text-xs text-muted-foreground">{vehicle.brand} {vehicle.year}</div>
                                         </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <div className="inline-flex p-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-gray-500">
+                                        <td className="px-6 py-5 text-center">
+                                            <div className="inline-flex p-2 bg-muted rounded-xl text-muted-foreground">
                                                 {(() => {
                                                     const Icon = (typeIconMap as any)[vehicle.type] || Car;
                                                     return <Icon size={18} />;
                                                 })()}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${statusMap[vehicle.status].color}`}>
+                                        <td className="px-6 py-5">
+                                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${statusMap[vehicle.status].color}`}>
                                                 {statusMap[vehicle.status].label}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 font-bold dark:text-gray-200">
+                                        <td className="px-6 py-5 font-black text-foreground">
                                             {formatKm(vehicle.currentKm)}
                                         </td>
-                                        <td className="px-6 py-4 text-right space-x-2">
+                                        <td className="px-6 py-5 text-right space-x-2">
                                             <button
                                                 onClick={() => handleEdit(vehicle)}
-                                                className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all"
+                                                className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-xl transition-all"
                                                 title="Editar Veículo"
                                             >
-                                                <Edit size={18} />
+                                                <Edit size={20} />
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(vehicle.id)}
-                                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                                                className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-all"
                                                 title="Excluir Veículo"
                                             >
-                                                <Trash size={18} />
+                                                <Trash size={20} />
                                             </button>
                                         </td>
                                     </tr>
@@ -309,49 +285,49 @@ export function VehiclesList() {
                             </tbody>
                         </table>
                     </div>
-                </div>
+                </GlassCard>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {filteredVehicles?.map((vehicle) => (
-                        <div key={vehicle.id} className="glass-card p-5 rounded-2xl border border-gray-200 dark:border-gray-700 hover:shadow-xl hover:-translate-y-1 transition-all group overflow-hidden relative">
-                            <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                                <button onClick={() => handleEdit(vehicle)} className="p-2 bg-white dark:bg-gray-800 shadow-lg rounded-full text-blue-600 hover:scale-110 active:scale-95 transition-all">
+                        <GlassCard key={vehicle.id} className="group hover:-translate-y-1 transition-all overflow-hidden relative border border-border">
+                            <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
+                                <button onClick={() => handleEdit(vehicle)} className="p-2 bg-background shadow-lg rounded-full text-primary hover:scale-110 active:scale-95 transition-all">
                                     <Edit size={16} />
                                 </button>
-                                <button onClick={() => handleDelete(vehicle.id)} className="p-2 bg-white dark:bg-gray-800 shadow-lg rounded-full text-red-600 hover:scale-110 active:scale-95 transition-all">
+                                <button onClick={() => handleDelete(vehicle.id)} className="p-2 bg-background shadow-lg rounded-full text-destructive hover:scale-110 active:scale-95 transition-all">
                                     <Trash size={16} />
                                 </button>
                             </div>
 
-                            <div className="flex items-start gap-4 mb-4">
-                                <div className="p-3 rounded-2xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 ring-4 ring-blue-50/50 dark:ring-blue-900/10">
+                            <div className="flex items-start gap-4 mb-6">
+                                <div className="p-3 rounded-2xl bg-primary/10 text-primary ring-4 ring-primary/5">
                                     {(() => {
                                         const Icon = (typeIconMap as any)[vehicle.type] || Car;
                                         return <Icon size={28} />;
                                     })()}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <div className="text-xl font-bold text-gray-900 dark:text-white truncate">{vehicle.model}</div>
-                                    <div className="text-sm text-gray-500 font-medium truncate">{vehicle.brand}</div>
+                                    <div className="text-xl font-black text-foreground truncate uppercase tracking-tight">{vehicle.model}</div>
+                                    <div className="text-xs text-muted-foreground font-bold truncate uppercase tracking-widest">{vehicle.brand}</div>
                                 </div>
                             </div>
 
                             <div className="space-y-3">
-                                <div className="flex justify-between items-center text-sm p-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                                    <span className="text-gray-500">Placa</span>
-                                    <span className="font-bold text-blue-600 dark:text-blue-400 uppercase">{vehicle.plate}</span>
+                                <div className="flex justify-between items-center text-sm p-3 bg-muted/50 rounded-xl border border-border/50">
+                                    <span className="text-muted-foreground font-medium">Placa</span>
+                                    <span className="font-black text-primary uppercase tracking-wider">{vehicle.plate}</span>
                                 </div>
 
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-500">Quilometragem</span>
-                                    <span className="font-semibold text-gray-900 dark:text-gray-100 uppercase">{formatKm(vehicle.currentKm)}</span>
+                                <div className="flex justify-between items-center px-2 py-1">
+                                    <span className="text-muted-foreground text-[11px] font-bold uppercase tracking-wider">Odômetro</span>
+                                    <span className="font-black text-foreground text-sm">{formatKm(vehicle.currentKm)}</span>
                                 </div>
 
-                                <div className="flex justify-between items-center pt-2">
-                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${statusMap[vehicle.status].color}`}>
+                                <div className="flex justify-between items-center px-2">
+                                    <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${statusMap[vehicle.status].color}`}>
                                         {statusMap[vehicle.status].label}
                                     </span>
-                                    <div className="text-[10px] text-gray-400 font-bold uppercase">Cod: {vehicle.id.split('-')[0]}</div>
+                                    <div className="text-[10px] text-muted-foreground font-black uppercase tracking-tighter opacity-40">#{vehicle.id.slice(0, 8)}</div>
                                 </div>
 
                                 {vehicle.status === 'AVAILABLE' && (
@@ -361,27 +337,28 @@ export function VehiclesList() {
                                             setVehicleToStart(vehicle);
                                             setIsStartJourneyModalOpen(true);
                                         }}
-                                        className="w-full mt-2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+                                        className="w-full mt-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
                                     >
-                                        <Play size={12} fill="white" />
+                                        <Play size={14} fill="white" />
                                         Iniciar Jornada
                                     </button>
                                 )}
                             </div>
-                        </div>
+                        </GlassCard>
                     ))}
                 </div>
             )}
 
             {filteredVehicles?.length === 0 && (
-                <div className="text-center py-20 bg-white dark:bg-gray-800/50 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-700">
-                    <div className="mx-auto w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-400 mb-4">
-                        <Search size={32} />
+                <div className="text-center py-24 bg-muted/20 rounded-[2.5rem] border-2 border-dashed border-border">
+                    <div className="mx-auto w-20 h-20 bg-muted rounded-full flex items-center justify-center text-muted-foreground/30 mb-6">
+                        <Search size={40} />
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">Nenhum veículo encontrado</h3>
-                    <p className="text-muted-foreground">Tente ajustar sua busca ou adicione um novo veículo.</p>
+                    <h3 className="text-2xl font-black text-foreground uppercase tracking-tight">Nenhum veículo encontrado</h3>
+                    <p className="text-muted-foreground font-medium max-w-sm mx-auto mt-2">Tente ajustar sua busca ou adicione um novo veículo à frota.</p>
                 </div>
             )}
+
             <VehicleModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}

@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/axios';
 import { useState } from 'react';
-import { GlassCard } from '../../components/ui/Cards';
+import { GlassCard, StatCard } from '../../components/ui/Cards';
 import {
     Users as UsersIcon,
     Search,
@@ -20,7 +20,7 @@ import {
     Trash2
 } from 'lucide-react';
 import { UserModal } from './UserModal';
-import { InviteModal } from './InviteModal';
+// import { InviteModal } from './InviteModal';
 import { ExportDropdown } from '../../components/ExportDropdown';
 import { ExportColumn } from '../../lib/export';
 import { clsx } from 'clsx';
@@ -41,7 +41,7 @@ export function UsersList() {
     const [statusFilter, setStatusFilter] = useState<string>('ALL');
     const [selectedUser, setSelectedUser] = useState<any>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+    // const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
     const { data: usersData = [], isLoading } = useQuery({
         queryKey: ['users', search, roleFilter],
@@ -98,36 +98,28 @@ export function UsersList() {
 
     return (
         <div className="space-y-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="flex items-start gap-4">
-                    <div className="p-3 bg-blue-600/10 text-blue-600 rounded-2xl">
+                    <div className="p-3 bg-primary/10 text-primary rounded-2xl">
                         <UsersIcon size={32} />
                     </div>
                     <div>
-                        <h1 className="text-4xl font-extrabold tracking-tight gradient-text">
+                        <h1 className="text-4xl font-black tracking-tighter gradient-text uppercase">
                             Recursos Humanos
                         </h1>
-                        <p className="text-muted-foreground mt-1 text-lg">
-                            Administre gestores e motoristas da sua organização.
+                        <p className="text-muted-foreground/60 font-black uppercase tracking-[0.2em] mt-1 text-[10px]">
+                            Administração de gestores e motoristas da organização
                         </p>
                     </div>
                 </div>
 
-                <div className="flex flex-wrap gap-4 items-center">
+                <div className="flex flex-wrap gap-3 items-center">
                     <ExportDropdown
                         data={users}
                         columns={exportColumns}
                         filename={`Frota2026_Usuarios_${new Date().toISOString().split('T')[0]}`}
                         pdfTitle="Relatório de Recursos Humanos"
                     />
-
-                    <button
-                        onClick={() => setIsInviteModalOpen(true)}
-                        className="flex items-center gap-2 px-6 py-3 bg-muted border border-border hover:border-primary text-foreground hover:text-primary rounded-xl font-bold transition-all group shadow-sm"
-                    >
-                        <LinkIcon size={20} className="group-hover:rotate-12 transition-transform" />
-                        Convidar via Link
-                    </button>
 
                     <button
                         onClick={handleAdd}
@@ -137,6 +129,26 @@ export function UsersList() {
                         Novo Funcionário
                     </button>
                 </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <StatCard
+                    label="Total de Colaboradores"
+                    value={usersData.length}
+                    icon={<UsersIcon className="w-8 h-8" />}
+                />
+                <StatCard
+                    label="Gestores / Equipe"
+                    value={adminCount}
+                    icon={<Shield className="w-8 h-8" />}
+                    variant="info"
+                />
+                <StatCard
+                    label="Motoristas Ativos"
+                    value={driverCount}
+                    icon={<Truck className="w-8 h-8" />}
+                    variant="success"
+                />
             </div>
 
             {/* Pending Invites Section */}
@@ -286,12 +298,7 @@ export function UsersList() {
                 />
             )}
 
-            {isInviteModalOpen && (
-                <InviteModal
-                    isOpen={isInviteModalOpen}
-                    onClose={() => setIsInviteModalOpen(false)}
-                />
-            )}
+
         </div>
     );
 }

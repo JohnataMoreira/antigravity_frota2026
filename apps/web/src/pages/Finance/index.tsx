@@ -83,15 +83,19 @@ export default function FinancePage() {
     return (
         <div className="p-4 md:p-8 space-y-8 animate-in fade-in duration-500">
             {/* Header */}
-            <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-4xl font-black tracking-tight flex items-center gap-3">
-                        <div className="p-2 bg-emerald-500 rounded-2xl text-white shadow-lg shadow-emerald-500/20">
-                            <DollarSign size={32} />
-                        </div>
-                        Financeiro
-                    </h1>
-                    <p className="text-muted-foreground font-medium mt-1">Gestão de contas a pagar e fluxo de caixa da frota</p>
+            <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex items-start gap-4">
+                    <div className="p-3 bg-primary/10 text-primary rounded-2xl">
+                        <DollarSign size={32} />
+                    </div>
+                    <div>
+                        <h1 className="text-4xl font-black tracking-tighter gradient-text uppercase">
+                            Financeiro
+                        </h1>
+                        <p className="text-muted-foreground/60 font-black uppercase tracking-[0.2em] mt-1 text-[10px]">
+                            Gestão de contas a pagar e fluxo de caixa da frota
+                        </p>
+                    </div>
                 </div>
                 <div className="flex items-center gap-2">
                     <Button variant="outline" className="gap-2">

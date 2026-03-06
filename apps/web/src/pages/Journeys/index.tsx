@@ -41,14 +41,19 @@ export function JourneysList() {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-4xl font-extrabold tracking-tight gradient-text">
-                        Registro de Jornadas
-                    </h1>
-                    <p className="text-muted-foreground mt-2 text-lg">
-                        Acompanhe o histórico de movimentação da sua frota.
-                    </p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="flex items-start gap-4">
+                    <div className="p-3 bg-primary/10 text-primary rounded-2xl">
+                        <Map size={32} />
+                    </div>
+                    <div>
+                        <h1 className="text-4xl font-black tracking-tighter gradient-text uppercase">
+                            Registro de Jornadas
+                        </h1>
+                        <p className="text-muted-foreground/60 font-black uppercase tracking-[0.2em] mt-1 text-[10px]">
+                            Acompanhamento em tempo real de movimentação da frota
+                        </p>
+                    </div>
                 </div>
             </div>
 

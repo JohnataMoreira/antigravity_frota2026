@@ -83,18 +83,19 @@ export function InventoryList() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-<<<<<<< Updated upstream
-                    <h1 className="text-4xl font-bold tracking-tight gradient-text">Gestão de Estoque</h1>
-                    <p className="text-muted-foreground mt-2 font-medium">Controle de peças, lubrificantes e suprimentos</p>
-=======
-                    <h1 className="text-4xl font-black tracking-tighter flex items-center gap-3 uppercase gradient-text">
-                        <div className="p-2 bg-primary rounded-2xl text-primary-foreground shadow-lg shadow-primary/20 shrink-0">
+                    <div className="flex items-start gap-4">
+                        <div className="p-3 bg-primary/10 text-primary rounded-2xl">
                             <Package size={32} />
                         </div>
-                        Gestão de Estoque
-                    </h1>
-                    <p className="text-muted-foreground/60 font-black uppercase tracking-[0.2em] mt-2 text-[10px]">Controle de peças, lubrificantes e suprimentos da frota</p>
->>>>>>> Stashed changes
+                        <div>
+                            <h1 className="text-4xl font-black tracking-tighter gradient-text uppercase">
+                                Gestão de Estoque
+                            </h1>
+                            <p className="text-muted-foreground/60 font-black uppercase tracking-[0.2em] mt-1 text-[10px]">
+                                Controle de peças, lubrificantes e suprimentos da frota
+                            </p>
+                        </div>
+                    </div>
                 </div>
                 <div className="flex gap-3">
                     <Button onClick={() => setIsCreateModalOpen(true)} className="rounded-xl flex items-center gap-2">
@@ -253,53 +254,35 @@ export function InventoryList() {
                                 <X size={20} />
                             </button>
                         </div>
-<<<<<<< Updated upstream
+
                         <form onSubmit={(e) => {
                             e.preventDefault();
                             const formData = new FormData(e.currentTarget);
                             createMutation.mutate({
-                                name: formData.get('name'),
-                                sku: formData.get('sku'),
-                                category: formData.get('category'),
-                                unit: formData.get('unit'),
+                                name: formData.get('name') as string,
+                                sku: formData.get('sku') as string,
+                                category: formData.get('category') as string,
+                                unit: formData.get('unit') as string,
                                 minQuantity: Number(formData.get('minQuantity')),
                                 price: Number(formData.get('price'))
                             });
                         }} className="space-y-4">
                             <div>
-                                <label className="text-[10px] font-black uppercase text-muted-foreground mb-1 block tracking-widest">Nome do Item</label>
-                                <input name="name" required className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-xl outline-none focus:ring-2 focus:ring-primary/50 font-medium" placeholder="Ex: Filtro de Óleo PSL55" />
+                                <label className="text-[10px] font-black uppercase text-muted-foreground mb-1 block tracking-widest px-1">Nome do Item</label>
+                                <input
+                                    name="name"
+                                    required
+                                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-xl outline-none focus:ring-2 focus:ring-primary/50 font-medium"
+                                    placeholder="Ex: Filtro de Óleo PSL55"
+                                />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="text-[10px] font-black uppercase text-muted-foreground mb-1 block tracking-widest">SKU / Cód.</label>
+                                    <label className="text-[10px] font-black uppercase text-muted-foreground mb-1 block tracking-widest px-1">SKU / Cód.</label>
                                     <input name="sku" className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-xl outline-none focus:ring-2 focus:ring-primary/50 font-medium" placeholder="Opcional" />
-=======
-                        <div className="p-8 space-y-6">
-                            <form onSubmit={(e) => {
-                                e.preventDefault();
-                                const formData = new FormData(e.currentTarget);
-                                createMutation.mutate({
-                                    name: formData.get('name') as string,
-                                    sku: formData.get('sku') as string,
-                                    category: formData.get('category') as string,
-                                    unit: formData.get('unit') as string,
-                                    minQuantity: Number(formData.get('minQuantity')),
-                                    price: Number(formData.get('price'))
-                                });
-                            }} className="space-y-6">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase text-muted-foreground/40 block tracking-widest px-1">Nome do Item</label>
-                                    <input
-                                        name="name"
-                                        required
-                                        className="w-full px-5 py-4 bg-muted border border-border rounded-2xl outline-none focus:ring-2 focus:ring-primary/50 font-black uppercase text-xs tracking-tight text-foreground placeholder:text-muted-foreground/40"
-                                        placeholder="Ex: Filtro de Óleo PSL55"
-                                    />
->>>>>>> Stashed changes
                                 </div>
                                 <div>
-                                    <label className="text-[10px] font-black uppercase text-muted-foreground mb-1 block tracking-widest">Categoria</label>
+                                    <label className="text-[10px] font-black uppercase text-muted-foreground mb-1 block tracking-widest px-1">Categoria</label>
                                     <select name="category" required className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-xl outline-none focus:ring-2 focus:ring-primary/50 font-medium">
                                         <option value="FILTROS">Filtros</option>
                                         <option value="LUBRIFICANTES">Lubrificantes</option>
@@ -312,15 +295,15 @@ export function InventoryList() {
                             </div>
                             <div className="grid grid-cols-3 gap-4">
                                 <div>
-                                    <label className="text-[10px] font-black uppercase text-muted-foreground mb-1 block tracking-widest">Unidade</label>
+                                    <label className="text-[10px] font-black uppercase text-muted-foreground mb-1 block tracking-widest px-1">Unidade</label>
                                     <input name="unit" defaultValue="UN" required className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-xl outline-none focus:ring-2 focus:ring-primary/50 font-medium" />
                                 </div>
                                 <div>
-                                    <label className="text-[10px] font-black uppercase text-muted-foreground mb-1 block tracking-widest">Mínimo</label>
+                                    <label className="text-[10px] font-black uppercase text-muted-foreground mb-1 block tracking-widest px-1">Mínimo</label>
                                     <input name="minQuantity" type="number" defaultValue="0" required className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-xl outline-none focus:ring-2 focus:ring-primary/50 font-medium" />
                                 </div>
                                 <div>
-                                    <label className="text-[10px] font-black uppercase text-muted-foreground mb-1 block tracking-widest">Preço Est.</label>
+                                    <label className="text-[10px] font-black uppercase text-muted-foreground mb-1 block tracking-widest px-1">Preço Est.</label>
                                     <input name="price" type="number" step="0.01" className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 rounded-xl outline-none focus:ring-2 focus:ring-primary/50 font-medium" />
                                 </div>
                             </div>

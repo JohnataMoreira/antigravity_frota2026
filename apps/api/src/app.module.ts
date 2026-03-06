@@ -32,9 +32,6 @@ import { ComplianceModule } from './compliance/compliance.module';
 import { PurchasingModule } from './purchasing/purchasing.module';
 import { AttachmentsModule } from './attachments/attachments.module';
 import { TyresModule } from './tyres/tyres.module';
-<<<<<<< Updated upstream
-
-=======
 import { TenantMiddleware } from './prisma/tenant.middleware';
 import { InviteModule } from './invites/invite.module';
 import { SecurityMiddleware } from './common/middleware/security.middleware';
@@ -42,7 +39,6 @@ import { ChecklistConfigModule } from './checklist-config/checklist-config.modul
 import { OrganizationsModule } from './organizations/organizations.module';
 import { FinesModule } from './fines/fines.module';
 import { WebNotificationsModule } from './notifications/notifications.module';
->>>>>>> Stashed changes
 
 @Module({
     controllers: [AppController],
@@ -76,8 +72,6 @@ import { WebNotificationsModule } from './notifications/notifications.module';
         TelemetryModule,
         ComplianceModule,
         PurchasingModule,
-<<<<<<< Updated upstream
-=======
         TyresModule,
         AttachmentsModule,
         InviteModule,
@@ -85,7 +79,6 @@ import { WebNotificationsModule } from './notifications/notifications.module';
         OrganizationsModule,
         FinesModule,
         WebNotificationsModule,
->>>>>>> Stashed changes
     ],
     providers: [
         {

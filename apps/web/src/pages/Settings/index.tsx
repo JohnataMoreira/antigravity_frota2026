@@ -20,14 +20,16 @@ export default function SettingsPage() {
     return (
         <div className="p-4 md:p-8 space-y-8 animate-in fade-in duration-500 max-w-6xl mx-auto">
             <header className="flex items-start gap-4">
-                <div className="p-3 bg-muted rounded-2xl text-foreground">
+                <div className="p-3 bg-primary/10 text-primary rounded-2xl">
                     <SettingsIcon size={32} />
                 </div>
                 <div>
-                    <h1 className="text-4xl font-black tracking-tight gradient-text">
-                        CONFIGURAÇÕES
+                    <h1 className="text-4xl font-black tracking-tighter gradient-text uppercase">
+                        Configurações
                     </h1>
-                    <p className="text-muted-foreground font-medium mt-1">Gerencie as preferências e parâmetros do sistema</p>
+                    <p className="text-muted-foreground/60 font-black uppercase tracking-[0.2em] mt-1 text-[10px]">
+                        Gerencie as preferências e parâmetros do sistema
+                    </p>
                 </div>
             </header>
 
