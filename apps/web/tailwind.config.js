@@ -17,22 +17,8 @@ export default {
             colors: {
                 // Frota2026 Design System Colors
                 primary: {
-<<<<<<< Updated upstream
-                    DEFAULT: '#0F172A', // Slate 900 - Profissional, Sério
-                    50: '#F8FAFC',
-                    100: '#F1F5F9',
-                    200: '#E2E8F0',
-                    300: '#CBD5E1',
-                    400: '#94A3B8',
-                    500: '#64748B',
-                    600: '#475569',
-                    700: '#334155',
-                    800: '#1E293B',
-                    900: '#0F172A',
-=======
                     DEFAULT: 'hsl(var(--primary))',
                     foreground: 'hsl(var(--primary-foreground))',
->>>>>>> Stashed changes
                 },
                 accent: {
                     DEFAULT: '#3B82F6', // Blue 500 - Confiança, Tecnologia
