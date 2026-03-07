@@ -1,11 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto, UpdateUserDto } from './dto';
-<<<<<<< Updated upstream
-=======
 import { ConfigService } from '@nestjs/config';
 import { TenantContext } from '../prisma/tenant.context';
->>>>>>> Stashed changes
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
