@@ -122,7 +122,15 @@ export class AuthService {
     async getProfile(userId: string) {
         const user = await this.prisma.user.findUnique({
             where: { id: userId },
-            include: { organization: { select: { name: true } } }
+            include: {
+                organization: {
+                    select: {
+                        name: true,
+                        logoUrl: true,
+                        primaryColor: true,
+                    }
+                }
+            }
         });
 
         if (!user || !user.organization) throw new UnauthorizedException();
@@ -133,7 +141,12 @@ export class AuthService {
             name: user.name,
             role: user.role,
             organizationId: user.organizationId,
-            organizationName: user.organization.name
+            organizationName: user.organization.name,
+            organization: {
+                name: user.organization.name,
+                logoUrl: user.organization.logoUrl ?? null,
+                primaryColor: user.organization.primaryColor ?? null,
+            },
         };
     }
 }

@@ -117,11 +117,13 @@ enum TyreStatus {
 }
 
 model Organization {
-  id        String   @id @default(uuid())
-  name      String
-  document  String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(uuid())
+  name         String
+  document     String   @unique
+  logoUrl      String?
+  primaryColor String?  @default("#2563eb")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   users                 User[]
   vehicles              Vehicle[]
