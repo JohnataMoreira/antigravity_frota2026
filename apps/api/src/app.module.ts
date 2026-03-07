@@ -34,10 +34,6 @@ import { AttachmentsModule } from './attachments/attachments.module';
 import { TyresModule } from './tyres/tyres.module';
 import { TenantMiddleware } from './prisma/tenant.middleware';
 import { InviteModule } from './invites/invite.module';
-import { SecurityMiddleware } from './common/middleware/security.middleware';
-import { ChecklistConfigModule } from './checklist-config/checklist-config.module';
-import { OrganizationsModule } from './organizations/organizations.module';
-import { FinesModule } from './fines/fines.module';
 import { WebNotificationsModule } from './notifications/notifications.module';
 
 @Module({
@@ -75,9 +71,6 @@ import { WebNotificationsModule } from './notifications/notifications.module';
         TyresModule,
         AttachmentsModule,
         InviteModule,
-        ChecklistConfigModule,
-        OrganizationsModule,
-        FinesModule,
         WebNotificationsModule,
     ],
     providers: [
@@ -101,10 +94,6 @@ import { WebNotificationsModule } from './notifications/notifications.module';
 })
 export class AppModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
-        consumer
-            .apply(SecurityMiddleware)
-            .forRoutes('*');
-
         consumer
             .apply(TenantMiddleware)
             .exclude(

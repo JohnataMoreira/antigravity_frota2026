@@ -34,7 +34,7 @@ export class StorageController {
         try {
             const url = await this.storageService.upload(file);
             return { url };
-        } catch (error) {
+        } catch (error: any) {
             console.error('Upload Error Original:', error);
             return {
                 success: false,
