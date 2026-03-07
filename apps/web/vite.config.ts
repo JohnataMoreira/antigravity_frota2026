@@ -81,7 +81,9 @@ export default defineConfig({
                 assetFileNames: `assets/[name].[hash].[ext]`,
                 manualChunks: {
                     'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-                    'vendor-ui': ['lucide-react', 'recharts'],
+                    'vendor-query': ['@tanstack/react-query'],
+                    'vendor-lucide': ['lucide-react'],
+                    'vendor-recharts': ['recharts'],
                     'vendor-utils': ['axios', 'date-fns', 'clsx', 'tailwind-merge']
                 }
             }

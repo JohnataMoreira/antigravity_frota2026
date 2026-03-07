@@ -20,6 +20,7 @@ interface AuthContextType {
     user: User | null;
     login: (token: string, user: User) => void;
     logout: () => void;
+    refreshUser: () => Promise<void>;
     isAuthenticated: boolean;
     isLoading: boolean;
 }
@@ -85,8 +86,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         applyThemeColor(null); // Reset theme
     };
 
+    const refreshUser = async () => {
+        try {
+            const res = await api.get('/auth/me');
+            const userData = res.data;
+            setUser(userData);
+            localStorage.setItem('user', JSON.stringify(userData));
+
+            if (userData?.organization?.primaryColor) {
+                applyThemeColor(userData.organization.primaryColor);
+            }
+        } catch (error) {
+            console.error('Failed to refresh user:', error);
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{ user, login, logout, isAuthenticated: !!user, isLoading }}>
+        <AuthContext.Provider value={{ user, login, logout, refreshUser, isAuthenticated: !!user, isLoading }}>
             {children}
         </AuthContext.Provider>
     );

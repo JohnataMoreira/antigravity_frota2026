@@ -122,6 +122,8 @@ model Organization {
   document     String   @unique
   logoUrl      String?
   primaryColor String?  @default("#2563eb")
+  address      String?
+  phone        String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

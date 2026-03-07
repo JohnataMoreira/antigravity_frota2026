@@ -35,6 +35,7 @@ import { TyresModule } from './tyres/tyres.module';
 import { TenantMiddleware } from './prisma/tenant.middleware';
 import { InviteModule } from './invites/invite.module';
 import { WebNotificationsModule } from './notifications/notifications.module';
+import { OrganizationsModule } from './organizations/organizations.module';
 
 @Module({
     controllers: [AppController],
@@ -50,6 +51,7 @@ import { WebNotificationsModule } from './notifications/notifications.module';
         MailModule,
         NotificationModule,
         AuthModule,
+        OrganizationsModule,
         VehiclesModule,
         DriversModule,
         JourneysModule,

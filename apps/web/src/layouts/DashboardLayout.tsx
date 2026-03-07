@@ -39,7 +39,7 @@ export function DashboardLayout() {
                 </div>
 
                 <div className="px-6 py-4 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                         <UserIcon size={20} />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -56,11 +56,11 @@ export function DashboardLayout() {
                                 key={item.name}
                                 to={item.href}
                                 className={`flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all ${isActive
-                                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
                                     : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
                                     }`}
                             >
-                                <item.icon className={`w-5 h-5 mr-3 ${isActive ? 'text-white' : ''}`} />
+                                <item.icon className={`w-5 h-5 mr-3 ${isActive ? 'text-primary-foreground' : ''}`} />
                                 {item.name}
                             </Link>
                         );
@@ -113,7 +113,7 @@ export function DashboardLayout() {
                                         key={item.name}
                                         to={item.href}
                                         className={`flex items-center px-6 py-4 text-lg font-semibold rounded-2xl transition-all ${isActive
-                                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                                            ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
                                             : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                                             }`}
                                         onClick={() => setIsMobileMenuOpen(false)}
