@@ -5,6 +5,7 @@ import { lazy, Suspense } from 'react';
 import { ErrorBoundary } from '../../components/ErrorBoundary';
 import { ThemeSwitcher } from '../../components/ThemeSwitcher';
 import { AlertsWidget } from './components/AlertsWidget';
+import { SystemAlertsWidget } from './components/SystemAlertsWidget';
 import { VehicleHealthCard } from './components/VehicleHealthCard';
 import { Truck, Users, MapPin, Activity, DollarSign, Gauge, Wrench, CheckCircle } from 'lucide-react';
 import {
@@ -174,6 +175,7 @@ export function Dashboard() {
                     </GlassCard>
                 </div>
                 <div className="lg:col-span-1 space-y-6">
+                    <SystemAlertsWidget />
                     <VehicleHealthCard alerts={alerts} isLoading={loadingAlerts} />
                     <AlertsWidget />
                 </div>

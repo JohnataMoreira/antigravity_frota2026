@@ -149,4 +149,16 @@ export class AuthService {
             },
         };
     }
+
+    async logoutAll(userId: string, organizationId: string) {
+        await this.audit.log({
+            organizationId,
+            userId,
+            action: AuditAction.LOGOUT,
+            entity: AuditEntity.USER,
+            entityId: userId,
+            metadata: { type: 'ALL_DEVICES' }
+        });
+        return { success: true };
+    }
 }

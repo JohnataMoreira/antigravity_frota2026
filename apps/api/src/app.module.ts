@@ -36,6 +36,8 @@ import { TenantMiddleware } from './prisma/tenant.middleware';
 import { InviteModule } from './invites/invite.module';
 import { WebNotificationsModule } from './notifications/notifications.module';
 import { OrganizationsModule } from './organizations/organizations.module';
+import { ChecklistTemplatesModule } from './checklist-templates/checklist-templates.module';
+import { AlertsModule } from './common/alerts/alerts.module';
 
 @Module({
     controllers: [AppController],
@@ -52,6 +54,7 @@ import { OrganizationsModule } from './organizations/organizations.module';
         NotificationModule,
         AuthModule,
         OrganizationsModule,
+        ChecklistTemplatesModule,
         VehiclesModule,
         DriversModule,
         JourneysModule,
@@ -74,6 +77,7 @@ import { OrganizationsModule } from './organizations/organizations.module';
         AttachmentsModule,
         InviteModule,
         WebNotificationsModule,
+        AlertsModule,
     ],
     providers: [
         {

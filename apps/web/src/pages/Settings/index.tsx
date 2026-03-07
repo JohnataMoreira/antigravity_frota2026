@@ -4,6 +4,7 @@ import { ProfileTab } from './components/ProfileTab';
 import { OrganizationTab } from './components/OrganizationTab';
 import { NotificationsTab } from './components/NotificationsTab';
 import { ChecklistTab } from './components/ChecklistTab';
+import { SecurityTab } from './components/SecurityTab';
 import { useAuth } from '@/context/AuthContext';
 
 export default function SettingsPage() {
@@ -15,6 +16,7 @@ export default function SettingsPage() {
         { id: 'organization', label: 'Organização', icon: Building2 },
         { id: 'notifications', label: 'Notificações', icon: Bell },
         { id: 'checklist', label: 'Checklists', icon: ClipboardList },
+        { id: 'security', label: 'Segurança', icon: Shield },
     ];
 
     return (
@@ -64,6 +66,7 @@ export default function SettingsPage() {
                     {activeTab === 'organization' && <OrganizationTab />}
                     {activeTab === 'notifications' && <NotificationsTab />}
                     {activeTab === 'checklist' && <ChecklistTab />}
+                    {activeTab === 'security' && <SecurityTab />}
                 </main>
             </div>
 

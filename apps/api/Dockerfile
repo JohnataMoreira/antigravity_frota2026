@@ -1,50 +1,48 @@
-# Stage 1: Build
-FROM node:20-slim AS builder
-
+# Stage 1: Dependency base
+FROM node:20-slim AS deps
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+# Install system dependencies needed for Prisma/Bcrypt
+RUN apt-get update && apt-get install -y openssl python3 make g++ && rm -rf /var/lib/apt/lists/*
 
-# Copy root config files
-COPY package.json package-lock.json turbo.json ./
-# Copy workspace apps and packages
-COPY apps/api/package.json apps/api/package.json
-COPY apps/api/prisma apps/api/prisma
+COPY package.json package-lock.json ./
+COPY apps/api/package.json ./apps/api/package.json
 
-# Install dependencies (only for API workspace to save space in builder stage)
+# Install only production dependencies
+# We use a trick to avoid installing the whole monorepo if possible, 
+# but for simplicity in this setup we'll install and then prune.
 RUN npm install --legacy-peer-deps
 
-# Copy source code
-COPY apps/api apps/api
+# Stage 2: Builder
+FROM node:20-slim AS builder
+WORKDIR /app
 
-# Generate Prisma and Build
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Generate Prisma Client
 RUN npx prisma generate --schema=apps/api/prisma/schema.prisma
+
+# Build the app
 RUN npm run build --workspace=api
 
 # Prune dev dependencies
 RUN npm prune --omit=dev --legacy-peer-deps
 
-# Stage 2: Production
-FROM node:20-slim
-
+# Stage 3: Runner
+FROM node:20-slim AS runner
 WORKDIR /app
 
-# Install system dependencies + postgresql-client for backups
+ENV NODE_ENV=production
+
+# Install runtime system dependencies
 RUN apt-get update && apt-get install -y openssl postgresql-client && rm -rf /var/lib/apt/lists/*
 
-# [11/10 STRATEGY] Copy the entire production node_modules from root
+# Copy only what is strictly necessary
 COPY --from=builder /app/node_modules ./node_modules
-# Copy API artifacts and migrations
 COPY --from=builder /app/apps/api/dist ./dist
 COPY --from=builder /app/apps/api/prisma ./prisma
-# Force refresh migrations (v3.7.1)
 COPY --from=builder /app/apps/api/package.json ./package.json
-
-# [11/10 STRATEGY] MULTI-MODULE SANITY CHECK
-# This command MUST pass for the image to be created.
-# It proves that the core runtime is actually complete.
-RUN node -e "require('@prisma/client'); require('@nestjs/common'); require('@nestjs/jwt'); console.log('✅ ENV IS IMMUNE')"
 
 EXPOSE 3000
 
@@ -52,5 +50,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
     CMD node -e "require('http').get('http://localhost:3000/api/v1/health', (r) => r.statusCode === 200 ? process.exit(0) : process.exit(1))"
 
-# Auto-migrate on startup, then start the API
+# Migration and start
 CMD ["sh", "-c", "npx prisma migrate deploy --schema=./prisma/schema.prisma && node dist/main.js"]

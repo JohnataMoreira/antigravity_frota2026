@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { PWAProvider } from './components/PWAProvider';
 import { Login } from './pages/Login';
 import { DashboardLayout } from './layouts/DashboardLayout';
 import { LiveMap } from './components/LiveMap';
@@ -89,9 +90,11 @@ export default function App() {
         <ErrorBoundary>
             <QueryClientProvider client={queryClient}>
                 <AuthProvider>
-                    <BrowserRouter>
-                        <AppRoutes />
-                    </BrowserRouter>
+                    <PWAProvider>
+                        <BrowserRouter>
+                            <AppRoutes />
+                        </BrowserRouter>
+                    </PWAProvider>
                 </AuthProvider>
             </QueryClientProvider>
         </ErrorBoundary>

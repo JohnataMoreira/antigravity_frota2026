@@ -1,15 +1,21 @@
 # Stage 1: Build
-FROM node:20 AS builder
-
+FROM node:20-slim AS builder
 WORKDIR /app
 
-# [11/10 STRATEGY] Copy EVERYTHING
-COPY . .
+# Install system dependencies
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-# [11/10 STRATEGY] Sync all dependencies at ROOT
+# Copy workspace configs
+COPY package.json package-lock.json turbo.json ./
+COPY apps/web/package.json apps/web/package.json
+
+# Install dependencies (selective)
 RUN npm install --legacy-peer-deps
 
-# Build the Web app
+# Copy source
+COPY apps/web apps/web
+
+# Build
 RUN npm run build --workspace=web
 
 # Stage 2: Production

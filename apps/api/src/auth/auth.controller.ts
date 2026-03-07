@@ -31,4 +31,11 @@ export class AuthController {
     getProfile(@Request() req: UserRequest) {
         return this.authService.getProfile(req.user.userId);
     }
+
+    @Post('logout-all')
+    @UseGuards(JwtAuthGuard)
+    @HttpCode(HttpStatus.OK)
+    logoutAll(@Request() req: UserRequest) {
+        return this.authService.logoutAll(req.user.userId, req.user.organizationId);
+    }
 }
