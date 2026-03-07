@@ -1,0 +1,6 @@
+apps/api/src/app.module.ts(37,36): error TS2307: Cannot find module './common/middleware/security.middleware' or its corresponding type declarations.
+apps/api/src/app.module.ts(38,39): error TS2307: Cannot find module './checklist-config/checklist-config.module' or its corresponding type declarations.
+apps/api/src/app.module.ts(39,37): error TS2307: Cannot find module './organizations/organizations.module' or its corresponding type declarations.
+apps/api/src/app.module.ts(40,29): error TS2307: Cannot find module './fines/fines.module' or its corresponding type declarations.
+apps/api/src/storage/storage.controller.ts(42,24): error TS18046: 'error' is of type 'unknown'.
+apps/api/src/storage/storage.controller.ts(43,26): error TS18046: 'error' is of type 'unknown'.

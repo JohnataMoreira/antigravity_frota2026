@@ -1,28 +1,32 @@
-# Stage 1: Build (Stable fat image)
-FROM node:20 AS builder
+# Stage 1: Build
+FROM node:20-slim AS builder
 
 WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-# [11/10 STRATEGY] Copy EVERYTHING except node_modules
-COPY . .
+# Copy root config files
+COPY package.json package-lock.json turbo.json ./
+# Copy workspace apps and packages
+COPY apps/api/package.json apps/api/package.json
+COPY apps/api/prisma apps/api/prisma
 
-# [11/10 STRATEGY] Sync all dependencies at ROOT
+# Install dependencies (only for API workspace to save space in builder stage)
 RUN npm install --legacy-peer-deps
 
-# [11/10 STRATEGY] Generate Prisma from ROOT
-RUN npx prisma generate --schema=apps/api/prisma/schema.prisma
+# Copy source code
+COPY apps/api apps/api
 
-# Build the API
+# Generate Prisma and Build
+RUN npx prisma generate --schema=apps/api/prisma/schema.prisma
 RUN npm run build --workspace=api
 
-# [11/10 STRATEGY] Prune at root using workspaces awareness
-RUN npm install --omit=dev --legacy-peer-deps
+# Prune dev dependencies
+RUN npm prune --omit=dev --legacy-peer-deps
 
-# Stage 2: Production (Slim image)
-FROM node:20-bookworm-slim
+# Stage 2: Production
+FROM node:20-slim
 
 WORKDIR /app
 

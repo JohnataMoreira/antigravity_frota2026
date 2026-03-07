@@ -139,6 +139,8 @@ model Organization {
   financialTransactions FinancialTransaction[]
   attachments           Attachment[]
   tyres                 Tyre[]
+  alerts                Alert[]
+  checklistTemplates    ChecklistTemplate[]
 }
 
 model AuditLog {
@@ -662,4 +664,30 @@ model TyreMeasurement {
   tyre Tyre @relation(fields: [tyreId], references: [id])
 
   @@index([tyreId])
+}
+
+model Alert {
+  id             String   @id @default(uuid())
+  organizationId String
+  title          String
+  message        String
+  severity       String   @default("MEDIUM") // LOW, MEDIUM, HIGH
+  resolved       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+}
+
+model ChecklistTemplate {
+  id             String   @id @default(uuid())
+  organizationId String
+  name           String
+  description    String?
+  items          String[] // Lista de strings para os itens do checklist
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
 }

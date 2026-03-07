@@ -129,28 +129,26 @@ export default function DashboardHome() {
                             </div>
                         </Card>
                     ) : (
-                        <>
-                            <Alert variant="warning" icon={AlertCircle}>
-                                <p className="font-medium">Veículo ABC-1234</p>
-                                <p className="text-xs mt-1">
-                                    Manutenção preventiva vence em 3 dias
-                                </p>
-                            </Alert>
-
-                            <Alert variant="danger" icon={AlertTriangle}>
-                                <p className="font-medium">Motorista João Silva</p>
-                                <p className="text-xs mt-1">
-                                    3 frenagens bruscas detectadas hoje
-                                </p>
-                            </Alert>
-
-                            <Alert variant="info" icon={Car}>
-                                <p className="font-medium">Veículo XYZ-5678</p>
-                                <p className="text-xs mt-1">
-                                    Consumo de combustível acima da média
-                                </p>
-                            </Alert>
-                        </>
+                        <div className="space-y-4">
+                            {stats?.alerts?.length > 0 ? (
+                                stats.alerts.map((alert: any, idx: number) => (
+                                    <Alert
+                                        key={idx}
+                                        variant={alert.type || 'warning'}
+                                        icon={alert.type === 'danger' ? AlertTriangle : alert.type === 'info' ? Car : AlertCircle}
+                                    >
+                                        <p className="font-medium">{alert.title}</p>
+                                        <p className="text-xs mt-1">{alert.message}</p>
+                                    </Alert>
+                                ))
+                            ) : (
+                                <Card variant="glass" className="opacity-50">
+                                    <p className="text-center text-xs font-black uppercase tracking-widest text-muted-foreground p-4">
+                                        Nenhum alerta crítico
+                                    </p>
+                                </Card>
+                            )}
+                        </div>
                     )}
                 </div>
 

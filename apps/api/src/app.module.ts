@@ -10,6 +10,7 @@ import { JourneysModule } from './journeys/journeys.module';
 import { StorageModule } from './storage/storage.module';
 import { SyncModule } from './sync/sync.module';
 import { ReportsModule } from './reports/reports.module';
+import { ComplianceModule } from './compliance/compliance.module';
 import { LocationsModule } from './locations/locations.module';
 import { MaintenanceModule } from './maintenance/maintenance.module';
 import { FuelModule } from './fuel/fuel.module';
@@ -28,7 +29,6 @@ import { NotificationModule } from './common/notifications/notification.module';
 import { BackupModule } from './backup/backup.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { TelemetryModule } from './telemetry/telemetry.module';
-import { ComplianceModule } from './compliance/compliance.module';
 import { PurchasingModule } from './purchasing/purchasing.module';
 import { AttachmentsModule } from './attachments/attachments.module';
 import { TyresModule } from './tyres/tyres.module';
@@ -56,6 +56,7 @@ import { WebNotificationsModule } from './notifications/notifications.module';
         StorageModule,
         SyncModule,
         ReportsModule,
+        ComplianceModule,
         LocationsModule,
         HealthModule,
         FinanceModule,
@@ -66,7 +67,6 @@ import { WebNotificationsModule } from './notifications/notifications.module';
         BackupModule,
         InventoryModule,
         TelemetryModule,
-        ComplianceModule,
         PurchasingModule,
         TyresModule,
         AttachmentsModule,

@@ -36,7 +36,7 @@ export function OrganizationTab() {
                     <label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest px-1">Localização Sede</label>
                     <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-2xl border border-border">
                         <MapPin size={18} className="text-primary" />
-                        <span className="font-medium">Paraopeba, Minas Gerais</span>
+                        <span className="font-medium">{org?.address || 'Endereço não configurado'}</span>
                     </div>
                 </div>
             </div>

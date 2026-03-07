@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ComplianceService } from './compliance.service';
 import { ComplianceController } from './compliance.controller';
-import { StorageModule } from '../storage/storage.module';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
-    imports: [StorageModule],
+    imports: [PrismaModule],
     controllers: [ComplianceController],
     providers: [ComplianceService],
-    exports: [ComplianceService],
+    exports: [ComplianceService]
 })
 export class ComplianceModule { }

@@ -14,7 +14,7 @@ export class ExportService {
         // Logo Space (if available) - For now just text
         doc.setFontSize(22);
         doc.setTextColor(37, 99, 235); // Blue-600
-        doc.text('GRUPO PARAOPEBA', 14, 22);
+        doc.text('FROTA2026 - GESTÃO DE FROTA', 14, 22);
 
         doc.setFontSize(14);
         doc.setTextColor(100);

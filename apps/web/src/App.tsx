@@ -5,6 +5,7 @@ import { Login } from './pages/Login';
 import { DashboardLayout } from './layouts/DashboardLayout';
 import { VehiclesList } from './pages/Vehicles';
 import { VehicleForm } from './pages/Vehicles/VehicleForm';
+import { VehicleDetail } from './pages/Vehicles/VehicleDetail';
 import { JourneysList } from './pages/Journeys';
 import { JourneyDetails } from './pages/Journeys/JourneyDetails';
 import { MaintenanceList } from './pages/Maintenance';
@@ -46,6 +47,7 @@ function AppRoutes() {
                     <Route path="vehicles">
                         <Route index element={<VehiclesList />} />
                         <Route path="new" element={<VehicleForm />} />
+                        <Route path=":id" element={<VehicleDetail />} />
                     </Route>
 
                     <Route path="users">

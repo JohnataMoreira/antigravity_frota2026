@@ -44,7 +44,8 @@ export class ReportsService {
             recentIncidents,
             journeysWithIncidentsCount,
             totalVehicleKm,
-            avgFuelLevel
+            avgFuelLevel,
+            recentAlerts
         ] = await Promise.all([
             this.prisma.vehicle.count({ where: { organizationId, ...(vehicleId && { id: vehicleId }) } }),
             this.prisma.vehicle.count({ where: { organizationId, status: 'AVAILABLE', ...(vehicleId && { id: vehicleId }) } }),
@@ -138,8 +139,19 @@ export class ReportsService {
                 }
             }),
             this.prisma.vehicle.aggregate({ where: { organizationId, ...(vehicleId && { id: vehicleId }) }, _sum: { currentKm: true } }).catch(() => ({ _sum: { currentKm: 0 } })),
-            (this.prisma.vehicle as any).aggregate({ where: { organizationId, ...(vehicleId && { id: vehicleId }) }, _avg: { fuelLevel: true } }).catch(() => ({ _avg: { fuelLevel: 100 } }))
+            (this.prisma.vehicle as any).aggregate({ where: { organizationId, ...(vehicleId && { id: vehicleId }) }, _avg: { fuelLevel: true } }).catch(() => ({ _avg: { fuelLevel: 100 } })),
+            this.prisma.alert.findMany({
+                where: { organizationId, resolved: false } as any,
+                orderBy: { createdAt: 'desc' },
+                take: 10
+            })
         ]);
+
+        const alerts = recentAlerts.map((a: any) => ({
+            title: a.title,
+            message: a.message,
+            type: a.severity === 'HIGH' ? 'danger' : a.severity === 'MEDIUM' ? 'warning' : 'info'
+        }));
 
         const totalKm = journeysWithKm.reduce((acc: number, j: any) => acc + ((j.endKm || 0) - j.startKm), 0);
         const history = await this.getMonthlyHistory(organizationId, new Date(new Date().getFullYear(), new Date().getMonth() - 5, 1));
@@ -166,6 +178,7 @@ export class ReportsService {
                 },
                 recentIncidents
             },
+            alerts,
             history,
             recentActivity: recentJourneys
         };
@@ -322,8 +335,8 @@ export class ReportsService {
             // 3. Safety Score (Incidents) - 40% Weight
             let safetyScore = 100;
             incidents.forEach(inc => {
-                // @ts-ignore - Field exists in DB
-                if (inc.isDriverAtFault) safetyScore -= 30;
+                const i = inc as any;
+                if (i.isDriverAtFault) safetyScore -= 30;
                 else if (inc.severity === 'HIGH') safetyScore -= 20;
                 else if (inc.severity === 'MEDIUM') safetyScore -= 10;
                 else safetyScore -= 5;
@@ -351,8 +364,7 @@ export class ReportsService {
                 totalKm,
                 kmPerLiter: Number(kmPerLiter.toFixed(2)),
                 incidentCount: incidents.length,
-                // @ts-ignore
-                atFaultCount: incidents.filter(i => i.isDriverAtFault).length,
+                atFaultCount: incidents.filter((i: any) => i.isDriverAtFault).length,
                 safetyScore: Math.round(safetyScore),
                 efficiencyScore: Math.round(efficiencyScore),
                 complianceScore: Math.round(complianceScore),

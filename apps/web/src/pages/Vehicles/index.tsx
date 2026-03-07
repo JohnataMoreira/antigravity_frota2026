@@ -33,7 +33,10 @@ const typeIconMap = {
     MACHINE: Cpu,
 };
 
+import { useNavigate } from 'react-router-dom';
+
 export function VehiclesList() {
+    const navigate = useNavigate();
     const queryClient = useQueryClient();
     const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
     const [filter, setFilter] = useState('');
@@ -238,7 +241,11 @@ export function VehiclesList() {
                             </thead>
                             <tbody className="divide-y divide-border">
                                 {filteredVehicles?.map((vehicle) => (
-                                    <tr key={vehicle.id} className="hover:bg-primary/5 transition-colors">
+                                    <tr
+                                        key={vehicle.id}
+                                        className="hover:bg-primary/5 transition-colors cursor-pointer"
+                                        onClick={() => navigate(`/vehicles/${vehicle.id}`)}
+                                    >
                                         <td className="px-6 py-5 font-bold text-primary whitespace-nowrap uppercase">
                                             {vehicle.plate.length === 7
                                                 ? `${vehicle.plate.slice(0, 3)}-${vehicle.plate.slice(3)}`
@@ -289,7 +296,11 @@ export function VehiclesList() {
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {filteredVehicles?.map((vehicle) => (
-                        <GlassCard key={vehicle.id} className="group hover:-translate-y-1 transition-all overflow-hidden relative border border-border">
+                        <GlassCard
+                            key={vehicle.id}
+                            className="group hover:-translate-y-1 transition-all overflow-hidden relative border border-border cursor-pointer"
+                            onClick={() => navigate(`/vehicles/${vehicle.id}`)}
+                        >
                             <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
                                 <button onClick={() => handleEdit(vehicle)} className="p-2 bg-background shadow-lg rounded-full text-primary hover:scale-110 active:scale-95 transition-all">
                                     <Edit size={16} />
