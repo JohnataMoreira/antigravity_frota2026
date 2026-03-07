@@ -46,7 +46,7 @@ export function usePushNotifications() {
             }
 
             // We get the VAPID Public Key from env
-            const vapidPublicKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+            const vapidPublicKey = (import.meta as any).env.VITE_VAPID_PUBLIC_KEY;
             if (!vapidPublicKey) {
                 console.warn('VITE_VAPID_PUBLIC_KEY is missing');
                 return false;

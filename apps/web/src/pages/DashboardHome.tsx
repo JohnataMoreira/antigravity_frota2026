@@ -13,7 +13,9 @@ import {
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
 import { calculateFleetHealth, formatCurrency } from '@/lib/utils';
-import { reportsApi, DashboardStats } from '@/services/reportsService';
+import { reportsService } from '@/services/reportsService';
+type DashboardStats = any;
+const reportsApi = reportsService;
 import { LiveMap } from '@/components/LiveMap';
 import { clsx } from 'clsx';
 

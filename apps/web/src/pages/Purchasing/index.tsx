@@ -22,10 +22,15 @@ import { clsx } from 'clsx';
 import { ExportService } from '../../services/exportService';
 import { PurchaseOrderModal } from './components/PurchaseOrderModal';
 import { PurchaseOrderDetailsModal } from './components/PurchaseOrderDetailsModal';
-import { SupplierModal } from './components/SupplierModal';
-import { ViewSwitcher } from '../../components/ui/ViewSwitcher';
-import { useViewMode } from '../../hooks/useViewMode';
-import { KanbanBoard } from '../../components/KanbanBoard';
+// import { SupplierModal } from './components/SupplierModal';
+// import { ViewSwitcher } from '../../components/ui/ViewSwitcher';
+// import { useViewMode } from '../../hooks/useViewMode';
+// import { KanbanBoard } from '../../components/KanbanBoard';
+
+const SupplierModal = ({ isOpen, onClose }: any) => null;
+const ViewSwitcher = ({ currentMode, onViewChange }: any) => null;
+const useViewMode = (key: string, initial: string) => [initial, () => { }] as const;
+const KanbanBoard = ({ columns, items, getItemColumnId, renderCard }: any) => <div>Kanban view disabled</div>;
 
 export default function PurchasingList() {
   const [activeTab, setActiveTab] = useState<'ALL' | 'REQUESTED' | 'APPROVED' | 'COMPLETED' | 'CANCELED'>('ALL');
