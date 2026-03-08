@@ -65,7 +65,7 @@ export class AuthService {
             metadata: { email: user.email }
         });
 
-        return this.signToken(user.id, org.id, user.email, user.role, user.name);
+        return this.signToken(user.id, org.id, user.email, user.role, user.name, user.tokenVersion);
     }
 
     async login(dto: LoginDto) {
@@ -80,7 +80,7 @@ export class AuthService {
         const pwMatches = await bcrypt.compare(dto.password, user.passwordHash);
         if (!pwMatches) throw new UnauthorizedException('Credentials incorrect');
 
-        const result = await this.signToken(user.id, user.organizationId, user.email, user.role, user.name);
+        const result = await this.signToken(user.id, user.organizationId, user.email, user.role, user.name, user.tokenVersion);
 
         await this.audit.log({
             organizationId: user.organizationId,
@@ -94,13 +94,14 @@ export class AuthService {
         return result;
     }
 
-    async signToken(userId: string, orgId: string, email: string, role: string, name: string) {
+    async signToken(userId: string, orgId: string, email: string, role: string, name: string, tokenVersion: number) {
         const payload = {
             sub: userId,
             orgId,
             organizationId: orgId,
             email,
             role,
+            version: tokenVersion,
         };
 
         const token = await this.jwt.signAsync(payload);
@@ -194,7 +195,7 @@ export class AuthService {
             });
         }
 
-        const result = await this.signToken(user.id, user.organizationId, user.email, user.role, user.name);
+        const result = await this.signToken(user.id, user.organizationId, user.email, user.role, user.name, user.tokenVersion);
 
         await this.audit.log({
             organizationId: user.organizationId,
@@ -207,8 +208,12 @@ export class AuthService {
 
         return result;
     }
-
     async logoutAll(userId: string, organizationId: string) {
+        await this.prisma.user.update({
+            where: { id: userId },
+            data: { tokenVersion: { increment: 1 } },
+        });
+
         await this.audit.log({
             organizationId,
             userId,
@@ -217,6 +222,7 @@ export class AuthService {
             entityId: userId,
             metadata: { type: 'ALL_DEVICES' }
         });
+
         return { success: true };
     }
 }

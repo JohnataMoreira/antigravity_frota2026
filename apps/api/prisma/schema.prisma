@@ -190,6 +190,7 @@ model User {
   licenseNumber String?
   pushToken     String? // Token for Expo/FCM push notifications
   active        Boolean  @default(true)
+  tokenVersion  Int      @default(1) // Controls active sessions
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

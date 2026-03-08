@@ -164,6 +164,18 @@ docker service rm <service_name>
 
 **Lição:** Quando o Swarm fica em deadlock, a única solução garantida é remover o serviço e recriar via Dokploy. Tentativas de `update --force` ou `scale 0/1` falham quando o estado de update está `paused`.
 
+## 6. Autenticação e Segurança (Março/2026)
+
+### Problema 1: Persistência de Tokens JWT (Stateless)
+**Cenário:** O endpoint `/auth/logout-all` apenas gravava um log de auditoria, mas não invalidava os tokens JWT nos dispositivos. Como o JWT não mantém estado no servidor, os usuários continuavam acessando o sistema.
+**Solução Aplicada:** Implementação do campo `tokenVersion` no modelo `User`. Em cada requisição (`JwtStrategy`), o `tokenVersion` do Payload do JWT é comparado com o `tokenVersion` do banco de dados. O endpoint `logout-all` incrementa essa versão no banco, invalidando retroativamente e imediatamente todos os tokens antigos.
+**Lição:** Sessões stateless puras com JWT são perigosas em sistemas críticos (onde a revogação imediata é legalmente exigida). O rastreio de versão da sessão (Token Versioning) no banco resolve o problema sem a necessidade do peso de um Redis.
+
+### Problema 2: Invalidação Grosseira (Falta de check do Campo `active`)
+**Cenário:** O guardião `JwtStrategy` apenas decodificava o Token. Ele não testava no banco se a conta continuava ativa (`active: true`), permitindo que ex-funcionários usassem o app até a expiração do token.
+**Solução Aplicada:** Incorporação da checagem em banco no validador do Passport-JWT.
+**Lição:** "O Guard defende a porta, mas o Strategy deve perguntar a quem pertence a chave". O Payload de uma sessão não responde sobre o status atual do usuário.
+
 ---
 
 ## Checklist para o Antigravity
@@ -174,6 +186,7 @@ docker service rm <service_name>
 - [ ] **Certifique-se de que TODA query Prisma filtra por `organizationId`.**
 - [ ] **Para Jornadas, use sempre transações atômicas no Prisma.**
 - [ ] **Adicione verificações de nulidade (Optional Chaining) em dados vindos da API.**
+- [ ] **Verifique invalidação de Sessões Web atrelando-as a um state server-side.**
 - [ ] **Sincronize o `task.md` na raiz ao finalizar cada etapa.**
 - [ ] **Verifique se novas rotas foram registradas no `App.tsx`.**
 - [ ] **Em caso de erro 502 no deploy, valide RAM com `free -m` e limpe Docker com `prune`.**
