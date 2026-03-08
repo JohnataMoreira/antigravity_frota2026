@@ -1,0 +1,1 @@
+DELETE FROM _prisma_migrations WHERE migration_name = '20260307160000_add_org_branding_and_checklist_template';

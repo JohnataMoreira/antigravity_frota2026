@@ -145,18 +145,54 @@ export class AuthService {
             organization: {
                 name: user.organization.name,
                 logoUrl: user.organization.logoUrl ?? null,
-                primaryColor: user.organization.primaryColor ?? null,
             },
         };
     }
 
     async validateGoogleUser(googleUser: any) {
-        const user = await this.prisma.user.findUnique({
-            where: { email: googleUser.email },
+
+
+        const { email, firstName, lastName } = googleUser;
+
+        let user = await this.prisma.user.findUnique({
+            where: { email },
         });
 
         if (!user) {
-            throw new UnauthorizedException('Usuário não encontrado. Entre em contato com seu administrador.');
+            // Auto-register a new organization for this social user
+            const result = await this.prisma.$transaction(async (tx) => {
+                const org = await tx.organization.create({
+                    data: {
+                        name: `${firstName}'s Company`,
+                        document: `GOOGLE-${email}`, // Required unique field
+                    },
+                });
+
+                const newUser = await tx.user.create({
+                    data: {
+                        email,
+                        name: `${firstName} ${lastName}`,
+                        firstName,
+                        lastName,
+                        passwordHash: 'SOCIAL_LOGIN', // Placeholder
+                        role: 'ADMIN',
+                        organizationId: org.id,
+                    },
+                });
+
+                return { org, user: newUser };
+            });
+
+            await this.audit.log({
+                organizationId: result.org.id,
+                userId: result.user.id,
+                action: AuditAction.CREATE,
+                entity: AuditEntity.USER,
+                entityId: result.user.id,
+                metadata: { email: result.user.email, type: 'google' }
+            });
+
+            user = result.user;
         }
 
         const result = await this.signToken(user.id, user.organizationId, user.email, user.role, user.name);
@@ -185,3 +221,4 @@ export class AuthService {
         return { success: true };
     }
 }
+

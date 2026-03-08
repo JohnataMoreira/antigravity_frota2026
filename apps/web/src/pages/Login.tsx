@@ -90,8 +90,8 @@ export function Login() {
 
             <div className="w-full max-w-md space-y-8 p-8 glass-card relative z-10 border border-border/50 shadow-2xl">
                 <div className="text-center space-y-2">
-                    <div className="flex justify-center mb-8 bg-white/90 p-4 rounded-3xl shadow-inner">
-                        <img src="/logo.png" alt="Logo Frota2026" className="h-[120px] w-auto object-contain drop-shadow-xl" />
+                    <div className="flex justify-center mb-8 bg-white/90 p-4 rounded-3xl shadow-inner dark:bg-white/10">
+                        <img src="/logo.png" alt="Logo" className="h-[120px] w-auto object-contain drop-shadow-xl" />
                     </div>
                     <h2 className="text-4xl font-bold tracking-tight gradient-text">
                         {isRegistering ? 'Nova Organização' : 'Entrar no Sistema'}
