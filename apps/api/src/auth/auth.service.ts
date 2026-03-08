@@ -150,6 +150,29 @@ export class AuthService {
         };
     }
 
+    async validateGoogleUser(googleUser: any) {
+        const user = await this.prisma.user.findUnique({
+            where: { email: googleUser.email },
+        });
+
+        if (!user) {
+            throw new UnauthorizedException('Usuário não encontrado. Entre em contato com seu administrador.');
+        }
+
+        const result = await this.signToken(user.id, user.organizationId, user.email, user.role, user.name);
+
+        await this.audit.log({
+            organizationId: user.organizationId,
+            userId: user.id,
+            action: AuditAction.LOGIN,
+            entity: AuditEntity.USER,
+            entityId: user.id,
+            metadata: { email: user.email, provider: 'GOOGLE' }
+        });
+
+        return result;
+    }
+
     async logoutAll(userId: string, organizationId: string) {
         await this.audit.log({
             organizationId,

@@ -21,6 +21,7 @@
         "jsx": "react-jsx",
         "types": [
             "node",
+            "vite",
             "vite-plugin-pwa/client"
         ],
         "baseUrl": ".",
