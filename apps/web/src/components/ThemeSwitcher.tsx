@@ -5,7 +5,7 @@ import { Sun, Moon, Building2 } from 'lucide-react';
  * ThemeSwitcher Component - Cycle Button (11/10 Design)
  * 
  * Premium single-button theme switcher that cycles through:
- * Light → Dark → Paraopeba → Light...
+ * Light → Dark → Light...
  * 
  * Shows only the CURRENT theme icon with smooth transitions.
  */

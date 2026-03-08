@@ -182,6 +182,8 @@ export class AuthService {
                 return { org, user: newUser };
             });
 
+            user = result.user;
+
             await this.audit.log({
                 organizationId: result.org.id,
                 userId: result.user.id,
@@ -190,8 +192,6 @@ export class AuthService {
                 entityId: result.user.id,
                 metadata: { email: result.user.email, type: 'google' }
             });
-
-            user = result.user;
         }
 
         const result = await this.signToken(user.id, user.organizationId, user.email, user.role, user.name);

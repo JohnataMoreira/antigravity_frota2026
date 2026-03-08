@@ -17,8 +17,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     const [theme, setThemeState] = useState<Theme>(() => {
         // Initialize from localStorage or default to 'light'
         const stored = localStorage.getItem('frota-theme');
-        // Handle migration from removed paraopeba theme
-        if (stored === 'paraopeba' || !stored) return 'light';
+        if (!stored) return 'light';
         return stored as Theme;
     });
 
