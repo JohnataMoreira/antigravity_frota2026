@@ -1,0 +1,58 @@
+
+============================================================
+[ACCESSIBILITY CHECKER] WCAG Compliance Audit
+============================================================
+Project: C:\Projetos\Antigravity\apps\Frota2026
+Time: 2026-03-09 00:30:40
+------------------------------------------------------------
+Found 50 HTML/JSX/TSX files
+
+============================================================
+ACCESSIBILITY ISSUES
+============================================================
+
+homepage.html:
+  - Consider adding skip-to-main-content link
+  - Autoplay media should be muted
+
+index.html:
+  - Consider adding skip-to-main-content link
+
+index.html:
+  - Missing lang attribute on <html>
+  - onClick without keyboard handler (onKeyDown)
+
+combustivel.html:
+  - Input without label or aria-label
+  - Consider adding skip-to-main-content link
+
+incidente.html:
+  - Consider adding skip-to-main-content link
+
+inspecao_veiculo.html:
+  - Consider adding skip-to-main-content link
+
+jornada_ativa.html:
+  - Consider adding skip-to-main-content link
+
+login.html:
+  - Input without label or aria-label
+  - Consider adding skip-to-main-content link
+
+selecao_veiculo.html:
+  - Input without label or aria-label
+  - Consider adding skip-to-main-content link
+
+App.tsx:
+  - Consider adding skip-to-main-content link
+
+... and 30 more files with issues
+
+{
+  "script": "accessibility_checker",
+  "project": "C:\\Projetos\\Antigravity\\apps\\Frota2026",
+  "files_checked": 50,
+  "files_with_issues": 40,
+  "issues_found": 70,
+  "passed": false
+}

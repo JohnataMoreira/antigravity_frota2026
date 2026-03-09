@@ -87,8 +87,12 @@ export function DashboardLayout() {
                     <div className="bg-white p-1 rounded-lg">
                         <img src={user?.organization?.logoUrl || "/logo.png"} alt={user?.organization?.name || "Frota2026"} className="h-8 w-auto object-contain" />
                     </div>
-                    <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-                        {isMobileMenuOpen ? <X /> : <Menu />}
+                    <button
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        aria-label={isMobileMenuOpen ? "Fechar menu" : "Abrir menu"}
+                        className="p-2 text-gray-600 dark:text-gray-300"
+                    >
+                        {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>
                 </header>
 

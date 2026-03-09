@@ -1,0 +1,24 @@
+
+============================================================
+  i18n CHECKER - Internationalization Audit
+============================================================
+
+[LOCALE FILES]
+----------------------------------------
+  [!] No locale files found
+
+[CODE ANALYSIS]
+----------------------------------------
+  [OK] Analyzed 277 code files
+  [OK] 29 files use i18n
+  [X] 15 files may have hardcoded strings
+     ÔåÆ ErrorBoundary.tsx: >Erro ao carregar componente</...
+     ÔåÆ ErrorBoundary.tsx: h3...
+     ÔåÆ PWAProvider.tsx: >
+                            INSTALAR
+ ...
+     ÔåÆ VehicleModal.tsx: >Placa</...
+     ÔåÆ VehicleModal.tsx: label...
+
+============================================================
+[X] i18n CHECK: 1 issues found

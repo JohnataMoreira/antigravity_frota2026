@@ -218,3 +218,8 @@ docker service rm <service_name>
 - **Segurança**: A implementação de um `JwtAuthGuard` global no `AppModule` é a estratégia mais segura (Allow-list por exceção), evitando que novas rotas fiquem expostas por esquecimento.
 - **Multi-tenancy**: O uso de `AsyncLocalStorage` para injetar o `organizationId` no Prisma Extension provou ser uma barreira de segurança robusta e invisível para a lógica de negócio, eliminando erros humanos de filtragem manual.
 - **DevOps**: Build Multi-stage no Docker reduziu a imagem da API de ~800MB para ~210MB, otimizando o tempo de deploy no Dokploy.
+
+### Hardening & Polimento Extra
+- **Cabeçalhos de Segurança**: O uso do `Helmet` mitigou riscos de *Clickjacking* e *XSS* que foram detectados como "melhorias recomendadas" pelo scanner de vulnerabilidades.
+- **Semântica para IAs (GEO)**: A inclusão de metadados compatíveis com **Schema.org** transformou o dashboard de um "site genérico" em uma entidade de software reconhecível por motores de busca generativos.
+- **Estabilidade Docker**: Limitar a memória (512MB para API) e CPU é vital; sem isso, picos de tráfego podem causar *OOM Kill* (Out of Memory) na VPS, derrubando outros serviços.
