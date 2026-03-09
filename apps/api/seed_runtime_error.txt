@@ -1,0 +1,23 @@
+­ƒÜÇ Iniciando Seeding Multi-tenant...
+
+­ƒÅó Povoando Organiza├º├úo: TransBrasil Log├¡stica Ltda...
+PrismaClientInitializationError: 
+Invalid `prisma.organization.upsert()` invocation in
+C:\Projetos\Antigravity\apps\Frota2026\apps\api\prisma\seed-multi-tenant.ts:72:43
+
+  69 historyStart.setMonth(now.getMonth() - 5); // 6 meses de hist├│rico
+  70 
+  71 // 1. Organization
+ÔåÆ 72 const org = await prisma.organization.upsert(
+Can't reach database server at `127.0.0.1:5432`
+
+Please make sure your database server is running at `127.0.0.1:5432`.
+    at $n.handleRequestError (C:\Projetos\Antigravity\apps\Frota2026\node_modules\@prisma\client\runtime\library.js:121:7615)
+    at $n.handleAndLogRequestError (C:\Projetos\Antigravity\apps\Frota2026\node_modules\@prisma\client\runtime\library.js:121:6623)
+    at $n.request (C:\Projetos\Antigravity\apps\Frota2026\node_modules\@prisma\client\runtime\library.js:121:6307)
+    at async l (C:\Projetos\Antigravity\apps\Frota2026\node_modules\@prisma\client\runtime\library.js:130:9633)
+    at async seedOrganization (C:\Projetos\Antigravity\apps\Frota2026\apps\api\prisma\seed-multi-tenant.ts:72:17)
+    at async main (C:\Projetos\Antigravity\apps\Frota2026\apps\api\prisma\seed-multi-tenant.ts:197:5) {
+  clientVersion: '5.22.0',
+  errorCode: undefined
+}
