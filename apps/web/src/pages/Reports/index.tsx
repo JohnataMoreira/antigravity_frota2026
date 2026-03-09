@@ -11,8 +11,10 @@ import { ExportActions } from './components/ExportActions';
 import { clsx } from 'clsx';
 import { formatCurrency, formatKm } from '../../lib/utils';
 import { ExportService } from '../../services/exportService';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Reports() {
+    const { user } = useAuth();
     const [activeTab, setActiveTab] = useState<'overview' | 'drivers' | 'vehicles' | 'fuel' | 'finance'>('overview');
     const [isExporting, setIsExporting] = useState(false);
 
@@ -61,7 +63,11 @@ export default function Reports() {
                             { header: 'Veículo', dataKey: 'vehicle' },
                             { header: 'Custo (R$)', dataKey: 'cost' }
                         ],
-                        'relatorio_financeiro'
+                        'relatorio_financeiro',
+                        {
+                            name: user?.organization?.name || 'Frota2026',
+                            logoUrl: user?.organization?.logoUrl || undefined
+                        }
                     );
                 } else {
                     await ExportService.exportToExcel(data, 'relatorio_financeiro');
@@ -81,7 +87,11 @@ export default function Reports() {
                             { header: 'Distância (KM)', dataKey: 'distance' },
                             { header: 'Incidentes', dataKey: 'incidents' }
                         ],
-                        'auditoria_jornadas'
+                        'auditoria_jornadas',
+                        {
+                            name: user?.organization?.name || 'Frota2026',
+                            logoUrl: user?.organization?.logoUrl || undefined
+                        }
                     );
                 } else {
                     await ExportService.exportToExcel(data, 'auditoria_jornadas');

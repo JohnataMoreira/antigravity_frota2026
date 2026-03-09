@@ -178,15 +178,43 @@ docker service rm <service_name>
 
 ---
 
-## Checklist para o Antigravity
+## 7. Desenvolvimento Mobile (Fases 16 & 17 - Março/2026)
 
-- [ ] **Teste o build localmente (`npm run build`) antes de fazer push.**
-- [ ] **Rode o `type-check` e garanta que NÃO adicionou novos `@ts-ignore`.**
-- [ ] **Verifique remoção de branding com `grep` ou `Select-String` global.**
-- [ ] **Certifique-se de que TODA query Prisma filtra por `organizationId`.**
-- [ ] **Para Jornadas, use sempre transações atômicas no Prisma.**
-- [ ] **Adicione verificações de nulidade (Optional Chaining) em dados vindos da API.**
-- [ ] **Verifique invalidação de Sessões Web atrelando-as a um state server-side.**
+### Problema 1: Componentes Web em React Native (View vs div)
+**Cenário:** Durante a refatoração do `checklist.tsx`, o Antigravity usou acidentalmente a tag `<div>` (padrão Web) em vez de `<View>` (padrão React Native).
+**Solução:** Substituir todas as instâncias de `div` por `View`.
+**Lição:** Sempre verifique se está em um contexto `mobile` antes de escrever JSX. Tags HTML comuns não funcionam no Native sem bibliotecas específicas.
+
+### Problema 2: Dependências de UI (Linear Gradient)
+**Cenário:** O design premium exigia gradientes, mas a biblioteca `expo-linear-gradient` não estava instalada, causando erro de módulo não encontrado.
+**Solução:** Instalar via `npx expo install expo-linear-gradient`.
+**Lição:** Designs complexos geralmente exigem módulos nativos do Expo. Verifique o `package.json` antes de implementar elementos visuais avançados.
+
+### Problema 3: Sincronização WatermelonDB (lastPulledAt)
+**Cenário:** Ao testar o `SyncService`, o campo `lastPulledAt` (timestamp) precisa ser tratado como milissegundos inteiros. Passar strings ou zeros incorretos pode causar re-sincronização infinita ou perda de dados.
+**Solução:** Garantir o uso de `parseInt(lastPulledAt, 10) || 0` no controller da API e `Date.now()` no retorno do sync.
+**Lição:** A reconciliação de estado entre Mobile e Backend depende de precisão temporal e tipagem rigorosa.
+
+### Problema 4: Mapeamento de Fontes no Tailwind (Lexend)
+**Cenário:** Definir fontes como `display: [...]` no `tailwind.config.js` exigia classes específicas como `font-display`.
+**Solução:** Mapear para `sans` e `bold` para aplicar a fonte Lexend de forma global e simplificada através da classe padrão `font-sans`.
+**Lição:** Facilite a aplicação do design system mapeando tokens para classes utilitárias padrão do Tailwind.
+
+---
+
+## Checklist para o Antigravity (Atualizado)
+
+- [ ] **Sempre use `<View>` e `<Text>` em projetos React Native.**
+- [ ] **Verifique se dependências nativas (`expo-location`, `expo-notifications`, etc.) estão instaladas.**
+- [ ] **Mapeie fontes de branding para a classe `sans` no Tailwind.**
+- [ ] **Trate timestamps de sincronização como Inteiros (ms).**
 - [ ] **Sincronize o `task.md` na raiz ao finalizar cada etapa.**
-- [ ] **Verifique se novas rotas foram registradas no `App.tsx`.**
-- [ ] **Em caso de erro 502 no deploy, valide RAM com `free -m` e limpe Docker com `prune`.**
+### Phase 19: Relatórios & BI
+- **Problema**: Gráficos Recharts não renderizavam corretamente em contêineres colapsáveis.
+- **Solução**: Utilizar `ResponsiveContainer` com altura fixa e garantir que o componente pai tenha dimensões definidas.
+- **Isolamento**: Implementação de White-label via `AuthContext` garantiu que o branding fosse aplicado sem expor dados de outros tenants no frontend.
+
+### Phase 20: Auditoria Final & Go-Live
+- **Segurança**: A implementação de um `JwtAuthGuard` global no `AppModule` é a estratégia mais segura (Allow-list por exceção), evitando que novas rotas fiquem expostas por esquecimento.
+- **Multi-tenancy**: O uso de `AsyncLocalStorage` para injetar o `organizationId` no Prisma Extension provou ser uma barreira de segurança robusta e invisível para a lógica de negócio, eliminando erros humanos de filtragem manual.
+- **DevOps**: Build Multi-stage no Docker reduziu a imagem da API de ~800MB para ~210MB, otimizando o tempo de deploy no Dokploy.

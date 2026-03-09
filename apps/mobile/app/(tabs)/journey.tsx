@@ -1,13 +1,15 @@
-import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput, Modal, ScrollView, Image } from 'react-native';
-import { useEffect, useState } from 'react';
-import { locationService } from '../../src/services/location';
+import { View, Text, TouchableOpacity, Alert, TextInput, Modal, ScrollView, Image, SafeAreaView, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import { useEffect, useState, useRef } from 'react';
+import { locationService, LocationCoords } from '../../src/services/location';
 import { api } from '../../src/services/api';
 import { fuelService } from '../../src/services/fuelService';
 import { photoService } from '../../src/services/photoService';
 import { useRouter } from 'expo-router';
 import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
 import { useAuth } from '../_layout';
-import { useRef } from 'react';
+import { Clock, Gauge, Fuel, AlertTriangle, Hand, MapPin, X, ChevronLeft, Menu, Camera as CameraIcon, Check, Navigation, Truck, Wifi, WifiOff, CloudSync } from 'lucide-react-native';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import NetInfo from '@react-native-community/netinfo';
 
 const PAYMENT_METHODS = [
     { id: 'CASH', label: 'Dinheiro', icon: '💵' },
@@ -41,22 +43,31 @@ export default function JourneyScreen() {
     const [isReportingIncident, setIsReportingIncident] = useState(false);
     const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
     const [showCamera, setShowCamera] = useState(false);
+    const [elapsedTime, setElapsedTime] = useState('00:00:00');
+    const [currentLocation, setCurrentLocation] = useState<LocationCoords | null>(null);
+    const [isOffline, setIsOffline] = useState(false);
+    const [syncQueueSize, setSyncQueueSize] = useState(0);
 
     const { hasPermission, requestPermission } = useCameraPermission();
     const device = useCameraDevice('back');
     const camera = useRef<Camera>(null);
+    const mapRef = useRef<MapView>(null);
     const { token } = useAuth();
-
     const router = useRouter();
 
     const fetchActive = async () => {
         try {
             const journey = await api.getActiveJourney();
-
             if (journey) {
                 setActiveJourney(journey);
                 setVehicle(journey.vehicle);
-                await locationService.startTracking(journey.vehicleId, journey.id);
+                await locationService.startTracking(
+                    journey.vehicleId,
+                    journey.id,
+                    token || undefined,
+                    undefined,
+                    (coords) => setCurrentLocation(coords)
+                );
             } else {
                 setActiveJourney(null);
                 setVehicle(null);
@@ -67,19 +78,58 @@ export default function JourneyScreen() {
         }
     };
 
+    const checkQueue = async () => {
+        const size = await photoService.getQueueSize();
+        setSyncQueueSize(size);
+    };
+
     useEffect(() => {
         fetchActive();
-        const interval = setInterval(fetchActive, 10000);
+        const interval = setInterval(fetchActive, 15000);
         return () => clearInterval(interval);
     }, []);
 
-    const handleFuelPress = () => {
-        if (!activeJourney || !vehicle) return;
-        setFuelData({
-            ...fuelData,
-            km: vehicle.currentKm.toString(),
+    useEffect(() => {
+        const unsubscribe = NetInfo.addEventListener(state => {
+            const nowOffline = !state.isConnected;
+            setIsOffline(nowOffline);
+
+            if (state.isConnected && token) {
+                photoService.processOfflineQueue(token).then(checkQueue);
+            }
         });
-        setShowFuelModal(true);
+
+        checkQueue();
+        const queueInterval = setInterval(checkQueue, 10000);
+
+        return () => {
+            unsubscribe();
+            clearInterval(queueInterval);
+        };
+    }, [token]);
+
+    useEffect(() => {
+        if (!activeJourney) return;
+        const interval = setInterval(() => {
+            const start = new Date(activeJourney.startTime).getTime();
+            const now = Date.now();
+            const diff = now - start;
+            const h = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+            const s = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, '0');
+            setElapsedTime(`${h}:${m}:${s}`);
+        }, 1000);
+        return () => clearInterval(interval);
+    }, [activeJourney]);
+
+    const centerMap = () => {
+        if (currentLocation && mapRef.current) {
+            mapRef.current.animateToRegion({
+                ...currentLocation,
+                latitudeDelta: 0.005,
+                longitudeDelta: 0.005,
+            });
+        }
     };
 
     const handleConfirmFuel = async () => {
@@ -89,7 +139,7 @@ export default function JourneyScreen() {
         const valueNum = parseFloat(totalValue);
 
         if (isNaN(kmNum) || isNaN(litersNum) || isNaN(valueNum)) {
-            Alert.alert('Erro', 'Por favor, preencha todos os campos numéricos corretamente.');
+            Alert.alert('Erro', 'Por favor, preencha todos os campos corretamente.');
             return;
         }
 
@@ -130,16 +180,13 @@ export default function JourneyScreen() {
             Alert.alert('Erro', 'Por favor, descreva o incidente.');
             return;
         }
-
         setIsReportingIncident(true);
         try {
             let photoUrl = undefined;
             if (capturedPhoto && token) {
                 photoUrl = await photoService.uploadPhoto(capturedPhoto, token);
             }
-
             const currentPos = await locationService.getCurrentPosition();
-
             await api.reportIncident({
                 vehicleId: vehicle.id,
                 journeyId: activeJourney.id,
@@ -149,7 +196,7 @@ export default function JourneyScreen() {
                 lat: currentPos?.lat?.toString(),
                 lng: currentPos?.lng?.toString()
             });
-            Alert.alert('Sucesso', 'Incidente relatado com sucesso. O administrador foi notificado.');
+            Alert.alert('Sucesso', 'Incidente relatado!');
             setIncidentDescription('');
             setCapturedPhoto(null);
             setShowIncidentModal(false);
@@ -161,45 +208,28 @@ export default function JourneyScreen() {
         }
     };
 
-    const handleEndJourneyPress = () => {
-        if (!activeJourney || !vehicle) return;
-        setEndKm(activeJourney.startKm.toString());
-        setShowEndModal(true);
-    };
-
     const handleConfirmEnd = async () => {
-        if (!activeJourney || !vehicle) return;
-        const endKmNum = parseInt(endKm);
-        if (isNaN(endKmNum) || endKmNum < 0) {
-            Alert.alert('Erro', 'Por favor, insira um km válido');
-            return;
-        }
-        if (endKmNum < activeJourney.startKm) {
-            Alert.alert('Km Inválido', `Km final (${endKmNum}) não pode ser menor que km inicial (${activeJourney.startKm})`);
+        const km = parseInt(endKm);
+        if (isNaN(km) || km < activeJourney.startKm) {
+            Alert.alert('Erro', 'KM final inválido.');
             return;
         }
         setShowEndModal(false);
         router.push({
             pathname: '/checklist',
-            params: { type: 'checkin', journeyId: activeJourney.id, endKm: endKmNum },
+            params: { type: 'checkin', journeyId: activeJourney.id, endKm: km }
         });
     };
 
     if (showCamera) {
         return (
-            <View style={styles.cameraContainer}>
-                <Camera
-                    ref={camera}
-                    style={StyleSheet.absoluteFill}
-                    device={device!}
-                    isActive={true}
-                    photo={true}
-                />
-                <TouchableOpacity style={styles.captureBtn} onPress={takePhoto}>
-                    <View style={styles.captureInner} />
+            <View className="flex-1 bg-black">
+                <Camera ref={camera} style={{ flex: 1 }} device={device!} isActive={true} photo={true} />
+                <TouchableOpacity className="absolute bottom-12 self-center w-20 h-20 rounded-full bg-white items-center justify-center" onPress={takePhoto}>
+                    <View className="w-16 h-16 rounded-full border-4 border-primary" />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.cameraCancelBtn} onPress={() => setShowCamera(false)}>
-                    <Text style={{ color: 'white', fontWeight: 'bold' }}>Cancelar</Text>
+                <TouchableOpacity className="absolute bottom-12 left-8 p-4 bg-black/60 rounded-xl" onPress={() => setShowCamera(false)}>
+                    <Text className="text-white font-bold">Cancelar</Text>
                 </TouchableOpacity>
             </View>
         );
@@ -207,238 +237,216 @@ export default function JourneyScreen() {
 
     if (!activeJourney) {
         return (
-            <View style={styles.container}>
-                <Text style={styles.text}>Nenhuma jornada ativa</Text>
-                <Text style={styles.subtext}>Selecione um veículo na aba Veículos para iniciar.</Text>
-            </View>
+            <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark items-center justify-center p-10">
+                <View className="w-24 h-24 bg-slate-100 dark:bg-slate-800 rounded-full items-center justify-center mb-6">
+                    <Truck size={48} color="#94a3b8" />
+                </View>
+                <Text className="text-2xl font-black text-slate-900 dark:text-white text-center">Nenhuma jornada ativa</Text>
+                <Text className="text-slate-500 dark:text-slate-400 text-center mt-3 text-lg">Selecione um veículo na aba Veículos para começar.</Text>
+                <TouchableOpacity className="mt-10 px-8 h-14 bg-primary rounded-2xl items-center justify-center shadow-lg shadow-primary/20" onPress={() => router.push('/(tabs)')}>
+                    <Text className="text-white font-bold text-lg">Ver Veículos</Text>
+                </TouchableOpacity>
+            </SafeAreaView>
         );
     }
 
-    const duration = Math.floor((Date.now() - new Date(activeJourney.startTime).getTime()) / 1000 / 60);
-
     return (
-        <View style={styles.container}>
-            <View style={styles.card}>
-                <Text style={styles.label}>JORNADA ATIVA</Text>
-                <Text style={styles.time}>Iniciada às {new Date(activeJourney.startTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</Text>
-                <Text style={styles.duration}>{duration} minutos</Text>
-                <View style={styles.vehicleInfo}>
-                    <Text style={styles.plate}>{vehicle?.plate}</Text>
-                    <Text style={styles.model}>{vehicle?.brand} {vehicle?.model}</Text>
+        <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
+            <View className="flex-row items-center bg-white dark:bg-slate-900 px-4 py-4 border-b border-slate-200 dark:border-slate-800">
+                <TouchableOpacity className="p-2 mr-2"><Menu size={24} color="#475569" /></TouchableOpacity>
+                <Text className="text-slate-900 dark:text-white text-lg font-bold flex-1 text-center">Frota2026 Driver</Text>
+                <View className="flex-row items-center space-x-2">
+                    {syncQueueSize > 0 && (
+                        <View className="bg-amber-100 dark:bg-amber-900/30 p-2 rounded-full">
+                            <CloudSync size={16} color="#d97706" />
+                        </View>
+                    )}
+                    <View className={`p-2 rounded-full ${isOffline ? 'bg-red-100 dark:bg-red-900/30' : 'bg-emerald-100 dark:bg-emerald-900/30'}`}>
+                        {isOffline ? <WifiOff size={16} color="#ef4444" /> : <Wifi size={16} color="#10b981" />}
+                    </View>
                 </View>
-                <View style={styles.kmInfo}>
-                    <Text style={styles.kmLabel}>KM Atual:</Text>
-                    <Text style={styles.kmValue}>{vehicle?.currentKm} km</Text>
-                </View>
-                <TouchableOpacity style={styles.fuelButton} onPress={handleFuelPress}>
-                    <Text style={styles.fuelButtonText}>Registrar Abastecimento</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.incidentButton} onPress={() => setShowIncidentModal(true)}>
-                    <Text style={styles.fuelButtonText}>Relatar Incidente</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.stopButton} onPress={handleEndJourneyPress}>
-                    <Text style={styles.buttonText}>Encerrar Jornada</Text>
-                </TouchableOpacity>
             </View>
 
-            <Modal visible={showFuelModal} transparent animationType="slide" onRequestClose={() => setShowFuelModal(false)}>
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <ScrollView showsVerticalScrollIndicator={false}>
-                            <Text style={styles.modalTitle}>Novo Abastecimento</Text>
+            <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 100 }}>
+                <View className="px-6 py-10 items-center">
+                    <Text className="text-6xl font-black text-slate-900 dark:text-white tracking-tighter uppercase">{vehicle?.plate}</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 text-xl font-medium mt-2 uppercase tracking-widest">{vehicle?.brand} {vehicle?.model}</Text>
+                </View>
 
-                            <Text style={styles.inputLabel}>KM no ato:</Text>
-                            <TextInput style={styles.input} keyboardType="numeric" value={fuelData.km} onChangeText={(val) => setFuelData({ ...fuelData, km: val })} />
-
-                            <View style={{ flexDirection: 'row', gap: 12 }}>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={styles.inputLabel}>Litros:</Text>
-                                    <TextInput style={styles.input} keyboardType="numeric" placeholder="0.00" value={fuelData.liters} onChangeText={(val) => setFuelData({ ...fuelData, liters: val })} />
-                                </View>
-                                <View style={{ flex: 1 }}>
-                                    <Text style={styles.inputLabel}>Valor Total (R$):</Text>
-                                    <TextInput style={styles.input} keyboardType="numeric" placeholder="0.00" value={fuelData.totalValue} onChangeText={(val) => setFuelData({ ...fuelData, totalValue: val })} />
-                                </View>
+                <View className="px-6 mb-8">
+                    <View className="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-xl border border-slate-100 dark:border-slate-800">
+                        <View className="p-8">
+                            <View className="flex-row items-center justify-between mb-8">
+                                <Text className="text-slate-500 dark:text-slate-400 font-bold text-sm uppercase tracking-widest">Início</Text>
+                                <Text className="text-slate-900 dark:text-white font-black text-xl">{new Date(activeJourney.startTime).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</Text>
                             </View>
-
-                            <Text style={styles.inputLabel}>Tipo de Combustível:</Text>
-                            <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-                                {[
-                                    { id: 'GASOLINE', label: 'Gasolina' },
-                                    { id: 'ETHANOL', label: 'Etanol' },
-                                    { id: 'DIESEL', label: 'Diesel' },
-                                    { id: 'GNV', label: 'GNV' },
-                                    { id: 'OTHER', label: 'Outro' }
-                                ].map((type) => (
-                                    <TouchableOpacity
-                                        key={type.id}
-                                        style={[styles.chip, fuelData.fuelType === type.id && styles.activeChip]}
-                                        onPress={() => setFuelData({ ...fuelData, fuelType: type.id })}
-                                    >
-                                        <Text style={[styles.chipText, fuelData.fuelType === type.id && styles.activeChipText]}>{type.label}</Text>
-                                    </TouchableOpacity>
-                                ))}
+                            <View className="items-center py-6 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-slate-800">
+                                <Text className="text-slate-400 dark:text-slate-500 text-xs font-bold uppercase tracking-widest mb-2">Tempo de Viagem</Text>
+                                <Text className="text-slate-900 dark:text-white text-5xl font-mono font-black tracking-tighter">{elapsedTime}</Text>
                             </View>
-
-                            <Text style={styles.inputLabel}>Forma de Pagamento:</Text>
-                            <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-                                {PAYMENT_METHODS.map((method) => (
-                                    <TouchableOpacity key={method.id} style={[styles.paymentChip, fuelData.paymentMethod === method.id && styles.activePaymentChip]} onPress={() => setFuelData({ ...fuelData, paymentMethod: method.id })}>
-                                        <Text style={styles.paymentIcon}>{method.icon}</Text>
-                                        <Text style={[styles.paymentChipText, fuelData.paymentMethod === method.id && styles.activeChipText]}>{method.label}</Text>
-                                    </TouchableOpacity>
-                                ))}
+                            <View className="flex-row items-center justify-between mt-8">
+                                <View className="flex-row items-center"><Clock size={20} color="#2463eb" /><Text className="text-slate-600 dark:text-slate-300 font-semibold ml-2">KM Atual</Text></View>
+                                <Text className="text-primary font-black text-2xl">{vehicle?.currentKm.toLocaleString()} km</Text>
                             </View>
+                        </View>
+                        <View className="h-2 w-full bg-slate-100 dark:bg-slate-800"><View className="h-full bg-primary w-2/3" /></View>
+                    </View>
+                </View>
 
-                            {(fuelData.paymentMethod === 'FUEL_CARD' || fuelData.paymentMethod === 'INVOICED') && (
-                                <View style={styles.corporateFields}>
-                                    <Text style={styles.inputLabel}>Operadora (Ex: Ticket Log, GoodCard):</Text>
-                                    <TextInput style={styles.input} value={fuelData.paymentProvider} onChangeText={(val) => setFuelData({ ...fuelData, paymentProvider: val })} placeholder="Nome da empresa/cartão" />
-                                    <Text style={styles.inputLabel}>Referência (Número Cartão/Fatura):</Text>
-                                    <TextInput style={styles.input} value={fuelData.paymentReference} onChangeText={(val) => setFuelData({ ...fuelData, paymentReference: val })} placeholder="Opcional" />
-                                </View>
+                {/* REAL MAP COMPONENT */}
+                <View className="px-6 mb-10">
+                    <View className="relative h-48 w-full rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800 bg-slate-200">
+                        <MapView
+                            ref={mapRef}
+                            style={{ width: '100%', height: '100%' }}
+                            provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
+                            initialRegion={currentLocation ? {
+                                ...currentLocation,
+                                latitudeDelta: 0.01,
+                                longitudeDelta: 0.01,
+                            } : undefined}
+                            showsUserLocation
+                            showsMyLocationButton={false}
+                        >
+                            {currentLocation && (
+                                <Marker
+                                    coordinate={currentLocation}
+                                    title="Você está aqui"
+                                />
                             )}
-
-                            <View style={styles.modalButtons}>
-                                <TouchableOpacity style={[styles.modalButton, styles.cancelButton]} onPress={() => setShowFuelModal(false)} disabled={isSavingFuel}>
-                                    <Text style={styles.cancelButtonText}>Cancelar</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={[styles.modalButton, styles.confirmButton]} onPress={handleConfirmFuel} disabled={isSavingFuel}>
-                                    <Text style={styles.confirmButtonText}>{isSavingFuel ? 'Salvando...' : 'Salvar'}</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </ScrollView>
-                    </View>
-                </View>
-            </Modal>
-
-            <Modal visible={showEndModal} transparent animationType="slide" onRequestClose={() => setShowEndModal(false)}>
-                {/* ... existing end modal content */}
-            </Modal>
-
-            <Modal visible={showIncidentModal} transparent animationType="slide" onRequestClose={() => setShowIncidentModal(false)}>
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Relatar Incidente</Text>
-                        <Text style={styles.modalInfo}>Descreva o problema ou ocorrência com o veículo {vehicle?.plate}.</Text>
-
-                        <Text style={styles.inputLabel}>Grau de Severidade:</Text>
-                        <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
-                            {[
-                                { id: 'LOW', label: 'Baixa', color: '#10B981' },
-                                { id: 'MEDIUM', label: 'Média', color: '#F59E0B' },
-                                { id: 'HIGH', label: 'Alta', color: '#EF4444' }
-                            ].map((s) => (
-                                <TouchableOpacity
-                                    key={s.id}
-                                    style={[styles.chip, incidentSeverity === s.id && { backgroundColor: s.color, borderColor: s.color }]}
-                                    onPress={() => setIncidentSeverity(s.id)}
-                                >
-                                    <Text style={[styles.chipText, incidentSeverity === s.id && styles.activeChipText]}>{s.label}</Text>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
-
-                        <Text style={styles.inputLabel}>Descrição do Incidente:</Text>
-                        <TextInput
-                            style={[styles.input, { height: 80, textAlignVertical: 'top' }]}
-                            placeholder="Ex: Pneu furado, barulho no motor, batida leve..."
-                            multiline
-                            numberOfLines={4}
-                            value={incidentDescription}
-                            onChangeText={setIncidentDescription}
-                        />
-
-                        <Text style={styles.inputLabel}>Foto do Incidente (Opcional):</Text>
-                        {!capturedPhoto ? (
+                        </MapView>
+                        <View className="absolute top-4 right-4 space-y-2">
                             <TouchableOpacity
-                                style={styles.photoUploadButton}
-                                onPress={async () => {
-                                    if (!hasPermission) {
-                                        const granted = await requestPermission();
-                                        if (!granted) {
-                                            Alert.alert('Permissão', 'Acesso à câmera é necessário.');
-                                            return;
-                                        }
-                                    }
-                                    setShowCamera(true);
-                                }}
+                                className="w-10 h-10 bg-white dark:bg-slate-800 rounded-xl items-center justify-center shadow-lg"
+                                onPress={centerMap}
                             >
-                                <Text style={styles.photoUploadText}>📸 Tirar Foto</Text>
+                                <Navigation size={20} color="#2463eb" />
                             </TouchableOpacity>
-                        ) : (
-                            <View style={styles.photoPreviewContainer}>
-                                <Image source={{ uri: capturedPhoto }} style={styles.photoPreview} />
-                                <TouchableOpacity style={styles.removePhotoButton} onPress={() => setCapturedPhoto(null)}>
-                                    <Text style={styles.removePhotoText}>Remover Foto</Text>
-                                </TouchableOpacity>
+                        </View>
+                        <View className="absolute bottom-4 left-4">
+                            <View className="bg-white/95 dark:bg-slate-900/95 px-4 py-2 rounded-full border border-slate-200 dark:border-slate-700 flex-row items-center space-x-2">
+                                <MapPin size={16} color="#2463eb" /><Text className="text-[10px] font-black text-slate-800 dark:text-white uppercase tracking-tighter">Posição em tempo real</Text>
                             </View>
-                        )}
+                        </View>
+                    </View>
+                </View>
 
-                        <View style={styles.modalButtons}>
-                            <TouchableOpacity style={[styles.modalButton, styles.cancelButton]} onPress={() => setShowIncidentModal(false)} disabled={isReportingIncident}>
-                                <Text style={styles.cancelButtonText}>Cancelar</Text>
+                <View className="px-6 space-y-4">
+                    <TouchableOpacity className="w-full h-16 bg-emerald-500 rounded-2xl flex-row items-center justify-center space-x-3 shadow-lg shadow-emerald-500/20" onPress={() => { setFuelData({ ...fuelData, km: vehicle.currentKm.toString() }); setShowFuelModal(true); }}>
+                        <Fuel size={24} color="white" /><Text className="text-white font-black text-base uppercase tracking-widest ml-3">Registrar Abastecimento</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity className="w-full h-16 bg-amber-500 rounded-2xl flex-row items-center justify-center space-x-3 shadow-lg shadow-amber-500/20" onPress={() => setShowIncidentModal(true)}>
+                        <AlertTriangle size={24} color="white" /><Text className="text-white font-black text-base uppercase tracking-widest ml-3">Relatar Incidente</Text>
+                    </TouchableOpacity>
+                    <View className="pt-10">
+                        <TouchableOpacity className="w-full h-16 bg-red-500 rounded-2xl flex-row items-center justify-center space-x-3 shadow-lg shadow-red-500/20" onPress={() => { setEndKm(vehicle.currentKm.toString()); setShowEndModal(true); }}>
+                            <Hand size={24} color="white" /><Text className="text-white font-black text-base uppercase tracking-widest ml-3">Encerrar Jornada</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </ScrollView>
+
+            {/* FUEL MODAL */}
+            <Modal visible={showFuelModal} transparent animationType="fade">
+                <View className="flex-1 bg-black/60 justify-end">
+                    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+                        <View className="bg-white dark:bg-slate-900 rounded-t-[32px] p-8 pt-6 max-h-[90%]">
+                            <View className="w-12 h-1 bg-slate-200 dark:bg-slate-800 self-center rounded-full mb-8" />
+                            <View className="flex-row justify-between items-center mb-6">
+                                <Text className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Abastecimento</Text>
+                                <TouchableOpacity onPress={() => setShowFuelModal(false)} className="p-2"><X size={24} color="#94a3b8" /></TouchableOpacity>
+                            </View>
+                            <ScrollView showsVerticalScrollIndicator={false} className="mb-6">
+                                <View className="space-y-4">
+                                    <View>
+                                        <Text className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase mb-2 tracking-widest">KM Atual</Text>
+                                        <TextInput className="h-14 bg-slate-100 dark:bg-slate-800 rounded-xl px-4 text-slate-900 dark:text-white font-bold" keyboardType="numeric" value={fuelData.km} onChangeText={val => setFuelData({ ...fuelData, km: val })} />
+                                    </View>
+                                    <View className="flex-row space-x-4">
+                                        <View className="flex-1">
+                                            <Text className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase mb-2 tracking-widest">Litros</Text>
+                                            <TextInput className="h-14 bg-slate-100 dark:bg-slate-800 rounded-xl px-4 text-slate-900 dark:text-white font-bold" keyboardType="numeric" placeholder="0.00" value={fuelData.liters} onChangeText={val => setFuelData({ ...fuelData, liters: val })} />
+                                        </View>
+                                        <View className="flex-row space-x-4">
+                                            <View className="flex-1">
+                                                <Text className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase mb-2 tracking-widest">Valor Total (R$)</Text>
+                                                <TextInput className="h-14 bg-slate-100 dark:bg-slate-800 rounded-xl px-4 text-slate-900 dark:text-white font-bold" keyboardType="numeric" placeholder="0.00" value={fuelData.totalValue} onChangeText={val => setFuelData({ ...fuelData, totalValue: val })} />
+                                            </View>
+                                        </View>
+                                    </View>
+                                    <View>
+                                        <Text className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase mb-3 tracking-widest">Pagamento</Text>
+                                        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="space-x-2">
+                                            {PAYMENT_METHODS.map(m => (
+                                                <TouchableOpacity key={m.id} onPress={() => setFuelData({ ...fuelData, paymentMethod: m.id })} className={`px-4 h-12 rounded-xl flex-row items-center border ${fuelData.paymentMethod === m.id ? 'bg-primary/10 border-primary' : 'bg-slate-100 dark:bg-slate-800 border-transparent'}`}>
+                                                    <Text className="mr-2">{m.icon}</Text><Text className={`font-bold ${fuelData.paymentMethod === m.id ? 'text-primary' : 'text-slate-600 dark:text-slate-400'}`}>{m.label}</Text>
+                                                </TouchableOpacity>
+                                            ))}
+                                        </ScrollView>
+                                    </View>
+                                </View>
+                            </ScrollView>
+                            <TouchableOpacity className={`h-16 bg-primary rounded-2xl items-center justify-center shadow-lg ${isSavingFuel ? 'opacity-70' : ''}`} onPress={handleConfirmFuel} disabled={isSavingFuel}>
+                                {isSavingFuel ? <ActivityIndicator color="white" /> : <Text className="text-white font-black text-lg uppercase">Salvar Registro</Text>}
                             </TouchableOpacity>
-                            <TouchableOpacity style={[styles.modalButton, { backgroundColor: '#F59E0B' }]} onPress={handleReportIncident} disabled={isReportingIncident}>
-                                <Text style={styles.confirmButtonText}>{isReportingIncident ? 'Enviando...' : 'Relatar'}</Text>
+                        </View>
+                    </KeyboardAvoidingView>
+                </View>
+            </Modal>
+
+            {/* INCIDENT MODAL */}
+            <Modal visible={showIncidentModal} transparent animationType="fade">
+                <View className="flex-1 bg-black/60 justify-end">
+                    <View className="bg-white dark:bg-slate-900 rounded-t-[32px] p-8 pt-6">
+                        <View className="w-12 h-1 bg-slate-200 dark:bg-slate-800 self-center rounded-full mb-8" />
+                        <View className="flex-row justify-between items-center mb-6">
+                            <Text className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Relatar Incidente</Text>
+                            <TouchableOpacity onPress={() => setShowIncidentModal(false)} className="p-2"><X size={24} color="#94a3b8" /></TouchableOpacity>
+                        </View>
+                        <View className="mb-6">
+                            <Text className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase mb-3 tracking-widest">Descrição</Text>
+                            <TextInput className="bg-slate-100 dark:bg-slate-800 rounded-2xl p-4 text-slate-900 dark:text-white h-32" multiline textAlignVertical="top" placeholder="Descreva o que aconteceu..." value={incidentDescription} onChangeText={setIncidentDescription} />
+                        </View>
+                        <View className="mb-8 flex-row items-center justify-between">
+                            <TouchableOpacity className="flex-row items-center bg-slate-100 dark:bg-slate-800 px-4 h-14 rounded-xl space-x-2" onPress={() => setShowCamera(true)}>
+                                <CameraIcon size={20} color="#2463eb" />
+                                <Text className="text-primary font-bold ml-2">{capturedPhoto ? 'Foto Capturada' : 'Tirar Foto'}</Text>
+                                {capturedPhoto && <Check size={16} color="#10b981" className="ml-2" />}
+                            </TouchableOpacity>
+                            <View className="flex-row space-x-2">
+                                {['LOW', 'MEDIUM', 'HIGH'].map(s => (
+                                    <TouchableOpacity key={s} onPress={() => setIncidentSeverity(s)} className={`w-10 h-10 rounded-full border-4 ${incidentSeverity === s ? 'border-primary' : 'border-transparent'} ${s === 'HIGH' ? 'bg-red-500' : s === 'MEDIUM' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+                                ))}
+                            </View>
+                        </View>
+                        <TouchableOpacity className={`h-16 bg-amber-500 rounded-2xl items-center justify-center shadow-lg ${isReportingIncident ? 'opacity-70' : ''}`} onPress={handleReportIncident} disabled={isReportingIncident}>
+                            {isReportingIncident ? <ActivityIndicator color="white" /> : <Text className="text-white font-black text-lg uppercase">Enviar Relato</Text>}
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* END JOURNEY MODAL */}
+            <Modal visible={showEndModal} transparent animationType="fade">
+                <View className="flex-1 bg-black/60 justify-center p-6">
+                    <View className="bg-white dark:bg-slate-900 rounded-[32px] p-8">
+                        <Text className="text-2xl font-black text-slate-900 dark:text-white uppercase text-center mb-4">Encerrar Jornada</Text>
+                        <Text className="text-slate-500 text-center mb-8">Informe a quilometragem final para prosseguir com o checklist de entrada.</Text>
+                        <View className="mb-8">
+                            <Text className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase mb-2 tracking-widest">KM Final</Text>
+                            <TextInput className="h-16 bg-slate-100 dark:bg-slate-800 rounded-2xl px-6 text-2xl font-black text-primary text-center" keyboardType="numeric" value={endKm} onChangeText={setEndKm} autoFocus />
+                        </View>
+                        <View className="flex-row space-x-4">
+                            <TouchableOpacity className="flex-1 h-14 bg-slate-100 rounded-2xl items-center justify-center" onPress={() => setShowEndModal(false)}>
+                                <Text className="text-slate-500 font-bold">Cancelar</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity className="flex-2 h-14 bg-red-500 rounded-2xl items-center justify-center shadow-lg shadow-red-500/20" onPress={handleConfirmEnd}>
+                                <Text className="text-white font-black text-lg px-8">Confirmar</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
                 </View>
             </Modal>
-        </View>
+        </SafeAreaView>
     );
 }
-
-const styles = StyleSheet.create({
-    container: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f5f5f5', padding: 20 },
-    text: { fontSize: 20, fontWeight: 'bold', marginBottom: 8 },
-    subtext: { color: '#666', textAlign: 'center' },
-    card: { backgroundColor: '#fff', padding: 24, borderRadius: 16, width: '100%', alignItems: 'center', elevation: 4 },
-    label: { color: '#2563EB', fontWeight: 'bold', marginBottom: 8, letterSpacing: 1 },
-    time: { fontSize: 14, color: '#666', marginBottom: 4 },
-    duration: { fontSize: 12, color: '#888', marginBottom: 24 },
-    vehicleInfo: { alignItems: 'center', marginBottom: 24 },
-    plate: { fontSize: 32, fontWeight: 'bold' },
-    model: { fontSize: 18, color: '#444' },
-    kmInfo: { alignItems: 'center', marginBottom: 32 },
-    kmLabel: { fontSize: 14, color: '#666', marginBottom: 4 },
-    kmValue: { fontSize: 24, fontWeight: 'bold', color: '#2563EB' },
-    stopButton: { backgroundColor: '#DC2626', paddingHorizontal: 32, paddingVertical: 16, borderRadius: 8, width: '100%', alignItems: 'center' },
-    buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 18 },
-    fuelButton: { backgroundColor: '#10B981', paddingHorizontal: 32, paddingVertical: 16, borderRadius: 8, width: '100%', alignItems: 'center', marginBottom: 12 },
-    fuelButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 18 },
-    incidentButton: { backgroundColor: '#F59E0B', paddingHorizontal: 32, paddingVertical: 16, borderRadius: 8, width: '100%', alignItems: 'center', marginBottom: 12 },
-    cameraContainer: { flex: 1, backgroundColor: 'black' },
-    cameraCancelBtn: { position: 'absolute', bottom: 40, left: 20, padding: 12, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 8 },
-    captureBtn: { position: 'absolute', bottom: 40, alignSelf: 'center', width: 70, height: 70, borderRadius: 35, backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' },
-    captureInner: { width: 60, height: 60, borderRadius: 30, borderWidth: 4, borderColor: '#2563EB' },
-    photoUploadButton: { borderStyle: 'dashed', borderWidth: 1, borderColor: '#2563EB', padding: 12, borderRadius: 8, alignItems: 'center', backgroundColor: '#EFF6FF', marginBottom: 16 },
-    photoUploadText: { color: '#2563EB', fontWeight: 'bold' },
-    photoPreviewContainer: { position: 'relative', marginBottom: 16 },
-    photoPreview: { width: '100%', height: 150, borderRadius: 8 },
-    removePhotoButton: { position: 'absolute', top: 8, right: 8, backgroundColor: 'rgba(255,0,0,0.7)', padding: 4, borderRadius: 4 },
-    removePhotoText: { color: 'white', fontSize: 10, fontWeight: 'bold' },
-    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 },
-    modalContent: { backgroundColor: '#fff', borderRadius: 16, padding: 24, width: '100%', maxWidth: 450, maxHeight: '90%' },
-    modalTitle: { fontSize: 24, fontWeight: 'bold', marginBottom: 20, color: '#333' },
-    modalLabelText: { fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 8 },
-    modalInfo: { fontSize: 14, color: '#666', marginBottom: 20 },
-    inputLabel: { fontSize: 14, fontWeight: '600', color: '#666', marginBottom: 4 },
-    input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 12, fontSize: 16, marginBottom: 16 },
-    modalButtons: { flexDirection: 'row', gap: 12, marginTop: 12 },
-    modalButton: { flex: 1, padding: 16, borderRadius: 8, alignItems: 'center' },
-    cancelButton: { backgroundColor: '#f5f5f5' },
-    cancelButtonText: { color: '#666', fontWeight: 'bold', fontSize: 16 },
-    confirmButton: { backgroundColor: '#2563EB' },
-    confirmButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-    chip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, backgroundColor: '#f0f0f0', borderWidth: 1, borderColor: '#ddd' },
-    activeChip: { backgroundColor: '#2563EB', borderColor: '#2563EB' },
-    chipText: { color: '#666', fontSize: 12 },
-    activeChipText: { color: '#fff', fontWeight: 'bold' },
-    paymentChip: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 8, borderRadius: 12, backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', marginBottom: 4 },
-    activePaymentChip: { backgroundColor: '#EFF6FF', borderColor: '#2563EB' },
-    paymentIcon: { fontSize: 16, marginRight: 6 },
-    paymentChipText: { fontSize: 13, color: '#4B5563' },
-    corporateFields: { backgroundColor: '#F3F4F6', padding: 12, borderRadius: 12, marginBottom: 16 },
-});

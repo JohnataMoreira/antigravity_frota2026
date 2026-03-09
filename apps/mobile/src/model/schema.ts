@@ -1,7 +1,7 @@
 import { appSchema, tableSchema } from '@nozbe/watermelondb'
 
 export const mySchema = appSchema({
-    version: 2, // Increment version
+    version: 3, // Increment version
     tables: [
         tableSchema({
             name: 'vehicles',
@@ -24,8 +24,21 @@ export const mySchema = appSchema({
                 { name: 'end_km', type: 'number', isOptional: true },
                 { name: 'start_time', type: 'number' },
                 { name: 'end_time', type: 'number', isOptional: true },
+                { name: 'start_lat', type: 'number', isOptional: true },
+                { name: 'start_lng', type: 'number', isOptional: true },
+                { name: 'end_lat', type: 'number', isOptional: true },
+                { name: 'end_lng', type: 'number', isOptional: true },
                 { name: 'backend_id', type: 'string', isOptional: true },
                 { name: 'start_photo_url', type: 'string', isOptional: true },
+                { name: 'updated_at', type: 'number' },
+            ],
+        }),
+        tableSchema({
+            name: 'checklists',
+            columns: [
+                { name: 'journey_id', type: 'string' },
+                { name: 'type', type: 'string' },
+                { name: 'items', type: 'string' }, // JSON string
                 { name: 'updated_at', type: 'number' },
             ],
         }),

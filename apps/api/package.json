@@ -45,6 +45,7 @@
         "compression": "^1.7.5",
         "cookie-parser": "^1.4.7",
         "date-fns": "^4.1.0",
+        "expo-server-sdk": "^6.0.0",
         "helmet": "^8.0.0",
         "nodemailer": "^8.0.1",
         "passport": "^0.7.0",

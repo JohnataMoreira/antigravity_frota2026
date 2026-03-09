@@ -113,6 +113,13 @@ class ApiService {
             body: JSON.stringify(data),
         });
     }
+
+    async subscribePushToken(token: string) {
+        return this.request('/notifications/subscribe', {
+            method: 'POST',
+            body: JSON.stringify(token),
+        });
+    }
 }
 
 export const api = new ApiService();

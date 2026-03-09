@@ -4,6 +4,7 @@ import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite'
 import { mySchema } from './schema'
 import Vehicle from './Vehicle'
 import Journey from './Journey'
+import Checklist from './Checklist'
 
 // First, create the adapter to the underlying database:
 const adapter = new SQLiteAdapter({
@@ -23,5 +24,6 @@ export const database = new Database({
     modelClasses: [
         Vehicle,
         Journey,
+        Checklist,
     ],
 })

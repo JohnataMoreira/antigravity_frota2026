@@ -25,7 +25,6 @@ import { AuditInterceptor } from './common/audit/audit.interceptor';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MailModule } from './common/mail/mail.module';
-import { NotificationModule } from './common/notifications/notification.module';
 import { BackupModule } from './backup/backup.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { TelemetryModule } from './telemetry/telemetry.module';
@@ -51,7 +50,6 @@ import { AlertsModule } from './common/alerts/alerts.module';
         PrismaModule,
         AuditModule,
         MailModule,
-        NotificationModule,
         AuthModule,
         OrganizationsModule,
         ChecklistTemplatesModule,

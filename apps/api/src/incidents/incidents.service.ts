@@ -1,14 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateIncidentDto } from './dto/create-incident.dto';
-import { NotificationService } from '../common/notifications/notification.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { LocationsGateway } from '../locations/locations.gateway';
 
 @Injectable()
 export class IncidentsService {
     constructor(
         private prisma: PrismaService,
-        private notificationService: NotificationService,
+        private notificationService: NotificationsService,
         private locationsGateway: LocationsGateway
     ) { }
 

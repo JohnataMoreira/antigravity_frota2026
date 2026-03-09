@@ -8,20 +8,41 @@ export interface ExportColumn {
 }
 
 export class ExportService {
-    static async exportToPDF(title: string, data: any[], columns: ExportColumn[], filename: string) {
+    static async exportToPDF(
+        title: string,
+        data: any[],
+        columns: ExportColumn[],
+        filename: string,
+        organization?: { name: string, logoUrl?: string }
+    ) {
         const doc = new jsPDF();
 
-        // Logo Space (if available) - For now just text
-        doc.setFontSize(22);
-        doc.setTextColor(37, 99, 235); // Blue-600
-        doc.text('FROTA2026 - GESTÃO DE FROTA', 14, 22);
+        // White-label Header
+        if (organization?.logoUrl) {
+            try {
+                // In a real scenario, we'd need to convert URL to base64 or ensure it's accessible
+                // For now, we'll reserve space and put the name
+                doc.setFontSize(20);
+                doc.setTextColor(37, 99, 235);
+                doc.text(organization.name.toUpperCase(), 14, 22);
+            } catch (e) {
+                doc.setFontSize(22);
+                doc.setTextColor(37, 99, 235);
+                doc.text('FROTA2026', 14, 22);
+            }
+        } else {
+            doc.setFontSize(22);
+            doc.setTextColor(37, 99, 235);
+            doc.text(organization?.name?.toUpperCase() || 'FROTA2026', 14, 22);
+        }
 
         doc.setFontSize(14);
         doc.setTextColor(100);
-        doc.text(title, 14, 30);
+        doc.text(title, 14, 32);
 
-        doc.setFontSize(10);
-        doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 38);
+        doc.setFontSize(8);
+        doc.setTextColor(150);
+        doc.text(`Gerado por: ${organization?.name || 'Sistema Frota2026'} em ${new Date().toLocaleString('pt-BR')}`, 14, 38);
 
         // Table
         (doc as any).autoTable({

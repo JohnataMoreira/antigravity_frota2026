@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PrismaService } from '../../prisma/prisma.service';
-import { NotificationService } from '../notifications/notification.service';
+import { NotificationsService } from '../../notifications/notifications.service';
 import { addDays, isPast, differenceInHours } from 'date-fns';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class AlertsProcessorService {
 
     constructor(
         private prisma: PrismaService,
-        private notificationService: NotificationService,
+        private notificationService: NotificationsService,
     ) { }
 
     @Cron(CronExpression.EVERY_6_HOURS)

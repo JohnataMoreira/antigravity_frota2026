@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AlertsProcessorService } from './alerts-processor.service';
 import { AlertsController } from './alerts.controller';
-import { NotificationModule } from '../notifications/notification.module';
+import { WebNotificationsModule } from '../../notifications/notifications.module';
 
 @Module({
-    imports: [NotificationModule],
+    imports: [WebNotificationsModule],
     controllers: [AlertsController],
     providers: [AlertsProcessorService],
     exports: [AlertsProcessorService],

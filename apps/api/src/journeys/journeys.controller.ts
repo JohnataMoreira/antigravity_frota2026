@@ -33,12 +33,16 @@ export class JourneysController {
     }
 
     @Get()
+    @ApiOperation({ summary: 'Listar todas as jornadas do tenant' })
+    @ApiResponse({ status: 200, description: 'Lista de jornadas retornada com sucesso.' })
     findAll() {
         return this.journeysService.findAll();
     }
 
     @Get(':id')
     @ApiOperation({ summary: 'Obter detalhes de uma jornada específica' })
+    @ApiResponse({ status: 200, description: 'Detalhes da jornada retornados.' })
+    @ApiResponse({ status: 404, description: 'Jornada não encontrada ou pertence a outro tenant.' })
     findOne(@Param('id') id: string) {
         return this.journeysService.findOne(id);
     }
