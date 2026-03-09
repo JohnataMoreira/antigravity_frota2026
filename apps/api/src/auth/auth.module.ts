@@ -15,7 +15,7 @@ import { AuditModule } from '../common/audit/audit.module';
         JwtModule.registerAsync({
             inject: [ConfigService],
             useFactory: (config: ConfigService) => ({
-                secret: config.get('JWT_SECRET') || process.env.JWT_SECRET,
+                secret: config.get('JWT_SECRET') || process.env.JWT_SECRET || process.env.JWT_ACCESS_SECRET,
                 signOptions: { expiresIn: '1d' },
             }),
         }),
