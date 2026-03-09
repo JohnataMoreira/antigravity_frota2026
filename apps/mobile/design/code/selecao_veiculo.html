@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2463eb",
+                        "background-light": "#f6f6f8",
+                        "background-dark": "#111621",
+                    },
+                    fontFamily: {
+                        "display": ["Lexend"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased">
+<!-- Main Container -->
+<div class="relative flex min-h-screen w-full flex-col max-w-md mx-auto bg-background-light dark:bg-background-dark">
+<!-- Header -->
+<header class="sticky top-0 z-50 flex items-center justify-between px-4 py-4 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<div class="h-10 w-10 overflow-hidden rounded-full border-2 border-primary/20">
+<img alt="Perfil do Motorista" class="h-full w-full object-cover" data-alt="Close up portrait of a male truck driver smiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACJXG3fo0lxDW1et30NXC2QUy-8JPYFVNU4_JoK8DlR6dVSHpeM1x6RgVaxDhLB92hQgi4dKp1yrY23GR0XdCm36yPx-h9AItfxtgFOq3268tTz-AwWAzRXB81GYrRHmi3KmsoDVbjfKGoFRoSBbuQSaLOrxiatC9u6kAjpTGHxbx091UmV7K2lJHBB23KqJpIOChD9w-480dCDCMjCNlawPLr9sIoFg3o5TAE9cHemF1qamGcmzzxI2w19ckzrD3eUV5pzB-8mlXG"/>
+</div>
+<h1 class="text-xl font-bold tracking-tight text-primary">Frota2026</h1>
+</div>
+<button class="relative flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
+<span class="material-symbols-outlined text-[28px]">notifications</span>
+<span class="absolute top-3 right-3 flex h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-white dark:border-slate-900"></span>
+</button>
+</header>
+<!-- Welcome Section -->
+<section class="px-5 pt-8 pb-4">
+<h2 class="text-3xl font-bold text-slate-900 dark:text-slate-50">Bom dia, João!</h2>
+<p class="mt-2 text-lg text-slate-600 dark:text-slate-400">Selecione seu veículo para iniciar a viagem</p>
+</section>
+<!-- Search/Filter (Optional but good for UX) -->
+<div class="px-5 mb-4">
+<div class="relative">
+<span class="absolute inset-y-0 left-3 flex items-center text-slate-400">
+<span class="material-symbols-outlined">search</span>
+</span>
+<input class="w-full h-14 pl-11 rounded-xl border-none bg-white dark:bg-slate-800 shadow-sm focus:ring-2 focus:ring-primary text-base" placeholder="Buscar por placa ou modelo..." type="text"/>
+</div>
+</div>
+<!-- Vehicle List -->
+<main class="flex-1 px-5 pb-32 space-y-4">
+<!-- Vehicle Card 1 -->
+<div class="bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-md border border-slate-100 dark:border-slate-700">
+<div class="relative h-64 w-full">
+<img alt="Scania R450" class="h-full w-full object-cover" data-alt="Heavy duty white Scania truck parked on asphalt" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQ4e5R-mESI6sfBjfb2zZprXu3qyZ2KlbJl6UT6lm-hqsjJiiu50Eh-tSlFIzYTFmNBrD503S-auoDugz2vuB-446BsMw_JVaUsoywze-YlaY5ol8mfaAOyjTuMFdo0Y8Ui9ccd4On-uww1yy1c6C-gY6Hx_LYdZVCcBtPCH4_zjRTHW2mISlp8cRtx8RjO10Jl0NEQdjQu35QHH9YZ56DFpGQR9omj3pB9B2Ljh5S76nikYHt1NQNFrigMcbhf1ED9aVURqrmErAf"/>
+<div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent"></div>
+<div class="absolute top-4 left-4">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider shadow-lg">
+                            Disponível
+                        </span>
+</div>
+<div class="absolute bottom-4 left-5">
+<p class="text-2xl font-black text-white">ABC-1234</p>
+<h3 class="text-sm font-medium text-slate-200">Scania R450</h3>
+</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-4">
+<div></div>
+<div class="text-right">
+<p class="text-xs text-slate-400 uppercase font-bold">Quilometragem</p>
+<p class="text-sm font-semibold">124.500 km</p>
+</div>
+</div>
+<button class="w-full h-[56px] bg-primary hover:bg-primary/90 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors active:scale-[0.98]">
+<span class="material-symbols-outlined">local_shipping</span>
+                        Selecionar Veículo
+                    </button>
+</div>
+</div>
+<!-- Vehicle Card 2 -->
+<div class="bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-md border border-slate-100 dark:border-slate-700">
+<div class="relative h-64 w-full">
+<img alt="Volvo FH 540" class="h-full w-full object-cover opacity-80" data-alt="Blue Volvo semi truck on a highway" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZbO5fVEzg1wCYAsnMFZEHE0sBFsxCy3N2Z73McgDGCcgLmeR5-71XiCiVoLzhDaq7vSdqry3ksuYZPl3KY_t5CftYbJUIFqjw7dgySwZoRiIjURxik2B9sH9M9CICOUQTGw0QnlNABaUkcLLq6fLKnlu8Z3EIJ_HcM6WRtXNQrrjJUE6K1KII-heeR0rQhB3JkvQ4LBkLjcTqi35b7BQ4M7O4F3WR9sZvUbSyq9hZ2qF0kJgJkjY3P9IVQqlmrigFnzdhWwnrPPJ3"/>
+<div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent"></div>
+<div class="absolute top-4 left-4">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider shadow-lg">
+                            Disponível
+                        </span>
+</div>
+<div class="absolute bottom-4 left-5">
+<p class="text-2xl font-black text-white">XYZ-9876</p>
+<h3 class="text-sm font-medium text-slate-200">Volvo FH 540</h3>
+</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-4">
+<div></div>
+<div class="text-right">
+<p class="text-xs text-slate-400 uppercase font-bold">Quilometragem</p>
+<p class="text-sm font-semibold">89.230 km</p>
+</div>
+</div>
+<button class="w-full h-[56px] bg-primary hover:bg-primary/90 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors active:scale-[0.98]">
+<span class="material-symbols-outlined">local_shipping</span>
+                        Selecionar Veículo
+                    </button>
+</div>
+</div>
+<!-- Vehicle Card 3 (Unavailable/Maintenance Example) -->
+<div class="bg-white/60 dark:bg-slate-800/60 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 opacity-75">
+<div class="relative h-64 w-full grayscale">
+<img alt="Mercedes-Benz Actros" class="h-full w-full object-cover" data-alt="Silver Mercedes truck front view" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAouYaNlrIlT7ll7Pz3QbaAcQurZIvTEZybM8LlOPGRwTwszkoG3GgwN3YHdd6P57utWvgY2Hrq2xsa5Hqidy4cN779UjiN_ljz0v7moov-y02Jd4Gw690MTjhRzCkCgqYXFJq-sBcIvby1nRWjHRTfPTjv5kbzTFm_gV7mXVVw429fnhfPHSQPG_enCbkdoChBKLlrKyCYjP7KK_MzGLM1DteEI3yAjpyuvISyUOb9Wr6sKDx2kNucrovXbSavvkdPUWnqpDCj_tXS"/>
+<div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent"></div>
+<div class="absolute top-4 left-4">
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-slate-500 text-white text-xs font-bold uppercase tracking-wider shadow-lg">
+                            Em Manutenção
+                        </span>
+</div>
+<div class="absolute bottom-4 left-5">
+<p class="text-2xl font-black text-white">MBB-4455</p>
+<h3 class="text-sm font-medium text-slate-200">Mercedes Actros</h3>
+</div>
+</div>
+<div class="p-5">
+<div class="flex justify-between items-start mb-4">
+<div></div>
+</div>
+<button class="w-full h-[56px] bg-slate-200 dark:bg-slate-700 text-slate-400 font-bold rounded-xl flex items-center justify-center gap-2 cursor-not-allowed" disabled="">
+<span class="material-symbols-outlined">handyman</span>
+                        Indisponível
+                    </button>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 right-0 z-50 max-w-md mx-auto bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 px-6 py-3">
+<div class="flex justify-between items-center px-12">
+<a class="flex flex-col items-center gap-1 text-primary" href="#">
+<span class="material-symbols-outlined text-[28px]">local_shipping</span>
+<span class="text-[11px] font-bold uppercase tracking-tighter">Veículos</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined text-[28px]">route</span>
+<span class="text-[11px] font-bold uppercase tracking-tighter">Jornada</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500" href="#">
+<span class="material-symbols-outlined text-[28px]">person</span>
+<span class="text-[11px] font-bold uppercase tracking-tighter">Perfil</span>
+</a>
+</div>
+</nav>
+</div>
+</body></html>

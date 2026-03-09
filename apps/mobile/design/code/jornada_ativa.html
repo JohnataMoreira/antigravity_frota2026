@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+
+<html lang="pt-br"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2463eb",
+                        "background-light": "#f5f5f5",
+                        "background-dark": "#111621",
+                        "success": "#16a34a",
+                        "warning": "#f59e0b",
+                        "danger": "#dc2626"
+                    },
+                    fontFamily: {
+                        "display": ["Lexend", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<title>Frota2026 Driver - Jornada Ativa</title>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<!-- Header / App Bar -->
+<header class="flex items-center bg-white dark:bg-slate-900 p-4 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-10">
+<div class="flex size-10 items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
+<span class="material-symbols-outlined text-slate-700 dark:text-slate-300">menu</span>
+</div>
+<h2 class="text-slate-900 dark:text-slate-100 text-lg font-bold flex-1 text-center pr-10">Frota2026 Driver</h2>
+</header>
+<main class="flex-1 overflow-y-auto pb-24">
+<!-- Vehicle Header -->
+<section class="px-4 pt-8 pb-6 text-center">
+<h1 class="text-slate-900 dark:text-white tracking-tight text-5xl font-black leading-tight">ABC-1234</h1>
+<h2 class="text-slate-500 dark:text-slate-400 text-xl font-medium mt-1 uppercase tracking-wide">Scania R450</h2>
+</section>
+<!-- Journey Info Card -->
+<section class="px-4 mb-6">
+<div class="bg-white dark:bg-slate-900 rounded-xl shadow-md border border-slate-100 dark:border-slate-800 overflow-hidden">
+<div class="p-6 space-y-6">
+<div class="flex items-center justify-between">
+<span class="text-slate-500 dark:text-slate-400 font-medium">Início da Jornada</span>
+<span class="text-slate-900 dark:text-white font-bold text-lg">08:30</span>
+</div>
+<div class="text-center py-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800">
+<p class="text-slate-500 dark:text-slate-400 text-sm font-semibold uppercase tracking-wider mb-1">Tempo de Viagem</p>
+<p class="text-slate-900 dark:text-white text-5xl font-mono font-bold">02:45:12</p>
+</div>
+<div class="flex items-center justify-between pt-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">speed</span>
+<span class="text-slate-600 dark:text-slate-300 font-medium">Quilometragem Atual</span>
+</div>
+<span class="text-primary font-bold text-xl">124.650 km</span>
+</div>
+</div>
+<!-- Simple visual feedback/progress line -->
+<div class="h-1.5 w-full bg-slate-100 dark:bg-slate-800">
+<div class="h-full bg-primary w-2/3"></div>
+</div>
+</div>
+</section>
+<!-- Map Mini-View -->
+<section class="px-4 mb-8">
+<div class="relative h-32 w-full rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800">
+<div class="absolute inset-0 bg-slate-200 dark:bg-slate-800 flex items-center justify-center bg-cover bg-center" data-alt="Mapa da rota atual do motorista" data-location="São Paulo" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCEn4IIwrmxuP9vM90-dX8ziLteHL7L78KW-rDSBTOcsFLA9s3ywevYkI1Ds4kN37EKGpRDltddVSAdnqe1-TKv_eeW6iQyTI_wv5M1yF0EFpGOgDWLbfoUMBK9pzCaeh4Fg1Wd3mOyPb7I099pXHm12Bucy7aDn9lcBhotRoByVYa3nwBt4weBAyuDdKS-H_yj6P94FgvTW4nvqFuK-Zrci4z5X7COH1keTxmiFxcTAVbgFfQNE0t_raG3efz3RKIYRg4or5LIOV_Z');">
+<div class="bg-white/90 dark:bg-slate-900/90 px-3 py-1 rounded-full flex items-center gap-2 shadow-sm border border-slate-200 dark:border-slate-700">
+<span class="material-symbols-outlined text-primary text-sm">location_on</span>
+<span class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-tighter">Em trânsito: Rod. dos Bandeirantes</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Action Buttons -->
+<section class="px-4 space-y-4 mb-8">
+<button class="w-full h-14 bg-success hover:bg-success/90 text-white rounded-xl font-bold flex items-center justify-center gap-3 transition-colors shadow-lg shadow-success/20">
+<span class="material-symbols-outlined">local_gas_station</span>
+<span>REGISTRAR ABASTECIMENTO</span>
+</button>
+<button class="w-full h-14 bg-warning hover:bg-warning/90 text-white rounded-xl font-bold flex items-center justify-center gap-3 transition-colors shadow-lg shadow-warning/20">
+<span class="material-symbols-outlined">warning</span>
+<span>RELATAR INCIDENTE</span>
+</button>
+<div class="pt-10"><button class="w-full h-14 bg-danger hover:bg-danger/90 text-white rounded-xl font-bold flex items-center justify-center gap-3 transition-colors shadow-lg shadow-danger/20">
+<span class="material-symbols-outlined">front_hand</span>
+<span>ENCERRAR JORNADA</span>
+</button></div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-4 pb-safe pt-2 z-20">
+<div class="flex justify-around items-center h-16 max-w-lg mx-auto">
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-primary transition-colors flex-1" href="#">
+<span class="material-symbols-outlined text-[28px]">car_tag</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Veículos</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary flex-1" href="#">
+<div class="relative flex flex-col items-center">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1">steering_wheel_heat</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Jornada</span>
+<div class="absolute -bottom-2 w-8 h-1 bg-primary rounded-full"></div>
+</div>
+</a>
+<a class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-primary transition-colors flex-1" href="#">
+<span class="material-symbols-outlined text-[28px]">person</span>
+<span class="text-[10px] font-bold uppercase tracking-wider">Perfil</span>
+</a>
+</div>
+</nav>
+<style>
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+    </style>
+</body></html>
