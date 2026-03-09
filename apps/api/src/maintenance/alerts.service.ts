@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { NotificationService } from '../common/notifications/notification.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class MaintenanceAlertsService {
     constructor(
         private prisma: PrismaService,
-        private notificationService: NotificationService
+        private notificationService: NotificationsService
     ) { }
 
     async checkAlerts(organizationId: string) {
