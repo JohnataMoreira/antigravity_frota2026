@@ -4,9 +4,10 @@ import { MaintenanceController } from './maintenance.controller';
 import { MaintenanceTemplateController } from './maintenance-template.controller';
 import { MaintenanceAlertsService } from './alerts.service';
 import { FinanceModule } from '../finance/finance.module';
+import { WebNotificationsModule } from '../notifications/notifications.module';
 
 @Module({
-    imports: [FinanceModule],
+    imports: [FinanceModule, WebNotificationsModule],
     controllers: [MaintenanceController, MaintenanceTemplateController],
     providers: [MaintenanceService, MaintenanceAlertsService],
     exports: [MaintenanceService, MaintenanceAlertsService],
