@@ -104,8 +104,19 @@ export class AuthService {
             version: tokenVersion,
         };
 
-        const token = await this.jwt.signAsync(payload);
+        // Debug: check if secret is available
+        const secretExists = !!process.env.JWT_SECRET;
+        if (!secretExists) {
+            console.error('CRITICAL: process.env.JWT_SECRET is UNDEFINED in signToken');
+        }
 
+        let token: string;
+        try {
+            token = await this.jwt.signAsync(payload);
+        } catch (error) {
+            console.error('JWT Signing Error details:', error);
+            throw error;
+        }
 
         return {
             access_token: token,
