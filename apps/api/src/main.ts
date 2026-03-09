@@ -2,10 +2,26 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import helmet from 'helmet';
 
 async function bootstrap() {
     try {
         const app = await NestFactory.create(AppModule);
+
+        // Security Headers
+        app.use(helmet({
+            crossOriginEmbedderPolicy: false,
+            contentSecurityPolicy: {
+                directives: {
+                    defaultSrc: ["'self'"],
+                    scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+                    styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+                    fontSrc: ["'self'", "https://fonts.gstatic.com"],
+                    imgSrc: ["'self'", "data:", "https://*"],
+                    connectSrc: ["'self'", "https://*"],
+                },
+            },
+        }));
 
         // Swagger Configuration
         const config = new DocumentBuilder()
