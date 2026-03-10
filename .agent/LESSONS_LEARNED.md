@@ -268,3 +268,37 @@ docker service rm <service_name>
 **7. Cache Agressivo de Build**
 - **Problema**: Docker reutilizando camadas de arquivos de configuração antigos mesmo após mudanças no Git.
 - **Solução**: `docker builder prune -f` no VPS é a "bala de prata" quando o código buildado parece ignorar seus commits recentes.
+
+## 8. Frontend - Manipulação de Máscaras (Março/2026)
+
+### Problema: Máscara de CNPJ com Pulo de Cursor
+**Cenário:** Ao implementar uma máscara de CNPJ (`00.000.000/0000-00`) usando apenas um `onChange` simples com `.replace()`, o cursor do React pulava automaticamente para o final do input a cada tecla digitada. Isso tornava impossível editar números no meio do CNPJ.
+
+**Solução (Padrão Ouro - Path A):**
+Implementar o manejo manual da posição do cursor usando `useRef` e `setTimeout`.
+
+```tsx
+// Login.tsx snippet
+const cnpjRef = useRef<HTMLInputElement>(null);
+
+const handleCNPJChange = (e) => {
+    const input = e.target;
+    const start = input.selectionStart;
+    const oldLength = input.value.length;
+    
+    const formatted = formatCNPJ(input.value);
+    setDocument(formatted);
+
+    // Restauração manual da posição do cursor
+    setTimeout(() => {
+        if (cnpjRef.current) {
+            const newLength = formatted.length;
+            const delta = newLength - oldLength;
+            const pos = (start || 0) + delta;
+            cnpjRef.current.setSelectionRange(pos, pos);
+        }
+    }, 0);
+};
+```
+
+**Lição:** Componentes controlados pelo React resetam a posição do cursor ao atualizar o valor do input programaticamente. Para máscaras complexas, é obrigatório capturar a posição inicial, calcular o `delta` (diferença de tamanho após a formatação) e restaurar o cursor no próximo tick do event loop (`setTimeout 0`).

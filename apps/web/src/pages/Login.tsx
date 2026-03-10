@@ -3,11 +3,12 @@ import { useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../lib/axios';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Mail, Lock, Building, User, UserCheck } from 'lucide-react';
+import { Shield, Mail, Lock, Building, User, UserCheck, Eye, EyeOff } from 'lucide-react';
 import { formatCNPJ } from '../lib/utils';
 
 export function Login() {
     const [isRegistering, setIsRegistering] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     // Auth Fields
     const [email, setEmail] = useState('');
@@ -100,7 +101,7 @@ export function Login() {
                         {isRegistering ? 'Nova Organização' : 'Entrar no Sistema'}
                     </h2>
                     <p className="text-muted-foreground">
-                        {isRegistering ? 'Preencha os dados da sua empresa' : 'Seja bem-vindo de volta'}
+                        {isRegistering ? 'Preencha os dados da sua empresa' : 'Seja bem-vindo'}
                     </p>
                 </div>
 
@@ -211,14 +212,21 @@ export function Login() {
                         <div className="relative">
                             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <input
-                                type="password"
+                                type={showPassword ? 'text' : 'password'}
                                 placeholder="••••••••"
                                 value={password}
                                 onChange={e => setPassword(e.target.value)}
-                                className="auth-input pl-10"
+                                className="auth-input pl-10 pr-10"
                                 required
                                 minLength={6}
                             />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                            >
+                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
                         </div>
                     </div>
 
@@ -228,13 +236,20 @@ export function Login() {
                             <div className="relative">
                                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                 <input
-                                    type="password"
+                                    type={showPassword ? 'text' : 'password'}
                                     placeholder="••••••••"
                                     value={confirmPassword}
                                     onChange={e => setConfirmPassword(e.target.value)}
-                                    className="auth-input pl-10"
+                                    className="auth-input pl-10 pr-10"
                                     required
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
                             </div>
                         </div>
                     )}
@@ -256,7 +271,7 @@ export function Login() {
                         }}
                         className="w-full py-4 px-6 border-2 border-primary/20 text-primary rounded-2xl font-bold text-lg hover:bg-primary/5 hover:border-primary/40 active:scale-[0.98] transition-all disabled:opacity-50"
                     >
-                        {isRegistering ? 'Voltar para o Login' : 'Cadastrar novo negócio'}
+                        {isRegistering ? 'Voltar para o Login' : 'Criar Conta'}
                     </button>
 
                     {!isRegistering && (
