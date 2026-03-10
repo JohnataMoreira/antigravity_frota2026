@@ -35,7 +35,7 @@ export function DashboardLayout() {
             {/* Sidebar for Desktop */}
             <aside className="hidden md:flex flex-col w-64 glass-card h-screen sticky top-0 border-r border-gray-200 dark:border-gray-800">
                 <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-center bg-white">
-                    <img src={user?.organization?.logoUrl || "/logo.png"} alt={user?.organization?.name || "Frota2026"} className="h-14 w-auto object-contain" />
+                    <img src={user?.organization?.logoUrl || "/logo.png?v=20260310"} alt={user?.organization?.name || "Frota2026"} className="h-14 w-auto object-contain" />
                 </div>
 
                 <div className="px-6 py-4 flex items-center gap-3 border-b border-gray-100 dark:border-gray-800 mb-4">
@@ -85,7 +85,7 @@ export function DashboardLayout() {
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 <header className="md:hidden bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between p-4">
                     <div className="bg-white p-1 rounded-lg">
-                        <img src={user?.organization?.logoUrl || "/logo.png"} alt={user?.organization?.name || "Frota2026"} className="h-8 w-auto object-contain" />
+                        <img src={user?.organization?.logoUrl || "/logo.png?v=20260310"} alt={user?.organization?.name || "Frota2026"} className="h-8 w-auto object-contain" />
                     </div>
                     <button
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

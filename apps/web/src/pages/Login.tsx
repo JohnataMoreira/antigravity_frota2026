@@ -1,9 +1,10 @@
 /// <reference types="vite/client" />
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../lib/axios';
 import { useNavigate } from 'react-router-dom';
 import { Shield, Mail, Lock, Building, User, UserCheck } from 'lucide-react';
+import { formatCNPJ } from '../lib/utils';
 
 export function Login() {
     const [isRegistering, setIsRegistering] = useState(false);
@@ -23,6 +24,7 @@ export function Login() {
     const navigate = useNavigate();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const cnpjRef = useRef<HTMLInputElement>(null);
 
     // Handle OAuth redirect params
     useState(() => {
@@ -92,7 +94,7 @@ export function Login() {
             <div className="w-full max-w-md space-y-8 p-8 glass-card relative z-10 border border-border/50 shadow-2xl">
                 <div className="text-center space-y-2">
                     <div className="flex justify-center mb-8 bg-white/90 p-4 rounded-3xl shadow-inner dark:bg-white/10">
-                        <img src="/logo.png" alt="Logo" className="h-[120px] w-auto object-contain drop-shadow-xl" />
+                        <img src="/logo.png?v=20260310" alt="Logo" className="h-[120px] w-auto object-contain drop-shadow-xl" />
                     </div>
                     <h2 className="text-4xl font-bold tracking-tight gradient-text">
                         {isRegistering ? 'Nova Organização' : 'Entrar no Sistema'}
@@ -160,18 +162,29 @@ export function Login() {
                                     <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                     {/* v1.0.1 - CNPJ Mask Hardening */}
                                     <input
+                                        ref={cnpjRef}
                                         placeholder="00.000.000/0000-00"
                                         value={document}
                                         onChange={e => {
-                                            const raw = e.target.value.replace(/\D/g, '').slice(0, 14);
-                                            let masked = raw;
-                                            if (raw.length > 2) masked = raw.substring(0, 2) + '.' + raw.substring(2);
-                                            if (raw.length > 5) masked = masked.substring(0, 6) + '.' + masked.substring(6);
-                                            if (raw.length > 8) masked = masked.substring(0, 10) + '/' + masked.substring(10);
-                                            if (raw.length > 12) masked = masked.substring(0, 15) + '-' + masked.substring(15);
-                                            setDocument(masked);
+                                            const input = e.target;
+                                            const start = input.selectionStart;
+                                            const oldLength = input.value.length;
+                                            
+                                            const formatted = formatCNPJ(input.value);
+                                            setDocument(formatted);
+
+                                            // Path A: Manual Cursor Restoration
+                                            setTimeout(() => {
+                                                if (cnpjRef.current) {
+                                                    const newLength = formatted.length;
+                                                    const delta = newLength - oldLength;
+                                                    const pos = (start || 0) + delta;
+                                                    cnpjRef.current.setSelectionRange(pos, pos);
+                                                }
+                                            }, 0);
                                         }}
                                         className="auth-input pl-10"
+                                        maxLength={18}
                                     />
                                 </div>
                             </div>
