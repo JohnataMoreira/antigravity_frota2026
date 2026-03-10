@@ -158,6 +158,7 @@ export function Login() {
                                 <label className="text-sm font-medium ml-1">CNPJ (Opcional)</label>
                                 <div className="relative">
                                     <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                    {/* v1.0.1 - CNPJ Mask Hardening */}
                                     <input
                                         placeholder="00.000.000/0000-00"
                                         value={document}
@@ -166,7 +167,7 @@ export function Login() {
                                             const masked = val
                                                 .replace(/^(\d{2})(\d)/, '$1.$2')
                                                 .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
-                                                .replace(/\.(\d{3})(\d)/, '.$1/$2')
+                                                .replace(/^(\d{2})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3/$4')
                                                 .replace(/(\d{4})(\d)/, '$1-$2');
                                             setDocument(masked);
                                         }}
