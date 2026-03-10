@@ -164,11 +164,11 @@ export function Login() {
                                         value={document}
                                         onChange={e => {
                                             const val = e.target.value.replace(/\D/g, '').slice(0, 14);
-                                            const masked = val
-                                                .replace(/^(\d{2})(\d)/, '$1.$2')
-                                                .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
-                                                .replace(/^(\d{2})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3/$4')
-                                                .replace(/(\d{4})(\d)/, '$1-$2');
+                                            let masked = val;
+                                            if (val.length > 2) masked = val.replace(/^(\d{2})/, '$1.');
+                                            if (val.length > 5) masked = masked.replace(/^(\d{2})\.(\d{3})/, '$1.$2.');
+                                            if (val.length > 8) masked = masked.replace(/^(\d{2})\.(\d{3})\.(\d{3})/, '$1.$2.$3/');
+                                            if (val.length > 12) masked = masked.replace(/\/(\d{4})/, '/$1-');
                                             setDocument(masked);
                                         }}
                                         className="auth-input pl-10"
