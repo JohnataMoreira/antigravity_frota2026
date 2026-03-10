@@ -161,7 +161,15 @@ export function Login() {
                                     <input
                                         placeholder="00.000.000/0000-00"
                                         value={document}
-                                        onChange={e => setDocument(e.target.value)}
+                                        onChange={e => {
+                                            const val = e.target.value.replace(/\D/g, '').slice(0, 14);
+                                            const masked = val
+                                                .replace(/^(\d{2})(\d)/, '$1.$2')
+                                                .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+                                                .replace(/\.(\d{3})(\d)/, '.$1/$2')
+                                                .replace(/(\d{4})(\d)/, '$1-$2');
+                                            setDocument(masked);
+                                        }}
                                         className="auth-input pl-10"
                                     />
                                 </div>
@@ -235,7 +243,11 @@ export function Login() {
 
                             <button
                                 type="button"
-                                onClick={() => window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`}
+                                onClick={() => {
+                                    // Professional Routing: Ensure /api prefix regardless of env state
+                                    const baseUrl = window.location.origin;
+                                    window.location.href = `${baseUrl}/api/auth/google`;
+                                }}
                                 className="w-full py-3 px-6 bg-white dark:bg-zinc-800 text-foreground border border-border rounded-2xl font-medium flex items-center justify-center gap-3 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors shadow-sm"
                             >
                                 <svg className="w-5 h-5" viewBox="0 0 24 24">

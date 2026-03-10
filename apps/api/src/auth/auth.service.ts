@@ -19,14 +19,20 @@ export class AuthService {
         const existingUser = await this.prisma.user.findUnique({
             where: { email: dto.email },
         });
-        if (existingUser) throw new ConflictException('User email already exists');
+        if (existingUser) {
+            console.warn(`[AuthService] Registration failed: Email ${dto.email} already exists.`);
+            throw new ConflictException('User email already exists');
+        }
 
         // Check if org document already exists if provided
         if (dto.document) {
             const existingOrg = await this.prisma.organization.findUnique({
                 where: { document: dto.document },
             });
-            if (existingOrg) throw new ConflictException('Organization already exists');
+            if (existingOrg) {
+                console.warn(`[AuthService] Registration failed: Organization with document ${dto.document} already exists.`);
+                throw new ConflictException('Organization already exists');
+            }
         }
 
         // Transaction to create Org + Admin User
@@ -74,7 +80,10 @@ export class AuthService {
             where: { email: dto.email },
         });
 
-        if (!user) throw new UnauthorizedException('Credentials incorrect');
+        if (!user) {
+            console.warn(`[AuthService] Login failed: User ${dto.email} not found.`);
+            throw new UnauthorizedException('Credentials incorrect');
+        }
 
         // 2. Verify password
         const pwMatches = await bcrypt.compare(dto.password, user.passwordHash);
@@ -156,6 +165,8 @@ export class AuthService {
         let user = await this.prisma.user.findUnique({
             where: { email },
         });
+
+        console.log(`[AuthService] Google Auth attempt for: ${email}. User ${user ? 'exists' : 'new'}.`);
 
         if (!user) {
             // Auto-register a new organization for this social user
