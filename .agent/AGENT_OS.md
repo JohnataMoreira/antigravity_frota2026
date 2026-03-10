@@ -1,7 +1,7 @@
 # ðŸš€ AGENT_OS â€” Frota2026
 
-**Versão:** 3.4.0  
-**Data:** 06 de Março de 2026  
+**Versão:** 3.4.1  
+**Data:** 09 de Março de 2026  
 **Projeto:** Frota2026 â€” Sistema SaaS de GestÃ£o de Frotas Multi-Empresa  
 **RepositÃ³rio:** https://github.com/JohnataMoreira/antigravity_frota2026  
 **ProduÃ§Ã£o:** https://frota.johnatamoreira.com.br  
@@ -931,8 +931,41 @@ docker network inspect frota-network
 
 ---
 
-**Última atualização:** 06 de Março de 2026  
-**Versão:** 3.4.0  
-**Elaborado por:** AnÃ¡lise completa do cÃ³digo-fonte + histÃ³rico do projeto
+## 13. Protocolo Antigravity de Infraestrutura Segura (Docker Swarm/Dokploy)
+
+Para evitar erros catastróficos de "Bad Gateway" e falhas de inicialização, todo o redeploy deve seguir este checklist:
+
+1. **Validação de Branch:**
+   - Verique sempre se o serviço no Dokploy está rastreando a branch correta (`main` ou `dev`).
+   - Sincronize as branches se necessário (`git merge main` em `dev`) antes de fazer push.
+
+2. **Padrão Nginx Upstream (Resiliência):**
+   - **JAMAIS** use `proxy_pass http://nome-do-servico:porta` diretamente.
+   - **SEMPRE** use o padrão de variável para forçar resolução dinâmica:
+     ```nginx
+     resolver 127.0.0.11 valid=30s;
+     set $backend http://nome-do-servico:3000;
+     proxy_pass $backend;
+     ```
+   - Isso impede que o Nginx dê crash se o DNS interno do Docker não estiver pronto.
+
+3. **Build Manifest (NestJS):**
+   - Antes de atualizar `Dockerfile`, execute `npm run build` localmente.
+   - Garanta que o `CMD` aponte para o caminho real gerado pelo `nest build` (quase sempre `node dist/main.js`).
+
+4. **Limpeza de Cache (Sledgehammer):**
+   - Se o rebuild no Dokploy falhar sem motivo aparente, execute `docker builder prune -f` no VPS.
+
+5. **Sincronização do Filesystem (VPS):**
+   - Se o build falhar com "arquivo não encontrado" post-commit:
+     1. Entre via SSH.
+     2. Vá ao diretório de código do Dokploy (`/etc/dokploy/applications/.../code`).
+     3. Force `git pull origin <branch>` manualmente.
+
+---
+
+**Última atualização:** 09 de Março de 2026  
+**Versão:** 3.4.1  
+**Elaborado por:** Análise completa do código-fonte + histórico do projeto
 
 

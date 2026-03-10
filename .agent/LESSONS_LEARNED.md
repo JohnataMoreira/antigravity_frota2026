@@ -164,6 +164,15 @@ docker service rm <service_name>
 
 **Lição:** Quando o Swarm fica em deadlock, a única solução garantida é remover o serviço e recriar via Dokploy. Tentativas de `update --force` ou `scale 0/1` falham quando o estado de update está `paused`.
 
+### Problema 6: Efeito Cascata de Erro Crítico (Bad Gateway Fatal)
+**Cenário:** O dashboard (Web) não abria de jeito nenhum (Bad Gateway 502) no Dokploy, mesmo com o código Web compilando com sucesso.
+**Causa Raiz:** O serviço da API (NestJS) possuía um erro de digitação no caminho de um import (`../common/notifications/notification.service` em vez de `../notifications/notifications.service.ts`). O TypeORM/NestJS não compila com caminhos errados.
+**O Efeito Cascata:**
+1. A API quebrou no `npm run build` ou `docker build`.
+2. O Dokploy não conseguiu substituir o container antigo.
+3. O Traefik (Proxy Reverso) continuou apontando para um serviço sem instâncias ativas, gerando o Erro 502 no domínio principal inteiro.
+**Solução:** Sempre executar `npm run build` ou `tsc --noEmit` localmente na pasta específica do workspace (ex: `apps/api`) **antes** de enviar commits ("Regra de Ouro"). Um único import errado cega o sistema de proxy inteiro no VPS.
+
 ## 6. Autenticação e Segurança (Março/2026)
 
 ### Problema 1: Persistência de Tokens JWT (Stateless)
@@ -212,6 +221,12 @@ docker service rm <service_name>
 ### Phase 19: Relatórios & BI
 - **Problema**: Gráficos Recharts não renderizavam corretamente em contêineres colapsáveis.
 - **Solução**: Utilizar `ResponsiveContainer` com altura fixa e garantir que o componente pai tenha dimensões definidas.
+- **Semantização SEO/GEO (Schema.org)**: O uso de `application/ld+json` é a forma mais eficaz de garantir que IAs (como Perplexity/Gemini) citem o site corretamente ao indexarem informações sobre a frota.
+
+### Povoamento de Dados Multi-tenant (v22+)
+- **Isolamento de Dados no Seed**: Ao criar scripts de seed para múltiplas organizações, é crucial usar variáveis para o `organizationId` e garantir que slugs de e-mail e nomes sejam únicos para evitar conflitos de `unique constraints`.
+- **Conectividade Docker-Host no VPS**: Ao rodar scripts Prisma diretamente no host do servidor (fora do container), o nome do serviço do banco de dados (ex: `postgres`) não é resolvido. A solução é usar o IP interno do container (`docker inspect`) para a `DATABASE_URL`.
+- **Dependências no Servidor**: Ambientes Dokploy muitas vezes não possuem `node_modules` no diretório de código do host (apenas dentro da imagem Docker). É necessário rodar `npm install` e `npx prisma generate` manualmente no diretório de código se quiser rodar scripts de manutenção via host.
 - **Isolamento**: Implementação de White-label via `AuthContext` garantiu que o branding fosse aplicado sem expor dados de outros tenants no frontend.
 
 ### Phase 20: Auditoria Final & Go-Live
@@ -223,3 +238,33 @@ docker service rm <service_name>
 - **Cabeçalhos de Segurança**: O uso do `Helmet` mitigou riscos de *Clickjacking* e *XSS* que foram detectados como "melhorias recomendadas" pelo scanner de vulnerabilidades.
 - **Semântica para IAs (GEO)**: A inclusão de metadados compatíveis com **Schema.org** transformou o dashboard de um "site genérico" em uma entidade de software reconhecível por motores de busca generativos.
 - **Estabilidade Docker**: Limitar a memória (512MB para API) e CPU é vital; sem isso, picos de tráfego podem causar *OOM Kill* (Out of Memory) na VPS, derrubando outros serviços.
+
+### Phase 21: Debugging Maratona (Gateway & API Build)
+
+**1. Inconsistência de Caminhos no Dockerfile (NestJS Build)**
+- **Problema**: O `nest build` gera o output em `dist/main.js` na raiz do build, mas o Dockerfile procurava em `dist/apps/api/src/main.js`.
+- **Solução**: Sempre verificar o `outDir` no `tsconfig.json` e o real layout da pasta `dist` após um build local antes de configurar o `CMD` do Dockerfile.
+
+**2. Nginx Upstream em Docker Swarm (Dynamic DNS)**
+- **Problema**: O Nginx morre no boot se um host no `proxy_pass` não puder ser resolvido imediatamente.
+- **Solução (Padrão Ouro)**: Usar o `resolver 127.0.0.11` (DNS interno do Docker) e definir o backend em uma variável: `set $backend http://service-name:port; proxy_pass $backend;`. Isso força o Nginx a resolver o IP apenas no momento da requisição, não no boot.
+
+**3. Desalinhamento de Branches no Dokploy**
+- **Problema**: O serviço web no Dokploy estava configurado para a branch `dev`, enquanto os commits de correção estavam na `main`. Build passava mas o erro persistia.
+- **Solução**: Antes de qualquer debugging de deploy, verificar no painel do Dokploy qual branch exata o serviço está rastreando.
+
+**4. Código Obsoleto no Filesystem do VPS**
+- **Problema**: Mesmo com push para a branch correta, o Dokploy às vezes usa um diretório de código no host que está com git index sujo ou desatualizado.
+- **Solução**: Se o rebuild não refletir as mudanças, entrar no diretório de código do VPS e forçar um `git pull origin branch`.
+
+**5. Erros de Importação pós-Refatoração**
+- **Problema**: `NotificationsService` (plural) vs `NotificationService` (singular) e caminhos relativos incorretos após mover arquivos.
+- **Solução**: O `npm run build` local é mandatório. Se falhar localmente, JAMAIS assumir que o Docker resolverá por "mágica".
+
+**6. Dependências de Módulos (NestJS DI)**
+- **Problema**: `MaintenanceModule` usava um serviço sem importar o módulo provedor (`WebNotificationsModule`). Erro só aparecia no runtime do container.
+- **Solução**: Garantir que cada serviço injetado tenha seu módulo exportado e devidamente importado no módulo consumidor.
+
+**7. Cache Agressivo de Build**
+- **Problema**: Docker reutilizando camadas de arquivos de configuração antigos mesmo após mudanças no Git.
+- **Solução**: `docker builder prune -f` no VPS é a "bala de prata" quando o código buildado parece ignorar seus commits recentes.
