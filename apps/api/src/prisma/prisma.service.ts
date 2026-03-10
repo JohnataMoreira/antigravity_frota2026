@@ -36,36 +36,39 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
                             }
                         }
 
-                        // 3. Apply organizationId to filters
-                        if (['findFirst', 'findMany', 'count', 'update', 'updateMany', 'delete', 'deleteMany', 'aggregate', 'findUnique'].includes(operation)) {
-                            /* eslint-disable @typescript-eslint/no-explicit-any */
-                            const anyArgs = (args || {}) as any;
-                            anyArgs.where = { ...anyArgs.where, organizationId };
-                            args = anyArgs;
-                        }
-
-                        // 4. Apply organizationId to data on creation
-                        if (['create', 'createMany'].includes(operation)) {
-                            /* eslint-disable @typescript-eslint/no-explicit-any */
-                            const anyArgs = (args || {}) as any;
-                            if (operation === 'create') {
-                                anyArgs.data = { ...anyArgs.data, organizationId };
-                            } else {
-                                if (Array.isArray(anyArgs.data)) {
-                                    anyArgs.data = anyArgs.data.map((item: any) => ({ ...item, organizationId }));
-                                }
+                        // 3. Apply organizationId to filters/data ONLY if context is present
+                        if (organizationId) {
+                            // Apply to filters
+                            if (['findFirst', 'findMany', 'count', 'update', 'updateMany', 'delete', 'deleteMany', 'aggregate', 'findUnique'].includes(operation)) {
+                                /* eslint-disable @typescript-eslint/no-explicit-any */
+                                const anyArgs = (args || {}) as any;
+                                anyArgs.where = { ...anyArgs.where, organizationId };
+                                args = anyArgs;
                             }
-                            args = anyArgs;
-                        }
 
-                        // 5. Specific check for upsert
-                        if (operation === 'upsert') {
-                            /* eslint-disable @typescript-eslint/no-explicit-any */
-                            const anyArgs = (args || {}) as any;
-                            anyArgs.create = { ...anyArgs.create, organizationId };
-                            anyArgs.update = { ...anyArgs.update, organizationId };
-                            anyArgs.where = { ...anyArgs.where, organizationId };
-                            args = anyArgs;
+                            // Apply to data on creation
+                            if (['create', 'createMany'].includes(operation)) {
+                                /* eslint-disable @typescript-eslint/no-explicit-any */
+                                const anyArgs = (args || {}) as any;
+                                if (operation === 'create') {
+                                    anyArgs.data = { ...anyArgs.data, organizationId };
+                                } else {
+                                    if (Array.isArray(anyArgs.data)) {
+                                        anyArgs.data = anyArgs.data.map((item: any) => ({ ...item, organizationId }));
+                                    }
+                                }
+                                args = anyArgs;
+                            }
+
+                            // Specific check for upsert
+                            if (operation === 'upsert') {
+                                /* eslint-disable @typescript-eslint/no-explicit-any */
+                                const anyArgs = (args || {}) as any;
+                                anyArgs.create = { ...anyArgs.create, organizationId };
+                                anyArgs.update = { ...anyArgs.update, organizationId };
+                                anyArgs.where = { ...anyArgs.where, organizationId };
+                                args = anyArgs;
+                            }
                         }
 
                         return query(args);
