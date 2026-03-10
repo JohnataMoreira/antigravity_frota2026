@@ -163,12 +163,12 @@ export function Login() {
                                         placeholder="00.000.000/0000-00"
                                         value={document}
                                         onChange={e => {
-                                            const val = e.target.value.replace(/\D/g, '').slice(0, 14);
-                                            let masked = val;
-                                            if (val.length > 2) masked = val.replace(/^(\d{2})/, '$1.');
-                                            if (val.length > 5) masked = masked.replace(/^(\d{2})\.(\d{3})/, '$1.$2.');
-                                            if (val.length > 8) masked = masked.replace(/^(\d{2})\.(\d{3})\.(\d{3})/, '$1.$2.$3/');
-                                            if (val.length > 12) masked = masked.replace(/\/(\d{4})/, '/$1-');
+                                            const raw = e.target.value.replace(/\D/g, '').slice(0, 14);
+                                            let masked = raw;
+                                            if (raw.length > 2) masked = raw.substring(0, 2) + '.' + raw.substring(2);
+                                            if (raw.length > 5) masked = masked.substring(0, 6) + '.' + masked.substring(6);
+                                            if (raw.length > 8) masked = masked.substring(0, 10) + '/' + masked.substring(10);
+                                            if (raw.length > 12) masked = masked.substring(0, 15) + '-' + masked.substring(15);
                                             setDocument(masked);
                                         }}
                                         className="auth-input pl-10"
@@ -226,12 +226,24 @@ export function Login() {
                         </div>
                     )}
 
-                    <button
+                     <button
                         type="submit"
                         disabled={loading}
                         className="w-full py-4 px-6 bg-primary text-primary-foreground rounded-2xl font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/20 disabled:opacity-50"
                     >
                         {loading ? 'Processando...' : (isRegistering ? 'Criar Organização' : 'Entrar')}
+                    </button>
+
+                    <button
+                        type="button"
+                        disabled={loading}
+                        onClick={() => {
+                            setIsRegistering(!isRegistering);
+                            setError('');
+                        }}
+                        className="w-full py-4 px-6 border-2 border-primary/20 text-primary rounded-2xl font-bold text-lg hover:bg-primary/5 hover:border-primary/40 active:scale-[0.98] transition-all disabled:opacity-50"
+                    >
+                        {isRegistering ? 'Voltar para o Login' : 'Cadastrar novo negócio'}
                     </button>
 
                     {!isRegistering && (
@@ -275,18 +287,6 @@ export function Login() {
                     )}
                 </form>
 
-                <div className="text-center pt-2">
-                    <button
-                        disabled={loading}
-                        onClick={() => {
-                            setIsRegistering(!isRegistering);
-                            setError('');
-                        }}
-                        className="text-sm font-medium text-primary hover:underline transition-all"
-                    >
-                        {isRegistering ? 'Já possui uma conta? Faça Login' : 'Não tem conta? Registre sua Empresa'}
-                    </button>
-                </div>
             </div>
 
             <style>{`

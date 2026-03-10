@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, Matches, MinLength } from 'class-validator';
 
 export class LoginDto {
     @IsEmail()
@@ -38,6 +38,9 @@ export class RegisterOrgDto {
 
     @IsOptional()
     @IsString()
+    @Matches(/^(\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2})$|^(\d{14})$/, {
+        message: 'Invalid CNPJ format (XX.XXX.XXX/XXXX-XX or 14 digits)',
+    })
     document?: string;
 
     @IsEmail()
