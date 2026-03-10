@@ -1,3 +1,0 @@
-M	.agent/LESSONS_LEARNED.md
-M	apps/web/tsconfig.tsbuildinfo
-M	tsconfig.tsbuildinfo
