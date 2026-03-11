@@ -7,7 +7,7 @@ import { photoService } from '../../src/services/photoService';
 import { useRouter } from 'expo-router';
 import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
 import { useAuth } from '../_layout';
-import { Clock, Gauge, Fuel, AlertTriangle, Hand, MapPin, X, ChevronLeft, Menu, Camera as CameraIcon, Check, Navigation, Truck, Wifi, WifiOff, CloudSync } from 'lucide-react-native';
+import { Clock, Gauge, Fuel, AlertTriangle, Hand, MapPin, X, ChevronLeft, Menu, Camera as CameraIcon, Check, Navigation, Truck, Wifi, WifiOff } from 'lucide-react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import NetInfo from '@react-native-community/netinfo';
 
@@ -258,7 +258,7 @@ export default function JourneyScreen() {
                 <View className="flex-row items-center space-x-2">
                     {syncQueueSize > 0 && (
                         <View className="bg-amber-100 dark:bg-amber-900/30 p-2 rounded-full">
-                            <CloudSync size={16} color="#d97706" />
+                                        <Truck size={14} color="#94a3b8" />
                         </View>
                     )}
                     <View className={`p-2 rounded-full ${isOffline ? 'bg-red-100 dark:bg-red-900/30' : 'bg-emerald-100 dark:bg-emerald-900/30'}`}>

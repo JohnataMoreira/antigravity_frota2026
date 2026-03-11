@@ -4,12 +4,6 @@ import { useRouter } from 'expo-router';
 import { useAuth } from './_layout';
 import { api } from '../src/services/api';
 import { Eye, EyeOff } from 'lucide-react-native';
-import { styled } from 'nativewind';
-
-const StyledView = styled(View);
-const StyledText = styled(Text);
-const StyledTextInput = styled(TextInput);
-const StyledTouchableOpacity = styled(TouchableOpacity);
 
 export default function LoginScreen() {
     const [email, setEmail] = useState('');
@@ -50,25 +44,25 @@ export default function LoginScreen() {
                     className="p-6 sm:p-12"
                     keyboardShouldPersistTaps="handled"
                 >
-                    <StyledView className="flex-1 justify-center space-y-8 max-w-[480px] self-center w-full">
+                    <View className="flex-1 justify-center space-y-8 max-w-[480px] self-center w-full">
                         {/* Header & Logo */}
-                        <StyledView className="items-center space-y-6">
-                            <StyledView className="w-full aspect-[3/1] bg-slate-200 dark:bg-slate-800 rounded-lg items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-700">
-                                <StyledText className="text-slate-500 dark:text-slate-400 font-display font-medium">Logo da Empresa</StyledText>
-                            </StyledView>
-                            <StyledText className="text-slate-900 dark:text-slate-100 text-3xl font-display font-bold tracking-tight text-center">
+                        <View className="items-center space-y-6">
+                            <View className="w-full aspect-[3/1] bg-slate-200 dark:bg-slate-800 rounded-lg items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-700">
+                                <Text className="text-slate-500 dark:text-slate-400 font-display font-medium">Logo da Empresa</Text>
+                            </View>
+                            <Text className="text-slate-900 dark:text-slate-100 text-3xl font-display font-bold tracking-tight text-center">
                                 Frota2026 Driver
-                            </StyledText>
-                        </StyledView>
+                            </Text>
+                        </View>
 
                         {/* Form */}
-                        <StyledView className="space-y-5">
+                        <View className="space-y-5">
                             {/* Organization Document */}
-                            <StyledView className="space-y-2">
-                                <StyledText className="text-slate-700 dark:text-slate-300 text-base font-display font-medium">
+                            <View className="space-y-2">
+                                <Text className="text-slate-700 dark:text-slate-300 text-base font-display font-medium">
                                     CNPJ da Organização
-                                </StyledText>
-                                <StyledTextInput
+                                </Text>
+                                <TextInput
                                     className="w-full rounded-lg text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 h-14 px-4 text-base font-display"
                                     placeholder="00.000.000/0000-00"
                                     placeholderTextColor="#94a3b8"
@@ -76,14 +70,14 @@ export default function LoginScreen() {
                                     onChangeText={setDocument}
                                     keyboardType="numeric"
                                 />
-                            </StyledView>
+                            </View>
 
                             {/* Email */}
-                            <StyledView className="space-y-2">
-                                <StyledText className="text-slate-700 dark:text-slate-300 text-base font-display font-medium">
+                            <View className="space-y-2">
+                                <Text className="text-slate-700 dark:text-slate-300 text-base font-display font-medium">
                                     E-mail
-                                </StyledText>
-                                <StyledTextInput
+                                </Text>
+                                <TextInput
                                     className="w-full rounded-lg text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 h-14 px-4 text-base font-display"
                                     placeholder="seu@email.com"
                                     placeholderTextColor="#94a3b8"
@@ -92,15 +86,15 @@ export default function LoginScreen() {
                                     autoCapitalize="none"
                                     keyboardType="email-address"
                                 />
-                            </StyledView>
+                            </View>
 
                             {/* Password */}
-                            <StyledView className="space-y-2">
-                                <StyledText className="text-slate-700 dark:text-slate-300 text-base font-display font-medium">
+                            <View className="space-y-2">
+                                <Text className="text-slate-700 dark:text-slate-300 text-base font-display font-medium">
                                     Senha
-                                </StyledText>
-                                <StyledView className="relative w-full flex-row items-center">
-                                    <StyledTextInput
+                                </Text>
+                                <View className="relative w-full flex-row items-center">
+                                    <TextInput
                                         className="flex-1 rounded-lg text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 h-14 px-4 pr-12 text-base font-display"
                                         placeholder="••••••••"
                                         placeholderTextColor="#94a3b8"
@@ -108,7 +102,7 @@ export default function LoginScreen() {
                                         onChangeText={setPassword}
                                         secureTextEntry={!showPassword}
                                     />
-                                    <StyledTouchableOpacity
+                                    <TouchableOpacity
                                         className="absolute right-4"
                                         onPress={() => setShowPassword(!showPassword)}
                                     >
@@ -117,13 +111,13 @@ export default function LoginScreen() {
                                         ) : (
                                             <Eye size={24} color="#94a3b8" />
                                         )}
-                                    </StyledTouchableOpacity>
-                                </StyledView>
-                            </StyledView>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
 
                             {/* Submit Button */}
-                            <StyledView className="pt-4">
-                                <StyledTouchableOpacity
+                            <View className="pt-4">
+                                <TouchableOpacity
                                     className={`w-full min-h-[56px] items-center justify-center rounded-xl bg-primary px-4 py-3 shadow-lg shadow-primary/20 ${isLoading ? 'opacity-70' : ''}`}
                                     onPress={handleLogin}
                                     disabled={isLoading}
@@ -131,22 +125,22 @@ export default function LoginScreen() {
                                     {isLoading ? (
                                         <ActivityIndicator color="white" />
                                     ) : (
-                                        <StyledText className="text-lg font-display font-semibold text-white">
+                                        <Text className="text-lg font-display font-semibold text-white">
                                             Entrar
-                                        </StyledText>
+                                        </Text>
                                     )}
-                                </StyledTouchableOpacity>
-                            </StyledView>
-                        </StyledView>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
 
                         {/* Footer */}
-                        <StyledView className="pt-8 items-center">
-                            <StyledText className="text-slate-500 dark:text-slate-400 text-sm font-display">
+                        <View className="pt-8 items-center">
+                            <Text className="text-slate-500 dark:text-slate-400 text-sm font-display">
                                 Problemas para acessar?{' '}
-                                <StyledText className="text-primary font-medium">Contate seu gestor.</StyledText>
-                            </StyledText>
-                        </StyledView>
-                    </StyledView>
+                                <Text className="text-primary font-medium">Contate seu gestor.</Text>
+                            </Text>
+                        </View>
+                    </View>
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>

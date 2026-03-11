@@ -1,10 +1,4 @@
-import { synchronize } from '@nozbe/watermelondb/sync';
-import { database } from '../model/database';
-import NetInfo from '@react-native-community/netinfo';
-import { AppState, AppStateStatus } from 'react-native';
-
-const API_URL = 'https://frota.johnatamoreira.com.br/api/sync';
-const SYNC_INTERVAL = 1000 * 60 * 5; // 5 minutes
+import { Platform } from 'react-native';
 
 export type SyncStatus = 'IDLE' | 'SYNCING' | 'SUCCESS' | 'ERROR';
 
@@ -14,53 +8,11 @@ class SyncService {
     private isSyncing = false;
     private status: SyncStatus = 'IDLE';
     private listeners: SyncListener[] = [];
-    private syncInterval: NodeJS.Timeout | null = null;
+    private syncInterval: ReturnType<typeof setInterval> | null = null;
     private token: string | null = null;
-
-    constructor() {
-        this.setupAutoSync();
-    }
 
     setToken(token: string) {
         this.token = token;
-    }
-
-    private setupAutoSync() {
-        // Sync on app foreground
-        AppState.addEventListener('change', this.handleAppStateChange);
-
-        // Sync on network restore
-        NetInfo.addEventListener(state => {
-            if (state.isConnected && this.status === 'ERROR') {
-                this.sync();
-            }
-        });
-
-        // Periodic sync
-        this.startPeriodicSync();
-    }
-
-    private handleAppStateChange = (nextAppState: AppStateStatus) => {
-        if (nextAppState === 'active') {
-            this.sync();
-            this.startPeriodicSync();
-        } else {
-            this.stopPeriodicSync();
-        }
-    };
-
-    private startPeriodicSync() {
-        if (this.syncInterval) clearInterval(this.syncInterval);
-        this.syncInterval = setInterval(() => {
-            this.sync();
-        }, SYNC_INTERVAL);
-    }
-
-    private stopPeriodicSync() {
-        if (this.syncInterval) {
-            clearInterval(this.syncInterval);
-            this.syncInterval = null;
-        }
     }
 
     subscribe(listener: SyncListener) {
@@ -76,17 +28,27 @@ class SyncService {
     }
 
     async sync() {
-        if (this.isSyncing || !this.token) return;
-
-        const netState = await NetInfo.fetch();
-        if (!netState.isConnected) {
-            return; // Silent fail if offline
-        }
+        // WatermelonDB sync only works on native platforms (SQLite)
+        if (Platform.OS === 'web' || this.isSyncing || !this.token) return;
 
         this.isSyncing = true;
         this.notifyListeners('SYNCING');
 
         try {
+            const [{ synchronize }, { database }, NetInfo] = await Promise.all([
+                import('@nozbe/watermelondb/sync'),
+                import('../model/database'),
+                import('@react-native-community/netinfo').then(m => m.default),
+            ]);
+
+            const netState = await NetInfo.fetch();
+            if (!netState.isConnected) {
+                this.notifyListeners('IDLE');
+                return;
+            }
+
+            const API_URL = 'https://frota.johnatamoreira.com.br/api/sync';
+
             await synchronize({
                 database,
                 pullChanges: async ({ lastPulledAt, schemaVersion, migration }) => {
@@ -97,14 +59,10 @@ class SyncService {
                     });
 
                     const response = await fetch(`${API_URL}?${params.toString()}`, {
-                        headers: {
-                            'Authorization': `Bearer ${this.token}`
-                        }
+                        headers: { 'Authorization': `Bearer ${this.token}` }
                     });
 
-                    if (!response.ok) {
-                        throw new Error(await response.text());
-                    }
+                    if (!response.ok) throw new Error(await response.text());
 
                     const { changes, timestamp } = await response.json();
                     return { changes, timestamp };
@@ -119,9 +77,7 @@ class SyncService {
                         body: JSON.stringify(changes),
                     });
 
-                    if (!response.ok) {
-                        throw new Error(await response.text());
-                    }
+                    if (!response.ok) throw new Error(await response.text());
                 },
                 migrationsEnabledAtVersion: 1,
             });
