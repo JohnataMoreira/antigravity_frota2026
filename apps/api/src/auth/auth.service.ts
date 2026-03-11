@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { LoginDto, RegisterOrgDto } from './dto';
 import { AuditService } from '../common/audit/audit.service';
 import { AuditAction, AuditEntity } from '../common/audit/audit.types';
+import { TenantContext } from '../prisma/tenant.context';
 
 @Injectable()
 export class AuthService {
@@ -15,7 +16,8 @@ export class AuthService {
     ) { }
 
     async registerOrg(dto: RegisterOrgDto) {
-        // Check if user email already exists (global unique)
+        return TenantContext.runBypass(async () => {
+            // Check if user email already exists (global unique)
         const existingUser = await this.prisma.user.findUnique({
             where: { email: dto.email },
         });
@@ -71,11 +73,13 @@ export class AuthService {
             metadata: { email: user.email }
         });
 
-        return this.signToken(user.id, org.id, user.email, user.role, user.name, user.tokenVersion);
+            return this.signToken(user.id, org.id, user.email, user.role, user.name, user.tokenVersion);
+        });
     }
 
     async login(dto: LoginDto) {
-        // 1. Find the user by email globally
+        return TenantContext.runBypass(async () => {
+            // 1. Find the user by email globally
         const user = await this.prisma.user.findUnique({
             where: { email: dto.email },
         });
@@ -100,7 +104,8 @@ export class AuthService {
             metadata: { email: user.email }
         });
 
-        return result;
+            return result;
+        });
     }
 
     async signToken(userId: string, orgId: string, email: string, role: string, name: string, tokenVersion: number) {
@@ -158,9 +163,9 @@ export class AuthService {
     }
 
     async validateGoogleUser(googleUser: any) {
+        return TenantContext.runBypass(async () => {
 
-
-        const { email, firstName, lastName } = googleUser;
+            const { email, firstName, lastName } = googleUser;
 
         let user = await this.prisma.user.findUnique({
             where: { email },
@@ -216,7 +221,8 @@ export class AuthService {
             metadata: { email: user.email, provider: 'GOOGLE' }
         });
 
-        return result;
+            return result;
+        });
     }
     async logoutAll(userId: string, organizationId: string) {
         await this.prisma.user.update({

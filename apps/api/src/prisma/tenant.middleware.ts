@@ -13,8 +13,8 @@ export class TenantMiddleware implements NestMiddleware {
 
         try {
             const token = authHeader.split(' ')[1];
-            // Secret must match AuthModule. We use the same env var.
-            const secret = process.env.JWT_SECRET || 'super-secret-key-change-in-prod';
+            // Secret must match AuthModule. We use the same env var fallback.
+            const secret = process.env.JWT_SECRET || process.env.JWT_ACCESS_SECRET || 'super-secret-key-change-in-prod';
             const decoded = jwt.verify(token, secret) as any;
 
             const organizationId = decoded.orgId || decoded.organizationId;

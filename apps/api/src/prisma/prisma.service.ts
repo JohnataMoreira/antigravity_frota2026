@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, OnModuleInit, OnModuleDestroy, UnauthorizedException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { TenantContext } from './tenant.context';
 
@@ -21,19 +21,24 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
                             return query(args);
                         }
 
-                        // 2. SECURE CHECK: If an isolated model is accessed without organizationId, FAIL instead of leaking
-                        // Logic: Allow if it's a CREATE operation with organizationId already in data, 
-                        // or if no tenant context is available (e.g. login/seed/auth routes which are excluded in middleware)
+                        // 2. SECURE CHECK: Fail-Closed enforcement for Isolated Models
                         if (!organizationId) {
+                            // If explicit bypass is active (e.g., login, registration, internal scripts), permit global query
+                            if (TenantContext.isBypass()) {
+                                return query(args);
+                            }
+
+                            // If we are performing a create/createMany/upsert AND the data already explicitly injects an organizationId, permit (useful for seeded tests)
                             const anyArgs = (args || {}) as any;
                             const isCreateWithOrg = (['create', 'createMany', 'upsert'].includes(operation)) &&
                                 (anyArgs?.data?.organizationId || anyArgs?.create?.organizationId);
 
-                            if (!isCreateWithOrg) {
-                                // If we're in a global context (like auth), we allow it.
-                                // But if we're in an authenticated route, organizationId should be present.
+                            if (isCreateWithOrg) {
                                 return query(args);
                             }
+
+                            // FAIL CLOSED: Isolated model accessed without organizationId and without explicit bypass
+                            throw new UnauthorizedException(`[SECURITY FATAL] Fail-Closed Intervention: Attempted to query isolated model '${String(model)}' without TenantContext (organizationId) or explicit Authentication Bypass.`);
                         }
 
                         // 3. Apply organizationId to filters/data ONLY if context is present
