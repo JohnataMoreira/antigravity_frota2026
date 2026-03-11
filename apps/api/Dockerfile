@@ -42,6 +42,9 @@ COPY --from=builder /app/apps/api/dist ./dist
 COPY --from=builder /app/apps/api/prisma ./prisma
 COPY --from=builder /app/apps/api/package.json ./apps/api/package.json
 
+# Stub package.json to make Dokploy's command `npm run start:prod` work
+RUN echo '{"scripts": {"start:prod": "node dist/main.js"}}' > /app/package.json
+
 EXPOSE 3000
 
 # API Health check
