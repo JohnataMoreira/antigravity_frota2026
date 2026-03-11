@@ -183,7 +183,20 @@ docker service rm <service_name>
 ### Problema 2: Invalidação Grosseira (Falta de check do Campo `active`)
 **Cenário:** O guardião `JwtStrategy` apenas decodificava o Token. Ele não testava no banco se a conta continuava ativa (`active: true`), permitindo que ex-funcionários usassem o app até a expiração do token.
 **Solução Aplicada:** Incorporação da checagem em banco no validador do Passport-JWT.
-**Lição:** "O Guard defende a porta, mas o Strategy deve perguntar a quem pertence a chave". O Payload de uma sessão não responde sobre o status atual do usuário.
+### Problema 3: Vazamento de Dados Cross-Tenant (Fail-Open Prisma)
+**Cenário:** O script `seed-multi-tenant.ts` criava contas e veículos falsos com IDs atrelados a organizações. Ao se registrar uma nova Organização legítima na plataforma de Produção, o novo usuário acessava o painel e enxergava *todos* os veículos e motoristas de *todas* as organizações do banco (um Data Leakage crítico e catastrófico).
+**Causa Raiz:**
+1. O `TenantMiddleware`, responsável por capturar o `organizationId` do JWT, tentava ler apens a variável `process.env.JWT_SECRET`. Em Produção, a variável predominante era `JWT_ACCESS_SECRET`. Consequentemente, a verificação `jwt.verify` falhava silenciosamente e deixava o `TenantContext` como `undefined`.
+2. A falha fatal ocorria no `PrismaService` (`$allOperations` extension): ele implementava uma lógica "Fail-Open". Se a tabela (ex: `Vehicle`) fosse consultada e não houvesse `organizationId` no contexto, ele deduzia que era um script global de sistema ou login e permitia a query sem nenhum filtro `WHERE organizationId = X`.
+3. Assim, usuários com tickets válidos via `JwtAuthGuard`, mas sem injeção de Organização via `TenantMiddleware`, faziam bypass do Isolamento e varriam os registros globais de Inquilinos.
+**Solução Aplicada (Fail-Closed Architecture):**
+1. Sincronizei o secret do `TenantMiddleware` para o fallback oficial: `process.env.JWT_SECRET || process.env.JWT_ACCESS_SECRET`.
+2. O **PrismaService agora é Fail-Closed:** Se uma Model Isolada for acionada sem o Contexto de Inquilino e SEM uma Flag de Bypass Explícita, ele dispara um `UnauthorizedException()`.
+3. Implementei no `TenantContext` o mecanismo `runBypass()`. Rotas como Registro de Conta ou Login (que buscam Usuários globais para ver se o email já existe) agora rodam ativamente sob este Bypass Auditado, trancando permanentemente toda a API contra "Context Loss".
+**Lição (Padrão Ouro Multi-Tenancy):**
+1. Segurança de Backend NUNCA deve ser Passiva/Fail-Open. Se o ID Multilocatário sumir da memória assíncrona, a API deve **Cair Instantaneamente (Panic/Throw)**, nunca devolver tudo com a presunção inocente de "Consulta do Sistema".
+2. Extensões Client-Side do Prisma são poderosas, mas sem Row Level Security (RLS) no banco, exigem um firewall aplicativo blindado em Fail-Closed Mode.
+
 
 ---
 
@@ -295,10 +308,19 @@ const handleCNPJChange = (e) => {
             const newLength = formatted.length;
             const delta = newLength - oldLength;
             const pos = (start || 0) + delta;
-            cnpjRef.current.setSelectionRange(pos, pos);
-        }
+},
     }, 0);
 };
 ```
 
 **Lição:** Componentes controlados pelo React resetam a posição do cursor ao atualizar o valor do input programaticamente. Para máscaras complexas, é obrigatório capturar a posição inicial, calcular o `delta` (diferença de tamanho após a formatação) e restaurar o cursor no próximo tick do event loop (`setTimeout 0`).
+
+### Problema: Efeito Fantasma de "Schema Drift" no Prisma (Erro 500 no findUnique)
+**Cenário:** O endpoint de registro retornava sistematicamente `500 Internal Server Error` na linha `this.prisma.organization.findUnique({ where: { document: dto.document } })`. O log crú do container do Swarm (via pipe SSH direto para ignorar truncamento no terminal console) revelou que o Postgres reclamava que a coluna `Organization.address` não existia, **mesmo com o log de inicialização do Prisma afirmando "No pending migrations to apply"**.
+**Causa Raiz:** Ocorreu um "Schema Drift" silencioso. As colunas `address` e `phone` foram adicionadas ao modelo `Organization` no arquivo `schema.prisma`, o Prisma Client foi gerado, porém **nenhuma migration SQL correspondente foi criada via `prisma migrate dev`**. Quando a imagem subiu em produção, o script de bootstrap `npx prisma migrate deploy` não executou nada ("No pending migrations"), deixando o banco sem as colunas. O Prisma Client, esperando que o banco estivesse espelhado ao `schema.prisma`, travava (panic) ao tentar montar o pacote de retorno da query.
+**Solução (Padrão Ouro):**
+Nunca confiar cegamente na mensagem "No pending migrations". Para estabilizar produção contra deriva de schema:
+1. Validar as colunas ausentes reportadas no log.
+2. Criar a migração manualmente gerando as sentenças SQL faltantes no diretório `prisma/migrations/<timestamp>_fix_drift/migration.sql`.
+3. Commitar e fazer push do push para forçar o Dokploy a ativar o contêiner API que vai rodar o `.sql` de injeção na pipeline natural de inicialização do banco.
+**Lição:** A única fonte de verdade da estrutura persistida é o `.sql` das migrações, não o `schema.prisma`. Se atualizar o schema e não rodar o comando que comita a alteração estrutural no controle de versão (as pastas em `migrations/`), você condenará o production client a perambular às cegas quebrando consultas básicas de `findUnique`!
