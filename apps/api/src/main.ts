@@ -40,6 +40,10 @@ async function bootstrap() {
         });
         app.enableShutdownHooks();
         app.setGlobalPrefix('api');
+        app.enableVersioning({
+            type: VersioningType.URI,
+            defaultVersion: '1',
+        });
         app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
         const port = process.env.PORT || 3000;
