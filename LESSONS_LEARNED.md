@@ -73,3 +73,25 @@ Este documento registra desafios técnicos, falhas de infraestrutura e aprendiza
 
 ### 1. Plugin Resolution
 - **Aprendizado**: Em monorepos, plugins instalados no pacote (`apps/mobile`) podem não ser detectados pelo Expo CLI se o `npm install` não for sincronizado na raiz do projeto para gerar as permissões de symlink corretas.
+
+---
+
+## 📱 Mobile Runtime Fixes (Phase 29)
+
+### 1. NativeWind v4 (react-native-css-interop) incompatível com Reanimated v3
+- **Desafio**: Após correção do Babel, o Metro falha ao compilar com: `Cannot find module 'react-native-worklets/plugin'`.
+- **Causa**: `react-native-css-interop@0.2.x` (usado internamente pelo NativeWind v4) sempre tenta carregar `react-native-worklets/plugin` no seu `babel.js`, assumindo que o projeto usa Reanimated v4. Porém, o Expo SDK 52 usa Reanimated v3, que não tem esse módulo.
+- **Solução**: Comentar a linha `"react-native-worklets/plugin"` no arquivo `node_modules/react-native-css-interop/babel.js`.
+- **Aprendizado**: Este é um bug de versão entre NativeWind v4 e SDK 52. A solução permanente é usar `patch-package` para preservar este fix após `npm install`.
+
+### 2. WatermelonDB v0.28: Decorators com Default Values
+- **Desafio**: App trava com `Uncaught Error: Model field decorators must not be used on properties with a default value - error in "Vehicle.prototype.plate"`.
+- **Causa**: WatermelonDB não permite que campos com decorators (`@field`, `@date`, `@readonly`) tenham valores iniciais (ex: `plate: string = ''`). O decorator gerencia internamente o acesso ao dado; um valor padrão interfere nessa mecânica.
+- **Solução**: Substituir `= ''` e `= 0` pela asserção de não-nulo do TypeScript (`!`) nos models `Vehicle`, `Checklist` e `Journey`:
+  ```ts
+  // ❌ Errado
+  @field('plate') plate: string = ''
+  // ✅ Correto
+  @field('plate') plate!: string
+  ```
+- **Impacto**: Afeta todos os models WatermelonDB do projeto.
