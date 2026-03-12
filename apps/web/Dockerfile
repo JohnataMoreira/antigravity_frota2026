@@ -2,19 +2,17 @@
 FROM node:20 AS builder
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json ./
-COPY apps/web/package.json ./apps/web/package.json
+# Set memory limit
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
-# Install dependencies for the web workspace specifically
-# This ensures binaries are linked correctly
-RUN npm install --workspace=web --legacy-peer-deps
+# Copy EVERYTHING (to ensure workspace parity with host)
+COPY . .
 
-# Copy web source code
-COPY apps/web ./apps/web
+# Install all dependencies
+RUN npm install --legacy-peer-deps
 
-# Build the web app from the workspace directory (skipping tsc for debugging)
-RUN cd apps/web && npx vite build --verbose
+# Build the web app
+RUN npm run build --workspace=web --verbose
 
 # Stage 2: Production
 FROM nginx:alpine
