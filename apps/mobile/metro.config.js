@@ -30,6 +30,12 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     ) {
         return { filePath: visionCameraStub, type: 'sourceFile' };
     }
+
+    // Redirect legacy worklets plugin to the new worklets-core plugin
+    if (moduleName === 'react-native-worklets/plugin') {
+        return context.resolveRequest(context, 'react-native-worklets-core/plugin', platform);
+    }
+
     // Use default resolution for everything else
     return context.resolveRequest(context, moduleName, platform);
 };
