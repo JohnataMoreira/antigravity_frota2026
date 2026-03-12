@@ -1,8 +1,8 @@
 # Stage 1: Build
-FROM node:20-slim AS builder
+FROM node:20 AS builder
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies (optional but safe)
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 # Copy root configs
