@@ -1,0 +1,17 @@
+Starting project at C:\Projetos\Antigravity\apps\Frota2026\apps\mobile
+Error: Cannot find module 'nativewind/tailwind/native'
+Require stack:
+- C:\Projetos\Antigravity\apps\Frota2026\apps\mobile\tailwind.config.js
+Error: Cannot find module 'nativewind/tailwind/native'
+Require stack:
+- C:\Projetos\Antigravity\apps\Frota2026\apps\mobile\tailwind.config.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1421:15)
+    at require.resolve (node:internal/modules/helpers:163:19)
+    at _resolve (C:\Projetos\Antigravity\apps\Frota2026\node_modules\jiti\dist\jiti.js:1:246378)
+    at jiti (C:\Projetos\Antigravity\apps\Frota2026\node_modules\jiti\dist\jiti.js:1:249092)
+    at C:\Projetos\Antigravity\apps\Frota2026\apps\mobile\tailwind.config.js:4:15
+    at evalModule (C:\Projetos\Antigravity\apps\Frota2026\node_modules\jiti\dist\jiti.js:1:251913)
+    at jiti (C:\Projetos\Antigravity\apps\Frota2026\node_modules\jiti\dist\jiti.js:1:249841)
+    at C:\Projetos\Antigravity\apps\Frota2026\node_modules\tailwindcss\lib\lib\load-config.js:53:30
+    at loadConfig (C:\Projetos\Antigravity\apps\Frota2026\node_modules\tailwindcss\lib\lib\load-config.js:55:6)
+    at tailwindConfigV3 (C:\Projetos\Antigravity\apps\Frota2026\node_modules\nativewind\src\metro\tailwind\v3\index.ts:90:59)

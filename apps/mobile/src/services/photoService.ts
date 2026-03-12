@@ -1,4 +1,7 @@
 import * as Location from 'expo-location';
+import * as ImageManipulator from 'expo-image-manipulator';
+import * as FileSystem from 'expo-file-system';
+import { API_URL } from './api';
 
 export interface PhotoUploadData {
     uri: string;
@@ -8,171 +11,84 @@ export interface PhotoUploadData {
     notes?: string;
 }
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import NetInfo from '@react-native-community/netinfo';
-
-const QUEUE_KEY = '@offline_photos_queue';
-
 class PhotoService {
     /**
-     * Compresses and uploads a single photo to the backend
+     * Compresses a photo using WebP format to reduce size without losing quality.
+     * @param uri The original photo URI
+     * @returns A new URI for the compressed WebP image
+     */
+    async compressPhoto(uri: string): Promise<string> {
+        try {
+            console.log(`[PhotoService] 🌀 Compressing image: ${uri}`);
+            
+            const result = await ImageManipulator.manipulateAsync(
+                uri,
+                [{ resize: { width: 1200 } }], // Resize to a sane maximum width
+                { 
+                    compress: 0.8, 
+                    format: ImageManipulator.SaveFormat.WEBP 
+                }
+            );
+
+            console.log(`[PhotoService] ✅ Compression done: ${result.uri} (${result.width}x${result.height})`);
+            return result.uri;
+        } catch (error) {
+            console.error('[PhotoService] ❌ Compression failed, using original:', error);
+            return uri;
+        }
+    }
+
+    /**
+     * Uploads a single photo to the backend with automatic compression.
      */
     async uploadPhoto(photoUri: string, token: string): Promise<string | null> {
         try {
-            // In React Native, we need to create FormData
+            // 1. Compress first
+            const compressedUri = await this.compressPhoto(photoUri);
+            
+            // 2. Prepare FormData
             const formData = new FormData();
-
-            // Extract filename from URI
-            const filename = photoUri.split('/').pop() || 'photo.jpg';
+            const filename = compressedUri.split('/').pop() || 'photo.webp';
 
             // Create file object for upload
+            // @ts-ignore - FormData in React Native accepts this object
             formData.append('file', {
-                uri: photoUri,
-                type: 'image/jpeg',
+                uri: compressedUri,
+                type: 'image/webp',
                 name: filename,
-            } as any);
+            });
 
-            const response = await fetch('https://api.johnatamoreira.com.br/storage/upload', {
+            console.log(`[PhotoService] 📤 Uploading to: ${API_URL}/storage/upload`);
+
+            const response = await fetch(`${API_URL}/storage/upload`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    // Don't set Content-Type - browser/RN will set it with boundary
                 },
                 body: formData,
             });
 
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error('Upload failed:', errorText);
+                console.error('[PhotoService] ❌ Upload failed:', errorText);
                 return null;
             }
 
             const data = await response.json();
-            return data.url; // Backend returns { url: "https://..." }
+            
+            // 3. Clean up the compressed temporary file
+            try {
+                if (compressedUri !== photoUri) {
+                    await FileSystem.deleteAsync(compressedUri, { idempotent: true });
+                }
+            } catch (cleanupError) {
+                console.warn('[PhotoService] Cleanup failed:', cleanupError);
+            }
+
+            return data.url;
         } catch (error) {
-            console.error('Error uploading photo:', error);
+            console.error('[PhotoService] ❌ Global upload error:', error);
             return null;
-        }
-    }
-
-    /**
-     * Uploads multiple photos with retry logic and offline queue fallback
-     */
-    async uploadPhotos(photos: PhotoUploadData[], token: string): Promise<Map<string, string>> {
-        const urlMap = new Map<string, string>();
-        const state = await NetInfo.fetch();
-
-        if (!state.isConnected) {
-            console.log('Offline detected, queuing photos...');
-            await this.queueOfflineUpload(photos);
-            return urlMap; // Return empty map, caller should handle "offline" state if needed
-        }
-
-        const failedPhotos: PhotoUploadData[] = [];
-
-        for (const photo of photos) {
-            let attempts = 0;
-            let url: string | null = null;
-
-            // Retry up to 3 times
-            while (attempts < 3 && !url) {
-                attempts++;
-                console.log(`Uploading ${photo.itemName} (attempt ${attempts}/3)...`);
-
-                url = await this.uploadPhoto(photo.uri, token);
-
-                if (!url && attempts < 3) {
-                    // Wait 2s before retry
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                }
-            }
-
-            if (url) {
-                urlMap.set(photo.itemId, url);
-                console.log(`✅ ${photo.itemName} uploaded: ${url}`);
-            } else {
-                console.warn(`❌ Failed to upload ${photo.itemName} after 3 attempts`);
-                failedPhotos.push(photo);
-            }
-        }
-
-        if (failedPhotos.length > 0) {
-            console.log(`Queuing ${failedPhotos.length} failed photos for later retry`);
-            await this.queueOfflineUpload(failedPhotos);
-        }
-
-        return urlMap;
-    }
-
-    /**
-     * Queues photos for offline upload
-     */
-    async queueOfflineUpload(photos: PhotoUploadData[]): Promise<void> {
-        try {
-            const existingQueueJson = await AsyncStorage.getItem(QUEUE_KEY);
-            const existingQueue: PhotoUploadData[] = existingQueueJson ? JSON.parse(existingQueueJson) : [];
-
-            const newQueue = [...existingQueue, ...photos];
-            await AsyncStorage.setItem(QUEUE_KEY, JSON.stringify(newQueue));
-
-            console.log(`Photos queued. Total in queue: ${newQueue.length}`);
-        } catch (error) {
-            console.error('Error queuing offline photos:', error);
-        }
-    }
-
-    /**
-     * Process the offline queue when online
-     */
-    async processOfflineQueue(token: string): Promise<void> {
-        try {
-            const state = await NetInfo.fetch();
-            if (!state.isConnected) return;
-
-            const queueJson = await AsyncStorage.getItem(QUEUE_KEY);
-            if (!queueJson) return;
-
-            const queue: PhotoUploadData[] = JSON.parse(queueJson);
-            if (queue.length === 0) return;
-
-            console.log(`Processing offline queue: ${queue.length} items`);
-
-            // Try to upload all
-            // We use uploadPhotos recursively but need to be careful not to infinite loop if it fails again
-            // So we use uploadPhoto directly or a simplified logic logic
-
-            const remainingQueue: PhotoUploadData[] = [];
-
-            for (const photo of queue) {
-                const url = await this.uploadPhoto(photo.uri, token);
-                if (url) {
-                    console.log(`Queue item uploaded: ${photo.itemName}`);
-                    // Success! We might need to update the backend entity (Journey/Checklist) 
-                    // But wait, the API call for startJourney/endJourney also needs to be queued if we do this properly!
-                    // This is a complex part. For "Wow Factor" Day 1, maybe simplistic approach:
-                    // Just upload files. 
-                    // ideally we should queue the *API Operation* not just the photo.
-
-                    // For now, let's just clear successful photo uploads from queue
-                    // BUT, if we just upload the photo, the Journey doesn't know about it if the API call failed too.
-                } else {
-                    remainingQueue.push(photo);
-                }
-            }
-
-            await AsyncStorage.setItem(QUEUE_KEY, JSON.stringify(remainingQueue));
-
-        } catch (error) {
-            console.error('Error processing offline queue:', error);
-        }
-    }
-
-    async getQueueSize(): Promise<number> {
-        try {
-            const queueJson = await AsyncStorage.getItem(QUEUE_KEY);
-            return queueJson ? JSON.parse(queueJson).length : 0;
-        } catch {
-            return 0;
         }
     }
 }
@@ -187,7 +103,7 @@ export async function getCaptureLocation(): Promise<{ lat: number; lng: number }
         const { status } = await Location.requestForegroundPermissionsAsync();
 
         if (status !== 'granted') {
-            console.warn('Location permission not granted');
+            console.warn('[PhotoService] Location permission not granted');
             return null;
         }
 
@@ -200,7 +116,7 @@ export async function getCaptureLocation(): Promise<{ lat: number; lng: number }
             lng: location.coords.longitude,
         };
     } catch (error) {
-        console.error('Error getting capture location:', error);
+        console.error('[PhotoService] Error getting capture location:', error);
         return null;
     }
 }

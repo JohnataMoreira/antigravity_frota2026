@@ -34,38 +34,39 @@ export default function LoginScreen() {
     };
 
     return (
-        <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
+        <SafeAreaView className="flex-1 bg-[#F1F3F5]">
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 className="flex-1"
             >
                 <ScrollView
-                    contentContainerStyle={{ flexGrow: 1 }}
-                    className="p-6 sm:p-12"
+                    contentContainerStyle={{ flexGrow: 1, padding: 32 }}
                     keyboardShouldPersistTaps="handled"
                 >
-                    <View className="flex-1 justify-center space-y-8 max-w-[480px] self-center w-full">
-                        {/* Header & Logo */}
-                        <View className="items-center space-y-6">
-                            <View className="w-full aspect-[3/1] bg-slate-200 dark:bg-slate-800 rounded-lg items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-700">
-                                <Text className="text-slate-500 dark:text-slate-400 font-display font-medium">Logo da Empresa</Text>
+                    <View className="flex-1 justify-center max-w-[400px] self-center w-full">
+                        {/* App Branding */}
+                        <View className="items-center mb-12">
+                            <View className="w-24 h-24 bg-[#E9ECEF] rounded-2xl items-center justify-center border-2 border-dashed border-slate-300 mb-6">
+                                <Text className="text-slate-400 font-medium text-xs text-center px-2">
+                                    Logo da Empresa
+                                </Text>
                             </View>
-                            <Text className="text-slate-900 dark:text-slate-100 text-3xl font-display font-bold tracking-tight text-center">
+                            <Text className="text-[#1A1C1E] text-3xl font-bold tracking-tight text-center">
                                 Frota2026 Driver
                             </Text>
                         </View>
 
                         {/* Form */}
-                        <View className="space-y-5">
+                        <View className="space-y-6">
                             {/* Organization Document */}
-                            <View className="space-y-2">
-                                <Text className="text-slate-700 dark:text-slate-300 text-base font-display font-medium">
+                            <View>
+                                <Text className="text-[#1A1C1E] text-sm font-semibold mb-2 ml-1">
                                     CNPJ da Organização
                                 </Text>
                                 <TextInput
-                                    className="w-full rounded-lg text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 h-14 px-4 text-base font-display"
+                                    className="w-full rounded-xl text-[#1A1C1E] bg-[#F8F9FA] h-14 px-4 text-base border border-transparent shadow-sm"
                                     placeholder="00.000.000/0000-00"
-                                    placeholderTextColor="#94a3b8"
+                                    placeholderTextColor="#ADB5BD"
                                     value={document}
                                     onChangeText={setDocument}
                                     keyboardType="numeric"
@@ -73,14 +74,14 @@ export default function LoginScreen() {
                             </View>
 
                             {/* Email */}
-                            <View className="space-y-2">
-                                <Text className="text-slate-700 dark:text-slate-300 text-base font-display font-medium">
+                            <View>
+                                <Text className="text-[#1A1C1E] text-sm font-semibold mb-2 ml-1">
                                     E-mail
                                 </Text>
                                 <TextInput
-                                    className="w-full rounded-lg text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 h-14 px-4 text-base font-display"
+                                    className="w-full rounded-xl text-[#1A1C1E] bg-[#F8F9FA] h-14 px-4 text-base border border-transparent shadow-sm"
                                     placeholder="seu@email.com"
-                                    placeholderTextColor="#94a3b8"
+                                    placeholderTextColor="#ADB5BD"
                                     value={email}
                                     onChangeText={setEmail}
                                     autoCapitalize="none"
@@ -89,15 +90,15 @@ export default function LoginScreen() {
                             </View>
 
                             {/* Password */}
-                            <View className="space-y-2">
-                                <Text className="text-slate-700 dark:text-slate-300 text-base font-display font-medium">
+                            <View>
+                                <Text className="text-[#1A1C1E] text-sm font-semibold mb-2 ml-1">
                                     Senha
                                 </Text>
                                 <View className="relative w-full flex-row items-center">
                                     <TextInput
-                                        className="flex-1 rounded-lg text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 h-14 px-4 pr-12 text-base font-display"
+                                        className="flex-1 rounded-xl text-[#1A1C1E] bg-[#F8F9FA] h-14 px-4 pr-12 text-base border border-transparent shadow-sm"
                                         placeholder="••••••••"
-                                        placeholderTextColor="#94a3b8"
+                                        placeholderTextColor="#ADB5BD"
                                         value={password}
                                         onChangeText={setPassword}
                                         secureTextEntry={!showPassword}
@@ -107,9 +108,9 @@ export default function LoginScreen() {
                                         onPress={() => setShowPassword(!showPassword)}
                                     >
                                         {showPassword ? (
-                                            <EyeOff size={24} color="#94a3b8" />
+                                            <EyeOff size={22} color="#ADB5BD" />
                                         ) : (
-                                            <Eye size={24} color="#94a3b8" />
+                                            <Eye size={22} color="#ADB5BD" />
                                         )}
                                     </TouchableOpacity>
                                 </View>
@@ -118,14 +119,14 @@ export default function LoginScreen() {
                             {/* Submit Button */}
                             <View className="pt-4">
                                 <TouchableOpacity
-                                    className={`w-full min-h-[56px] items-center justify-center rounded-xl bg-primary px-4 py-3 shadow-lg shadow-primary/20 ${isLoading ? 'opacity-70' : ''}`}
+                                    className={`w-full h-14 items-center justify-center rounded-xl bg-[#2563EB] shadow-md shadow-blue-500/30 ${isLoading ? 'opacity-70' : ''}`}
                                     onPress={handleLogin}
                                     disabled={isLoading}
                                 >
                                     {isLoading ? (
                                         <ActivityIndicator color="white" />
                                     ) : (
-                                        <Text className="text-lg font-display font-semibold text-white">
+                                        <Text className="text-base font-bold text-white">
                                             Entrar
                                         </Text>
                                     )}
@@ -134,10 +135,10 @@ export default function LoginScreen() {
                         </View>
 
                         {/* Footer */}
-                        <View className="pt-8 items-center">
-                            <Text className="text-slate-500 dark:text-slate-400 text-sm font-display">
+                        <View className="mt-12 items-center">
+                            <Text className="text-slate-500 text-sm">
                                 Problemas para acessar?{' '}
-                                <Text className="text-primary font-medium">Contate seu gestor.</Text>
+                                <Text className="text-[#2563EB] font-bold">Contate seu gestor.</Text>
                             </Text>
                         </View>
                     </View>

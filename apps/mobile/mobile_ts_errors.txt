@@ -1,0 +1,12 @@
+app/(tabs)/index.tsx(232,31): error TS2322: Type '{ driverId: any; }' is not assignable to type 'IntrinsicAttributes & ComponentType<never>'.
+  Property 'driverId' does not exist on type 'IntrinsicAttributes & ComponentType<never>'.
+app/(tabs)/vehicles.tsx(182,30): error TS2322: Type '{ driverId: any; }' is not assignable to type 'IntrinsicAttributes & ComponentType<never>'.
+  Property 'driverId' does not exist on type 'IntrinsicAttributes & ComponentType<never>'.
+src/services/BackgroundService.ts(4,31): error TS1261: Already included file name 'C:/Projetos/Antigravity/apps/Frota2026/apps/mobile/src/services/OutboxService.ts' differs from file name 'C:/Projetos/Antigravity/apps/Frota2026/apps/mobile/src/services/outboxService.ts' only in casing.
+  The file is in the program because:
+    Imported via './OutboxService' from file 'C:/Projetos/Antigravity/apps/Frota2026/apps/mobile/src/services/BackgroundService.ts'
+    Imported via '../src/services/OutboxService' from file 'C:/Projetos/Antigravity/apps/Frota2026/apps/mobile/app/_layout.tsx'
+    Imported via '../src/services/OutboxService' from file 'C:/Projetos/Antigravity/apps/Frota2026/apps/mobile/app/checklist.tsx'
+    Imported via './OutboxService' from file 'C:/Projetos/Antigravity/apps/Frota2026/apps/mobile/src/services/location.ts'
+    Imported via '../../src/services/OutboxService' from file 'C:/Projetos/Antigravity/apps/Frota2026/apps/mobile/app/(tabs)/journey.tsx'
+    Matched by default include pattern '**/*'

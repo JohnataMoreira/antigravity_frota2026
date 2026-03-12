@@ -1,0 +1,200 @@
+03-12 03:46:33.034 13405 13435 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000001/CronetDynamite.dm': No such file or directory
+03-12 03:46:33.034 13405 13435 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000001/CronetDynamite.dm': No such file or directory
+03-12 03:46:33.035 13405 13435 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000002/DynamiteLoader.dm': No such file or directory
+03-12 03:46:33.035 13405 13435 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000002/DynamiteLoader.dm': No such file or directory
+03-12 03:46:33.036 13405 13435 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000005/GoogleCertificates.dm': No such file or directory
+03-12 03:46:33.036 13405 13435 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000005/GoogleCertificates.dm': No such file or directory
+03-12 03:46:33.037 13405 13435 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000009/dl-MlkitOcrCommon.optional_231818100800.dm': No such file or directory
+03-12 03:46:33.037 13405 13435 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000009/dl-MlkitOcrCommon.optional_231818100800.dm': No such file or directory
+03-12 03:46:33.039 13405 13435 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000d/dl-VisionOcrDynamite.integ_231602402100000.dm': No such file or directory
+03-12 03:46:33.039 13405 13435 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000d/dl-VisionOcrDynamite.integ_231602402100000.dm': No such file or directory
+03-12 03:46:33.040 13405 13435 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000a/dl-MlkitBarcodeUi.optional_231818100000.dm': No such file or directory
+03-12 03:46:33.040 13405 13435 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000a/dl-MlkitBarcodeUi.optional_231818100000.dm': No such file or directory
+03-12 03:46:33.043 13405 13435 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000008/dl-TfliteDynamiteDynamite.integ_252130102100800.dm': No such file or directory
+03-12 03:46:33.043 13405 13435 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000008/dl-TfliteDynamiteDynamite.integ_252130102100800.dm': No such file or directory
+03-12 03:46:33.045 13405 13435 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000007/MeasurementDynamite.dm': No such file or directory
+03-12 03:46:33.045 13405 13435 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000007/MeasurementDynamite.dm': No such file or directory
+03-12 03:46:41.536   863   863 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+03-12 03:46:41.946   863   863 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+03-12 03:46:42.159   526   839 E ClipboardService: Denying clipboard access to com.android.chrome, application is not in focus nor is it a system service for user 0
+03-12 03:46:42.161  1638  2150 I AiAiTranslate: C2T - not in a conversation
+03-12 03:46:42.161   863   863 I ClipboardListener: Clipboard overlay suppressed.
+03-12 03:46:42.632   526   839 E ClipboardService: Denying clipboard access to com.android.chrome, application is not in focus nor is it a system service for user 0
+03-12 03:46:42.635  1638  2150 I AiAiTranslate: C2T - not in a conversation
+03-12 03:46:42.636   863   863 I ClipboardListener: Clipboard overlay suppressed.
+03-12 03:46:43.013 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000000/AdsDynamite.dm': No such file or directory
+03-12 03:46:43.013 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000000/AdsDynamite.dm': No such file or directory
+03-12 03:46:43.017 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000004/DynamiteModulesC.dm': No such file or directory
+03-12 03:46:43.017 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000004/DynamiteModulesC.dm': No such file or directory
+03-12 03:46:43.017 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000001/CronetDynamite.dm': No such file or directory
+03-12 03:46:43.017 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000001/CronetDynamite.dm': No such file or directory
+03-12 03:46:43.018 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000002/DynamiteLoader.dm': No such file or directory
+03-12 03:46:43.018 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000002/DynamiteLoader.dm': No such file or directory
+03-12 03:46:43.019 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000005/GoogleCertificates.dm': No such file or directory
+03-12 03:46:43.019 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000005/GoogleCertificates.dm': No such file or directory
+03-12 03:46:43.020 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000009/dl-MlkitOcrCommon.optional_231818100800.dm': No such file or directory
+03-12 03:46:43.020 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000009/dl-MlkitOcrCommon.optional_231818100800.dm': No such file or directory
+03-12 03:46:43.021 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000d/dl-VisionOcrDynamite.integ_231602402100000.dm': No such file or directory
+03-12 03:46:43.021 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000d/dl-VisionOcrDynamite.integ_231602402100000.dm': No such file or directory
+03-12 03:46:43.022 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000a/dl-MlkitBarcodeUi.optional_231818100000.dm': No such file or directory
+03-12 03:46:43.022 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000a/dl-MlkitBarcodeUi.optional_231818100000.dm': No such file or directory
+03-12 03:46:43.025 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000008/dl-TfliteDynamiteDynamite.integ_252130102100800.dm': No such file or directory
+03-12 03:46:43.025 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000008/dl-TfliteDynamiteDynamite.integ_252130102100800.dm': No such file or directory
+03-12 03:46:43.026 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000007/MeasurementDynamite.dm': No such file or directory
+03-12 03:46:43.026 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000007/MeasurementDynamite.dm': No such file or directory
+03-12 03:46:44.952   863   863 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+03-12 03:46:47.959   863   863 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+03-12 03:46:50.965   863   863 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+03-12 03:46:51.536   863   863 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+03-12 03:46:52.994 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000000/AdsDynamite.dm': No such file or directory
+03-12 03:46:52.994 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000000/AdsDynamite.dm': No such file or directory
+03-12 03:46:52.997 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000004/DynamiteModulesC.dm': No such file or directory
+03-12 03:46:52.997 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000004/DynamiteModulesC.dm': No such file or directory
+03-12 03:46:52.999 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000001/CronetDynamite.dm': No such file or directory
+03-12 03:46:52.999 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000001/CronetDynamite.dm': No such file or directory
+03-12 03:46:53.000 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000002/DynamiteLoader.dm': No such file or directory
+03-12 03:46:53.000 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000002/DynamiteLoader.dm': No such file or directory
+03-12 03:46:53.000 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000005/GoogleCertificates.dm': No such file or directory
+03-12 03:46:53.000 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000005/GoogleCertificates.dm': No such file or directory
+03-12 03:46:53.002 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000009/dl-MlkitOcrCommon.optional_231818100800.dm': No such file or directory
+03-12 03:46:53.002 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000009/dl-MlkitOcrCommon.optional_231818100800.dm': No such file or directory
+03-12 03:46:53.003 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000d/dl-VisionOcrDynamite.integ_231602402100000.dm': No such file or directory
+03-12 03:46:53.003 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000d/dl-VisionOcrDynamite.integ_231602402100000.dm': No such file or directory
+03-12 03:46:53.004 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000a/dl-MlkitBarcodeUi.optional_231818100000.dm': No such file or directory
+03-12 03:46:53.004 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000a/dl-MlkitBarcodeUi.optional_231818100000.dm': No such file or directory
+03-12 03:46:53.008 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000008/dl-TfliteDynamiteDynamite.integ_252130102100800.dm': No such file or directory
+03-12 03:46:53.008 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000008/dl-TfliteDynamiteDynamite.integ_252130102100800.dm': No such file or directory
+03-12 03:46:53.009 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000007/MeasurementDynamite.dm': No such file or directory
+03-12 03:46:53.009 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000007/MeasurementDynamite.dm': No such file or directory
+03-12 03:46:54.299 13570 13662 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:46:54.300 13570 13664 D TrafficStats: tagSocket(66) with statsTag=0xffffffff, statsUid=-1
+03-12 03:46:54.302 13570 13733 D TrafficStats: tagSocket(114) with statsTag=0xffffffff, statsUid=-1
+03-12 03:46:55.821  1022  2879 D NetworkMonitor/100: isDataStall: result=2, tcp packets received=0, latest tcp fail rate=100, consecutive dns timeout count=0
+03-12 03:46:55.821  1022  2879 D NetworkMonitor/100: Suspecting data stall, reevaluate
+03-12 03:46:55.821   526  1599 D ConnectivityService: Data stall detected with methods: 2
+03-12 03:46:55.822  1022 13735 D TrafficStats: tagSocket(5) with statsTag=0xffffff81, statsUid=-1
+03-12 03:46:55.822  1022 13736 D TrafficStats: tagSocket(107) with statsTag=0xffffff81, statsUid=-1
+03-12 03:46:55.823  1022 13736 D TrafficStats: tagSocket(107) with statsTag=0xffffff81, statsUid=-1
+03-12 03:46:55.823  1022 13735 D TrafficStats: tagSocket(5) with statsTag=0xffffff81, statsUid=-1
+03-12 03:46:55.834  1022  1022 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:46:55.835  1022  1022 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:46:55.836  1022  1022 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:46:55.836  1022 13736 D NetworkMonitor/100: PROBE_DNS connectivitycheck.gstatic.com 14ms OK 172.217.172.3,2800:3f0:4004:816::2003
+03-12 03:46:55.837  1022  1022 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:46:55.838  1022  1022 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:46:55.839  1022 13736 D TrafficStats: tagSocket(67) with statsTag=0xffffff81, statsUid=-1
+03-12 03:46:55.840  1022  1022 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:46:55.842  1022  1022 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:46:55.842  1022  1022 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:46:55.843  1022  1022 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:46:55.844  1022  1022 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:46:55.845  1022  1022 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:46:55.847  1022 13735 D NetworkMonitor/100: PROBE_DNS www.google.com 24ms OK 142.250.219.36,2001:4860:4827:7700::,2001:4860:482a:7700::,2001:4860:482b:7700::,2001:4860:482d:7700::,2001:4860:4829:7700::,2001:4860:4826:7700::,2001:4860:4828:7700::,2001:4860:482c:7700::
+03-12 03:46:55.850  1022 13735 D TrafficStats: tagSocket(5) with statsTag=0xffffff81, statsUid=-1
+03-12 03:46:55.882  1022 13736 D NetworkMonitor/100: PROBE_HTTP http://connectivitycheck.gstatic.com/generate_204 Probe failed with exception java.io.IOException: unexpected end of stream on com.android.okhttp.Address@3439e53c
+03-12 03:46:55.986  1022 13735 D NetworkMonitor/100: PROBE_HTTPS https://www.google.com/generate_204 time=138ms ret=204 request={Connection=[close], User-Agent=[Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.32 Safari/537.36]} headers={null=[HTTP/1.1 204 No Content], Alt-Svc=[h3=":443"; ma=2592000,h3-29=":443"; ma=2592000], Connection=[close], Content-Length=[0], Cross-Origin-Resource-Policy=[cross-origin], Date=[Thu, 12 Mar 2026 03:46:57 GMT], X-Android-Received-Millis=[1773287215985], X-Android-Response-Source=[NETWORK 204], X-Android-Selected-Protocol=[http/1.1], X-Android-Sent-Millis=[1773287215958]}
+03-12 03:46:55.987  1022 13734 D NetworkMonitor/100: isCaptivePortal: isSuccessful()=true isPortal()=false RedirectUrl=null isPartialConnectivity()=false Time=165ms
+03-12 03:46:55.989   526   794 D ConnectivityService: [100 WIFI] validation passed
+03-12 03:46:56.976   863   863 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+03-12 03:46:59.982   863   863 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+03-12 03:47:00.004  1638  1976 I AiAiEcho: Predicting[0]: 
+03-12 03:47:00.004  1638  1976 I AiAiEcho: EchoTargets: 
+03-12 03:47:00.004  1638  1976 I AiAiEcho: Filtered by AiAi flag check: 
+03-12 03:47:00.004  1638  1976 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+03-12 03:47:00.005  1638  1976 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+03-12 03:47:00.017   863   863 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+03-12 03:47:00.018   863   950 D EGL_emulation: app_time_stats: avg=59997.46ms min=59997.46ms max=59997.46ms count=1
+03-12 03:47:01.536   863   863 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+03-12 03:47:03.011 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000000/AdsDynamite.dm': No such file or directory
+03-12 03:47:03.011 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000000/AdsDynamite.dm': No such file or directory
+03-12 03:47:03.014 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000004/DynamiteModulesC.dm': No such file or directory
+03-12 03:47:03.014 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000004/DynamiteModulesC.dm': No such file or directory
+03-12 03:47:03.016 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000001/CronetDynamite.dm': No such file or directory
+03-12 03:47:03.016 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000001/CronetDynamite.dm': No such file or directory
+03-12 03:47:03.017 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000002/DynamiteLoader.dm': No such file or directory
+03-12 03:47:03.017 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000002/DynamiteLoader.dm': No such file or directory
+03-12 03:47:03.019 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000005/GoogleCertificates.dm': No such file or directory
+03-12 03:47:03.019 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000005/GoogleCertificates.dm': No such file or directory
+03-12 03:47:03.020 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000009/dl-MlkitOcrCommon.optional_231818100800.dm': No such file or directory
+03-12 03:47:03.020 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000009/dl-MlkitOcrCommon.optional_231818100800.dm': No such file or directory
+03-12 03:47:03.022 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000d/dl-VisionOcrDynamite.integ_231602402100000.dm': No such file or directory
+03-12 03:47:03.022 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000d/dl-VisionOcrDynamite.integ_231602402100000.dm': No such file or directory
+03-12 03:47:03.024 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000a/dl-MlkitBarcodeUi.optional_231818100000.dm': No such file or directory
+03-12 03:47:03.024 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000a/dl-MlkitBarcodeUi.optional_231818100000.dm': No such file or directory
+03-12 03:47:03.027 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000008/dl-TfliteDynamiteDynamite.integ_252130102100800.dm': No such file or directory
+03-12 03:47:03.027 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000008/dl-TfliteDynamiteDynamite.integ_252130102100800.dm': No such file or directory
+03-12 03:47:03.028 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000007/MeasurementDynamite.dm': No such file or directory
+03-12 03:47:03.028 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000007/MeasurementDynamite.dm': No such file or directory
+03-12 03:47:06.000   863   863 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+03-12 03:47:11.538   863   863 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+03-12 03:47:12.008   863   863 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+03-12 03:47:13.019 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000000/AdsDynamite.dm': No such file or directory
+03-12 03:47:13.020 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000000/AdsDynamite.dm': No such file or directory
+03-12 03:47:13.022 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000004/DynamiteModulesC.dm': No such file or directory
+03-12 03:47:13.022 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000004/DynamiteModulesC.dm': No such file or directory
+03-12 03:47:13.023 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000001/CronetDynamite.dm': No such file or directory
+03-12 03:47:13.023 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000001/CronetDynamite.dm': No such file or directory
+03-12 03:47:13.024 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000002/DynamiteLoader.dm': No such file or directory
+03-12 03:47:13.024 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000002/DynamiteLoader.dm': No such file or directory
+03-12 03:47:13.024 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000005/GoogleCertificates.dm': No such file or directory
+03-12 03:47:13.024 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000005/GoogleCertificates.dm': No such file or directory
+03-12 03:47:13.026 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000009/dl-MlkitOcrCommon.optional_231818100800.dm': No such file or directory
+03-12 03:47:13.026 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000009/dl-MlkitOcrCommon.optional_231818100800.dm': No such file or directory
+03-12 03:47:13.027 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000d/dl-VisionOcrDynamite.integ_231602402100000.dm': No such file or directory
+03-12 03:47:13.027 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000d/dl-VisionOcrDynamite.integ_231602402100000.dm': No such file or directory
+03-12 03:47:13.028 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000a/dl-MlkitBarcodeUi.optional_231818100000.dm': No such file or directory
+03-12 03:47:13.028 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000a/dl-MlkitBarcodeUi.optional_231818100000.dm': No such file or directory
+03-12 03:47:13.031 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000008/dl-TfliteDynamiteDynamite.integ_252130102100800.dm': No such file or directory
+03-12 03:47:13.031 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000008/dl-TfliteDynamiteDynamite.integ_252130102100800.dm': No such file or directory
+03-12 03:47:13.032 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000007/MeasurementDynamite.dm': No such file or directory
+03-12 03:47:13.032 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000007/MeasurementDynamite.dm': No such file or directory
+03-12 03:47:15.013   863   863 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+03-12 03:47:16.008  1022  2879 D NetworkMonitor/100: isDataStall: result=2, tcp packets received=0, latest tcp fail rate=100, consecutive dns timeout count=0
+03-12 03:47:16.008  1022  2879 D NetworkMonitor/100: Suspecting data stall, reevaluate
+03-12 03:47:16.008   526  1860 D ConnectivityService: Data stall detected with methods: 2
+03-12 03:47:16.009  1022 13755 D TrafficStats: tagSocket(5) with statsTag=0xffffff81, statsUid=-1
+03-12 03:47:16.009  1022 13756 D TrafficStats: tagSocket(67) with statsTag=0xffffff81, statsUid=-1
+03-12 03:47:16.010  1022 13755 D TrafficStats: tagSocket(5) with statsTag=0xffffff81, statsUid=-1
+03-12 03:47:16.010  1022 13756 D TrafficStats: tagSocket(67) with statsTag=0xffffff81, statsUid=-1
+03-12 03:47:16.015  1022  1022 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:47:16.016  1022  1022 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:47:16.018  1022  1022 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:47:16.018  1022 13756 D NetworkMonitor/100: PROBE_DNS connectivitycheck.gstatic.com 8ms OK 172.217.172.3,2800:3f0:4004:816::2003
+03-12 03:47:16.018  1022  1022 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:47:16.019  1022  1022 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:47:16.020  1022 13756 D TrafficStats: tagSocket(107) with statsTag=0xffffff81, statsUid=-1
+03-12 03:47:16.021  1022  1022 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:47:16.023  1022  1022 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:47:16.024  1022  1022 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:47:16.025  1022  1022 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:47:16.025  1022  1022 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:47:16.026  1022  1022 D TrafficStats: tagSocket(5) with statsTag=0xffffffff, statsUid=-1
+03-12 03:47:16.027  1022 13755 D NetworkMonitor/100: PROBE_DNS www.google.com 18ms OK 142.250.219.36,2001:4860:4827:7700::,2001:4860:482a:7700::,2001:4860:482b:7700::,2001:4860:482d:7700::,2001:4860:4829:7700::,2001:4860:4826:7700::,2001:4860:4828:7700::,2001:4860:482c:7700::
+03-12 03:47:16.030  1022 13755 D TrafficStats: tagSocket(5) with statsTag=0xffffff81, statsUid=-1
+03-12 03:47:16.076  1022 13756 D NetworkMonitor/100: PROBE_HTTP http://connectivitycheck.gstatic.com/generate_204 time=56ms ret=204 request={Connection=[close], User-Agent=[Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.32 Safari/537.36]} headers={null=[HTTP/1.1 204 No Content], Connection=[close], Content-Length=[0], Cross-Origin-Resource-Policy=[cross-origin], Date=[Thu, 12 Mar 2026 03:47:17 GMT], X-Android-Received-Millis=[1773287236075], X-Android-Response-Source=[NETWORK 204], X-Android-Selected-Protocol=[http/1.1], X-Android-Sent-Millis=[1773287236050]}
+03-12 03:47:16.152  1022 13755 D NetworkMonitor/100: PROBE_HTTPS https://www.google.com/generate_204 time=123ms ret=204 request={Connection=[close], User-Agent=[Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.32 Safari/537.36]} headers={null=[HTTP/1.1 204 No Content], Alt-Svc=[h3=":443"; ma=2592000,h3-29=":443"; ma=2592000], Connection=[close], Content-Length=[0], Cross-Origin-Resource-Policy=[cross-origin], Date=[Thu, 12 Mar 2026 03:47:17 GMT], X-Android-Received-Millis=[1773287236150], X-Android-Response-Source=[NETWORK 204], X-Android-Selected-Protocol=[http/1.1], X-Android-Sent-Millis=[1773287236133]}
+03-12 03:47:16.152  1022 13754 D NetworkMonitor/100: isCaptivePortal: isSuccessful()=true isPortal()=false RedirectUrl=null isPartialConnectivity()=false Time=144ms
+03-12 03:47:16.154   526   794 D ConnectivityService: [100 WIFI] validation passed
+03-12 03:47:21.025   863   863 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled
+03-12 03:47:21.536   863   863 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+03-12 03:47:23.005 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000000/AdsDynamite.dm': No such file or directory
+03-12 03:47:23.006 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000000/AdsDynamite.dm': No such file or directory
+03-12 03:47:23.009 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000004/DynamiteModulesC.dm': No such file or directory
+03-12 03:47:23.009 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000004/DynamiteModulesC.dm': No such file or directory
+03-12 03:47:23.010 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000001/CronetDynamite.dm': No such file or directory
+03-12 03:47:23.010 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000001/CronetDynamite.dm': No such file or directory
+03-12 03:47:23.011 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000002/DynamiteLoader.dm': No such file or directory
+03-12 03:47:23.011 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000002/DynamiteLoader.dm': No such file or directory
+03-12 03:47:23.012 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000005/GoogleCertificates.dm': No such file or directory
+03-12 03:47:23.012 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000005/GoogleCertificates.dm': No such file or directory
+03-12 03:47:23.013 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000009/dl-MlkitOcrCommon.optional_231818100800.dm': No such file or directory
+03-12 03:47:23.013 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000009/dl-MlkitOcrCommon.optional_231818100800.dm': No such file or directory
+03-12 03:47:23.014 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000d/dl-VisionOcrDynamite.integ_231602402100000.dm': No such file or directory
+03-12 03:47:23.014 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000d/dl-VisionOcrDynamite.integ_231602402100000.dm': No such file or directory
+03-12 03:47:23.017 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000a/dl-MlkitBarcodeUi.optional_231818100000.dm': No such file or directory
+03-12 03:47:23.017 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/0000000a/dl-MlkitBarcodeUi.optional_231818100000.dm': No such file or directory
+03-12 03:47:23.019 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000008/dl-TfliteDynamiteDynamite.integ_252130102100800.dm': No such file or directory
+03-12 03:47:23.019 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000008/dl-TfliteDynamiteDynamite.integ_252130102100800.dm': No such file or directory
+03-12 03:47:23.021 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000007/MeasurementDynamite.dm': No such file or directory
+03-12 03:47:23.021 13405 13405 W ziparchive: Unable to open '/data/user_de/0/com.google.android.gms/app_chimera/m/00000007/MeasurementDynamite.dm': No such file or directory
+03-12 03:47:27.038   863   863 D StatusBarIconController: ignoring old pipeline callback because the new wifi icon is enabled

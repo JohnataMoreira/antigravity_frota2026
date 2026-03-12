@@ -256,7 +256,7 @@ FuncionÃ¡rio de campo. Pode ter pouca experiÃªncia com tecnologia. Precisa d
 
 ### 3.3 App Mobile (React Native + Expo)
 
-**Status atual:** ~0% â€” estrutura iniciada apenas, sem fluxo funcional completo.
+**Status atual:** ~15% — Estrutura base completa (WatermelonDB + Outbox + Background Sync).
 
 **Arquivos existentes:**
 - `app/(tabs)/index.tsx` â€” tela home
@@ -265,7 +265,7 @@ FuncionÃ¡rio de campo. Pode ter pouca experiÃªncia com tecnologia. Precisa d
 - `app/checklist.tsx` â€” checklist
 - `app/camera.tsx` â€” cÃ¢mera
 
-> â›” **NÃ£o trabalhe no mobile agora.** O foco Ã© finalizar o web. O mobile serÃ¡ a prÃ³xima fase.
+> ✅ **Desenvolvimento Mobile ativo.** Foco total em resiliência offline e fluxos de campo críticos.
 
 ### 3.4 Infra (ProduÃ§Ã£o)
 

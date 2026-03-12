@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Truck, Route, User } from 'lucide-react-native';
+import { Truck, Route, User, LayoutDashboard, History } from 'lucide-react-native';
 import { View, Platform } from 'react-native';
 
 export default function TabLayout() {
@@ -29,6 +29,13 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="index"
                 options={{
+                    title: 'Home',
+                    tabBarIcon: ({ color }) => <LayoutDashboard size={24} color={color} />,
+                }}
+            />
+            <Tabs.Screen
+                name="vehicles"
+                options={{
                     title: 'Veículos',
                     tabBarIcon: ({ color }) => <Truck size={24} color={color} />,
                 }}
@@ -45,7 +52,6 @@ export default function TabLayout() {
                 options={{
                     title: 'Perfil',
                     tabBarIcon: ({ color }) => <User size={24} color={color} />,
-                    href: null, // Perfil desativado temporariamente como no layout do Stitch
                 }}
             />
         </Tabs>

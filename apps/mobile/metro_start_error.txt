@@ -1,0 +1,13 @@
+Starting project at C:\Projetos\Antigravity\apps\Frota2026\apps\mobile
+TypeError: withNativewind is not a function
+TypeError: withNativewind is not a function
+    at Object.<anonymous> (C:\Projetos\Antigravity\apps\Frota2026\apps\mobile\metro.config.js:37:18)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Object..js (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)
+    at Module.require (node:internal/modules/cjs/loader:1504:12)
+    at require (node:internal/modules/helpers:152:16)
+    at module.exports (C:\Projetos\Antigravity\apps\Frota2026\node_modules\metro-config\node_modules\import-fresh\index.js:28:9)

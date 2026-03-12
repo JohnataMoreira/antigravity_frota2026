@@ -47,7 +47,7 @@ export class AuthController {
     @Public()
     @Get('google')
     @UseGuards(GoogleAuthGuard)
-    async googleAuth(@Request() req: any) { }
+    async googleAuth(@Request() _req: any) { }
 
     @Public()
     @Get('google/callback')

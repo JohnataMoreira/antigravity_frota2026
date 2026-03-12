@@ -1,0 +1,252 @@
+Starting project at C:\Projetos\Antigravity\apps\Frota2026\apps\mobile
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Waiting on http://localhost:8150
+Logs for your project will appear below.
+Android Bundled 23410ms node_modules\expo-router\entry.js (3713 modules)
+Android Bundled 315ms node_modules\expo-router\entry.js (1 module)
+ INFO  
+[7m [1m­ƒÆí JavaScript logs will be removed from Metro in React Native 0.77![22m Please use React Native DevTools as your default tool. Tip: Type [1mj[22m in the terminal to open (requires Google Chrome or Microsoft Edge).[27m
+ WARN  [­ƒìë] JSI SQLiteAdapter not availableÔÇª falling back to asynchronous operation. This will happen if you're using remote debugger, and may happen if you forgot to recompile native app after WatermelonDB update [Component Stack]
+ WARN  [Layout children]: Too many screens defined. Route "profile" is extraneous. [Component Stack]
+ ERROR  Sync failed: [Diagnostic error: [Sync] Migration syncs cannot be enabled on a database that does not support migrations]
+ ERROR  Sync failed: [Diagnostic error: [Sync] Migration syncs cannot be enabled on a database that does not support migrations]
+ ERROR  Sync failed: [Diagnostic error: [Sync] Migration syncs cannot be enabled on a database that does not support migrations]
+ ERROR  Sync failed: [Diagnostic error: [Sync] Migration syncs cannot be enabled on a database that does not support migrations]
+ ERROR  Sync failed: [Diagnostic error: [Sync] Migration syncs cannot be enabled on a database that does not support migrations]
+ ERROR  Sync failed: [Diagnostic error: [Sync] Migration syncs cannot be enabled on a database that does not support migrations]
+Unable to resolve "@nozbe/watermelondb/Schema/Migrations" from "apps\mobile\src\model\migrations.ts"
+ ERROR  [Error: undefined Unable to resolve module @nozbe/watermelondb/Schema/Migrations from C:\Projetos\Antigravity\apps\Frota2026\apps\mobile\src\model\migrations.ts: @nozbe/watermelondb/Schema/Migrations could not be found within the project or in these directories:
+  node_modules
+  ..\..\node_modules
+  node_modules
+  ..\..\node_modules
+[0m[31m[1m>[22m[39m[90m 1 |[39m [36mimport[39m { schemaMigrations } [36mfrom[39m [32m'@nozbe/watermelondb/Schema/Migrations'[39m
+ [90m   |[39m                                   [31m[1m^[22m[39m
+ [90m 2 |[39m
+ [90m 3 |[39m [36mexport[39m [36mdefault[39m schemaMigrations({
+ [90m 4 |[39m     migrations[33m:[39m [[0m]
+ WARN  [­ƒìë] JSI SQLiteAdapter not availableÔÇª falling back to asynchronous operation. This will happen if you're using remote debugger, and may happen if you forgot to recompile native app after WatermelonDB update
+ ERROR  Diagnostic error: Missing migration. Database schema is currently at version 3, but migrations only cover range from 1 to 1, js engine: hermes
+ ERROR  Sync failed: [Diagnostic error: [Sync] Migration syncs cannot be enabled on a database that does not support migrations]
+ ERROR  Warning: ReferenceError: Property 'ScrollView' doesn't exist
+
+This error is located at:
+    in VehiclesScreen (created by withObservables[] { vehicles })
+    in withObservables[] { vehicles }
+    in Unknown (created by Route(index))
+    in Suspense (created by Route(index))
+    in Route (created by Route(index))
+    in Route(index) (created by SceneView)
+    in StaticContainer
+    in EnsureSingleNavigator (created by SceneView)
+    in SceneView (created by BottomTabNavigator)
+    in NavigationProvider (created by BottomTabNavigator)
+    in RCTView (created by View)
+    in View (created by Screen)
+    in RCTView (created by View)
+    in View (created by CssInterop.View)
+    in CssInterop.View (created by Animated(View))
+    in Animated(View) (created by Background)
+    in Background (created by Screen)
+    in Screen (created by BottomTabView)
+    in RNSScreen (created by Animated(Anonymous))
+    in Animated(Anonymous)
+    in Suspender (created by Freeze)
+    in Suspense (created by Freeze)
+    in Freeze (created by DelayedFreeze)
+    in DelayedFreeze
+    in InnerScreen (created by Screen)
+    in Screen (created by MaybeScreen)
+    in MaybeScreen (created by BottomTabView)
+    in RNSScreenContainer (created by ScreenContainer)
+    in ScreenContainer (created by MaybeScreenContainer)
+    in MaybeScreenContainer (created by BottomTabView)
+    in RCTView (created by View)
+    in View (created by FrameSizeProvider)
+    in FrameSizeProvider (created by SafeAreaProviderCompat)
+    in SafeAreaProviderCompat (created by BottomTabView)
+    in BottomTabView (created by BottomTabNavigator)
+    in PreventRemoveProvider (created by NavigationContent)
+    in NavigationStateListenerProvider (created by NavigationContent)
+    in NavigationContent
+    in Unknown (created by BottomTabNavigator)
+    in BottomTabNavigator
+    in Unknown (created by TabLayout)
+    in TabLayout
+    in Unknown (created by Route((tabs)))
+    in Suspense (created by Route((tabs)))
+    in Route (created by Route((tabs)))
+    in Route((tabs)) (created by SceneView)
+    in StaticContainer
+    in EnsureSingleNavigator (created by SceneView)
+    in SceneView (created by NativeStackNavigator)
+    in NavigationProvider (created by NativeStackNavigator)
+    in RNSScreenContentWrapper (created by ScreenContentWrapper)
+    in ScreenContentWrapper (created by DebugContainer)
+    in DebugContainer
+    in RNSScreen (created by Animated(Anonymous))
+    in Animated(Anonymous)
+    in Suspender (created by Freeze)
+    in Suspense (created by Freeze)
+    in Freeze (created by DelayedFreeze)
+    in DelayedFreeze
+    in InnerScreen (created by Screen)
+    in Screen
+    in ScreenStackItem (created by SceneView)
+    in NavigationProvider (created by SceneView)
+    in SceneView (created by NativeStackView)
+    in RNSScreenStack (created by ScreenStack)
+    in Unknown (created by ScreenStack)
+    in ScreenStack (created by NativeStackView)
+    in RCTView (created by View)
+    in View (created by FrameSizeProvider)
+    in FrameSizeProvider (created by SafeAreaProviderCompat)
+    in SafeAreaProviderCompat (created by NativeStackView)
+    in NativeStackView (created by NativeStackNavigator)
+    in PreventRemoveProvider (created by NavigationContent)
+    in NavigationStateListenerProvider (created by NavigationContent)
+    in NavigationContent
+    in Unknown (created by NativeStackNavigator)
+    in NativeStackNavigator
+    in Unknown (created by RootLayout)
+    in ChecklistProvider (created by RootLayout)
+    in RootLayout
+    in Unknown (created by Route())
+    in Suspense (created by Route())
+    in Route (created by Route())
+    in Route() (created by ContextNavigator)
+    in SafeAreaEnv (created by SafeAreaProviderShim)
+    in RNCSafeAreaProvider (created by SafeAreaProvider)
+    in SafeAreaProvider (created by SafeAreaProviderShim)
+    in SafeAreaProviderShim (created by wrapper)
+    in wrapper (created by ContextNavigator)
+    in ThemeProvider
+    in EnsureSingleNavigator
+    in BaseNavigationContainer
+    in NavigationContainerInner (created by ContextNavigator)
+    in ContextNavigator (created by ExpoRoot)
+    in ExpoRoot (created by App)
+    in App (created by ErrorOverlay)
+    in ErrorToastContainer (created by ErrorOverlay)
+    in ErrorOverlay (created by withDevTools(ErrorOverlay))
+    in withDevTools(ErrorOverlay)
+    in RCTView (created by View)
+    in View (created by CssInterop.View)
+    in CssInterop.View (created by AppContainer)
+    in RCTView (created by View)
+    in View (created by CssInterop.View)
+    in CssInterop.View (created by AppContainer)
+    in AppContainer
+    in main(RootComponent), js engine: hermes
+ ERROR  Warning: ReferenceError: Property 'ScrollView' doesn't exist
+
+This error is located at:
+    in VehiclesScreen (created by withObservables[] { vehicles })
+    in withObservables[] { vehicles }
+    in Unknown (created by Route(index))
+    in Suspense (created by Route(index))
+    in Route (created by Route(index))
+    in Route(index) (created by SceneView)
+    in StaticContainer
+    in EnsureSingleNavigator (created by SceneView)
+    in SceneView (created by BottomTabNavigator)
+    in NavigationProvider (created by BottomTabNavigator)
+    in RCTView (created by View)
+    in View (created by Screen)
+    in RCTView (created by View)
+    in View (created by CssInterop.View)
+    in CssInterop.View (created by Animated(View))
+    in Animated(View) (created by Background)
+    in Background (created by Screen)
+    in Screen (created by BottomTabView)
+    in RNSScreen (created by Animated(Anonymous))
+    in Animated(Anonymous)
+    in Suspender (created by Freeze)
+    in Suspense (created by Freeze)
+    in Freeze (created by DelayedFreeze)
+    in DelayedFreeze
+    in InnerScreen (created by Screen)
+    in Screen (created by MaybeScreen)
+    in MaybeScreen (created by BottomTabView)
+    in RNSScreenContainer (created by ScreenContainer)
+    in ScreenContainer (created by MaybeScreenContainer)
+    in MaybeScreenContainer (created by BottomTabView)
+    in RCTView (created by View)
+    in View (created by FrameSizeProvider)
+    in FrameSizeProvider (created by SafeAreaProviderCompat)
+    in SafeAreaProviderCompat (created by BottomTabView)
+    in BottomTabView (created by BottomTabNavigator)
+    in PreventRemoveProvider (created by NavigationContent)
+    in NavigationStateListenerProvider (created by NavigationContent)
+    in NavigationContent
+    in Unknown (created by BottomTabNavigator)
+    in BottomTabNavigator
+    in Unknown (created by TabLayout)
+    in TabLayout
+    in Unknown (created by Route((tabs)))
+    in Suspense (created by Route((tabs)))
+    in Route (created by Route((tabs)))
+    in Route((tabs)) (created by SceneView)
+    in StaticContainer
+    in EnsureSingleNavigator (created by SceneView)
+    in SceneView (created by NativeStackNavigator)
+    in NavigationProvider (created by NativeStackNavigator)
+    in RNSScreenContentWrapper (created by ScreenContentWrapper)
+    in ScreenContentWrapper (created by DebugContainer)
+    in DebugContainer
+    in RNSScreen (created by Animated(Anonymous))
+    in Animated(Anonymous)
+    in Suspender (created by Freeze)
+    in Suspense (created by Freeze)
+    in Freeze (created by DelayedFreeze)
+    in DelayedFreeze
+    in InnerScreen (created by Screen)
+    in Screen
+    in ScreenStackItem (created by SceneView)
+    in NavigationProvider (created by SceneView)
+    in SceneView (created by NativeStackView)
+    in RNSScreenStack (created by ScreenStack)
+    in Unknown (created by ScreenStack)
+    in ScreenStack (created by NativeStackView)
+    in RCTView (created by View)
+    in View (created by FrameSizeProvider)
+    in FrameSizeProvider (created by SafeAreaProviderCompat)
+    in SafeAreaProviderCompat (created by NativeStackView)
+    in NativeStackView (created by NativeStackNavigator)
+    in PreventRemoveProvider (created by NavigationContent)
+    in NavigationStateListenerProvider (created by NavigationContent)
+    in NavigationContent
+    in Unknown (created by NativeStackNavigator)
+    in NativeStackNavigator
+    in Unknown (created by RootLayout)
+    in ChecklistProvider (created by RootLayout)
+    in RootLayout
+    in Unknown (created by Route())
+    in Suspense (created by Route())
+    in Route (created by Route())
+    in Route() (created by ContextNavigator)
+    in SafeAreaEnv (created by SafeAreaProviderShim)
+    in RNCSafeAreaProvider (created by SafeAreaProvider)
+    in SafeAreaProvider (created by SafeAreaProviderShim)
+    in SafeAreaProviderShim (created by wrapper)
+    in wrapper (created by ContextNavigator)
+    in ThemeProvider
+    in EnsureSingleNavigator
+    in BaseNavigationContainer
+    in NavigationContainerInner (created by ContextNavigator)
+    in ContextNavigator (created by ExpoRoot)
+    in ExpoRoot (created by App)
+    in App (created by ErrorOverlay)
+    in ErrorToastContainer (created by ErrorOverlay)
+    in ErrorOverlay (created by withDevTools(ErrorOverlay))
+    in withDevTools(ErrorOverlay)
+    in RCTView (created by View)
+    in View (created by CssInterop.View)
+    in CssInterop.View (created by AppContainer)
+    in RCTView (created by View)
+    in View (created by CssInterop.View)
+    in CssInterop.View (created by AppContainer)
+    in AppContainer
+    in main(RootComponent), js engine: hermes
+Android Bundled 255ms node_modules\expo-router\entry.js (1 module)

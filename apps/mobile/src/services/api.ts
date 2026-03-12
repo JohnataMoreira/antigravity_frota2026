@@ -1,7 +1,5 @@
 // Production API URL
 export const API_URL = 'https://frota.johnatamoreira.com.br/api';
-// Fallback for local development (uncomment if needed)
-// export const API_URL = 'http://192.168.1.10:3000/api';
 
 interface LoginResponse {
     access_token: string;
@@ -13,11 +11,25 @@ interface LoginResponse {
     };
 }
 
+type UnauthorizedListener = () => void;
+
 class ApiService {
     private token: string | null = null;
+    private unauthorizedListeners: UnauthorizedListener[] = [];
 
     setToken(token: string | null) {
         this.token = token;
+    }
+
+    onUnauthorized(listener: UnauthorizedListener) {
+        this.unauthorizedListeners.push(listener);
+        return () => {
+            this.unauthorizedListeners = this.unauthorizedListeners.filter(l => l !== listener);
+        };
+    }
+
+    private notifyUnauthorized() {
+        this.unauthorizedListeners.forEach(l => l());
     }
 
     private async request(endpoint: string, options: RequestInit = {}) {
@@ -35,6 +47,11 @@ class ApiService {
             headers,
         });
 
+        if (response.status === 401) {
+            this.notifyUnauthorized();
+            throw new Error('Unauthorized');
+        }
+
         if (!response.ok) {
             const errorText = await response.text();
             throw new Error(errorText || 'API Request Failed');
@@ -51,7 +68,13 @@ class ApiService {
     }
 
     async getActiveJourney() {
-        return this.request('/journeys/active', { method: 'GET' });
+        try {
+            return await this.request('/journeys/active', { method: 'GET' });
+        } catch (e: any) {
+            // 404 means no active journey — not an error
+            if (e.message?.includes('404') || e.message?.includes('Not Found')) return null;
+            throw e;
+        }
     }
 
     async startJourney(
@@ -114,11 +137,56 @@ class ApiService {
         });
     }
 
+    async createFuelEntry(data: any) {
+        return this.request('/fuel', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        });
+    }
+    
+    async createExpense(data: any) {
+        return this.request('/finance', {
+            method: 'POST',
+            body: JSON.stringify(data),
+        });
+    }
+
+    async ingestTelemetry(vehicleId: string, data: {
+        latitude: number;
+        longitude: number;
+        speed?: number;
+        odometer?: number;
+    }) {
+        return this.request(`/telemetry/ingest/${vehicleId}`, {
+            method: 'POST',
+            body: JSON.stringify(data),
+        });
+    }
+
+    async getVehicles() {
+        return this.request('/vehicles', { method: 'GET' });
+    }
+
     async subscribePushToken(token: string) {
         return this.request('/notifications/subscribe', {
             method: 'POST',
             body: JSON.stringify(token),
         });
+    }
+
+    async getTasks() {
+        return this.request('/tasks', { method: 'GET' });
+    }
+
+    async updateTaskStatus(taskId: string, status: string) {
+        return this.request(`/tasks/${taskId}/status`, {
+            method: 'PATCH',
+            body: JSON.stringify({ status }),
+        });
+    }
+
+    async getDocuments() {
+        return this.request('/documents/my', { method: 'GET' });
     }
 }
 

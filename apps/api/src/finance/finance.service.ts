@@ -1,12 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { TransactionStatus, TransactionType, PaymentMethod } from '@prisma/client';
+import { CreateTransactionDto, ConfirmPaymentDto, TransactionFilterDto } from './dto/finance.dto';
 
 @Injectable()
 export class FinanceService {
     constructor(private prisma: PrismaService) { }
 
-    async createTransaction(data: any) {
+    async createTransaction(data: CreateTransactionDto & { organizationId: string }) {
         return this.prisma.financialTransaction.create({
             data: {
                 ...data,
@@ -36,7 +36,7 @@ export class FinanceService {
         });
     }
 
-    async getTransactions(organizationId: string, filters: any = {}) {
+    async getTransactions(organizationId: string, filters: TransactionFilterDto) {
         const { status, category, start, end, supplierId } = filters;
 
         return this.prisma.financialTransaction.findMany({
@@ -58,7 +58,7 @@ export class FinanceService {
         });
     }
 
-    async confirmPayment(id: string, paymentData: { paymentDate: Date, paymentMethod: PaymentMethod, attachmentUrl?: string }) {
+    async confirmPayment(id: string, paymentData: ConfirmPaymentDto) {
         return this.prisma.financialTransaction.update({
             where: { id },
             data: {
@@ -70,7 +70,7 @@ export class FinanceService {
         });
     }
 
-    async getOverview(organizationId: string, filters: any = {}) {
+    async getOverview(organizationId: string, filters: TransactionFilterDto) {
         const { start, end, vehicleId } = filters;
 
         const fuelDateFilter = start && end ? {

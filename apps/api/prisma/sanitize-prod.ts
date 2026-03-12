@@ -27,11 +27,11 @@ async function main() {
     });
     console.log(`👤 Usuários de outros tenants desativados: ${deactivatedUsers.count}`);
 
-    // 3. Remover convites pendentes (testes)
-    const deletedInvites = await prisma.invite.deleteMany({
-        where: { organizationId: { not: primaryOrg.id } }
-    });
-    console.log(`✉️ Convites de teste removidos: ${deletedInvites.count}`);
+    // 3. Remover convites pendentes (testes) - Modelo removido
+    // const deletedInvites = await prisma.invite.deleteMany({
+    //     where: { organizationId: { not: primaryOrg.id } }
+    // });
+    // console.log(`✉️ Convites de teste removidos: ${deletedInvites?.count ?? 0}`);
 
     // 4. Limpar logs de auditoria antigos (opcional - manter apenas últimos 30 dias se necessário)
     // const thirtyDaysAgo = new Date();

@@ -1,307 +1,309 @@
-import { View, Text, TouchableOpacity, TextInput, ScrollView, Image, Alert, ActivityIndicator, SafeAreaView } from 'react-native';
-import { useState, useEffect, useRef } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, SafeAreaView, StatusBar, Image, Alert, TextInput, ActivityIndicator } from 'react-native';
+import { useState, useEffect } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Camera as VisionCamera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
-import { photoService, getCaptureLocation } from '../src/services/photoService';
-import { api } from '../src/services/api';
-import { useAuth } from './_layout';
-import { Camera, Check, AlertCircle, ChevronRight, ChevronLeft, Info, X } from 'lucide-react-native';
+import { ChevronLeft, Camera, Check, AlertTriangle, Info, ArrowRight, Truck, Gauge, Shield, Droplet, Zap, Square, CheckCircle2 } from 'lucide-react-native';
 import { database } from '../src/model/database';
-import { syncService } from '../src/services/SyncService';
+import { Q } from '@nozbe/watermelondb';
+import Vehicle from '../src/model/Vehicle';
+import { useAuth } from './_layout';
 import Journey from '../src/model/Journey';
-import Checklist from '../src/model/Checklist';
+import { outboxService } from '../src/services/outboxService';
 
 const CHECKLIST_ITEMS = [
-    { id: 'front', name: 'Frente do Veículo', required: true },
-    { id: 'back', name: 'Traseira do Veículo', required: true },
-    { id: 'left', name: 'Lateral Esquerda', required: true },
-    { id: 'right', name: 'Lateral Direita', required: true },
-    { id: 'interior', name: 'Interior', required: true },
-    { id: 'dashboard', name: 'Painel/Km', required: true },
+    { id: 'pneus', label: 'Pneus e Rodas (Pressão/Estado)', icon: Truck },
+    { id: 'luzes', label: 'Luzes e Sinalização (Faróis/Setas)', icon: Zap },
+    { id: 'fluidos', label: 'Fluidos (Óleo/Arrefecimento)', icon: Droplet },
+    { id: 'vidros', label: 'Vidros e Espelhos', icon: Square },
+    { id: 'seguranca', label: 'Equipamentos de Segurança', icon: Shield },
 ];
 
-type ChecklistItemStatus = {
-    id: string;
-    status: 'pending' | 'ok' | 'problem';
-    photoUri?: string;
-    notes?: string;
-};
+function InspectionPoint({ top, left, status, onPress }: { top: number; left: number; status: 'ok' | 'issue' | 'pending'; onPress: () => void }) {
+    const color = status === 'ok' ? '#10B981' : status === 'issue' ? '#EF4444' : '#ADB5BD';
+    return (
+        <TouchableOpacity 
+            onPress={onPress}
+            className="absolute w-8 h-8 rounded-full bg-white items-center justify-center shadow-md border-2"
+            style={{ top: `${top}%`, left: `${left}%`, borderColor: color }}
+        >
+            <View className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
+        </TouchableOpacity>
+    );
+}
 
 export default function ChecklistScreen() {
-    const params = useLocalSearchParams();
+    const { type, vehicleId, journeyId, endKm: endKmParam } = useLocalSearchParams();
+    const { user } = useAuth();
     const router = useRouter();
-    const { hasPermission, requestPermission } = useCameraPermission();
-    const device = useCameraDevice('back');
-    const camera = useRef<VisionCamera>(null);
-
-    const [items, setItems] = useState<ChecklistItemStatus[]>(
-        CHECKLIST_ITEMS.map(item => ({ id: item.id, status: 'pending' as const }))
-    );
-    const [currentItemIndex, setCurrentItemIndex] = useState(0);
-    const [showCamera, setShowCamera] = useState(false);
-    const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
-    const [notes, setNotes] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const { token, user } = useAuth();
+    const [step, setStep] = useState(1); // 1: Visual, 2: Items
+    const [isSaving, setIsSaving] = useState(false);
+    const [vehicle, setVehicle] = useState<Vehicle | null>(null);
+    const [km, setKm] = useState('');
+    const [responses, setResponses] = useState<Record<string, 'ok' | 'issue' | 'pending'>>({
+        front: 'pending',
+        back: 'pending',
+        left: 'pending',
+        right: 'pending',
+        pneus: 'pending',
+        luzes: 'pending',
+        fluidos: 'pending',
+        vidros: 'pending',
+        seguranca: 'pending',
+    });
 
     useEffect(() => {
-        if (!hasPermission) { requestPermission(); }
-    }, [hasPermission]);
-
-    const currentItem = CHECKLIST_ITEMS[currentItemIndex];
-    const currentItemStatus = items[currentItemIndex];
-
-    const takePhoto = async () => {
-        if (camera.current) {
-            const file = await camera.current.takePhoto();
-            setCapturedPhoto(`file://${file.path}`);
-            setShowCamera(false);
-        }
-    };
-
-    const handleStatusSelect = (status: 'ok' | 'problem') => {
-        const newItems = [...items];
-        newItems[currentItemIndex] = {
-            ...newItems[currentItemIndex],
-            status,
-            photoUri: capturedPhoto || undefined,
-            notes: status === 'problem' ? notes : undefined,
+        const loadData = async () => {
+            if (vehicleId) {
+                const v = await database.get<Vehicle>('vehicles').find(vehicleId as string);
+                setVehicle(v);
+                if (type === 'checkout') setKm(v.currentKm.toString());
+            }
+            if (endKmParam) setKm(endKmParam as string);
         };
-        setItems(newItems);
-        setCapturedPhoto(null);
-        setNotes('');
+        loadData();
+    }, [vehicleId, endKmParam]);
 
-        if (currentItemIndex < CHECKLIST_ITEMS.length - 1) {
-            setCurrentItemIndex(currentItemIndex + 1);
-        } else {
-            handleFinish(newItems);
-        }
+    const handleConfirmPoint = (id: string, status: 'ok' | 'issue') => {
+        setResponses(prev => ({ ...prev, [id]: status }));
     };
 
-    const handleFinish = async (finalItems: ChecklistItemStatus[]) => {
-        const incomplete = finalItems.filter(item => item.status === 'pending');
-        if (incomplete.length > 0) {
-            Alert.alert('Atenção', 'Complete todos os itens.');
+    const handleFinish = async () => {
+        const kmValue = parseInt(km);
+        if (isNaN(kmValue)) {
+            Alert.alert('Erro', 'Por favor, informe a quilometragem.');
             return;
         }
 
-        setIsSubmitting(true);
+        if (type === 'checkout' && vehicle && kmValue < vehicle.currentKm) {
+            Alert.alert('Erro', `KM inicial (${kmValue}) não pode ser menor que o atual (${vehicle.currentKm}).`);
+            return;
+        }
+
+        const pendingItems = Object.keys(responses).filter(k => responses[k] === 'pending');
+        if (pendingItems.length > 0) {
+            Alert.alert('Atenção', `Faltam ${pendingItems.length} itens no checklist.`);
+            return;
+        }
+
+        setIsSaving(true);
         try {
-            const itemsWithPhotos = finalItems
-                .filter(item => item.photoUri && item.photoUri.startsWith('file://'))
-                .map(item => ({
-                    uri: item.photoUri!,
-                    itemId: item.id,
-                    itemName: CHECKLIST_ITEMS.find(i => i.id === item.id)?.name || item.id,
-                    status: item.status === 'ok' ? 'OK' as const : 'PROBLEM' as const,
-                    notes: item.notes
-                }));
-
-            let uploadedUrls = new Map<string, string>();
-            if (itemsWithPhotos.length > 0 && token) {
-                uploadedUrls = await photoService.uploadPhotos(itemsWithPhotos, token);
-            }
-
-            const checklistItems = finalItems.map(item => ({
-                itemId: item.id,
-                status: item.status === 'ok' ? 'OK' as const : 'PROBLEM' as const,
-                photoUrl: uploadedUrls.get(item.id) || item.photoUri,
-                notes: item.notes,
-            }));
-
-            const location = await getCaptureLocation();
-
             await database.write(async () => {
-                let journeyRecord: any;
-
-                if (params.type === 'checkout') {
-                    // Create new local Journey
-                    journeyRecord = await database.get<Journey>('journeys').create(j => {
-                        j.vehicleId = params.vehicleId as string;
-                        j.driverId = user?.id || '';
+                if (type === 'checkout') {
+                    // 1. Create Journey
+                    const newJourney = await database.get<Journey>('journeys').create(j => {
+                        j.vehicleId = vehicleId as string;
+                        j.driverId = user?.id || 'offline_driver';
                         j.status = 'IN_PROGRESS';
-                        j.startKm = Number(params.currentKm);
+                        j.startKm = kmValue;
                         j.startTime = Date.now();
-                        j.startLat = location?.lat;
-                        j.startLng = location?.lng;
-                        j.startPhotoUrl = checklistItems[0]?.photoUrl; // Simplified
                     });
 
-                    // Create Checklist
-                    await database.get<Checklist>('checklists').create(c => {
-                        c.journeyId = journeyRecord.id;
-                        c.type = 'CHECKOUT';
-                        c.items = JSON.stringify(checklistItems);
+                    // 2. Create Checklist
+                    await database.get('checklists').create((c: any) => {
+                        c.journey_id = newJourney.id;
+                        c.type = 'checkout';
+                        c.items = JSON.stringify(responses);
                     });
 
-                    Alert.alert('Sucesso', 'Jornada iniciada localmente! Sincronizando...', [{ text: 'OK', onPress: () => router.replace('/(tabs)/journey') }]);
-                } else {
-                    // Update existing Journey (if we can find it local, or we just create a "finish" update if mobile handles it)
-                    // Usually we search for active journey
-                    const activeJourneys = await database.get<Journey>('journeys').query().fetch();
-                    const filtered = activeJourneys.filter(j => j.status === 'IN_PROGRESS' && j.vehicleId === params.vehicleId);
+                    // 3. Update Vehicle
+                    if (vehicle) {
+                        await vehicle.update(v => {
+                            v.status = 'IN_USE';
+                            v.currentKm = kmValue;
+                        });
+                    }
+                    
+                    // 4. Queue API Sync
+                    await outboxService.enqueue('START_JOURNEY', {
+                        vehicleId: vehicleId as string,
+                        startKm: kmValue,
+                        checklistItems: Object.entries(responses).map(([id, status]) => ({
+                            itemId: id,
+                            status: status === 'ok' ? 'OK' : 'PROBLEM'
+                        }))
+                    });
 
-                    if (filtered.length > 0) {
-                        journeyRecord = filtered[0];
-                        await journeyRecord.update(() => {
-                            journeyRecord.status = 'COMPLETED';
-                            journeyRecord.endKm = Number(params.endKm);
-                            journeyRecord.endTime = Date.now();
-                            journeyRecord.endLat = location?.lat;
-                            journeyRecord.endLng = location?.lng;
+                    Alert.alert('Sucesso', 'Jornada iniciada com sucesso!', [
+                        { text: 'OK', onPress: () => router.replace('/(tabs)/journey') }
+                    ]);
+                } else if (type === 'checkin' && journeyId) {
+                    // 1. Find Journey
+                    const journey = await database.get<Journey>('journeys').find(journeyId as string);
+                    
+                    // 2. Create Checklist
+                    await database.get('checklists').create((c: any) => {
+                        c.journey_id = journey.id;
+                        c.type = 'checkin';
+                        c.items = JSON.stringify(responses);
+                    });
+
+                    // 3. Update Journey
+                    await journey.update(j => {
+                        j.status = 'COMPLETED';
+                        j.endKm = kmValue;
+                        j.endTime = Date.now();
+                    });
+
+                    // 4. Update Vehicle
+                    const v = await journey.vehicle.fetch();
+                    if (v) {
+                        await v.update(rec => {
+                            rec.status = 'AVAILABLE';
+                            rec.currentKm = kmValue;
                         });
                     }
 
-                    // Create Checklist
-                    await database.get<Checklist>('checklists').create(c => {
-                        c.journeyId = journeyRecord?.id || (params.journeyId as string);
-                        c.type = 'CHECKIN';
-                        c.items = JSON.stringify(checklistItems);
+                    // 5. Queue API Sync
+                    await outboxService.enqueue('END_JOURNEY', {
+                        journeyId: journeyId as string,
+                        endKm: kmValue,
+                        checklistItems: Object.entries(responses).map(([id, status]) => ({
+                            itemId: id,
+                            status: status === 'ok' ? 'OK' : 'PROBLEM'
+                        }))
                     });
 
-                    Alert.alert('Sucesso', 'Jornada encerrada localmente! Sincronizando...', [{ text: 'OK', onPress: () => router.replace('/(tabs)/') }]);
+                    Alert.alert('Sucesso', 'Jornada encerrada com sucesso!', [
+                        { text: 'OK', onPress: () => router.replace('/(tabs)') }
+                    ]);
                 }
             });
-
-            // Trigger sync in background
-            syncService.sync().catch(console.error);
-        } catch (error: any) {
-            console.error('Checklist Save Error:', error);
-            Alert.alert('Erro', error.message || 'Falha ao processar');
+        } catch (e: any) {
+            Alert.alert('Erro', e.message || 'Erro ao salvar checklist');
         } finally {
-            setIsSubmitting(false);
+            setIsSaving(false);
         }
     };
 
-    if (showCamera) {
-        return (
-            <View className="flex-1 bg-black">
-                <VisionCamera ref={camera} style={{ flex: 1 }} device={device!} isActive={true} photo={true} />
-                <View className="absolute top-12 left-0 right-0 items-center">
-                    <View className="bg-black/50 px-6 py-3 rounded-full border border-white/20">
-                        <Text className="text-white font-black uppercase text-xs tracking-widest">{currentItem.name}</Text>
-                    </View>
-                </View>
-                <TouchableOpacity className="absolute bottom-12 self-center w-20 h-20 rounded-full bg-white items-center justify-center shadow-2xl shadow-white/50" onPress={takePhoto}>
-                    <View className="w-16 h-16 rounded-full border-4 border-primary" />
-                </TouchableOpacity>
-                <TouchableOpacity className="absolute bottom-12 left-8 p-4 bg-black/60 rounded-2xl flex-row items-center border border-white/10" onPress={() => setShowCamera(false)}>
-                    <X size={20} color="white" /><Text className="text-white font-bold ml-2">Sair</Text>
-                </TouchableOpacity>
-            </View>
-        );
-    }
-
     return (
-        <SafeAreaView className="flex-1 bg-background-light dark:bg-background-dark">
-            <View className="px-6 py-6 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex-row items-center justify-between">
-                <TouchableOpacity onPress={() => router.back()} className="p-2 -ml-2"><ChevronLeft size={28} color="#475569" /></TouchableOpacity>
-                <Text className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Inspeção</Text>
-                <View className="w-10" />
+        <SafeAreaView className="flex-1 bg-white">
+            <StatusBar barStyle="dark-content" />
+            
+            {/* Header / Progress */}
+            <View className="px-6 py-4 flex-row items-center justify-between border-b border-slate-50">
+                <TouchableOpacity onPress={() => router.back()} className="w-10 h-10 rounded-xl bg-[#F8F9FA] items-center justify-center border border-slate-200">
+                    <ChevronLeft size={20} color="#1A1C1E" />
+                </TouchableOpacity>
+                <View className="flex-row items-center">
+                    <View className={`w-12 h-1.5 rounded-full ${step >= 1 ? 'bg-blue-600' : 'bg-slate-100'} mr-2`} />
+                    <View className={`w-12 h-1.5 rounded-full ${step >= 2 ? 'bg-blue-600' : 'bg-slate-100'}`} />
+                </View>
+                <View className="w-10 h-10" />
             </View>
 
-            <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 40 }} showsVerticalScrollIndicator={false}>
-                <View className="p-4">
-                    {/* Progress Card */}
-                    <View className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 mb-6">
-                        <View className="flex-row justify-between items-end mb-4">
-                            <Text className="text-primary text-2xl font-black uppercase tracking-tighter">{currentItem.name}</Text>
-                            <Text className="text-slate-500 dark:text-slate-400 font-bold text-xs uppercase tracking-widest">Etapa {currentItemIndex + 1} de {CHECKLIST_ITEMS.length}</Text>
-                        </View>
-                        <div className="w-full bg-slate-100 dark:bg-slate-800 h-3 rounded-full overflow-hidden">
-                            <View
-                                className="bg-primary h-full rounded-full"
-                                style={{ width: `${((currentItemIndex + 1) / CHECKLIST_ITEMS.length) * 100}%` }}
+            <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+                {step === 1 ? (
+                    <View className="p-8">
+                        <Text className="text-blue-600 font-bold text-xs uppercase tracking-[3px] mb-2">Etapa 01 de 02</Text>
+                        <Text className="text-[#1A1C1E] text-3xl font-black mb-10 leading-tight">Estado do Veículo</Text>
+                        
+                        {/* KM Input */}
+                        <View className="mb-10 bg-slate-50 p-6 rounded-[32px] border border-slate-100 shadow-sm">
+                            <View className="flex-row items-center mb-4">
+                                <Gauge size={20} color="#64748B" />
+                                <Text className="ml-2 text-slate-500 font-bold text-xs uppercase tracking-widest">
+                                    Quilometragem {type === 'checkout' ? 'Inicial' : 'Final'}
+                                </Text>
+                            </View>
+                            <TextInput
+                                className="text-3xl font-bold text-blue-600"
+                                keyboardType="numeric"
+                                placeholder="000.000"
+                                value={km}
+                                onChangeText={setKm}
                             />
-                        </div>
-                    </View>
-
-                    {!capturedPhoto ? (
-                        <TouchableOpacity
-                            className="w-full aspect-square bg-white dark:bg-slate-900 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-700 items-center justify-center p-8 shadow-inner relative overflow-hidden"
-                            onPress={() => setShowCamera(true)}
-                        >
-                            <View className="items-center z-10">
-                                <View className="w-20 h-20 bg-primary/10 rounded-full items-center justify-center mb-6">
-                                    <Camera size={40} color="#2463eb" />
-                                </View>
-                                <Text className="text-xl font-black text-slate-900 dark:text-white text-center uppercase tracking-tight">Capturar Foto</Text>
-                                <Text className="text-slate-400 text-center mt-3 font-medium px-4">Enquadre o item certificando-se de que a imagem esteja nítida.</Text>
-                            </View>
-
-                            {/* Corner Guides */}
-                            <View className="absolute top-6 left-6 w-10 h-10 border-t-4 border-l-4 border-primary/30 rounded-tl-xl" />
-                            <View className="absolute top-6 right-6 w-10 h-10 border-t-4 border-r-4 border-primary/30 rounded-tr-xl" />
-                            <View className="absolute bottom-6 left-6 w-10 h-10 border-b-4 border-l-4 border-primary/30 rounded-bl-xl" />
-                            <View className="absolute bottom-6 right-6 w-10 h-10 border-b-4 border-r-4 border-primary/30 rounded-br-xl" />
-                        </TouchableOpacity>
-                    ) : (
-                        <View className="space-y-6">
-                            <View className="w-full aspect-square rounded-3xl overflow-hidden border-4 border-white dark:border-slate-800 shadow-xl">
-                                <Image source={{ uri: capturedPhoto }} className="w-full h-full" />
-                                <TouchableOpacity className="absolute bottom-4 right-4 bg-black/60 px-4 py-2 rounded-xl flex-row items-center" onPress={() => setCapturedPhoto(null)}>
-                                    <X size={16} color="white" /><Text className="text-white font-bold ml-2">Refazer</Text>
-                                </TouchableOpacity>
-                            </View>
-
-                            <View className="mt-8 space-y-6">
-                                <View className="flex-row space-x-4">
-                                    <TouchableOpacity
-                                        className="flex-1 bg-emerald-500 rounded-2xl items-center justify-center py-6 shadow-lg shadow-emerald-500/20 active:scale-[0.98]"
-                                        onPress={() => handleStatusSelect('ok')}
-                                    >
-                                        <View className="flex-row items-center space-x-2 mb-1">
-                                            <Check size={24} color="white" />
-                                            <Text className="text-white font-black text-xl ml-1">OK</Text>
-                                        </View>
-                                        <Text className="text-white/80 text-[10px] font-bold uppercase tracking-widest">Tudo em ordem</Text>
-                                    </TouchableOpacity>
-
-                                    <TouchableOpacity
-                                        className="flex-1 bg-red-500 rounded-2xl items-center justify-center py-6 shadow-lg shadow-red-500/20 active:scale-[0.98]"
-                                        onPress={() => { if (!notes.trim()) { Alert.alert('Atenção', 'Descreva o problema primeiro.'); return; } handleStatusSelect('problem'); }}
-                                    >
-                                        <View className="flex-row items-center space-x-2 mb-1">
-                                            <AlertCircle size={24} color="white" />
-                                            <Text className="text-white font-black text-xl ml-1">PROBLEMA</Text>
-                                        </View>
-                                        <Text className="text-white/80 text-[10px] font-bold uppercase tracking-widest">Relatar avaria</Text>
-                                    </TouchableOpacity>
-                                </View>
-
-                                <View>
-                                    <Text className="text-slate-500 dark:text-slate-400 font-bold uppercase text-[10px] tracking-widest mb-3 px-2">Observações / Avarias</Text>
-                                    <TextInput
-                                        className="w-full bg-white dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white min-h-[120px] shadow-sm"
-                                        multiline
-                                        textAlignVertical="top"
-                                        placeholder="Se houver problemas, descreva aqui..."
-                                        value={notes}
-                                        onChangeText={setNotes}
-                                    />
-                                </View>
-                            </View>
                         </View>
-                    )}
-                </View>
 
-                {/* Progress Summary */}
-                <View className="px-6 mt-10">
-                    <Text className="text-slate-400 font-bold uppercase text-[10px] tracking-[2px] mb-4">Progresso da Inspeção</Text>
-                    <View className="flex-row space-x-2">
-                        {CHECKLIST_ITEMS.map((item, idx) => (
-                            <View key={item.id} className={`h-1.5 flex-1 rounded-full ${idx === currentItemIndex ? 'bg-primary' : items[idx].status !== 'pending' ? 'bg-emerald-400' : 'bg-slate-200 dark:bg-slate-800'}`} />
-                        ))}
+                        {/* Car Diagram */}
+                        <Text className="text-slate-900 font-bold text-lg mb-6">Inspeção Visual</Text>
+                        <View className="relative bg-[#1A1C1E] rounded-[48px] p-10 h-[380px] items-center justify-center shadow-xl shadow-black/10">
+                             <View className="absolute inset-0 items-center justify-center">
+                                <Truck size={240} color="#334155" strokeWidth={0.5} />
+                             </View>
+
+                             <InspectionPoint top={15} left={50} status={responses.front} onPress={() => handleConfirmPoint('front', 'ok')} />
+                             <InspectionPoint top={80} left={50} status={responses.back} onPress={() => handleConfirmPoint('back', 'ok')} />
+                             <InspectionPoint top={50} left={10} status={responses.left} onPress={() => handleConfirmPoint('left', 'ok')} />
+                             <InspectionPoint top={50} left={90} status={responses.right} onPress={() => handleConfirmPoint('right', 'ok')} />
+                        </View>
+
+                        <View className="mt-8 flex-row bg-blue-50 p-6 rounded-[32px] items-center">
+                            <Info size={20} color="#2563EB" />
+                            <Text className="text-blue-700 text-sm font-medium ml-4 leading-5 flex-1">
+                                Toque nos pontos para sinalizar o estado das quatro faces do veículo.
+                            </Text>
+                        </View>
+                        
+                        <TouchableOpacity 
+                            onPress={() => setStep(2)}
+                            className="mt-10 h-18 bg-[#1A1C1E] rounded-3xl flex-row items-center justify-center shadow-lg py-5"
+                        >
+                            <Text className="text-white font-bold text-base uppercase tracking-widest mr-2">Próxima Etapa</Text>
+                            <ArrowRight size={18} color="white" />
+                        </TouchableOpacity>
                     </View>
-                </View>
-            </ScrollView>
+                ) : (
+                    <View className="p-8">
+                        <Text className="text-blue-600 font-bold text-xs uppercase tracking-[3px] mb-2">Etapa 02 de 02</Text>
+                        <Text className="text-[#1A1C1E] text-3xl font-black mb-10 leading-tight">Itens Críticos</Text>
+                        
+                        {CHECKLIST_ITEMS.map((item) => {
+                            const Icon = item.icon;
+                            return (
+                                <View key={item.id} className="mb-6 bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
+                                    <View className="flex-row items-center mb-4">
+                                        <View className="w-10 h-10 bg-slate-50 rounded-xl items-center justify-center">
+                                            <Icon size={20} color="#64748B" />
+                                        </View>
+                                        <Text className="text-[#1A1C1E] font-bold text-base ml-3">{item.label}</Text>
+                                    </View>
+                                    <View className="flex-row">
+                                        <TouchableOpacity 
+                                            onPress={() => handleConfirmPoint(item.id, 'ok')}
+                                            className={`flex-1 h-14 rounded-2xl items-center justify-center flex-row ${responses[item.id] === 'ok' ? 'bg-emerald-500' : 'bg-slate-50'}`}
+                                        >
+                                            <CheckCircle2 size={18} color={responses[item.id] === 'ok' ? 'white' : '#10B981'} />
+                                            <Text className={`ml-2 font-bold ${responses[item.id] === 'ok' ? 'text-white' : 'text-emerald-500'}`}>ESTÁ OK</Text>
+                                        </TouchableOpacity>
+                                        <View className="w-4" />
+                                        <TouchableOpacity 
+                                            onPress={() => handleConfirmPoint(item.id, 'issue')}
+                                            className={`flex-1 h-14 rounded-2xl items-center justify-center flex-row ${responses[item.id] === 'issue' ? 'bg-red-500' : 'bg-slate-50'}`}
+                                        >
+                                            <AlertTriangle size={18} color={responses[item.id] === 'issue' ? 'white' : '#EF4444'} />
+                                            <Text className={`ml-2 font-bold ${responses[item.id] === 'issue' ? 'text-white' : 'text-red-500'}`}>PROBLEMA</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            );
+                        })}
 
-            {isSubmitting && (
-                <View className="absolute inset-0 bg-white/90 dark:bg-slate-900/90 items-center justify-center z-50">
-                    <ActivityIndicator size="large" color="#2463eb" />
-                    <Text className="mt-4 text-primary font-black text-lg uppercase tracking-widest">Processando...</Text>
-                </View>
-            )}
+                        <TouchableOpacity 
+                            onPress={handleFinish}
+                            disabled={isSaving}
+                            className={`mt-10 h-20 bg-blue-600 rounded-[30px] flex-row items-center justify-center shadow-xl shadow-blue-500/20 ${isSaving ? 'opacity-50' : ''}`}
+                        >
+                            {isSaving ? (
+                                <ActivityIndicator color="white" />
+                            ) : (
+                                <>
+                                    <Check size={24} color="white" />
+                                    <Text className="text-white font-bold text-lg uppercase tracking-widest ml-3">
+                                        {type === 'checkout' ? 'Iniciar Jornada' : 'Finalizar Tudo'}
+                                    </Text>
+                                </>
+                            )}
+                        </TouchableOpacity>
+
+                        <TouchableOpacity 
+                            onPress={() => setStep(1)}
+                            className="mt-6 h-14 items-center justify-center"
+                        >
+                            <Text className="text-slate-400 font-bold uppercase text-[10px] tracking-[2px]">Voltar para etapa 01</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
+            </ScrollView>
         </SafeAreaView>
     );
 }
+

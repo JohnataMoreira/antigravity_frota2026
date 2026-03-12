@@ -65,6 +65,16 @@ export default function RootLayout() {
         loadStoredAuth();
     }, []);
 
+    // Auto-logout on 401 — any expired token detected anywhere triggers a clean logout
+    useEffect(() => {
+        const unsubscribe = api.onUnauthorized(() => {
+            logout().then(() => {
+                router.replace('/login');
+            });
+        });
+        return unsubscribe;
+    }, []);
+
     // Native-only side effects (push notifications, background sync, network watch)
     useEffect(() => {
         if (!token || Platform.OS === 'web') return;
@@ -72,14 +82,18 @@ export default function RootLayout() {
         let cleanup: (() => void) | undefined;
 
         (async () => {
-            const [Notifications, Device, Constants, NetInfo, { photoService }, { syncService }] = await Promise.all([
+            const [Notifications, Device, Constants, NetInfo, { photoService }, { syncService }, { registerBackgroundSync }] = await Promise.all([
                 import('expo-notifications'),
                 import('expo-device'),
                 import('expo-constants'),
                 import('@react-native-community/netinfo'),
                 import('../src/services/photoService'),
                 import('../src/services/SyncService'),
+                import('../src/services/BackgroundService'),
             ]);
+
+            // Register background sync task
+            registerBackgroundSync().catch(err => console.error('[BackgroundSync] Registration error:', err));
 
             Notifications.setNotificationHandler({
                 handleNotification: async () => ({
@@ -116,7 +130,11 @@ export default function RootLayout() {
             });
 
             const unsubscribeNet = NetInfo.default.addEventListener(state => {
-                if (state.isConnected) photoService.processOfflineQueue(token);
+                if (state.isConnected) {
+                    import('../src/services/outboxService').then(({ outboxService }) => {
+                        outboxService.processQueue(token);
+                    });
+                }
             });
 
             syncService.setToken(token);

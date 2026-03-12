@@ -146,6 +146,7 @@ model Organization {
   tyres                 Tyre[]
   alerts                Alert[]
   checklistTemplates    ChecklistTemplate[]
+  tasks                 Task[]
 }
 
 model AuditLog {
@@ -262,6 +263,8 @@ model Journey {
   checklists  Checklist[]
   fuelEntries FuelEntry[]
   attachments Attachment[]
+  tasks       Task[]
+  financialTransactions FinancialTransaction[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -555,6 +558,7 @@ model FinancialTransaction {
   purchaseOrderId String?
   maintenanceId   String?
   fuelEntryId     String?
+  journeyId       String?
   supplierId      String?
 
   notes         String?
@@ -567,10 +571,12 @@ model FinancialTransaction {
   purchaseOrder PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id])
   maintenance   Maintenance?   @relation(fields: [maintenanceId], references: [id])
   fuelEntry     FuelEntry?     @relation(fields: [fuelEntryId], references: [id])
+  journey       Journey?       @relation(fields: [journeyId], references: [id])
   supplier      Supplier?      @relation(fields: [supplierId], references: [id])
 
   @@index([organizationId, status])
   @@index([organizationId, dueDate])
+  @@index([journeyId])
 }
 
 model Attachment {
@@ -696,4 +702,29 @@ model ChecklistTemplate {
   updatedAt      DateTime @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id])
+}
+
+model Task {
+  id             String   @id @default(uuid())
+  organizationId String
+  journeyId      String
+  
+  title          String
+  description    String?
+  status         String   @default("PENDING") // PENDING, COMPLETED, CANCELED
+  
+  latitude       Float?
+  longitude      Float?
+  address        String?
+  
+  scheduledAt    DateTime?
+  completedAt    DateTime?
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  journey        Journey      @relation(fields: [journeyId], references: [id])
+
+  @@index([organizationId, journeyId])
 }

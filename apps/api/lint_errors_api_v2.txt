@@ -1,0 +1,66 @@
+
+> api@0.1.0 lint
+> eslint "{src,apps,libs,test}/**/*.ts" --fix
+
+
+C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\backup\backup.service.ts
+  9:13  warning  'zlib' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\checklist-templates\checklist-templates.controller.ts
+  1:61  warning  'UseGuards' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\common\alerts\alerts-processor.service.ts
+  76:15  warning  'sevenDaysAgo' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\common\audit\audit.interceptor.ts
+  41:22  warning  'e' is defined but never used. Allowed unused caught errors must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\inventory\dto\create-item.dto.ts
+  1:54  warning  'IsEnum' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\main.ts
+  1:23  warning  'Reflector' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\organizations\organizations.controller.ts
+  6:5  warning  'UseGuards' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\prisma\tenant.middleware.ts
+  25:18  warning  'e' is defined but never used. Allowed unused caught errors must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\purchasing\dto\index.ts
+  1:79  warning  'IsUUID' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\purchasing\purchasing.controller.ts
+  1:60  warning  'Delete' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\purchasing\purchasing.service.ts
+  4:78  warning  'UpdateOrderStatusDto' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\reports\reports-cron.service.ts
+  2:16  warning  'CronExpression' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\telemetry\telemetry.service.ts
+  53:27  warning  'isInside' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\tyres\dto\index.ts
+  1:54  warning  'IsEnum' is defined but never used. Allowed unused vars must match /^_/u      @typescript-eslint/no-unused-vars
+  2:10  warning  'TyreStatus' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\tyres\tyres.service.ts
+   3:63  warning  'TyreRotationDto' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  78:15  warning  'tyre' is assigned a value but never used. Allowed unused vars must match /^_/u    @typescript-eslint/no-unused-vars
+
+C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\users\users.service.ts
+  4:10  warning  'ConfigService' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\vehicles\vehicles.controller.ts
+  4:10  warning  'RolesGuard' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\Projetos\Antigravity\apps\Frota2026\apps\api\test\ultimate-test.ts
+   2:8   warning  'axios' is defined but never used. Allowed unused vars must match /^_/u             @typescript-eslint/no-unused-vars
+   5:7   warning  'API_URL' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+  19:15  warning  'userA' is assigned a value but never used. Allowed unused vars must match /^_/u    @typescript-eslint/no-unused-vars
+  37:15  warning  'userB' is assigned a value but never used. Allowed unused vars must match /^_/u    @typescript-eslint/no-unused-vars
+
+Ô£û 23 problems (0 errors, 23 warnings)
+

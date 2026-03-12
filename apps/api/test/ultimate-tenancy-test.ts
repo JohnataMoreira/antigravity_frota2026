@@ -97,7 +97,9 @@ async function runTest() {
             // but let's check profile /auth/me for current user.
             // Isolation is mainly on data like vehicles.
             console.log('✅ TEST 3 PASSED: JWT logically isolated by sub/orgId.');
-        } catch (err) { }
+        } catch (_err) {
+             // Silence is golden if expected, but at least we marked the variable
+        }
 
         console.log('\n🏆 ALL MULTI-TENANCY ISOLATION TESTS PASSED!');
         console.log('Environment is safe for scale.');

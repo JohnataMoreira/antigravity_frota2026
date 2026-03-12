@@ -160,7 +160,7 @@ async function main() {
         data: {
             organizationId: org.id,
             vehicleId: vehicles[4].id, // Hilux (In Maintenance)
-            type: MaintenanceType.CORRECTIVE,
+            type: MaintenanceType.OTHER,
             status: MaintenanceStatus.PENDING,
             nextDueKm: vehicles[4].currentKm,
             lastKm: vehicles[4].currentKm,
@@ -174,7 +174,7 @@ async function main() {
         data: {
             organizationId: org.id,
             vehicleId: vehicles[0].id,
-            type: MaintenanceType.PREVENTIVE,
+            type: MaintenanceType.INSPECTION,
             status: MaintenanceStatus.COMPLETED,
             performedAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
             nextDueKm: vehicles[0].currentKm + 10000,

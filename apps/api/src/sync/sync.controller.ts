@@ -9,13 +9,17 @@ export class SyncController {
     constructor(private readonly syncService: SyncService) { }
 
     @Get('pull')
-    pull(@Query('lastPulledAt') lastPulledAt: string) {
-        return this.syncService.pull(parseInt(lastPulledAt, 10) || 0);
+    pull(@Request() req: UserRequest, @Query('lastPulledAt') lastPulledAt: string) {
+        return this.syncService.pull(
+            parseInt(lastPulledAt, 10) || 0, 
+            req.user.organizationId, 
+            req.user.userId
+        );
     }
 
     @Post('push')
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     push(@Request() req: UserRequest, @Body() changes: any) {
-        return this.syncService.push(changes, req.user.userId);
+        return this.syncService.push(changes, req.user.userId, req.user.organizationId);
     }
 }

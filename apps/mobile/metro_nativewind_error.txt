@@ -1,0 +1,13 @@
+Starting project at C:\Projetos\Antigravity\apps\Frota2026\apps\mobile
+Error: Tailwind CSS has not been configured with the NativeWind preset
+Error: Tailwind CSS has not been configured with the NativeWind preset
+    at tailwindConfigV3 (C:\Projetos\Antigravity\apps\Frota2026\node_modules\nativewind\src\metro\tailwind\v3\index.ts:97:11)
+    at tailwindConfig (C:\Projetos\Antigravity\apps\Frota2026\node_modules\nativewind\src\metro\tailwind\index.ts:18:28)
+    at withNativeWind (C:\Projetos\Antigravity\apps\Frota2026\node_modules\nativewind\src\metro\index.ts:45:39)
+    at Object.<anonymous> (C:\Projetos\Antigravity\apps\Frota2026\apps\mobile\metro.config.js:37:18)
+    at Module._compile (node:internal/modules/cjs/loader:1761:14)
+    at Object..js (node:internal/modules/cjs/loader:1893:10)
+    at Module.load (node:internal/modules/cjs/loader:1481:32)
+    at Module._load (node:internal/modules/cjs/loader:1300:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:245:24)

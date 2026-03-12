@@ -1,0 +1,39 @@
+ WARNING  No locally installed `turbo` found in your repository. Using globally installed version (2.8.16), which can cause unexpected behavior.
+
+Installing the version in your repository (^2.3.3) before calling `turbo` will result in more predictable behavior across environments.
+ÔÇó turbo 2.8.16
+ÔÇó Packages in scope: api, mobile, web
+ÔÇó Running type-check in 3 packages
+ÔÇó Remote caching disabled
+web:type-check: cache miss, executing a69e784957f062a3
+api:type-check: cache miss, executing 5c2f271b191bf6cb
+api:type-check: 
+api:type-check: > api@0.1.0 type-check
+api:type-check: > tsc --noEmit
+api:type-check: 
+web:type-check: 
+web:type-check: > web@0.1.0 type-check
+web:type-check: > tsc --noEmit
+web:type-check: 
+web:type-check: error TS2688: Cannot find type definition file for 'vite-plugin-pwa/client'.
+web:type-check:   The file is in the program because:
+web:type-check:     Entry point of type library 'vite-plugin-pwa/client' specified in compilerOptions
+web:type-check: error TS2688: Cannot find type definition file for 'vite/client'.
+web:type-check:   The file is in the program because:
+web:type-check:     Entry point of type library 'vite/client' specified in compilerOptions
+web:type-check: npm error Lifecycle script `type-check` failed with error:
+web:type-check: npm error code 2
+web:type-check: npm error path C:\Projetos\Antigravity\apps\Frota2026\apps\web
+web:type-check: npm error workspace web@0.1.0
+web:type-check: npm error location C:\Projetos\Antigravity\apps\Frota2026\apps\web
+web:type-check: npm error command failed
+web:type-check: npm error command C:\WINDOWS\system32\cmd.exe /d /s /c tsc --noEmit
+web:type-check: ERROR: command finished with error: command (C:\Projetos\Antigravity\apps\Frota2026\apps\web) C:\Program Files\nodejs\npm.cmd run type-check exited (2)
+web#type-check: command (C:\Projetos\Antigravity\apps\Frota2026\apps\web) C:\Program Files\nodejs\npm.cmd run type-check exited (2)
+
+ Tasks:    0 successful, 2 total
+Cached:    0 cached, 2 total
+  Time:    1.947s 
+Failed:    web#type-check
+
+ ERROR  run failed: command  exited (2)

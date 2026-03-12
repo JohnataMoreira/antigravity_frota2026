@@ -1,0 +1,14 @@
+ÔÇó turbo 2.8.16
+ÔÇó Packages in scope: web
+ÔÇó Running type-check in 1 packages
+ÔÇó Remote caching disabled
+web:type-check: cache miss, executing 88f3478bd0cbebc5
+web:type-check: 
+web:type-check: > web@0.1.0 type-check
+web:type-check: > tsc --noEmit
+web:type-check: 
+
+ Tasks:    1 successful, 1 total
+Cached:    0 cached, 1 total
+  Time:    6.807s 
+

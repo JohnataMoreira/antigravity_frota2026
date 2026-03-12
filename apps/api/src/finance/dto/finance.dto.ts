@@ -37,6 +37,10 @@ export class CreateTransactionDto {
     @IsOptional()
     @IsString()
     notes?: string;
+
+    @IsOptional()
+    @IsUUID()
+    journeyId?: string;
 }
 
 export class ConfirmPaymentDto {
@@ -67,4 +71,12 @@ export class TransactionFilterDto {
     @IsOptional()
     @IsDateString()
     end?: string;
+
+    @IsOptional()
+    @IsUUID()
+    vehicleId?: string;
+
+    @IsOptional()
+    @IsUUID()
+    supplierId?: string;
 }

@@ -26,9 +26,6 @@ export class FinanceController {
 
     @Patch('transactions/:id/confirm')
     async confirmPayment(@Param('id') id: string, @Body() dto: ConfirmPaymentDto) {
-        return this.financeService.confirmPayment(id, {
-            ...dto,
-            paymentDate: new Date(dto.paymentDate)
-        });
+        return this.financeService.confirmPayment(id, dto);
     }
 }

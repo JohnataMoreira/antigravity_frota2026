@@ -1,0 +1,251 @@
+ÔÇó turbo 2.8.16
+ÔÇó Packages in scope: api, mobile, web
+ÔÇó Running lint in 3 packages
+ÔÇó Remote caching disabled
+web:lint: cache miss, executing 86b98e5927098153
+api:lint: cache miss, executing 28809eb49997ab6f
+api:lint: 
+api:lint: > api@0.1.0 lint
+api:lint: > eslint "{src,apps,libs,test}/**/*.ts" --fix
+api:lint: 
+web:lint: 
+web:lint: > web@0.1.0 lint
+web:lint: > eslint .
+web:lint: 
+api:lint: 
+api:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\backup\backup.service.ts
+api:lint:   9:13  warning  'zlib' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+api:lint: 
+api:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\checklist-templates\checklist-templates.controller.ts
+api:lint:   1:61  warning  'UseGuards' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+api:lint: 
+api:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\common\alerts\alerts-processor.service.ts
+api:lint:   76:15  warning  'sevenDaysAgo' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+api:lint: 
+api:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\common\audit\audit.interceptor.ts
+api:lint:   41:22  warning  'e' is defined but never used. Allowed unused caught errors must match /^_/u  @typescript-eslint/no-unused-vars
+api:lint: 
+api:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\inventory\dto\create-item.dto.ts
+api:lint:   1:54  warning  'IsEnum' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+api:lint: 
+api:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\main.ts
+api:lint:   1:23  warning  'Reflector' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+api:lint: 
+api:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\organizations\organizations.controller.ts
+api:lint:   6:5  warning  'UseGuards' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+api:lint: 
+api:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\prisma\tenant.middleware.ts
+api:lint:   25:18  warning  'e' is defined but never used. Allowed unused caught errors must match /^_/u  @typescript-eslint/no-unused-vars
+api:lint: 
+api:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\purchasing\dto\index.ts
+api:lint:   1:79  warning  'IsUUID' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+api:lint: 
+api:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\purchasing\purchasing.controller.ts
+api:lint:   1:60  warning  'Delete' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+api:lint: 
+api:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\purchasing\purchasing.service.ts
+api:lint:   4:78  warning  'UpdateOrderStatusDto' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+api:lint: 
+api:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\reports\reports-cron.service.ts
+api:lint:   2:16  warning  'CronExpression' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+api:lint: 
+api:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\telemetry\telemetry.service.ts
+api:lint:   53:27  warning  'isInside' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+api:lint: 
+api:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\tyres\dto\index.ts
+api:lint:   1:54  warning  'IsEnum' is defined but never used. Allowed unused vars must match /^_/u      @typescript-eslint/no-unused-vars
+api:lint:   2:10  warning  'TyreStatus' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+api:lint: 
+api:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\tyres\tyres.service.ts
+api:lint:    3:63  warning  'TyreRotationDto' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+api:lint:   78:15  warning  'tyre' is assigned a value but never used. Allowed unused vars must match /^_/u    @typescript-eslint/no-unused-vars
+api:lint: 
+api:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\users\users.service.ts
+api:lint:   4:10  warning  'ConfigService' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+api:lint: 
+api:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\api\src\vehicles\vehicles.controller.ts
+api:lint:   4:10  warning  'RolesGuard' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+api:lint: 
+api:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\api\test\ultimate-test.ts
+api:lint:    2:8   warning  'axios' is defined but never used. Allowed unused vars must match /^_/u             @typescript-eslint/no-unused-vars
+api:lint:    5:7   warning  'API_URL' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+api:lint:   19:15  warning  'userA' is assigned a value but never used. Allowed unused vars must match /^_/u    @typescript-eslint/no-unused-vars
+api:lint:   37:15  warning  'userB' is assigned a value but never used. Allowed unused vars must match /^_/u    @typescript-eslint/no-unused-vars
+api:lint: 
+api:lint: Ô£û 23 problems (0 errors, 23 warnings)
+api:lint: 
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\App.tsx
+web:lint:   7:10  warning  'LiveMap' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\components\DocumentVault.tsx
+web:lint:   7:10  warning  'formatDateTime' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\components\LiveMap.tsx
+web:lint:   7:17  warning  'AlertTriangle' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\components\PWAProvider.tsx
+web:lint:   3:20  warning  'X' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\components\RouteSelector.tsx
+web:lint:   1:20  warning  'useEffect' is defined but never used. Allowed unused vars must match /^_/u   @typescript-eslint/no-unused-vars
+web:lint:   2:10  warning  'Search' is defined but never used. Allowed unused vars must match /^_/u      @typescript-eslint/no-unused-vars
+web:lint:   2:26  warning  'Navigation' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint:   3:10  warning  'api' is defined but never used. Allowed unused vars must match /^_/u         @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\components\ThemeSwitcher.tsx
+web:lint:   2:21  warning  'Building2' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\components\Tyres\VehicleTyreMap.tsx
+web:lint:   1:10  warning  'Badge' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\components\ui\Alert.tsx
+web:lint:   4:10  warning  'Button' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\components\ui\StatCard.tsx
+web:lint:   3:14  warning  'getHealthColor' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\layouts\MainLayout.tsx
+web:lint:   10:5  warning  'Settings' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Compliance\index.tsx
+web:lint:   11:5   warning  'Filter' is defined but never used. Allowed unused vars must match /^_/u          @typescript-eslint/no-unused-vars
+web:lint:   18:10  warning  'formatDateTime' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\DashboardHome.tsx
+web:lint:    9:5    warning  'DollarSign' is defined but never used. Allowed unused vars must match /^_/u                 @typescript-eslint/no-unused-vars
+web:lint:   14:105  warning  'Legend' is defined but never used. Allowed unused vars must match /^_/u                     @typescript-eslint/no-unused-vars
+web:lint:   15:10   warning  'calculateFleetHealth' is defined but never used. Allowed unused vars must match /^_/u       @typescript-eslint/no-unused-vars
+web:lint:   15:32   warning  'formatCurrency' is defined but never used. Allowed unused vars must match /^_/u             @typescript-eslint/no-unused-vars
+web:lint:   20:10   warning  'clsx' is defined but never used. Allowed unused vars must match /^_/u                       @typescript-eslint/no-unused-vars
+web:lint:   43:11   warning  'getHealthVariant' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Dashboard\components\VehicleHealthCard.tsx
+web:lint:   2:10  warning  'AlertTriangle' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Dashboard\index.tsx
+web:lint:   10:17  warning  'Users' is defined but never used. Allowed unused vars must match /^_/u   @typescript-eslint/no-unused-vars
+web:lint:   13:50  warning  'Legend' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Finance\index.tsx
+web:lint:   20:10  warning  'GlassCard' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint:   26:10  warning  'ptBR' is defined but never used. Allowed unused vars must match /^_/u       @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Fines\FinesList.tsx
+web:lint:   5:71  warning  'DollarSign' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint:   9:22  warning  'isOpen' is defined but never used. Allowed unused args must match /^_/u      @typescript-eslint/no-unused-vars
+web:lint:   9:30  warning  'onClose' is defined but never used. Allowed unused args must match /^_/u     @typescript-eslint/no-unused-vars
+web:lint:   9:39  warning  'fine' is defined but never used. Allowed unused args must match /^_/u        @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Fuel\index.tsx
+web:lint:   29:12  warning  'dateFilter' is assigned a value but never used. Allowed unused vars must match /^_/u     @typescript-eslint/no-unused-vars
+web:lint:   29:24  warning  'setDateFilter' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Inventory\index.tsx
+web:lint:   10:5  warning  'Filter' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Journeys\JourneyDetails.tsx
+web:lint:   4:29   warning  'Clock' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint:   4:117  warning  'Flag' is defined but never used. Allowed unused vars must match /^_/u   @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Journeys\index.tsx
+web:lint:   5:38  warning  'CheckCircle2' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint:   5:52  warning  'AlertCircle' is defined but never used. Allowed unused vars must match /^_/u   @typescript-eslint/no-unused-vars
+web:lint:   5:65  warning  'X' is defined but never used. Allowed unused vars must match /^_/u             @typescript-eslint/no-unused-vars
+web:lint:   5:68  warning  'MapPin' is defined but never used. Allowed unused vars must match /^_/u        @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Maintenance\index.tsx
+web:lint:   71:43  warning  'loadingAlerts' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Purchasing\components\PurchaseOrderDetailsModal.tsx
+web:lint:   6:5  warning  'CheckCircle2' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint:   8:5  warning  'Truck' is defined but never used. Allowed unused vars must match /^_/u         @typescript-eslint/no-unused-vars
+web:lint:   9:5  warning  'Clock' is defined but never used. Allowed unused vars must match /^_/u         @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Purchasing\components\PurchaseOrderModal.tsx
+web:lint:   10:5   warning  'User' is defined but never used. Allowed unused vars must match /^_/u            @typescript-eslint/no-unused-vars
+web:lint:   12:5   warning  'AlertCircle' is defined but never used. Allowed unused vars must match /^_/u     @typescript-eslint/no-unused-vars
+web:lint:   13:5   warning  'CheckCircle2' is defined but never used. Allowed unused vars must match /^_/u    @typescript-eslint/no-unused-vars
+web:lint:   15:10  warning  'formatCurrency' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint:   16:10  warning  'clsx' is defined but never used. Allowed unused vars must match /^_/u            @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Purchasing\index.tsx
+web:lint:    9:3   warning  'Filter' is defined but never used. Allowed unused vars must match /^_/u                        @typescript-eslint/no-unused-vars
+web:lint:   14:3   warning  'Truck' is defined but never used. Allowed unused vars must match /^_/u                         @typescript-eslint/no-unused-vars
+web:lint:   20:26  warning  'formatDateTime' is defined but never used. Allowed unused vars must match /^_/u                @typescript-eslint/no-unused-vars
+web:lint:   22:10  warning  'ExportService' is defined but never used. Allowed unused vars must match /^_/u                 @typescript-eslint/no-unused-vars
+web:lint:   30:7   warning  'SupplierModal' is assigned a value but never used. Allowed unused vars must match /^_/u        @typescript-eslint/no-unused-vars
+web:lint:   30:26  warning  'isOpen' is defined but never used. Allowed unused args must match /^_/u                        @typescript-eslint/no-unused-vars
+web:lint:   30:34  warning  'onClose' is defined but never used. Allowed unused args must match /^_/u                       @typescript-eslint/no-unused-vars
+web:lint:   31:25  warning  'currentMode' is defined but never used. Allowed unused args must match /^_/u                   @typescript-eslint/no-unused-vars
+web:lint:   31:38  warning  'onViewChange' is defined but never used. Allowed unused args must match /^_/u                  @typescript-eslint/no-unused-vars
+web:lint:   33:24  warning  'columns' is defined but never used. Allowed unused args must match /^_/u                       @typescript-eslint/no-unused-vars
+web:lint:   33:33  warning  'items' is defined but never used. Allowed unused args must match /^_/u                         @typescript-eslint/no-unused-vars
+web:lint:   33:40  warning  'getItemColumnId' is defined but never used. Allowed unused args must match /^_/u               @typescript-eslint/no-unused-vars
+web:lint:   33:57  warning  'renderCard' is defined but never used. Allowed unused args must match /^_/u                    @typescript-eslint/no-unused-vars
+web:lint:   37:10  warning  'searchTerm' is assigned a value but never used. Allowed unused vars must match /^_/u           @typescript-eslint/no-unused-vars
+web:lint:   37:22  warning  'setSearchTerm' is assigned a value but never used. Allowed unused vars must match /^_/u        @typescript-eslint/no-unused-vars
+web:lint:   41:10  warning  'isSupplierModalOpen' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Reports\components\DriversTab.tsx
+web:lint:   5:23  warning  'AlertTriangle' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint:   5:38  warning  'Route' is defined but never used. Allowed unused vars must match /^_/u          @typescript-eslint/no-unused-vars
+web:lint:   6:10  warning  'formatKm' is defined but never used. Allowed unused vars must match /^_/u       @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Reports\components\FinanceTab.tsx
+web:lint:    5:84  warning  'Cell' is defined but never used. Allowed unused vars must match /^_/u             @typescript-eslint/no-unused-vars
+web:lint:   20:11  warning  'COLORS' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Reports\components\VehiclesTab.tsx
+web:lint:   5:40  warning  'TrendingUp' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Reports\index.tsx
+web:lint:    5:96  warning  'Search' is defined but never used. Allowed unused vars must match /^_/u              @typescript-eslint/no-unused-vars
+web:lint:   29:31  warning  'isLoading' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Settings\components\ChecklistTab.tsx
+web:lint:   2:75  warning  'Check' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Settings\components\NotificationsTab.tsx
+web:lint:   2:10  warning  'Bell' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint:   2:16  warning  'Mail' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Settings\components\OrganizationTab.tsx
+web:lint:   2:61  warning  'Palette' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Settings\components\SecurityTab.tsx
+web:lint:   2:23  warning  'LogOut' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Settings\index.tsx
+web:lint:   2:50  warning  'Database' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint:   2:66  warning  'Globe' is defined but never used. Allowed unused vars must match /^_/u     @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Users\UserModal.tsx
+web:lint:   4:50  warning  'MapPin' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Users\index.tsx
+web:lint:   10:5   warning  'MoreVertical' is defined but never used. Allowed unused vars must match /^_/u          @typescript-eslint/no-unused-vars
+web:lint:   19:13  warning  'LinkIcon' is defined but never used. Allowed unused vars must match /^_/u              @typescript-eslint/no-unused-vars
+web:lint:   26:10  warning  'clsx' is defined but never used. Allowed unused vars must match /^_/u                  @typescript-eslint/no-unused-vars
+web:lint:   46:35  warning  'isLoading' is assigned a value but never used. Allowed unused vars must match /^_/u    @typescript-eslint/no-unused-vars
+web:lint:   57:11  warning  'activeCount' is assigned a value but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Vehicles\VehicleDetail.tsx
+web:lint:   1:17  warning  'useState' is defined but never used. Allowed unused vars must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\pages\Vehicles\VehicleForm.tsx
+web:lint:   28:18  warning  'error' is defined but never used. Allowed unused caught errors must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\services\exportService.ts
+web:lint:   28:22  warning  'e' is defined but never used. Allowed unused caught errors must match /^_/u  @typescript-eslint/no-unused-vars
+web:lint: 
+web:lint: C:\Projetos\Antigravity\apps\Frota2026\apps\web\src\services\users.ts
+web:lint:   22:11  warning  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+web:lint: 
+web:lint: Ô£û 89 problems (0 errors, 89 warnings)
+web:lint: 
+
+ Tasks:    2 successful, 2 total
+Cached:    0 cached, 2 total
+  Time:    2.909s 
+
