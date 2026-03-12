@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM node:20 AS builder
+FROM node:18 AS builder
 WORKDIR /app
 
 # Copy ONLY web package.json (Isolated Build)
