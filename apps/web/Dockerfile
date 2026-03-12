@@ -2,17 +2,18 @@
 FROM node:20 AS builder
 WORKDIR /app
 
-# Set memory limit
-ENV NODE_OPTIONS="--max-old-space-size=4096"
+# Copy ONLY web package.json (Isolated Build)
+COPY apps/web/package.json ./
 
-# Copy EVERYTHING (to ensure workspace parity with host)
-COPY . .
-
-# Install all dependencies
+# Install dependencies for ONLY this package
+# This bypasses all workspace-related hoisting issues
 RUN npm install --legacy-peer-deps
 
+# Copy web source code
+COPY apps/web ./
+
 # Build the web app
-RUN npm run build --workspace=web --verbose
+RUN npx vite build --verbose
 
 # Stage 2: Production
 FROM nginx:alpine
