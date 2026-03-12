@@ -2,19 +2,19 @@
 FROM node:20 AS builder
 WORKDIR /app
 
-# Install system dependencies (optional but safe)
-RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+# Set memory limit for Node
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Copy root configs
 COPY package.json package-lock.json turbo.json ./
 
-# Copy all apps (needed for workspace resolution)
+# Copy all apps
 COPY apps ./apps
 
-# Install dependencies
-RUN npm install --legacy-peer-deps
+# Install dependencies with a clean state
+RUN npm ci --legacy-peer-deps || npm install --legacy-peer-deps
 
-# Build web workspace
+# Build the web app
 RUN npm run build --workspace=web --verbose
 
 # Stage 2: Production
