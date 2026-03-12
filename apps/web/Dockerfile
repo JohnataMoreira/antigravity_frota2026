@@ -5,18 +5,17 @@ WORKDIR /app
 # Install system dependencies
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-# Copy workspace configs
+# Copy root configs
 COPY package.json package-lock.json turbo.json ./
-COPY apps/web/package.json apps/web/package.json
 
-# Install dependencies (selective)
+# Copy all apps (needed for workspace resolution)
+COPY apps ./apps
+
+# Install dependencies
 RUN npm install --legacy-peer-deps
 
-# Copy source
-COPY apps/web apps/web
-
-# Build
-RUN npm run build --workspace=web
+# Build web workspace
+RUN npm run build --workspace=web --verbose
 
 # Stage 2: Production
 FROM nginx:alpine
