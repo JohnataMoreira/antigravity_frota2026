@@ -16,18 +16,41 @@ export default function LoginScreen() {
     const router = useRouter();
 
     const handleLogin = async () => {
+        console.log('[Login] 👆 Login button pressed');
         if (!email || !password || !document) {
+            console.warn('[Login] ⚠️ Missing fields:', { email: !!email, password: !!password, document: !!document });
             Alert.alert('Atenção', 'Por favor, preencha todos os campos obrigatórios.');
             return;
         }
 
+        console.log('[Login] 🔑 Attempting login for:', email, 'Org CNPJ:', document);
         setIsLoading(true);
         try {
             const data = await api.login(email, password, document);
+            console.log('[Login] ✅ API success, setting session...');
             await login(data.user, data.access_token);
+            console.log('[Login] ➡️ Redirecting to (tabs)...');
             router.replace('/(tabs)');
         } catch (e: any) {
-            Alert.alert('Falha na Autenticação', e.message || 'Verifique suas credenciais e tente novamente.');
+            console.error('[Login] ❌ Login error details:', {
+                message: e.message,
+                status: e.status,
+                data: e.data,
+                stack: e.stack
+            });
+            
+            let errorMsg = 'Ocorreu um erro ao tentar realizar o login.';
+            if (e.message === 'Network Error' || e.message === 'Network request failed') {
+                errorMsg = 'Não foi possível conectar ao servidor. Verifique sua conexão ou se o serviço está disponível.';
+            } else if (e.status === 401 || e.status === 403) {
+                errorMsg = 'E-mail ou senha incorretos.';
+            } else if (e.status === 404) {
+                errorMsg = 'Serviço de autenticação não encontrado. Contate o suporte.';
+            } else if (e.message) {
+                errorMsg = e.message;
+            }
+
+            Alert.alert('Falha na Autenticação', errorMsg);
         } finally {
             setIsLoading(false);
         }
