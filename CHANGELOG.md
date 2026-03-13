@@ -2,6 +2,12 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [2.1.4] - 2026-03-13
+### 🛠️ Corrigido (Mobile & Build)
+- **Estabilização de Build EAS:** Resolvido o erro `id: 'expo-module-gradle-plugin' not found` que bloqueava a compilação nativa.
+- **Alinhamento Expo SDK 52 (LTS):** Downgrade de módulos incompatíveis (ex: `expo-image-manipulator` de `55.0.10` para `~13.0.6`) e fixação de versões `expo` em `~52.0.49`.
+- **Normalização do Autolinking:** Limpeza do `settings.gradle` no Android para seguir o padrão oficial de resolução de plugins do SDK 52.
+
 ## [2.1.3] - 2026-02-14
 ### 🚀 Adicionado
 - **Sistema de Auditoria Profissional:** Captura automática de estados `antes` e `depois` (Diff) em mutações.

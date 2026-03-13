@@ -95,3 +95,14 @@ Este documento registra desafios técnicos, falhas de infraestrutura e aprendiza
   @field('plate') plate!: string
   ```
 - **Impacto**: Afeta todos os models WatermelonDB do projeto.
+
+---
+
+### 7. Gradle Plugin Resolution & Expo SDK 52 Version Alignment
+- **Desafio**: Erro `EAS_BUILD_UNKNOWN_GRADLE_ERROR` com falha ao encontrar `id: 'expo-module-gradle-plugin'`.
+- **Causa**: Versão incompatível de `expo-image-manipulator` (SDK 55) puxando lógicas de build que não existem no Expo SDK 52. Em monorepos, o `npx expo install --fix` pode falhar se não houver um workspace root bem definido ou se houver conflitos de dependências.
+- **Solução**:
+  1. **Downgrade Forçado**: Alinhado `expo-image-manipulator` para `~13.0.6` (compatível com SDK 52).
+  2. **Fixação de Expo Core**: `expo` travado em `~52.0.49`.
+  3. **Normalização do `settings.gradle`**: Removido repositórios Maven customizados redundantes e garantido que a resolução de plugins use o `autolinkingPath` derivado do `require.resolve`.
+- **Aprendizado**: Mesmo em SDK 52 (LTS), incompabilidades de módulos individuais podem quebrar o Gradle de formas obscuras. Sempre valide o `node_modules/expo/bundledNativeModules.json` para cross-check de versões.
