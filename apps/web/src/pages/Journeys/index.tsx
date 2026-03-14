@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { SEO } from '@/components/SEO';
 import { api } from '../../lib/axios';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -40,8 +41,12 @@ export function JourneysList() {
     );
 
     return (
-        <div className="space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-6 animate-fade-in">
+            <SEO 
+                title="Jornadas" 
+                description="Acompanhamento em tempo real das viagens, rotas e paradas dos veículos da frota." 
+            />
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-start gap-4">
                     <div className="p-3 bg-primary/10 text-primary rounded-2xl">
                         <Map size={32} />

@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/config/
+
+Sitemap: https://frota2026.com.br/sitemap.xml

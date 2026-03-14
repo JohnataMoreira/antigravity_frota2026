@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { SEO } from '@/components/SEO';
 import { api } from '../../lib/axios';
 import { GlassCard } from '../../components/ui/Cards';
 import {
@@ -79,7 +80,11 @@ export function InventoryList() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 animate-fade-in">
+            <SEO 
+                title="Estoque" 
+                description="Controle de peças, lubrificantes e suprimentos da oficina e frota." 
+            />
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>

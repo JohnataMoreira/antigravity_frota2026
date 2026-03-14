@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SEO } from '@/components/SEO';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/axios';
 import { GlassCard } from '../../components/ui/Cards';
@@ -103,7 +104,11 @@ export default function Reports() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 animate-fade-in">
+            <SEO 
+                title="Relatórios & BI" 
+                description="Análise profunda de dados: consumo, custos, eficiência e telemetria da frota." 
+            />
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="flex items-start gap-4">
                     <div className="p-3 bg-primary/10 text-primary rounded-2xl">

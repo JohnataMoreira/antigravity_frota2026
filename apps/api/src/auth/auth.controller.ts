@@ -1,11 +1,11 @@
 import { Body, Controller, Post, Get, Request, Response, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
-import { LoginDto, RegisterOrgDto } from './dto';
+import { LoginDto, RegisterOrgDto, RegisterInviteDto } from './dto';
 import { Public } from './public.decorator';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { GoogleAuthGuard } from './google-auth.guard';
-import { UserRequest } from './user-request.interface';
+import type { UserRequest } from './user-request.interface';
 import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
@@ -29,6 +29,13 @@ export class AuthController {
     @HttpCode(HttpStatus.CREATED)
     registerOrg(@Body() dto: RegisterOrgDto) {
         return this.authService.registerOrg(dto);
+    }
+
+    @Public()
+    @Post('register-invite')
+    @HttpCode(HttpStatus.CREATED)
+    registerInvite(@Body() dto: RegisterInviteDto) {
+        return this.authService.registerInvite(dto);
     }
 
     @Get('me')

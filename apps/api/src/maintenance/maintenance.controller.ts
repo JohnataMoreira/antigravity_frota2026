@@ -2,6 +2,9 @@ import { Controller, Get, Post, UseGuards, Request, Param, Body } from '@nestjs/
 import { MaintenanceService } from './maintenance.service';
 import { MaintenanceAlertsService } from './alerts.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
+import { Role } from '@prisma/client';
 import { UserRequest } from '../auth/user-request.interface';
 import { CreateMaintenanceDto } from './dto/create-maintenance.dto';
 import { CompleteMaintenanceDto } from './dto/complete-maintenance.dto';
@@ -11,7 +14,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagg
 @ApiTags('Manutenção')
 @ApiBearerAuth()
 @Controller('maintenance')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class MaintenanceController {
     constructor(
         private readonly maintenanceService: MaintenanceService,
@@ -38,6 +41,7 @@ export class MaintenanceController {
     }
 
     @Post(':id/complete')
+    @Roles(Role.ADMIN, Role.MANAGER)
     @ApiOperation({ summary: 'Marcar manutenção como concluída' })
     @ApiResponse({ status: 200, description: 'Manutenção concluída com sucesso.' })
     complete(@Request() _req: UserRequest, @Param('id') id: string, @Body() dto: CompleteMaintenanceDto) {
@@ -45,6 +49,7 @@ export class MaintenanceController {
     }
 
     @Post('templates')
+    @Roles(Role.ADMIN, Role.MANAGER)
     @ApiOperation({ summary: 'Criar novo template de manutenção (Catálogo)' })
     @ApiResponse({ status: 201, description: 'Template criado com sucesso.' })
     createTemplate(@Request() req: UserRequest, @Body() dto: CreateMaintenanceTemplateDto) {

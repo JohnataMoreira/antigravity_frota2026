@@ -35,9 +35,6 @@ services:
       - minio_data:/data
     networks:
       - frota-network
-      - dokploy-network # Needs to be accessible externally for uploads if direct
-    labels:
-      - "traefik.enable=false"
 
   # -----------------------------------------------------------------------------
   # BACKEND API (NestJS)
@@ -55,32 +52,14 @@ services:
       STORAGE_ENDPOINT: "http://minio:9000" # Internal Docker Network
       STORAGE_BUCKET: "frota-uploads"
       STORAGE_REGION: "us-east-1"
-      AWS_ACCESS_KEY_ID: "minioadmin"
-      AWS_SECRET_ACCESS_KEY: "minioadmin"
+      AWS_ACCESS_KEY_ID: "${MINIO_ROOT_USER}"
+      AWS_SECRET_ACCESS_KEY: "${MINIO_ROOT_PASSWORD}"
       AWS_S3_FORCE_PATH_STYLE: "true"
     networks:
       - frota-network
-      - dokploy-network
     depends_on:
       postgres:
         condition: service_healthy
-    labels:
-      - "traefik.enable=true"
-      # API Routing (PathPrefix /api)
-      - "traefik.http.routers.frota-api.rule=Host(`frota.johnatamoreira.com.br`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.frota-api.entrypoints=websecure"
-      - "traefik.http.routers.frota-api.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.frota-api.service=frota-api"
-      - "traefik.http.services.frota-api.loadbalancer.server.port=3000"
-      - "traefik.docker.network=dokploy-network"
-
-      # Socket.io Routing (PathPrefix /socket.io)
-      - "traefik.http.routers.frota-socket.rule=Host(`frota.johnatamoreira.com.br`) && PathPrefix(`/socket.io`)"
-      - "traefik.http.routers.frota-socket.entrypoints=websecure"
-      - "traefik.http.routers.frota-socket.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.frota-socket.service=frota-socket"
-      - "traefik.http.services.frota-socket.loadbalancer.server.port=3000"
-      - "traefik.http.services.frota-socket.loadbalancer.sticky.cookie=true" # Session affinity for websockets
     deploy:
       resources:
         limits:
@@ -109,7 +88,6 @@ services:
       NEXT_PUBLIC_API_URL: "https://frota.johnatamoreira.com.br/api"
     networks:
       - frota-network
-      - dokploy-network
     depends_on:
       api:
         condition: service_healthy
@@ -123,14 +101,6 @@ services:
       interval: 60s
       timeout: 10s
       retries: 3
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.frota-web.rule=Host(`frota.johnatamoreira.com.br`)"
-      - "traefik.http.routers.frota-web.entrypoints=websecure"
-      - "traefik.http.routers.frota-web.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.frota-web.service=frota-web"
-      - "traefik.http.services.frota-web.loadbalancer.server.port=80"
-      - "traefik.docker.network=dokploy-network"
 
 # -----------------------------------------------------------------------------
 # NETWORKS & VOLUMES
@@ -138,8 +108,6 @@ services:
 networks:
   frota-network:
     driver: bridge
-  dokploy-network:
-    external: true # Managed by Dokploy/Traefik
 
 volumes:
   postgres_data:

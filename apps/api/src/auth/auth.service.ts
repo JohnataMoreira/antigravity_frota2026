@@ -2,10 +2,12 @@ import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/co
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { LoginDto, RegisterOrgDto } from './dto';
+import { LoginDto, RegisterOrgDto, RegisterInviteDto } from './dto';
 import { AuditService } from '../common/audit/audit.service';
 import { AuditAction, AuditEntity } from '../common/audit/audit.types';
 import { TenantContext } from '../prisma/tenant.context';
+
+import { InviteService } from '../invites/invite.service';
 
 @Injectable()
 export class AuthService {
@@ -13,6 +15,7 @@ export class AuthService {
         private prisma: PrismaService,
         private jwt: JwtService,
         private audit: AuditService,
+        private inviteService: InviteService,
     ) { }
 
     async registerOrg(dto: RegisterOrgDto) {
@@ -224,6 +227,46 @@ export class AuthService {
             return result;
         });
     }
+    async registerInvite(dto: RegisterInviteDto) {
+        return TenantContext.runBypass(async () => {
+            const invite = await this.inviteService.findByToken(dto.token);
+
+            // Double check if user exists
+            const existingUser = await this.prisma.user.findUnique({
+                where: { email: invite.email },
+            });
+            if (existingUser) {
+                throw new ConflictException('O usuário já está cadastrado com este e-mail.');
+            }
+
+            const salt = await bcrypt.genSalt();
+            const passwordHash = await bcrypt.hash(dto.password, salt);
+
+            const user = await this.prisma.user.create({
+                data: {
+                    organizationId: invite.organizationId,
+                    email: invite.email,
+                    name: dto.name,
+                    passwordHash,
+                    role: invite.role,
+                },
+            });
+
+            await this.inviteService.markUsed(dto.token);
+
+            await this.audit.log({
+                organizationId: invite.organizationId,
+                userId: user.id,
+                action: AuditAction.CREATE,
+                entity: AuditEntity.USER,
+                entityId: user.id,
+                metadata: { email: user.email, via: 'invite' }
+            });
+
+            return this.signToken(user.id, user.organizationId, user.email, user.role, user.name, user.tokenVersion);
+        });
+    }
+
     async logoutAll(userId: string, organizationId: string) {
         await this.prisma.user.update({
             where: { id: userId },

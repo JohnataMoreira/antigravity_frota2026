@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, SafeAreaView, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Alert, SafeAreaView, KeyboardAvoidingView, Platform, ScrollView, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from './_layout';
 import { api } from '../src/services/api';
@@ -69,10 +69,11 @@ export default function LoginScreen() {
                     <View className="flex-1 justify-center max-w-[400px] self-center w-full">
                         {/* App Branding */}
                         <View className="items-center mb-12">
-                            <View className="w-24 h-24 bg-[#E9ECEF] rounded-2xl items-center justify-center border-2 border-dashed border-slate-300 mb-6">
-                                <Text className="text-slate-400 font-medium text-xs text-center px-2">
-                                    Logo da Empresa
-                                </Text>
+                            <View className="w-48 h-24 bg-white/80 rounded-2xl items-center justify-center border border-slate-200 mb-6 px-4">
+                                <Image 
+                                    source={require('../assets/logo.png')} 
+                                    style={{ width: '100%', height: '100%', resizeMode: 'contain' }}
+                                />
                             </View>
                             <Text className="text-[#1A1C1E] text-3xl font-bold tracking-tight text-center">
                                 Frota2026 Driver
@@ -89,6 +90,7 @@ export default function LoginScreen() {
                                 <TextInput
                                     className="w-full rounded-xl text-[#1A1C1E] bg-[#F8F9FA] h-14 px-4 text-base border border-transparent shadow-sm"
                                     placeholder="00.000.000/0000-00"
+                                    aria-label="CNPJ da Organização"
                                     placeholderTextColor="#ADB5BD"
                                     value={document}
                                     onChangeText={setDocument}
@@ -104,6 +106,7 @@ export default function LoginScreen() {
                                 <TextInput
                                     className="w-full rounded-xl text-[#1A1C1E] bg-[#F8F9FA] h-14 px-4 text-base border border-transparent shadow-sm"
                                     placeholder="seu@email.com"
+                                    aria-label="E-mail"
                                     placeholderTextColor="#ADB5BD"
                                     value={email}
                                     onChangeText={setEmail}
@@ -121,6 +124,7 @@ export default function LoginScreen() {
                                     <TextInput
                                         className="flex-1 rounded-xl text-[#1A1C1E] bg-[#F8F9FA] h-14 px-4 pr-12 text-base border border-transparent shadow-sm"
                                         placeholder="••••••••"
+                                        aria-label="Senha"
                                         placeholderTextColor="#ADB5BD"
                                         value={password}
                                         onChangeText={setPassword}
@@ -129,11 +133,13 @@ export default function LoginScreen() {
                                     <TouchableOpacity
                                         className="absolute right-4"
                                         onPress={() => setShowPassword(!showPassword)}
+                                        accessibilityLabel={showPassword ? "Esconder senha" : "Mostrar senha"}
+                                        accessibilityRole="button"
                                     >
                                         {showPassword ? (
-                                            <EyeOff size={22} color="#ADB5BD" />
+                                            <EyeOff size={22} color="#ADB5BD" aria-hidden={true} />
                                         ) : (
-                                            <Eye size={22} color="#ADB5BD" />
+                                            <Eye size={22} color="#ADB5BD" aria-hidden={true} />
                                         )}
                                     </TouchableOpacity>
                                 </View>

@@ -1,11 +1,13 @@
-import { View, Text, TouchableOpacity, SafeAreaView, ScrollView, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, SafeAreaView, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { useAuth } from '../_layout';
-import { User, LogOut, ChevronRight, Bell, Shield, LifeBuoy, History, Wallet, Database, RefreshCw, FileText, AlertCircle } from 'lucide-react-native';
+import { User, LogOut, ChevronRight, Bell, Shield, LifeBuoy, History, Wallet, Database, RefreshCw, FileText, AlertCircle, Settings } from 'lucide-react-native';
 import { database } from '../../src/model/database';
 import { useRouter } from 'expo-router';
 import AppDocument from '../../src/model/AppDocument';
 import withObservables from '@nozbe/with-observables';
 import { Q } from '@nozbe/watermelondb';
+import { of } from 'rxjs';
+import { outboxService } from '../../src/services/OutboxService';
 
 function ProfileScreen({ documents = [] }: { documents: AppDocument[] }) {
     const { user, logout } = useAuth();
@@ -53,14 +55,17 @@ function ProfileScreen({ documents = [] }: { documents: AppDocument[] }) {
         <TouchableOpacity 
             onPress={onPress}
             className="flex-row items-center bg-white px-6 h-20 border-b border-slate-50 last:border-b-0"
+            accessibilityLabel={label}
+            accessibilityRole="button"
+            accessibilityHint={destructive ? "Sair da conta ou realizar ação destrutiva" : `Abrir ${label}`}
         >
-            <View className={`w-12 h-12 rounded-2xl items-center justify-center ${destructive ? 'bg-[#EF4444]/10' : 'bg-[#F1F3F5]'}`}>
+            <View className={`w-12 h-12 rounded-2xl items-center justify-center ${destructive ? 'bg-[#EF4444]/10' : 'bg-[#F1F3F5]'}`} aria-hidden={true}>
                 <Icon size={22} color={destructive ? '#EF4444' : '#2563EB'} />
             </View>
             <Text className={`flex-1 ml-4 font-bold text-base ${destructive ? 'text-[#EF4444]' : 'text-[#1A1C1E]'}`}>
                 {label}
             </Text>
-            {!destructive && <ChevronRight size={18} color="#ADB5BD" />}
+            {!destructive && <ChevronRight size={18} color="#ADB5BD" aria-hidden={true} />}
         </TouchableOpacity>
     );
 
@@ -115,7 +120,12 @@ function ProfileScreen({ documents = [] }: { documents: AppDocument[] }) {
                                     ? `Você possui ${expiredDocs.length} documento(s) vencido(s). Regularize imediatamente.` 
                                     : `Você possui ${expiringDocs.length} documento(s) que vencem nos próximos 30 dias.`}
                             </Text>
-                            <TouchableOpacity className="mt-4" onPress={() => router.push('/documents')}>
+                            <TouchableOpacity 
+                                className="mt-4" 
+                                onPress={() => router.push('/documents')}
+                                accessibilityLabel="Ver todos os documentos"
+                                accessibilityRole="button"
+                            >
                                 <Text className={`font-bold text-xs underline ${expiredDocs.length > 0 ? 'text-red-600' : 'text-amber-600'}`}>Ver Documentos</Text>
                             </TouchableOpacity>
                         </View>
@@ -138,11 +148,9 @@ function ProfileScreen({ documents = [] }: { documents: AppDocument[] }) {
                     <View className="bg-white rounded-[32px] overflow-hidden shadow-sm border border-slate-100">
                         <MenuButton 
                             icon={RefreshCw} 
-                            label="Forçar Sincronização Total" 
-                            onPress={async () => {
-                                const { syncService } = await import('../../src/services/SyncService');
-                                syncService.setForceReset(true);
-                                syncService.sync();
+                            label="Sincronizar Dados" 
+                            onPress={() => {
+                                outboxService.processQueue();
                                 Alert.alert('Sincronização', 'Sincronização total agendada. Volte para a lista de veículos.');
                             }} 
                         />
@@ -155,6 +163,8 @@ function ProfileScreen({ documents = [] }: { documents: AppDocument[] }) {
                     <TouchableOpacity 
                         onPress={handleLogout}
                         className="w-full h-16 bg-white rounded-2xl flex-row items-center justify-center border border-red-50"
+                        accessibilityLabel="Sair da Conta"
+                        accessibilityRole="button"
                     >
                         <LogOut size={20} color="#EF4444" />
                         <Text className="text-[#EF4444] font-bold text-base ml-3">Sair da Conta</Text>
@@ -168,8 +178,25 @@ function ProfileScreen({ documents = [] }: { documents: AppDocument[] }) {
     );
 }
 
-const EnhancedProfile = withObservables([], () => ({
-    documents: database.get<AppDocument>('documents').query().observe()
-}))(ProfileScreen);
+const EnhancedProfile = withObservables([], () => {
+    try {
+        return {
+            documents: database.get<AppDocument>('documents').query().observe()
+        };
+    } catch (e) {
+        console.warn('[Profile] WatermelonDB not ready or unsupported:', e);
+        return { documents: of([]) };
+    }
+})(ProfileScreen);
 
-export default EnhancedProfile;
+export default function ProfileWrapper() {
+    const { user } = useAuth();
+    if (!user?.id) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F1F3F5' }}>
+                <ActivityIndicator size="large" color="#2563EB" />
+            </View>
+        );
+    }
+    return <EnhancedProfile />;
+}

@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { SEO } from '@/components/SEO';
 import { api } from '../../lib/axios';
 import { useState } from 'react';
 import { GlassCard, StatCard } from '../../components/ui/Cards';
@@ -97,7 +98,11 @@ export function UsersList() {
     };
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 animate-fade-in">
+            <SEO 
+                title="Colaboradores" 
+                description="Gestão de motoristas, gestores e permissões da organização." 
+            />
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="flex items-start gap-4">
                     <div className="p-3 bg-primary/10 text-primary rounded-2xl">
@@ -233,7 +238,7 @@ export function UsersList() {
                 {users.map((user: any) => (
                     <GlassCard key={user.id} className={`group transition-all hover:scale-[1.02] border-t-4 ${user.active ? 'border-primary' : 'border-muted-foreground opacity-60'}`}>
                         <div className="flex justify-between items-start mb-4">
-                            <div className={`p-3 rounded-2xl ${user.role === 'ADMIN' ? 'bg-purple-500/10 text-purple-500 ' : 'bg-primary/10 text-primary '}`}>
+                            <div className={`p-3 rounded-2xl ${user.role === 'ADMIN' ? 'bg-emerald-500/10 text-emerald-500 ' : 'bg-primary/10 text-primary '}`}>
                                 {user.role === 'ADMIN' ? <Shield size={24} /> : <Truck size={24} />}
                             </div>
                             <div className="flex gap-2">
@@ -302,3 +307,4 @@ export function UsersList() {
         </div>
     );
 }
+

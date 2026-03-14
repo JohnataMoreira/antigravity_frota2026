@@ -2,6 +2,18 @@
 
 Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 
+## [2.2.0] - 2026-03-14
+### 🚀 Adicionado (Internacionalização & SEO)
+- **Sistema Multilíngue (i18n):** Implementado `react-i18next` em todo o ecossistema Web.
+- **Locales Centralizados:** Suporte completo para `pt-BR` e `en` com arquivos de tradução dinâmicos.
+- **Refatoração Global:** Login, Dashboard, Veículos, Abastecimento, Manutenção e Motoristas 100% internacionalizados.
+- **Otimização SEO (GEO):** Integração de `React Helmet` para metadados dinâmicos, Open Graph e Schema.org (Generative Engine Optimization).
+- **Audit Mobile:** Mapeamento de inconsistências de ativos e estabilização de logs no diretório mobile.
+
+### 🛠️ Corrigido
+- **JSX Syntax Integrity:** Corrigidos erros de fechamento de tags e fragmentos introduzidos durante a refatoração de i18n.
+- **Drivers Module:** Restaurada renderização do estado vazio no componente `Drivers.tsx`.
+
 ## [2.1.4] - 2026-03-13
 ### 🛠️ Corrigido (Mobile & Build)
 - **Estabilização de Build EAS:** Resolvido o erro `id: 'expo-module-gradle-plugin' not found` que bloqueava a compilação nativa.

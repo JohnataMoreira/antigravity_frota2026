@@ -76,6 +76,30 @@ Este documento registra desafios técnicos, falhas de infraestrutura e aprendiza
 
 ---
 
+## 🌍 Phase 5: Internacionalização (i18n) e SEO (Março/2026)
+
+### 1. Sistema de i18n Escalável
+- **Desafio**: Transição de strings hardcoded para um sistema multilíngue dinâmico.
+- **Solução**: Implementação do `react-i18next` com locales centralizados em `public/locales`.
+- **Lição**: Refatorar componentes para i18n exige atenção redobrada à estrutura JSX; a falta de um elemento pai em blocos condicionais `{t(...) && ...}` pode quebrar o build.
+
+### 2. Erros de Sintaxe em Refatorações em Massa
+- **Desafio**: Introdução de erros de fechamento de tags em `Vehicles` e `Drivers`.
+- **Solução**: Build local mandatório e correção manual de estruturas JSX rompidas.
+- **Lição**: Scripts de substituição em massa (ou edições manuais rápidas) precisam de validação por compilador (`tsc`).
+
+### 3. SEO para IAs (Generative Engine Optimization)
+- **Desafio**: Falta de indexação para motores de busca generativos.
+- **Solução**: `React Helmet` para meta tags dinâmicas e Schema.org no `App.tsx`.
+- **Lição**: Metadados são a forma como a IA consome e promove o software.
+
+### 4. Integridade Mobile
+- **Desafio**: Diagnostic logs e placeholders afetando o contexto do projeto.
+- **Solução**: Plano de estabilização focado em limpeza de logs e correção de ativos de 68 bytes.
+- **Lição**: A saúde do repositório mobile impacta diretamente a velocidade de diagnóstico.
+
+---
+
 ## 📱 Mobile Runtime Fixes (Phase 29)
 
 ### 1. NativeWind v4 (react-native-css-interop) incompatível com Reanimated v3
@@ -106,3 +130,13 @@ Este documento registra desafios técnicos, falhas de infraestrutura e aprendiza
   2. **Fixação de Expo Core**: `expo` travado em `~52.0.49`.
   3. **Normalização do `settings.gradle`**: Removido repositórios Maven customizados redundantes e garantido que a resolução de plugins use o `autolinkingPath` derivado do `require.resolve`.
 - **Aprendizado**: Mesmo em SDK 52 (LTS), incompabilidades de módulos individuais podem quebrar o Gradle de formas obscuras. Sempre valide o `node_modules/expo/bundledNativeModules.json` para cross-check de versões.
+
+---
+
+## 🌊 Efeito Cascata (Build & Stabilization)
+
+### 1. Corrupção de Exportações e Bundler Web
+- **Desafio**: Erro 500 Interno no Bundler da Expo (Web) impedindo qualquer visualização.
+- **Causa**: Erros de sintaxe ou a falta de `export default` em componentes críticos (ex: `checklist.tsx`) causam falha catastrófica no empacotamento. No Expo Router, cada arquivo na pasta `/app` **precisa** de um export default válido.
+- **Solução**: Garantir que todos os arquivos de rota tenham `export default FunctionName` explícito e sem códigos duplicados.
+- **Aprendizado**: Um erro de exportação em uma tela pode derrubar o bundler inteiro no modo web. Manter a integridade das rotas é prioridade P0 para estabilidade de dev.

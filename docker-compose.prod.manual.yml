@@ -4,7 +4,7 @@ services:
     container_name: frota2026-postgres
     restart: unless-stopped
     environment:
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=frota2026
     networks:
       - dokploy-network
@@ -19,7 +19,7 @@ services:
     container_name: frota2026-pgbouncer
     restart: unless-stopped
     environment:
-      - DATABASE_URL=postgres://postgres:password@frota2026-postgres:5432/frota2026
+      - DATABASE_URL=postgres://postgres:${DB_PASSWORD}@frota2026-postgres:5432/frota2026
       - MAX_CLIENT_CONN=1000
       - DEFAULT_POOL_SIZE=50
       - POOL_MODE=transaction
@@ -34,8 +34,8 @@ services:
     container_name: frota2026-api-prod
     restart: unless-stopped
     environment:
-      - DATABASE_URL=postgres://postgres:password@frota2026-pgbouncer:6432/frota2026?schema=public
-      - JWT_SECRET=frota2026-secret-key-change-me
+      - DATABASE_URL=postgres://postgres:${DB_PASSWORD}@frota2026-pgbouncer:6432/frota2026?schema=public
+      - JWT_SECRET=${JWT_SECRET}
       - PORT=3000
       - NODE_ENV=production
     networks:

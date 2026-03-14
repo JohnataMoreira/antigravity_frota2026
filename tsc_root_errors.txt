@@ -1,0 +1,45 @@
+apps/api/src/common/alerts/alerts.controller.ts(16,35): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/common/alerts/alerts.controller.ts(30,60): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/common/audit/audit.controller.ts(26,25): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/fuel/fuel.controller.ts(18,34): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/fuel/fuel.controller.ts(29,25): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/fuel/fuel.controller.ts(46,25): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/incidents/incidents.controller.ts(21,28): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/journeys/journeys.controller.ts(18,27): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/journeys/journeys.controller.ts(25,25): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/journeys/journeys.controller.ts(31,32): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/maintenance/maintenance.controller.ts(29,37): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/maintenance/maintenance.controller.ts(36,28): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/maintenance/maintenance.controller.ts(43,31): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/maintenance/maintenance.controller.ts(50,36): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/reports/reports.controller.ts(20,39): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/reports/reports.controller.ts(29,25): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/reports/reports.controller.ts(43,25): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/reports/reports.controller.ts(57,25): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/reports/reports.controller.ts(73,25): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/reports/reports.controller.ts(88,25): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/sync/sync.controller.ts(12,26): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/sync/sync.controller.ts(22,26): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/tyres/tyres.controller.ts(15,28): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/tyres/tyres.controller.ts(20,29): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/tyres/tyres.controller.ts(25,29): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/tyres/tyres.controller.ts(30,29): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/tyres/tyres.controller.ts(35,29): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/api/src/tyres/tyres.controller.ts(40,28): error TS1272: A type referenced in a decorated signature must be imported with 'import type' or a namespace import when 'isolatedModules' and 'emitDecoratorMetadata' are enabled.
+apps/web/src/components/ui/Alert.tsx(2,20): error TS2307: Cannot find module '@/lib/utils' or its corresponding type declarations.
+apps/web/src/components/ui/Badge.tsx(2,20): error TS2307: Cannot find module '@/lib/utils' or its corresponding type declarations.
+apps/web/src/components/ui/Button.tsx(2,20): error TS2307: Cannot find module '@/lib/utils' or its corresponding type declarations.
+apps/web/src/components/ui/Card.tsx(2,20): error TS2307: Cannot find module '@/lib/utils' or its corresponding type declarations.
+apps/web/src/components/ui/StatCard.tsx(3,36): error TS2307: Cannot find module '@/lib/utils' or its corresponding type declarations.
+apps/web/src/layouts/MainLayout.tsx(13,20): error TS2307: Cannot find module '@/lib/utils' or its corresponding type declarations.
+apps/web/src/main.tsx(6,28): error TS2307: Cannot find module 'virtual:pwa-register' or its corresponding type declarations.
+apps/web/src/pages/DashboardHome.tsx(2,26): error TS2307: Cannot find module '@/components/ui/StatCard' or its corresponding type declarations.
+apps/web/src/pages/DashboardHome.tsx(3,22): error TS2307: Cannot find module '@/components/ui/Card' or its corresponding type declarations.
+apps/web/src/pages/DashboardHome.tsx(4,23): error TS2307: Cannot find module '@/components/ui/Alert' or its corresponding type declarations.
+apps/web/src/pages/DashboardHome.tsx(15,54): error TS2307: Cannot find module '@/lib/utils' or its corresponding type declarations.
+apps/web/src/pages/DashboardHome.tsx(16,32): error TS2307: Cannot find module '@/services/reportsService' or its corresponding type declarations.
+apps/web/src/pages/DashboardHome.tsx(19,25): error TS2307: Cannot find module '@/components/LiveMap' or its corresponding type declarations.
+apps/web/src/pages/Settings/index.tsx(8,25): error TS2307: Cannot find module '@/context/AuthContext' or its corresponding type declarations.
+apps/web/src/pages/Vehicles/VehicleDetail.tsx(16,21): error TS2307: Cannot find module '@/lib/axios' or its corresponding type declarations.
+apps/web/src/pages/Vehicles/VehicleDetail.tsx(17,22): error TS2307: Cannot find module '@/components/ui/Card' or its corresponding type declarations.
+apps/web/src/pages/Vehicles/VehicleDetail.tsx(18,26): error TS2307: Cannot find module '@/components/ui/StatCard' or its corresponding type declarations.

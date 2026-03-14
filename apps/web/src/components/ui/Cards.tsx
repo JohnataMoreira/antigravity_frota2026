@@ -12,7 +12,7 @@ interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
  * GlassCard Component - Premium Edition
  * 
  * Enhanced glassmorphism card with optional gradient background.
- * Optimized for vibrant purple theme.
+ * Optimized for vibrant emerald theme.
  */
 export function GlassCard({ children, className = '', gradient = false, transition = false, ...props }: GlassCardProps) {
     return (

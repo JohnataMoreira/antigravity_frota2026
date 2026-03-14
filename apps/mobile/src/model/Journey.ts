@@ -3,9 +3,16 @@ import { field, date, readonly, relation, children } from '@nozbe/watermelondb/d
 import Vehicle from './Vehicle'
 import Task from './Task'
 import Expense from './Expense'
+import Checklist from './Checklist'
 
 export default class Journey extends Model {
     static table = 'journeys'
+    static associations = {
+        vehicles: { type: 'belongs_to', key: 'vehicle_id' },
+        tasks: { type: 'has_many', foreignKey: 'journey_id' },
+        expenses: { type: 'has_many', foreignKey: 'journey_id' },
+        checklists: { type: 'has_many', foreignKey: 'journey_id' },
+    } as const
 
     @relation('vehicles', 'vehicle_id') vehicle!: Relation<Vehicle>
     @field('vehicle_id') vehicleId!: string
@@ -25,4 +32,5 @@ export default class Journey extends Model {
 
     @children('tasks') tasks!: Query<Task>
     @children('expenses') expenses!: Query<Expense>
+    @children('checklists') checklists!: Query<Checklist>
 }

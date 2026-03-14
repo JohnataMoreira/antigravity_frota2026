@@ -3,6 +3,9 @@ import { field, date, readonly } from '@nozbe/watermelondb/decorators'
 
 export default class Vehicle extends Model {
     static table = 'vehicles'
+    static associations = {
+        journeys: { type: 'has_many', foreignKey: 'vehicle_id' },
+    } as const
 
     @field('plate') plate!: string
     @field('model') model!: string

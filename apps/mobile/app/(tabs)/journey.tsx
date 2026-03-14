@@ -14,8 +14,9 @@ import Journey from '../../src/model/Journey';
 import Vehicle from '../../src/model/Vehicle';
 import Task from '../../src/model/Task';
 import SyncQueue from '../../src/model/SyncQueue';
-import { outboxService } from '../../src/services/outboxService';
+import { outboxService } from '../../src/services/OutboxService';
 import { switchMap, of, map, combineLatest } from 'rxjs';
+import Animated, { FadeInDown, FadeInUp, Layout, FadeIn } from 'react-native-reanimated';
 
 const PAYMENT_METHODS = [
     { id: 'CASH', label: 'Dinheiro', icon: '💵' },
@@ -28,6 +29,7 @@ const PAYMENT_METHODS = [
 ];
 
 function JourneyScreen({ activeJourney, vehicle, pendingSyncCount, tasks = [] }: { activeJourney: Journey | null; vehicle: Vehicle | null; pendingSyncCount: number; tasks: Task[] }) {
+
     const [showEndModal, setShowEndModal] = useState(false);
     const [showFuelModal, setShowFuelModal] = useState(false);
     const [endKm, setEndKm] = useState('');
@@ -259,21 +261,49 @@ function JourneyScreen({ activeJourney, vehicle, pendingSyncCount, tasks = [] }:
         router.push({
             pathname: '/checklist',
             params: { type: 'checkin', journeyId: activeJourney.id, endKm: km }
-        });
+        } as any);
     };
 
     if (showCamera) {
-        return (
-            <View className="flex-1 bg-black">
-                <VisionCamera ref={camera as any} style={{ flex: 1 }} device={device!} isActive={true} photo={true} />
-                <TouchableOpacity className="absolute bottom-12 self-center w-20 h-20 rounded-full bg-white items-center justify-center" onPress={takePhoto}>
-                    <View className="w-16 h-16 rounded-full border-4 border-primary" />
-                </TouchableOpacity>
-                <TouchableOpacity className="absolute bottom-12 left-8 p-4 bg-black/60 rounded-xl" onPress={() => setShowCamera(false)}>
-                    <Text className="text-white font-bold">Cancelar</Text>
-                </TouchableOpacity>
-            </View>
-        );
+        if (Platform.OS === 'web') {
+            return (
+                <View className="flex-1 bg-black items-center justify-center">
+                    <Text className="text-white">Câmera não suportada na Web</Text>
+                    <TouchableOpacity className="mt-4 p-4 bg-white/10 rounded-xl" onPress={() => setShowCamera(false)}>
+                        <Text className="text-white font-bold">Voltar</Text>
+                    </TouchableOpacity>
+                </View>
+            );
+        }
+
+        try {
+            return (
+                <View className="flex-1 bg-black">
+                    {VisionCamera ? (
+                        <VisionCamera ref={camera as any} style={{ flex: 1 }} device={device!} isActive={true} photo={true} />
+                    ) : (
+                        <View className="flex-1 items-center justify-center">
+                            <Text className="text-white">Native module 'VisionCamera' not found</Text>
+                        </View>
+                    )}
+                    <TouchableOpacity className="absolute bottom-12 self-center w-20 h-20 rounded-full bg-white items-center justify-center" onPress={takePhoto}>
+                        <View className="w-16 h-16 rounded-full border-4 border-primary" />
+                    </TouchableOpacity>
+                    <TouchableOpacity className="absolute bottom-12 left-8 p-4 bg-black/60 rounded-xl" onPress={() => setShowCamera(false)}>
+                        <Text className="text-white font-bold">Cancelar</Text>
+                    </TouchableOpacity>
+                </View>
+            );
+        } catch (e) {
+            return (
+                <View className="flex-1 bg-black items-center justify-center">
+                    <Text className="text-white">Erro ao carregar câmera</Text>
+                    <TouchableOpacity className="mt-4 p-4 bg-white/10 rounded-xl" onPress={() => setShowCamera(false)}>
+                        <Text className="text-white font-bold">Voltar</Text>
+                    </TouchableOpacity>
+                </View>
+            );
+        }
     }
 
     if (!activeJourney || !vehicle) {
@@ -315,7 +345,10 @@ function JourneyScreen({ activeJourney, vehicle, pendingSyncCount, tasks = [] }:
                 </View>
             </View>
             <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingBottom: 100 }}>
-                <View className="px-6 pt-8 mb-6">
+                <Animated.View 
+                    entering={FadeInDown.delay(100).springify()}
+                    className="px-6 pt-8 mb-6"
+                >
                     <View className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-100 items-center">
                         <Text className="text-slate-400 font-bold text-xs uppercase tracking-[4px] mb-2">Placa</Text>
                         <Text className="text-5xl font-black text-[#1A1C1E] tracking-tighter uppercase">{vehicle?.plate}</Text>
@@ -323,9 +356,12 @@ function JourneyScreen({ activeJourney, vehicle, pendingSyncCount, tasks = [] }:
                             <Text className="text-slate-600 font-bold text-xs uppercase tracking-wider">{vehicle?.brand} {vehicle?.model}</Text>
                         </View>
                     </View>
-                </View>
+                </Animated.View>
 
-                <View className="px-6 mb-8">
+                <Animated.View 
+                    entering={FadeInDown.delay(200).springify()}
+                    className="px-6 mb-8"
+                >
                     <View className="bg-[#1A1C1E] rounded-[32px] p-8 items-center shadow-xl shadow-black/10">
                         <Text className="text-slate-400 text-xs font-bold uppercase tracking-[3px] mb-3">Tempo de Viagem</Text>
                         <Text className="text-white text-6xl font-bold tracking-tighter">{elapsedTime}</Text>
@@ -342,37 +378,54 @@ function JourneyScreen({ activeJourney, vehicle, pendingSyncCount, tasks = [] }:
                             </View>
                         </View>
                     </View>
-                </View>
+                </Animated.View>
 
-                <View className="px-6 mb-8">
-                    <View className="relative h-44 w-full rounded-3xl overflow-hidden shadow-sm border border-slate-200">
-                        <MapView
-                            ref={mapRef as any}
-                            style={{ width: '100%', height: '100%' }}
-                            provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
-                            initialRegion={currentLocation ? {
-                                ...currentLocation,
-                                latitudeDelta: 0.01,
-                                longitudeDelta: 0.01,
-                            } : undefined}
-                            showsUserLocation
-                            showsMyLocationButton={false}
-                        >
-                            {currentLocation && <Marker coordinate={currentLocation} />}
-                        </MapView>
-                        <View className="absolute top-4 right-4">
-                            <TouchableOpacity
-                                className="w-10 h-10 bg-white rounded-xl items-center justify-center shadow-lg"
-                                onPress={centerMap}
+                <Animated.View 
+                    entering={FadeInDown.delay(300).springify()}
+                    className="px-6 mb-8"
+                >
+                    <View className="relative h-44 w-full rounded-3xl overflow-hidden shadow-sm border border-slate-200 bg-slate-100 items-center justify-center">
+                        {Platform.OS !== 'web' && MapView ? (
+                            <MapView
+                                ref={mapRef as any}
+                                style={{ width: '100%', height: '100%' }}
+                                provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
+                                initialRegion={currentLocation ? {
+                                    ...currentLocation,
+                                    latitudeDelta: 0.01,
+                                    longitudeDelta: 0.01,
+                                } : undefined}
+                                showsUserLocation
+                                showsMyLocationButton={false}
                             >
-                                <Navigation size={20} color="#2563EB" />
-                            </TouchableOpacity>
-                        </View>
+                                {currentLocation && <Marker coordinate={currentLocation} />}
+                            </MapView>
+                        ) : (
+                            <View className="items-center">
+                                <MapPin size={32} color="#CBD5E1" />
+                                <Text className="text-slate-400 font-medium mt-2">Mapa não disponível</Text>
+                            </View>
+                        )}
+                        {Platform.OS !== 'web' && MapView && (
+                            <View className="absolute top-4 right-4">
+                                <TouchableOpacity
+                                    className="w-10 h-10 bg-white rounded-xl items-center justify-center shadow-lg"
+                                    onPress={centerMap}
+                                >
+                                    <Navigation size={20} color="#2563EB" />
+                                </TouchableOpacity>
+                            </View>
+                        )}
                     </View>
-                </View>
+                </Animated.View>
 
-                <View className="px-6 space-y-4">
+                <Animated.View 
+                    entering={FadeInDown.delay(400).springify()}
+                    layout={Layout.springify()}
+                    className="px-6 space-y-4"
+                >
                     <TouchableOpacity 
+                        activeOpacity={0.7}
                         className="w-full h-20 bg-white rounded-3xl flex-row items-center px-6 shadow-sm border border-slate-100" 
                         onPress={() => { setFuelData({ ...fuelData, km: vehicle ? vehicle.currentKm.toString() : '' }); setShowFuelModal(true); }}
                     >
@@ -387,6 +440,7 @@ function JourneyScreen({ activeJourney, vehicle, pendingSyncCount, tasks = [] }:
                     </TouchableOpacity>
 
                     <TouchableOpacity 
+                        activeOpacity={0.7}
                         className="w-full h-20 bg-white rounded-3xl flex-row items-center px-6 shadow-sm border border-slate-100" 
                         onPress={() => setShowIncidentModal(true)}
                     >
@@ -402,6 +456,7 @@ function JourneyScreen({ activeJourney, vehicle, pendingSyncCount, tasks = [] }:
 
                     <View className="flex-row space-x-4">
                         <TouchableOpacity 
+                            activeOpacity={0.7}
                             className="flex-1 h-20 bg-white rounded-3xl flex-row items-center px-4 shadow-sm border border-slate-100" 
                             onPress={() => { setExpenseData({ ...expenseData, type: 'TOLL' }); setShowExpenseModal(true); }}
                         >
@@ -414,11 +469,12 @@ function JourneyScreen({ activeJourney, vehicle, pendingSyncCount, tasks = [] }:
                         </TouchableOpacity>
 
                         <TouchableOpacity 
+                            activeOpacity={0.7}
                             className="flex-1 h-20 bg-white rounded-3xl flex-row items-center px-4 shadow-sm border border-slate-100" 
                             onPress={() => { setExpenseData({ ...expenseData, type: 'PARKING' }); setShowExpenseModal(true); }}
                         >
-                            <View className="w-10 h-10 rounded-xl bg-purple-50 items-center justify-center">
-                                <Clock size={20} color="#7C3AED" />
+                            <View className="w-10 h-10 rounded-xl bg-emerald-50 items-center justify-center">
+                                <Clock size={20} color="#10B981" />
                             </View>
                             <View className="ml-3 flex-1">
                                 <Text className="text-[#1A1C1E] font-bold text-sm">Estacionam.</Text>
@@ -427,6 +483,7 @@ function JourneyScreen({ activeJourney, vehicle, pendingSyncCount, tasks = [] }:
                     </View>
 
                     <TouchableOpacity 
+                        activeOpacity={0.8}
                         className="w-full h-16 bg-[#EF4444] rounded-2xl items-center justify-center shadow-lg shadow-red-500/20 mt-6" 
                         onPress={() => { setEndKm(vehicle ? vehicle.currentKm.toString() : ''); setShowEndModal(true); }}
                     >
@@ -437,27 +494,33 @@ function JourneyScreen({ activeJourney, vehicle, pendingSyncCount, tasks = [] }:
                         <View className="mt-8">
                             <Text className="text-[#1A1C1E] font-bold text-lg mb-4">Minhas Tarefas ({tasks.filter(t => t.status === 'COMPLETED').length}/{tasks.length})</Text>
                             <View className="space-y-3">
-                                {tasks.map(task => (
-                                    <TouchableOpacity 
-                                        key={task.id}
-                                        onPress={() => handleToggleTask(task)}
-                                        className={`p-5 rounded-3xl bg-white border ${task.status === 'COMPLETED' ? 'border-emerald-100 bg-emerald-50/10' : 'border-slate-100'}`}
+                                {tasks.map((task, index) => (
+                                    <Animated.View 
+                                        key={task.id} 
+                                        entering={FadeInDown.delay(500 + index * 100).springify()}
+                                        layout={Layout.springify()}
                                     >
-                                        <View className="flex-row items-center">
-                                            <View className={`w-8 h-8 rounded-full items-center justify-center mr-3 ${task.status === 'COMPLETED' ? 'bg-emerald-500' : 'bg-slate-100'}`}>
-                                                {task.status === 'COMPLETED' ? <Check size={16} color="white" /> : <Clock size={16} color="#94A3B8" />}
+                                        <TouchableOpacity 
+                                            activeOpacity={0.7}
+                                            onPress={() => handleToggleTask(task)}
+                                            className={`p-5 rounded-3xl bg-white border ${task.status === 'COMPLETED' ? 'border-emerald-100 bg-emerald-50/10' : 'border-slate-100'}`}
+                                        >
+                                            <View className="flex-row items-center">
+                                                <View className={`w-8 h-8 rounded-full items-center justify-center mr-3 ${task.status === 'COMPLETED' ? 'bg-emerald-500' : 'bg-slate-100'}`}>
+                                                    {task.status === 'COMPLETED' ? <Check size={16} color="white" /> : <Clock size={16} color="#94A3B8" />}
+                                                </View>
+                                                <View className="flex-1">
+                                                    <Text className={`font-bold text-base ${task.status === 'COMPLETED' ? 'text-emerald-700 line-through' : 'text-[#1A1C1E]'}`}>{task.title}</Text>
+                                                    {task.description && <Text className="text-slate-500 text-xs mt-1">{task.description}</Text>}
+                                                </View>
                                             </View>
-                                            <View className="flex-1">
-                                                <Text className={`font-bold text-base ${task.status === 'COMPLETED' ? 'text-emerald-700 line-through' : 'text-[#1A1C1E]'}`}>{task.title}</Text>
-                                                {task.description && <Text className="text-slate-500 text-xs mt-1">{task.description}</Text>}
-                                            </View>
-                                        </View>
-                                    </TouchableOpacity>
+                                        </TouchableOpacity>
+                                    </Animated.View>
                                 ))}
                             </View>
                         </View>
                     )}
-                </View>
+                </Animated.View>
             </ScrollView>
 
             <Modal visible={showFuelModal} transparent animationType="fade">
@@ -651,31 +714,39 @@ function JourneyScreen({ activeJourney, vehicle, pendingSyncCount, tasks = [] }:
     );
 }
 
-const EnhancedJourney = withObservables(['driverId'], ({ driverId }: { driverId: string }) => {
-    const activeJourneys$ = database.get<Journey>('journeys').query(
-        Q.where('status', 'IN_PROGRESS'),
-        Q.where('driver_id', driverId)
-    ).observe();
+let EnhancedJourney: any;
 
-    return {
-        activeJourney: activeJourneys$.pipe(
-            switchMap(journeys => journeys.length > 0 ? journeys[0].observe() : of(null))
-        ),
-        vehicle: activeJourneys$.pipe(
-            switchMap(journeys => journeys.length > 0 ? journeys[0].vehicle.observe() : of(null))
-        ),
-        tasks: activeJourneys$.pipe(
-            switchMap(journeys => journeys.length > 0 ? journeys[0].tasks.observe() : of([]))
-        ),
-        pendingSyncCount: database.get<SyncQueue>('sync_queue')
-            .query(Q.where('status', Q.notEq('completed')))
-            .observe()
-            .pipe(map(items => items.length))
-    };
-})(JourneyScreen);
+try {
+    EnhancedJourney = withObservables(['driverId'], ({ driverId }: { driverId: string }) => {
+        const activeJourneys$ = database.get<Journey>('journeys').query(
+            Q.where('status', 'IN_PROGRESS'),
+            Q.where('driver_id', driverId)
+        ).observe();
+
+        return {
+            activeJourney: activeJourneys$.pipe(
+                switchMap(journeys => journeys.length > 0 ? journeys[0].observe() : of(null))
+            ),
+            vehicle: activeJourneys$.pipe(
+                switchMap(journeys => journeys.length > 0 ? journeys[0].vehicle.observe() : of(null))
+            ),
+            tasks: activeJourneys$.pipe(
+                switchMap(journeys => journeys.length > 0 ? journeys[0].tasks.observe() : of([]))
+            ),
+            pendingSyncCount: database.get<SyncQueue>('sync_queue')
+                .query(Q.where('status', Q.notEq('completed')))
+                .observe()
+                .pipe(map(items => items.length))
+        };
+    })(JourneyScreen);
+} catch (e) {
+    console.warn('[Journey] Failed to wrap with withObservables:', e);
+    EnhancedJourney = (props: any) => <JourneyScreen {...props} activeJourney={null} vehicle={null} tasks={[]} pendingSyncCount={0} />;
+}
 
 export default function JourneyWrapper() {
     const { user } = useAuth();
-    if (!user?.id) return <ActivityIndicator size="large" color="#2563EB" />;
+    if (!user?.id) return <ActivityIndicator size="large" color="#2563EB" className="flex-1" />;
     return <EnhancedJourney driverId={user.id} />;
 }
+

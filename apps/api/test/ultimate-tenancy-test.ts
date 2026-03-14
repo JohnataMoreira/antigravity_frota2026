@@ -13,7 +13,7 @@ async function runTest() {
             lastName: 'Tenant A',
             orgName: 'Empresa A',
             email: `admin.a.${Date.now()}@teste.com`,
-            password: 'password123'
+            password: 'REDACTED_PASSWORD'
         });
         const tokenA = orgARes.data.access_token;
         const orgAId = orgARes.data.user.organizationId;
@@ -26,7 +26,7 @@ async function runTest() {
             lastName: 'Tenant B',
             orgName: 'Empresa B',
             email: `admin.b.${Date.now()}@teste.com`,
-            password: 'password123'
+            password: 'REDACTED_PASSWORD'
         });
         const tokenB = orgBRes.data.access_token;
         const orgBId = orgBRes.data.user.organizationId;

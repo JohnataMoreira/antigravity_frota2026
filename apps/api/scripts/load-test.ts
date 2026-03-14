@@ -8,7 +8,7 @@ async function getAdminToken() {
     try {
         const res = await axios.post(`${API_URL}/auth/login`, {
             email: 'admin@paraopeba.com.br',
-            password: '123456'
+            password: process.env.TEST_ADMIN_PASSWORD || '123456'
         });
         return res.data.access_token;
     } catch (error) {

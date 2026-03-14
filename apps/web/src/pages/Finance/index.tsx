@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SEO } from '@/components/SEO';
 import {
     DollarSign,
     ArrowUpCircle,
@@ -82,6 +83,10 @@ export default function FinancePage() {
 
     return (
         <div className="p-4 md:p-8 space-y-8 animate-in fade-in duration-500">
+            <SEO 
+                title="Financeiro" 
+                description="Controle total de despesas, abastecimentos, manutenções e fluxo de caixa." 
+            />
             {/* Header */}
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="flex items-start gap-4">

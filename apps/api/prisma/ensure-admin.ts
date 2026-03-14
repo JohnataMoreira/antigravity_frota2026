@@ -7,7 +7,7 @@ async function main() {
     console.log('🔍 Checking for Admin User...');
 
     const email = 'admin@paraopeba.com.br';
-    const password = '123456';
+    const password = process.env.INITIAL_ADMIN_PASSWORD || 'change-me-immediately';
     const orgName = 'Grupo Paraopeba';
 
     // 1. Check if user exists

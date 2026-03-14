@@ -8,6 +8,7 @@ import { LiveMap } from './components/LiveMap';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { OfflineStatus } from './components/ui/OfflineStatus';
 import React, { Suspense, lazy } from 'react';
+import { HelmetProvider } from 'react-helmet-async';
 
 const Reports = lazy(() => import('./pages/Reports'));
 const Compliance = lazy(() => import('./pages/Compliance'));

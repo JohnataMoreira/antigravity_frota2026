@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SEO } from '@/components/SEO';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/axios';
 import { GlassCard } from '../../components/ui/Cards';
@@ -64,7 +65,11 @@ export default function PurchasingList() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
+      <SEO 
+          title="Compras & Suprimentos" 
+          description="Gestão de aquisições, cotações e controle de suprimentos." 
+      />
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-4xl font-black tracking-tight flex items-center gap-3">

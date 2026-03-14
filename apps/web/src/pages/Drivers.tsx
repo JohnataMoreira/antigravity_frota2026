@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { usersApi } from '../services/users';
 import { Users, Plus, Trash2, Edit2, UserPlus, Search, Phone, Calendar, MapPin, SearchCheck, LayoutGrid, List as ListIcon } from 'lucide-react';
 import { GlassCard } from '../components/ui/Cards';
@@ -25,6 +26,7 @@ interface User {
 }
 
 export function Drivers() {
+    const { t } = useTranslation();
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -106,19 +108,19 @@ export function Drivers() {
             loadUsers(search);
         } catch (error: any) {
             console.error('Error saving user:', error);
-            alert(error.response?.data?.message || 'Erro ao salvar funcionário');
+            alert(error.response?.data?.message || t('drivers.alerts.save_error'));
         }
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm('Deseja realmente excluir este funcionário?')) return;
+        if (!confirm(t('drivers.alerts.delete_confirm'))) return;
 
         try {
             await usersApi.deleteUser(id);
             loadUsers(search);
         } catch (error) {
             console.error('Error deleting user:', error);
-            alert('Erro ao excluir funcionário');
+            alert(t('drivers.alerts.delete_error'));
         }
     };
 
@@ -176,7 +178,7 @@ export function Drivers() {
         return (
             <div className="flex flex-col items-center justify-center py-20 animate-pulse">
                 <Users className="w-12 h-12 text-blue-200 mb-4" />
-                <div className="text-lg text-muted-foreground font-medium">Sincronizando equipe...</div>
+                <div className="text-lg text-muted-foreground font-medium">{t('drivers.syncing')}</div>
             </div>
         );
     }
@@ -187,10 +189,10 @@ export function Drivers() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-4xl font-extrabold tracking-tight gradient-text">
-                        Gestão de Equipe
+                        {t('drivers.title')}
                     </h1>
                     <p className="text-muted-foreground mt-2 text-lg">
-                        Administre motoristas, administradores e seus dados detalhados.
+                        {t('drivers.description')}
                     </p>
                 </div>
                 <button
@@ -201,7 +203,7 @@ export function Drivers() {
                     className="flex items-center justify-center gap-2 px-8 py-3.5 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-blue-500/25"
                 >
                     <UserPlus className="w-5 h-5" />
-                    Novo Funcionário
+                    {t('drivers.buttons.new_employee')}
                 </button>
             </div>
 
@@ -211,7 +213,7 @@ export function Drivers() {
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                     <input
                         type="text"
-                        placeholder="Buscar por nome, email ou CPF..."
+                        placeholder={t('drivers.search_placeholder')}
                         className="w-full pl-12 pr-4 py-3.5 bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
@@ -222,14 +224,14 @@ export function Drivers() {
                     <button
                         onClick={() => setViewMode('grid')}
                         className={`p-2.5 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-white dark:bg-gray-700 shadow-md text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
-                        title="Visualização em Grade"
+                        title={t('drivers.view_modes.grid')}
                     >
                         <LayoutGrid size={20} />
                     </button>
                     <button
                         onClick={() => setViewMode('list')}
                         className={`p-2.5 rounded-xl transition-all ${viewMode === 'list' ? 'bg-white dark:bg-gray-700 shadow-md text-blue-600' : 'text-gray-400 hover:text-gray-600'}`}
-                        title="Visualização em Lista"
+                        title={t('drivers.view_modes.list')}
                     >
                         <ListIcon size={20} />
                     </button>
@@ -243,11 +245,11 @@ export function Drivers() {
                         <table className="w-full text-left text-sm">
                             <thead className="bg-gray-50 dark:bg-gray-800/80 border-b border-gray-100 dark:border-gray-700">
                                 <tr className="text-gray-400 dark:text-gray-400">
-                                    <th className="py-4 px-6 font-bold uppercase tracking-wider">Funcionário</th>
-                                    <th className="py-4 px-6 font-bold uppercase tracking-wider">Contato / CPF</th>
-                                    <th className="py-4 px-6 font-bold uppercase tracking-wider">Cargo</th>
-                                    <th className="py-4 px-6 font-bold uppercase tracking-wider">CNH</th>
-                                    <th className="py-4 px-6 font-bold uppercase tracking-wider text-right">Ações</th>
+                                    <th className="py-4 px-6 font-bold uppercase tracking-wider">{t('drivers.table.employee')}</th>
+                                    <th className="py-4 px-6 font-bold uppercase tracking-wider">{t('drivers.table.contact_cpf')}</th>
+                                    <th className="py-4 px-6 font-bold uppercase tracking-wider">{t('drivers.table.role')}</th>
+                                    <th className="py-4 px-6 font-bold uppercase tracking-wider">{t('drivers.table.license')}</th>
+                                    <th className="py-4 px-6 font-bold uppercase tracking-wider text-right">{t('drivers.table.actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -255,7 +257,7 @@ export function Drivers() {
                                     <tr key={user.id} className="group hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-all">
                                         <td className="py-5 px-6">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/10 group-hover:scale-110 transition-transform">
+                                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-emerald-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/10 group-hover:scale-110 transition-transform">
                                                     <Users className="w-6 h-6" />
                                                 </div>
                                                 <div>
@@ -270,13 +272,13 @@ export function Drivers() {
                                                     <Phone className="w-3.5 h-3.5 text-blue-500" />
                                                     {user.phone || '—'}
                                                 </div>
-                                                <div className="text-xs text-gray-400 font-mono font-medium">{user.cpf || 'CPF não informado'}</div>
+                                                <div className="text-xs text-gray-400 font-mono font-medium">{user.cpf || t('drivers.contact.no_cpf')}</div>
                                             </div>
                                         </td>
                                         <td className="py-5 px-6">
-                                            <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                                            <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${user.role === 'ADMIN' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
                                                 }`}>
-                                                {user.role === 'ADMIN' ? 'Administrador' : 'Motorista'}
+                                                {user.role === 'ADMIN' ? t('drivers.roles.ADMIN') : t('drivers.roles.DRIVER')}
                                             </span>
                                         </td>
                                         <td className="py-5 px-6 text-sm font-black text-gray-500 dark:text-gray-400">
@@ -320,27 +322,27 @@ export function Drivers() {
                             </div>
 
                             <div className="flex flex-col items-center text-center mb-6">
-                                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white shadow-2xl shadow-blue-500/30 mb-4 group-hover:scale-105 transition-transform">
+                                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500 to-emerald-600 flex items-center justify-center text-white shadow-2xl shadow-blue-500/30 mb-4 group-hover:scale-105 transition-transform">
                                     <Users className="w-10 h-10" />
                                 </div>
                                 <h3 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">{user.name}</h3>
                                 <p className="text-xs text-muted-foreground mt-1 mb-4">{user.email}</p>
-                                <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${user.role === 'ADMIN' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'}`}>
-                                    {user.role === 'ADMIN' ? 'Administrador' : 'Motorista'}
+                                <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${user.role === 'ADMIN' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'}`}>
+                                    {user.role === 'ADMIN' ? t('drivers.roles.ADMIN') : t('drivers.roles.DRIVER')}
                                 </span>
                             </div>
 
                             <div className="space-y-3 pt-4 border-t border-gray-100 dark:border-gray-800">
                                 <div className="flex justify-between items-center text-xs">
-                                    <span className="text-gray-400 font-bold uppercase tracking-tighter">CNH</span>
+                                    <span className="text-gray-400 font-bold uppercase tracking-tighter">{t('drivers.card.license')}</span>
                                     <span className="font-black text-gray-900 dark:text-white">{user.licenseNumber || '—'}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-xs">
-                                    <span className="text-gray-400 font-bold uppercase tracking-tighter">CPF</span>
+                                    <span className="text-gray-400 font-bold uppercase tracking-tighter">{t('drivers.card.cpf')}</span>
                                     <span className="font-mono text-gray-700 dark:text-gray-300">{user.cpf || '—'}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-xs">
-                                    <span className="text-gray-400 font-bold uppercase tracking-tighter">Telefone</span>
+                                    <span className="text-gray-400 font-bold uppercase tracking-tighter">{t('drivers.card.phone')}</span>
                                     <span className="font-bold text-blue-600 dark:text-blue-400">{user.phone || '—'}</span>
                                 </div>
                             </div>
@@ -354,8 +356,8 @@ export function Drivers() {
                     <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center text-gray-400 mb-4">
                         <SearchCheck size={32} />
                     </div>
-                    <h3 className="text-xl font-black">Nenhum funcionário encontrado</h3>
-                    <p className="text-muted-foreground font-medium">Tente buscar por outro nome, email ou CPF.</p>
+                    <h3 className="text-xl font-black">{t('drivers.empty.title')}</h3>
+                    <p className="text-muted-foreground font-medium">{t('drivers.empty.description')}</p>
                 </div>
             )}
 
@@ -368,8 +370,8 @@ export function Drivers() {
                             <button onClick={handleCloseModal} className="p-2 hover:bg-gray-100 rounded-full transition-all text-gray-400"><Plus className="rotate-45" /></button>
                         </div>
 
-                        <h2 className="text-3xl font-black mb-8 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                            {editingUser ? 'Editar Cadastro' : 'Novo Funcionário'}
+                        <h2 className="text-3xl font-black mb-8 bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent">
+                            {editingUser ? t('drivers.modal.edit_title') : t('drivers.modal.new_title')}
                         </h2>
 
                         <form onSubmit={handleSubmit} className="space-y-8">
@@ -377,11 +379,11 @@ export function Drivers() {
                                 {/* Seção 1: Dados Pessoais */}
                                 <div className="space-y-6">
                                     <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                                        <Users size={14} /> Dados Profissionais
+                                        <Users size={14} /> {t('drivers.modal.sections.professional')}
                                     </h3>
 
                                     <div className="space-y-2">
-                                        <label className="text-sm font-bold text-gray-700 ml-1">Nome Completo</label>
+                                        <label className="text-sm font-bold text-gray-700 ml-1">{t('drivers.modal.form.name')}</label>
                                         <input
                                             type="text"
                                             value={formData.name}
@@ -394,7 +396,7 @@ export function Drivers() {
                                     {!editingUser && (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <div className="space-y-2">
-                                                <label className="text-sm font-bold text-gray-700 ml-1">Email</label>
+                                                <label className="text-sm font-bold text-gray-700 ml-1">{t('drivers.modal.form.email')}</label>
                                                 <input
                                                     type="email"
                                                     value={formData.email}
@@ -404,7 +406,7 @@ export function Drivers() {
                                                 />
                                             </div>
                                             <div className="space-y-2">
-                                                <label className="text-sm font-bold text-gray-700 ml-1">Senha</label>
+                                                <label className="text-sm font-bold text-gray-700 ml-1">{t('drivers.modal.form.password')}</label>
                                                 <input
                                                     type="password"
                                                     value={formData.password}
@@ -419,7 +421,7 @@ export function Drivers() {
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <label className="text-sm font-bold text-gray-700 ml-1">Telefone</label>
+                                            <label className="text-sm font-bold text-gray-700 ml-1">{t('drivers.modal.form.phone')}</label>
                                             <input
                                                 type="text"
                                                 value={formData.phone}
@@ -429,7 +431,7 @@ export function Drivers() {
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-sm font-bold text-gray-700 ml-1">CPF</label>
+                                            <label className="text-sm font-bold text-gray-700 ml-1">{t('drivers.modal.form.cpf')}</label>
                                             <input
                                                 type="text"
                                                 value={formData.cpf}
@@ -443,7 +445,7 @@ export function Drivers() {
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div className="space-y-2">
                                             <label className="text-sm font-bold text-gray-700 ml-1 flex items-center gap-1">
-                                                <Calendar size={14} /> Data de Nascimento
+                                                <Calendar size={14} /> {t('drivers.modal.form.birth_date')}
                                             </label>
                                             <input
                                                 type="date"
@@ -454,7 +456,7 @@ export function Drivers() {
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-sm font-bold text-gray-700 ml-1 flex items-center gap-1">
-                                                <Calendar size={14} /> Data de Admissão
+                                                <Calendar size={14} /> {t('drivers.modal.form.entry_date')}
                                             </label>
                                             <input
                                                 type="date"
@@ -467,18 +469,18 @@ export function Drivers() {
 
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <label className="text-sm font-bold text-gray-700 ml-1">Cargo</label>
+                                            <label className="text-sm font-bold text-gray-700 ml-1">{t('drivers.modal.form.role')}</label>
                                             <select
                                                 value={formData.role}
                                                 onChange={(e) => setFormData({ ...formData, role: e.target.value as 'ADMIN' | 'DRIVER' })}
                                                 className="w-full px-4 py-3 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-bold"
                                             >
-                                                <option value="DRIVER">Motorista</option>
-                                                <option value="ADMIN">Administrador</option>
+                                                <option value="DRIVER">{t('drivers.roles.DRIVER')}</option>
+                                                <option value="ADMIN">{t('drivers.roles.ADMIN')}</option>
                                             </select>
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-sm font-bold text-gray-700 ml-1">CNH</label>
+                                            <label className="text-sm font-bold text-gray-700 ml-1">{t('drivers.modal.form.license')}</label>
                                             <input
                                                 type="text"
                                                 value={formData.licenseNumber}
@@ -492,12 +494,12 @@ export function Drivers() {
                                 {/* Seção 2: Endereço */}
                                 <div className="space-y-6">
                                     <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                                        <MapPin size={14} /> Localização / Endereço
+                                        <MapPin size={14} /> {t('drivers.modal.sections.location')}
                                     </h3>
 
                                     <div className="grid grid-cols-3 gap-4">
                                         <div className="col-span-1 space-y-2">
-                                            <label className="text-sm font-bold text-gray-700 ml-1">CEP</label>
+                                            <label className="text-sm font-bold text-gray-700 ml-1">{t('drivers.modal.form.zip_code')}</label>
                                             <input
                                                 type="text"
                                                 value={formData.addressZipCode}
@@ -508,7 +510,7 @@ export function Drivers() {
                                             />
                                         </div>
                                         <div className="col-span-2 space-y-2">
-                                            <label className="text-sm font-bold text-gray-700 ml-1">Cidade</label>
+                                            <label className="text-sm font-bold text-gray-700 ml-1">{t('drivers.modal.form.city')}</label>
                                             <input
                                                 type="text"
                                                 value={formData.addressCity}
@@ -520,7 +522,7 @@ export function Drivers() {
 
                                     <div className="grid grid-cols-4 gap-4">
                                         <div className="col-span-3 space-y-2">
-                                            <label className="text-sm font-bold text-gray-700 ml-1">Rua / Logradouro</label>
+                                            <label className="text-sm font-bold text-gray-700 ml-1">{t('drivers.modal.form.street')}</label>
                                             <input
                                                 type="text"
                                                 value={formData.addressStreet}
@@ -529,7 +531,7 @@ export function Drivers() {
                                             />
                                         </div>
                                         <div className="col-span-1 space-y-2">
-                                            <label className="text-sm font-bold text-gray-700 ml-1">Nº</label>
+                                            <label className="text-sm font-bold text-gray-700 ml-1">{t('drivers.modal.form.number')}</label>
                                             <input
                                                 type="text"
                                                 value={formData.addressNumber}
@@ -540,7 +542,7 @@ export function Drivers() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-sm font-bold text-gray-700 ml-1">Bairro</label>
+                                        <label className="text-sm font-bold text-gray-700 ml-1">{t('drivers.modal.form.neighborhood')}</label>
                                         <input
                                             type="text"
                                             value={formData.addressNeighborhood}
@@ -551,7 +553,7 @@ export function Drivers() {
 
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <label className="text-sm font-bold text-gray-700 ml-1">UF</label>
+                                            <label className="text-sm font-bold text-gray-700 ml-1">{t('drivers.modal.form.state')}</label>
                                             <input
                                                 type="text"
                                                 maxLength={2}
@@ -561,7 +563,7 @@ export function Drivers() {
                                             />
                                         </div>
                                         <div className="space-y-2">
-                                            <label className="text-sm font-bold text-gray-700 ml-1">Complemento</label>
+                                            <label className="text-sm font-bold text-gray-700 ml-1">{t('drivers.modal.form.complement')}</label>
                                             <input
                                                 type="text"
                                                 value={formData.addressComplement}
@@ -579,13 +581,13 @@ export function Drivers() {
                                     onClick={handleCloseModal}
                                     className="flex-1 px-8 py-4 bg-gray-100 text-gray-500 rounded-2xl font-bold hover:bg-gray-200 transition-all"
                                 >
-                                    Descartar
+                                    {t('drivers.buttons.discard')}
                                 </button>
                                 <button
                                     type="submit"
                                     className="flex-1 px-8 py-4 bg-blue-600 text-white rounded-2xl font-bold hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/20 active:scale-[0.98] transition-all"
                                 >
-                                    {editingUser ? 'Atualizar Dados' : 'Finalizar Cadastro'}
+                                    {editingUser ? t('drivers.buttons.update') : t('drivers.buttons.finalize')}
                                 </button>
                             </div>
                         </form>
@@ -595,3 +597,4 @@ export function Drivers() {
         </div>
     );
 }
+

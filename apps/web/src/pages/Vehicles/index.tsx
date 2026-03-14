@@ -2,10 +2,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/axios';
 import { Plus, Edit, Trash, Search, LayoutGrid, List as ListIcon, Car, Truck as TruckIcon, Bike, Cpu, Filter, Play } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { SEO } from '@/components/SEO';
 import { VehicleModal } from '../../components/VehicleModal';
 import { StartJourneyModal } from '../Journeys/components/StartJourneyModal';
 import { formatKm } from '../../lib/utils';
 import { GlassCard, StatCard } from '../../components/ui/Cards';
+import { useNavigate } from 'react-router-dom';
 
 interface Vehicle {
     id: string;
@@ -20,10 +23,10 @@ interface Vehicle {
 }
 
 const statusMap = {
-    AVAILABLE: { label: 'Disponível', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
-    IN_USE: { label: 'Em Uso', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
-    MAINTENANCE: { label: 'Manutenção', color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' },
-    CRITICAL_ISSUE: { label: 'Problema Crítico', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' },
+    AVAILABLE: { key: 'vehicles.available', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
+    IN_USE: { key: 'vehicles.in_use', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
+    MAINTENANCE: { key: 'vehicles.maintenance', color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' },
+    CRITICAL_ISSUE: { key: 'vehicles.critical_issue', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' },
 };
 
 const typeIconMap = {
@@ -33,10 +36,9 @@ const typeIconMap = {
     MACHINE: Cpu,
 };
 
-import { useNavigate } from 'react-router-dom';
-
 export function VehiclesList() {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const queryClient = useQueryClient();
     const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
     const [filter, setFilter] = useState('');
@@ -88,7 +90,7 @@ export function VehiclesList() {
     if (isLoading) return (
         <div className="flex flex-col items-center justify-center py-20 animate-pulse">
             <TruckIcon className="w-12 h-12 text-blue-200 mb-4" />
-            <div className="text-lg text-muted-foreground font-medium">Carregando frota...</div>
+            <div className="text-lg text-muted-foreground font-medium">{t('vehicles.loading_fleet')}</div>
         </div>
     );
 
@@ -97,8 +99,8 @@ export function VehiclesList() {
             <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center text-red-600 mb-4">
                 <LayoutGrid size={32} />
             </div>
-            <h3 className="text-lg font-bold text-red-600">Erro de Conexão</h3>
-            <p className="text-muted-foreground mt-1">Não foi possível carregar os veículos. Verifique o servidor.</p>
+            <h3 className="text-lg font-bold text-red-600">{t('vehicles.connection_error')}</h3>
+            <p className="text-muted-foreground mt-1">{t('vehicles.load_error')}</p>
         </div>
     );
 
@@ -117,7 +119,7 @@ export function VehiclesList() {
     };
 
     const handleDelete = (id: string) => {
-        if (window.confirm('Tem certeza que deseja excluir este veículo?')) {
+        if (window.confirm(t('vehicles.delete_confirm'))) {
             deleteMutation.mutate(id);
         }
     };
@@ -128,18 +130,22 @@ export function VehiclesList() {
     };
 
     return (
-        <div className="space-y-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="space-y-6 animate-fade-in">
+            <SEO 
+                title="Veículos" 
+                description="Gerencie sua frota de veículos, visualize status de atividade e realize novos cadastros." 
+            />
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-start gap-4">
                     <div className="p-3 bg-primary/10 text-primary rounded-2xl">
                         <TruckIcon size={32} />
                     </div>
                     <div>
                         <h1 className="text-4xl font-black tracking-tighter gradient-text uppercase">
-                            Frota de Veículos
+                            {t('vehicles.fleet_title')}
                         </h1>
                         <p className="text-muted-foreground/60 font-black uppercase tracking-[0.2em] mt-1 text-[10px]">
-                            Gestão e monitoramento de ativos e maquinário
+                            {t('vehicles.fleet_subtitle')}
                         </p>
                     </div>
                 </div>
@@ -148,31 +154,31 @@ export function VehiclesList() {
                     className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 shadow-lg shadow-blue-500/20 transition-all font-bold group"
                 >
                     <Plus size={20} className="group-hover:rotate-90 transition-transform duration-300" />
-                    Adicionar Veículo
+                    {t('vehicles.add_vehicle')}
                 </button>
             </div>
 
             {/* Vehicles Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard
-                    label="Total da Frota"
+                    label={t('vehicles.total_fleet')}
                     value={totalVehicles}
                     icon={<TruckIcon className="w-8 h-8" />}
                 />
                 <StatCard
-                    label="Veículos Leves"
+                    label={t('vehicles.light_vehicles')}
                     value={carsCount}
                     icon={<Car className="w-8 h-8" />}
                     variant="info"
                 />
                 <StatCard
-                    label="Pesados / Caminhões"
+                    label={t('vehicles.heavy_trucks')}
                     value={trucksCount}
                     icon={<TruckIcon className="w-8 h-8" />}
                     variant="success"
                 />
                 <StatCard
-                    label="Maquinário / Motos"
+                    label={t('vehicles.machinery_bikes')}
                     value={machinesCount}
                     icon={<Cpu className="w-8 h-8" />}
                     variant="warning"
@@ -184,7 +190,7 @@ export function VehiclesList() {
                     <div className="flex items-center gap-3 bg-muted p-2 rounded-xl border border-border shadow-sm flex-1 w-full focus-within:ring-2 focus-within:ring-primary/50 transition-all">
                         <Search size={22} className="text-muted-foreground ml-2" />
                         <input
-                            placeholder="Buscar por placa, modelo ou marca..."
+                            placeholder={t('vehicles.search_placeholder')}
                             className="bg-transparent outline-none flex-1 py-2 font-medium"
                             value={filter}
                             onChange={(e) => setFilter(e.target.value)}
@@ -198,11 +204,11 @@ export function VehiclesList() {
                             onChange={(e) => setStatusFilter(e.target.value)}
                             className="bg-transparent outline-none text-sm font-bold pr-8 py-2 text-foreground"
                         >
-                            <option value="ALL" className="bg-card">Todos os Status</option>
-                            <option value="AVAILABLE" className="bg-card">Disponível</option>
-                            <option value="IN_USE" className="bg-card">Em Uso</option>
-                            <option value="MAINTENANCE" className="bg-card">Manutenção</option>
-                            <option value="CRITICAL_ISSUE" className="bg-card">Problema Crítico</option>
+                            <option value="ALL" className="bg-card">{t('vehicles.all_status')}</option>
+                            <option value="AVAILABLE" className="bg-card">{t('vehicles.available')}</option>
+                            <option value="IN_USE" className="bg-card">{t('vehicles.in_use')}</option>
+                            <option value="MAINTENANCE" className="bg-card">{t('vehicles.maintenance')}</option>
+                            <option value="CRITICAL_ISSUE" className="bg-card">{t('vehicles.critical_issue')}</option>
                         </select>
                     </div>
                 </div>
@@ -211,14 +217,14 @@ export function VehiclesList() {
                     <button
                         onClick={() => setViewMode('grid')}
                         className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-card shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-                        title="Visualização em Cards"
+                        title={t('vehicles.grid_view')}
                     >
                         <LayoutGrid size={20} />
                     </button>
                     <button
                         onClick={() => setViewMode('list')}
                         className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-card shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-                        title="Visualização em Lista"
+                        title={t('vehicles.list_view')}
                     >
                         <ListIcon size={20} />
                     </button>
@@ -231,12 +237,12 @@ export function VehiclesList() {
                         <table className="w-full text-left text-sm">
                             <thead className="bg-muted/50 border-b border-border">
                                 <tr>
-                                    <th className="px-6 py-5 font-bold uppercase tracking-wider text-muted-foreground">Placa</th>
-                                    <th className="px-6 py-5 font-bold uppercase tracking-wider text-muted-foreground">Marca/Modelo</th>
-                                    <th className="px-6 py-5 font-bold uppercase tracking-wider text-muted-foreground text-center">Tipo</th>
-                                    <th className="px-6 py-5 font-bold uppercase tracking-wider text-muted-foreground">Status</th>
-                                    <th className="px-6 py-5 font-bold uppercase tracking-wider text-muted-foreground">KM Atual</th>
-                                    <th className="px-6 py-5 font-bold uppercase tracking-wider text-muted-foreground text-right">Ações</th>
+                                    <th className="px-6 py-5 font-bold uppercase tracking-wider text-muted-foreground">{t('vehicles.plate')}</th>
+                                    <th className="px-6 py-5 font-bold uppercase tracking-wider text-muted-foreground">{t('vehicles.brand_model')}</th>
+                                    <th className="px-6 py-5 font-bold uppercase tracking-wider text-muted-foreground text-center">{t('vehicles.type')}</th>
+                                    <th className="px-6 py-5 font-bold uppercase tracking-wider text-muted-foreground">{t('vehicles.status')}</th>
+                                    <th className="px-6 py-5 font-bold uppercase tracking-wider text-muted-foreground">{t('vehicles.current_km')}</th>
+                                    <th className="px-6 py-5 font-bold uppercase tracking-wider text-muted-foreground text-right">{t('vehicles.actions')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border">
@@ -265,7 +271,7 @@ export function VehiclesList() {
                                         </td>
                                         <td className="px-6 py-5">
                                             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${statusMap[vehicle.status].color}`}>
-                                                {statusMap[vehicle.status].label}
+                                                {t(statusMap[vehicle.status].key)}
                                             </span>
                                         </td>
                                         <td className="px-6 py-5 font-black text-foreground">
@@ -275,14 +281,14 @@ export function VehiclesList() {
                                             <button
                                                 onClick={() => handleEdit(vehicle)}
                                                 className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-xl transition-all"
-                                                title="Editar Veículo"
+                                                title={t('vehicles.edit_vehicle')}
                                             >
                                                 <Edit size={20} />
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(vehicle.id)}
                                                 className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-all"
-                                                title="Excluir Veículo"
+                                                title={t('vehicles.delete_vehicle')}
                                             >
                                                 <Trash size={20} />
                                             </button>
@@ -325,18 +331,18 @@ export function VehiclesList() {
 
                             <div className="space-y-3">
                                 <div className="flex justify-between items-center text-sm p-3 bg-muted/50 rounded-xl border border-border/50">
-                                    <span className="text-muted-foreground font-medium">Placa</span>
+                                    <span className="text-muted-foreground font-medium">{t('vehicles.plate')}</span>
                                     <span className="font-black text-primary uppercase tracking-wider">{vehicle.plate}</span>
                                 </div>
 
                                 <div className="flex justify-between items-center px-2 py-1">
-                                    <span className="text-muted-foreground text-[11px] font-bold uppercase tracking-wider">Odômetro</span>
+                                    <span className="text-muted-foreground text-[11px] font-bold uppercase tracking-wider">{t('vehicles.odometer')}</span>
                                     <span className="font-black text-foreground text-sm">{formatKm(vehicle.currentKm)}</span>
                                 </div>
 
                                 <div className="flex justify-between items-center px-2">
                                     <span className={`px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${statusMap[vehicle.status].color}`}>
-                                        {statusMap[vehicle.status].label}
+                                        {t(statusMap[vehicle.status].key)}
                                     </span>
                                     <div className="text-[10px] text-muted-foreground font-black uppercase tracking-tighter opacity-40">#{vehicle.id.slice(0, 8)}</div>
                                 </div>
@@ -351,7 +357,7 @@ export function VehiclesList() {
                                         className="w-full mt-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
                                     >
                                         <Play size={14} fill="white" />
-                                        Iniciar Jornada
+                                        {t('vehicles.start_journey')}
                                     </button>
                                 )}
                             </div>
@@ -365,8 +371,8 @@ export function VehiclesList() {
                     <div className="mx-auto w-20 h-20 bg-muted rounded-full flex items-center justify-center text-muted-foreground/30 mb-6">
                         <Search size={40} />
                     </div>
-                    <h3 className="text-2xl font-black text-foreground uppercase tracking-tight">Nenhum veículo encontrado</h3>
-                    <p className="text-muted-foreground font-medium max-w-sm mx-auto mt-2">Tente ajustar sua busca ou adicione um novo veículo à frota.</p>
+                    <h3 className="text-2xl font-black text-foreground uppercase tracking-tight">{t('vehicles.no_vehicles_found')}</h3>
+                    <p className="text-muted-foreground font-medium max-w-sm mx-auto mt-2">{t('vehicles.try_adjust_search')}</p>
                 </div>
             )}
 

@@ -112,7 +112,7 @@ export default function SupportScreen() {
                         title="E-mail Administrativo" 
                         desc="Dúvidas sobre pagamentos e CNH" 
                         onPress={openEmail}
-                        color="#6366F1"
+                        color="#059669"
                     />
                 </View>
 
@@ -141,3 +141,4 @@ export default function SupportScreen() {
         </SafeAreaView>
     );
 }
+

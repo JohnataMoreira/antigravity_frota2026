@@ -101,7 +101,7 @@ export function JourneyDetails() {
                         <Card className="border-none shadow-sm bg-white/50 dark:bg-gray-800/50 backdrop-blur">
                             <CardContent className="pt-6">
                                 <div className="flex items-center gap-3 mb-2">
-                                    <div className="p-2 bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 rounded-xl">
+                                    <div className="p-2 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 rounded-xl">
                                         <User size={20} />
                                     </div>
                                     <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Motorista</span>
@@ -312,3 +312,4 @@ export function JourneyDetails() {
         </div>
     );
 }
+

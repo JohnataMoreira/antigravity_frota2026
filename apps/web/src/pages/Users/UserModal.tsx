@@ -160,7 +160,7 @@ export function UserModal({ isOpen, onClose, user }: UserModalProps) {
                                     <button
                                         type="button"
                                         onClick={() => setFormData({ ...formData, role: 'ADMIN' })}
-                                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all ${formData.role === 'ADMIN' ? 'bg-background text-purple-500 shadow-sm' : 'text-muted-foreground'}`}
+                                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all ${formData.role === 'ADMIN' ? 'bg-background text-emerald-500 shadow-sm' : 'text-muted-foreground'}`}
                                     >
                                         <Shield size={18} /> Gestor
                                     </button>
@@ -379,3 +379,4 @@ export function UserModal({ isOpen, onClose, user }: UserModalProps) {
         </div>
     );
 }
+

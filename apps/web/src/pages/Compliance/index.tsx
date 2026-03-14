@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SEO } from '@/components/SEO';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/axios';
 import { GlassCard } from '../../components/ui/Cards';
@@ -65,7 +66,11 @@ export default function CompliancePage() {
     });
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 animate-fade-in">
+            <SEO 
+                title="Conformidade & Documentos" 
+                description="Gestão de documentos e conformidade legal da frota e motoristas." 
+            />
             <header>
                 <h1 className="text-4xl font-black tracking-tight flex items-center gap-3">
                     <ShieldCheck className="w-10 h-10 text-blue-600" />
@@ -185,7 +190,7 @@ export default function CompliancePage() {
                                                 </div>
                                             ) : (
                                                 <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                                                    <Truck size={14} className="text-purple-500" />
+                                                    <Truck size={14} className="text-emerald-500" />
                                                     <span className="font-mono font-bold uppercase">{doc.vehicle?.plate}</span>
                                                 </div>
                                             )}
@@ -239,3 +244,4 @@ export default function CompliancePage() {
         </div>
     );
 }
+

@@ -7,6 +7,7 @@ import { Q } from '@nozbe/watermelondb';
 import { database } from '../src/model/database';
 import Journey from '../src/model/Journey';
 import Vehicle from '../src/model/Vehicle';
+import Animated, { FadeInDown, Layout } from 'react-native-reanimated';
 
 interface HistoryItemProps {
     journey: Journey;
@@ -26,11 +27,15 @@ const HistoryItemBase = ({ journey, vehicle }: HistoryItemProps) => {
         : 0;
 
     return (
-        <TouchableOpacity 
-            className="mb-4 bg-white p-5 rounded-[32px] shadow-sm border border-slate-100"
-            activeOpacity={0.7}
-            onPress={() => {/* TODO: Detailed Journey View */}}
+        <Animated.View 
+            entering={FadeInDown.springify()}
+            layout={Layout.springify()}
         >
+            <TouchableOpacity 
+                className="mb-4 bg-white p-5 rounded-[32px] shadow-sm border border-slate-100"
+                activeOpacity={0.7}
+                onPress={() => {/* TODO: Detailed Journey View */}}
+            >
             <View className="flex-row items-center mb-4">
                 <View className="w-12 h-12 rounded-2xl bg-blue-50 items-center justify-center">
                     <Truck size={22} color="#2563EB" />
@@ -74,6 +79,7 @@ const HistoryItemBase = ({ journey, vehicle }: HistoryItemProps) => {
                 </View>
             </View>
         </TouchableOpacity>
+        </Animated.View>
     );
 }
 

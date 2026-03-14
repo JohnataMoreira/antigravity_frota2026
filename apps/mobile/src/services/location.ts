@@ -2,8 +2,9 @@ import * as Location from 'expo-location';
 import * as TaskManager from 'expo-task-manager';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { io, Socket } from 'socket.io-client';
+import { Platform } from 'react-native';
 import { API_URL } from './api';
-import { outboxService } from './outboxService';
+import { outboxService } from './OutboxService';
 
 export interface LocationCoords {
     latitude: number;
@@ -14,36 +15,38 @@ export const LOCATION_TRACKING_TASK = 'LOCATION_TRACKING_TASK';
 const STORAGE_KEY_VEHICLE_ID = '@active_vehicle_id';
 
 // Define the background task
-TaskManager.defineTask(LOCATION_TRACKING_TASK, async ({ data, error }: any) => {
-    if (error) {
-        console.error('[BackgroundLocation] Task error:', error);
-        return;
-    }
-    if (data) {
-        const { locations } = data;
-        const location = locations[0];
-        if (location) {
-            const { latitude, longitude, speed } = location.coords;
-            console.log(`[BackgroundLocation] 📍 Coords: ${latitude}, ${longitude}`);
+if (Platform.OS !== 'web') {
+    TaskManager.defineTask(LOCATION_TRACKING_TASK, async ({ data, error }: any) => {
+        if (error) {
+            console.error('[BackgroundLocation] Task error:', error);
+            return;
+        }
+        if (data) {
+            const { locations } = data;
+            const location = locations[0];
+            if (location) {
+                const { latitude, longitude, speed } = location.coords;
+                console.log(`[BackgroundLocation] 📍 Coords: ${latitude}, ${longitude}`);
 
-            try {
-                const vehicleId = await AsyncStorage.getItem(STORAGE_KEY_VEHICLE_ID);
-                if (vehicleId) {
-                    await outboxService.enqueue('INGEST_TELEMETRY', {
-                        vehicleId,
-                        data: {
-                            latitude,
-                            longitude,
-                            speed,
-                        }
-                    });
+                try {
+                    const vehicleId = await AsyncStorage.getItem(STORAGE_KEY_VEHICLE_ID);
+                    if (vehicleId) {
+                        await outboxService.enqueue('INGEST_TELEMETRY', {
+                            vehicleId,
+                            data: {
+                                latitude,
+                                longitude,
+                                speed,
+                            }
+                        });
+                    }
+                } catch (err) {
+                    console.error('[BackgroundLocation] Failed to enqueue telemetry:', err);
                 }
-            } catch (err) {
-                console.error('[BackgroundLocation] Failed to enqueue telemetry:', err);
             }
         }
-    }
-});
+    });
+}
 
 class LocationService {
     private socket: Socket | null = null;
@@ -122,6 +125,7 @@ class LocationService {
     }
 
     async startBackgroundTracking(vehicleId: string) {
+        if (Platform.OS === 'web') return;
         try {
             // Check both foreground and background permissions
             const { status: foregroundStatus } = await Location.requestForegroundPermissionsAsync();
@@ -163,6 +167,10 @@ class LocationService {
     }
 
     async stopBackgroundTracking() {
+        if (Platform.OS === 'web') {
+            await AsyncStorage.removeItem(STORAGE_KEY_VEHICLE_ID);
+            return;
+        }
         try {
             const isStarted = await Location.hasStartedLocationUpdatesAsync(LOCATION_TRACKING_TASK);
             if (isStarted) {

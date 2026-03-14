@@ -1,0 +1,333 @@
+{
+  "common": {
+    "login": "Login",
+    "logout": "Logout",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "loading": "Loading...",
+    "error": "An error occurred"
+  },
+  "vehicles": {
+    "title": "Vehicles",
+    "fleet_title": "Vehicle Fleet",
+    "fleet_subtitle": "Management and monitoring of assets and machinery",
+    "add_vehicle": "Add Vehicle",
+    "total_fleet": "Total Fleet",
+    "light_vehicles": "Light Vehicles",
+    "heavy_trucks": "Heavy / Trucks",
+    "machinery_bikes": "Machinery / Motorcycles",
+    "search_placeholder": "Search by plate, model or brand...",
+    "all_status": "All Statuses",
+    "available": "Available",
+    "in_use": "In Use",
+    "maintenance": "Maintenance",
+    "critical_issue": "Critical Issue",
+    "grid_view": "Cards View",
+    "list_view": "List View",
+    "plate": "Plate",
+    "brand_model": "Brand/Model",
+    "type": "Type",
+    "status": "Status",
+    "current_km": "Current KM",
+    "actions": "Actions",
+    "edit_vehicle": "Edit Vehicle",
+    "delete_vehicle": "Delete Vehicle",
+    "odometer": "Odometer",
+    "start_journey": "Start Journey",
+    "no_vehicles_found": "No vehicles found",
+    "try_adjust_search": "Try adjusting your search or add a new vehicle to the fleet.",
+    "delete_confirm": "Are you sure you want to delete this vehicle?",
+    "loading_fleet": "Loading fleet...",
+    "connection_error": "Connection Error",
+    "load_error": "Could not load vehicles. Check the server."
+  },
+  "fuel": {
+    "title": "Fuel",
+    "description": "Fuel control, average consumption and fuel spending for the fleet.",
+    "header_title": "Fuel Entries",
+    "header_subtitle": "Real-time monitoring of fuel consumption and spending",
+    "stats": {
+      "total_spent": "Total Spent",
+      "total_liters": "Total Liters",
+      "avg_price": "Avg Price / L"
+    },
+    "search_placeholder": "Search by plate or driver...",
+    "filters": {
+      "this_month": "This Month",
+      "more_filters": "Filters"
+    },
+    "table": {
+      "vehicle": "Vehicle",
+      "driver": "Driver",
+      "date": "Date",
+      "km": "KM",
+      "liters": "Liters",
+      "total": "Total",
+      "type": "Type",
+      "payment": "Payment",
+      "date_at": "at"
+    },
+    "types": {
+      "GASOLINE": "Gasoline",
+      "ETHANOL": "Ethanol",
+      "DIESEL": "Diesel",
+      "GNV": "CNG",
+      "OTHER": "Other"
+    },
+    "payment": {
+      "CASH": "Cash",
+      "PIX": "Pix",
+      "DEBIT_CARD": "Debit Card",
+      "CREDIT_CARD": "Credit Card",
+      "FUEL_CARD": "Fuel Card",
+      "INVOICED": "Invoiced",
+      "REIMBURSEMENT": "Reimbursement",
+      "PREPAID_CARD": "Prepaid Card",
+      "VOUCHER": "Voucher",
+      "INTERNAL_TANK": "Internal Tank"
+    }
+  },
+  "maintenance": {
+    "title": "Maintenance",
+    "description": "Maintenance history, preventive maintenance and fleet overhaul control.",
+    "header_title": "Maintenance Management",
+    "header_subtitle": "Safety and durability protocol for the fleet",
+    "stats": {
+      "total_records": "Total Records",
+      "km_alerts": "KM Alerts",
+      "in_workshop": "Vehicles in Workshop",
+      "total_investment": "Total Investment"
+    },
+    "tabs": {
+      "alerts": "Alerts Management",
+      "catalog": "Service Catalog"
+    },
+    "search_placeholder": "Search by vehicle or service...",
+    "buttons": {
+      "new_maintenance": "New Maintenance",
+      "new_service": "Register New Service",
+      "complete": "Complete"
+    },
+    "sections": {
+      "in_workshop": "Vehicles in Workshop",
+      "preventive_alerts": "Preventive Alerts",
+      "service_history": "Service History"
+    },
+    "workshop": {
+      "critical": "In Critical Maintenance"
+    },
+    "alerts": {
+      "current_km": "Current KM:",
+      "planned_km": "Planned:",
+      "start_maintenance": "Start Maintenance"
+    },
+    "table": {
+      "vehicle": "Vehicle",
+      "type": "Type",
+      "status": "Status",
+      "date_km": "Date / KM",
+      "action": "Action",
+      "predicted": "PREVIEWED"
+    },
+    "catalog": {
+      "preventive": "Preventive",
+      "corrective": "Corrective",
+      "interval": "Interval:",
+      "avg_time": "Average Time:",
+      "days": "days",
+      "delete": "Delete",
+      "delete_confirm": "Do you want to delete this service from the catalog?",
+      "use_template": "Use Template",
+      "empty": "No services cataloged",
+      "empty_desc": "Register frequent maintenance types to speed up your fleet's scheduling."
+    },
+    "modal": {
+      "new": {
+        "title": "New Maintenance",
+        "vehicle": "Vehicle",
+        "select_vehicle": "Select a vehicle",
+        "type": "Type",
+        "planned_km": "Planned for (KM)",
+        "notes": "Notes",
+        "notes_placeholder": "Planned service details...",
+        "submit": "Schedule Maintenance",
+        "pending": "Scheduling..."
+      },
+      "complete": {
+        "title": "Complete Service",
+        "real_cost": "Real Cost",
+        "service_km": "Service KM",
+        "technical_report": "Technical Report",
+        "technical_report_placeholder": "Describe what was done...",
+        "submit": "Confirm Completion",
+        "pending": "Finishing..."
+      },
+      "catalog": {
+        "title": "New Service in Catalog",
+        "name": "Service Name",
+        "name_placeholder": "Ex: Oil Change, Brake Overhaul...",
+        "description": "Description (Optional)",
+        "description_placeholder": "Details about what this plan covers...",
+        "vehicle_types": "Vehicle Types",
+        "types_CAR": "Car",
+        "types_TRUCK": "Truck",
+        "types_MOTORCYCLE": "Motorcycle",
+        "types_MACHINE": "Machine",
+        "avg_duration": "Average Duration (Days)",
+        "submit": "Register Service",
+        "pending": "Saving..."
+      }
+    },
+    "types": {
+      "OIL": "Oil Change",
+      "TIRES": "Tires/Rolling",
+      "INSPECTION": "Preventive Revision",
+      "REPAIR": "Corrective/Repair",
+      "OTHER": "Other Services"
+    },
+    "status": {
+      "PENDING": "Pending",
+      "COMPLETED": "Completed",
+      "CANCELED": "Canceled"
+    }
+  },
+  "drivers": {
+    "title": "Team Management",
+    "description": "Manage drivers, admins and their detailed data.",
+    "syncing": "Syncing team...",
+    "buttons": {
+      "new_employee": "New Employee",
+      "discard": "Discard",
+      "update": "Update Data",
+      "finalize": "Finalize Registration"
+    },
+    "search_placeholder": "Search by name, email or CPF...",
+    "view_modes": {
+      "grid": "Grid View",
+      "list": "List View"
+    },
+    "table": {
+      "employee": "Employee",
+      "contact_cpf": "Contact / CPF",
+      "role": "Role",
+      "license": "License",
+      "actions": "Actions"
+    },
+    "card": {
+      "license": "License",
+      "cpf": "CPF",
+      "phone": "Phone"
+    },
+    "empty": {
+      "title": "No employees found",
+      "description": "Try searching for another name, email or CPF."
+    },
+    "roles": {
+      "ADMIN": "Admin",
+      "DRIVER": "Driver"
+    },
+    "contact": {
+      "no_cpf": "CPF not informed"
+    },
+    "modal": {
+      "edit_title": "Edit Registration",
+      "new_title": "New Employee",
+      "sections": {
+        "professional": "Professional Data",
+        "location": "Location / Address"
+      },
+      "form": {
+        "name": "Full Name",
+        "email": "Email",
+        "password": "Password",
+        "phone": "Phone",
+        "cpf": "CPF",
+        "birth_date": "Birth Date",
+        "entry_date": "Entry Date",
+        "role": "Role",
+        "license": "License",
+        "zip_code": "ZIP Code",
+        "city": "City",
+        "street": "Street",
+        "number": "No",
+        "neighborhood": "Neighborhood",
+        "state": "State",
+        "complement": "Complement"
+      }
+    },
+    "alerts": {
+      "delete_confirm": "Do you really want to delete this employee?",
+      "delete_error": "Error deleting employee",
+      "save_error": "Error saving employee"
+    }
+  },
+  "navigation": {
+    "general": "General",
+    "dashboard": "Dashboard",
+    "fleet_operation": "Fleet Operation",
+    "vehicles": "Vehicles",
+    "journeys": "Journeys",
+    "maintenance": "Maintenance",
+    "tyres": "Tyres",
+    "supplies": "Supplies",
+    "fuel": "Fueling",
+    "inventory": "Inventory",
+    "purchasing": "Purchasing",
+    "administrative": "Administrative",
+    "employees": "Employees",
+    "financial": "Financial",
+    "compliance": "Compliance",
+    "analysis": "Analysis",
+    "reports": "Reports",
+    "logout": "Logout",
+    "logout_account": "Sign out of Account",
+    "skip_to_main": "Skip to main content",
+    "close_menu": "Close menu",
+    "open_menu": "Open menu",
+    "user_label": "User"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "operational_title": "Operational Dashboard",
+    "version_label": "Fleet Management System v2.5",
+    "welcome_title": "Welcome to Frota Manager!",
+    "vehicles_available": "{{count}} vehicles available",
+    "active_journeys": "Active Journeys",
+    "journeys_with_incidents": "{{count}} with incidents",
+    "no_active_journeys": "No active journeys",
+    "available_vehicles": "Available Vehicles",
+    "ready_for_operation": "Ready for operation",
+    "in_use_vehicles": "In Use Vehicles",
+    "in_transit": "In transit or operation",
+    "in_maintenance": "In Maintenance",
+    "in_workshop": "In workshop or waiting",
+    "live_monitoring": "Live Real-Time Monitoring",
+    "view_route_details": "View route details →",
+    "recent_alerts": "Recent Alerts",
+    "no_critical_alerts": "No critical alerts",
+    "activity_history": "Activity History"
+  },
+  "auth": {
+    "welcome_back": "Welcome back",
+    "sign_in": "Sign in to the System",
+    "new_organization": "New Organization",
+    "fill_company_data": "Fill in your company details",
+    "first_name": "First Name",
+    "last_name": "Last Name",
+    "company": "Company",
+    "company_name": "Company Name",
+    "cnpj_optional": "CNPJ (Optional)",
+    "email": "Email",
+    "password": "Password",
+    "confirm_password": "Confirm Password",
+    "forgot_password": "Forgot password?",
+    "signing_in": "Signing in...",
+    "create_account": "Create Account",
+    "back_to_login": "Back to Login",
+    "create_organization": "Create Organization",
+    "or_sign_in_with": "Or sign in with",
+    "continue_with_google": "Continue with Google"
+  }
+}

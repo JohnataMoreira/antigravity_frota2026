@@ -2,9 +2,9 @@ import os
 import subprocess
 import time
 
-def run(cmd):
+def run(cmd, is_shell=True):
     print(f"Running: {cmd}")
-    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    result = subprocess.run(cmd, shell=is_shell, capture_output=True, text=True)
     if result.returncode != 0:
         print(f"Error executing command: {cmd}")
         print(f"Stderr: {result.stderr}")
@@ -69,9 +69,9 @@ with open('apps/web/Dockerfile.safe', 'w') as f:
     f.write(dockerfile_content)
 
 print("BUILDING DOCKER IMAGE...")
-run(f"docker build -t {TAG} -f apps/web/Dockerfile.safe .")
+run(["docker", "build", "-t", TAG, "-f", "apps/web/Dockerfile.safe", "."], is_shell=False)
 
 print("UPDATING SERVICE...")
-run(f"docker service update --force --image {TAG} frota2026-frotaweb-bmv9p5")
+run(["docker", "service", "update", "--force", "--image", TAG, "frota2026-frotaweb-bmv9p5"], is_shell=False)
 
 print(f"DEPLOY SUCCESSFUL with tag: {TAG}")

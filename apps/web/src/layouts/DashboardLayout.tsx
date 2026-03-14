@@ -3,26 +3,53 @@ import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LayoutDashboard, Truck, Users, Map, Wrench, LogOut, Menu, X, User as UserIcon, FileText, Package, Fuel, ShieldCheck, ShoppingCart, DollarSign, Disc } from 'lucide-react';
 import { ThemeSwitcher } from '../components/ThemeSwitcher';
+import { useTranslation } from 'react-i18next';
 
 export function DashboardLayout() {
     const { user, logout } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-    const navigation = [
-        { name: 'Painel', href: '/dashboard', icon: LayoutDashboard },
-        { name: 'Veículos', href: '/vehicles', icon: Truck },
-        { name: 'Abastecimentos', href: '/fuel', icon: Fuel },
-        { name: 'Funcionários', href: '/users', icon: Users },
-        { name: 'Estoque', href: '/inventory', icon: Package },
-        { name: 'Compras', href: '/purchasing', icon: ShoppingCart },
-        { name: 'Financeiro', href: '/finance', icon: DollarSign },
-        { name: 'Jornadas', href: '/journeys', icon: Map },
-        { name: 'Manutenção', href: '/maintenance', icon: Wrench },
-        { name: 'Pneus', href: '/tyres', icon: Disc },
-        { name: 'Conformidade', href: '/compliance', icon: ShieldCheck },
-        { name: 'Relatórios', href: '/reports', icon: FileText },
+    const groupedNavigation = [
+        {
+            title: t('navigation.general'),
+            items: [
+                { name: t('navigation.dashboard'), href: '/dashboard', icon: LayoutDashboard },
+            ]
+        },
+        {
+            title: t('navigation.fleet_operation'),
+            items: [
+                { name: t('navigation.vehicles'), href: '/vehicles', icon: Truck },
+                { name: t('navigation.journeys'), href: '/journeys', icon: Map },
+                { name: t('navigation.maintenance'), href: '/maintenance', icon: Wrench },
+                { name: t('navigation.tyres'), href: '/tyres', icon: Disc },
+            ]
+        },
+        {
+            title: t('navigation.supplies'),
+            items: [
+                { name: t('navigation.fuel'), href: '/fuel', icon: Fuel },
+                { name: t('navigation.inventory'), href: '/inventory', icon: Package },
+                { name: t('navigation.purchasing'), href: '/purchasing', icon: ShoppingCart },
+            ]
+        },
+        {
+            title: t('navigation.administrative'),
+            items: [
+                { name: t('navigation.employees'), href: '/users', icon: Users },
+                { name: t('navigation.financial'), href: '/finance', icon: DollarSign },
+                { name: t('navigation.compliance'), href: '/compliance', icon: ShieldCheck },
+            ]
+        },
+        {
+            title: t('navigation.analysis'),
+            items: [
+                { name: t('navigation.reports'), href: '/reports', icon: FileText },
+            ]
+        }
     ];
 
     const handleLogout = () => {
@@ -32,6 +59,12 @@ export function DashboardLayout() {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+            <a 
+                href="#main-content" 
+                className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:p-4 focus:bg-primary focus:text-primary-foreground focus:rounded-br-xl focus:shadow-2xl transition-all"
+            >
+                {t('navigation.skip_to_main')}
+            </a>
             {/* Sidebar for Desktop */}
             <aside className="hidden md:flex flex-col w-64 glass-card h-screen sticky top-0 border-r border-gray-200 dark:border-gray-800">
                 <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-center bg-white">
@@ -43,28 +76,37 @@ export function DashboardLayout() {
                         <UserIcon size={20} />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold truncate text-gray-900 dark:text-gray-100">{user?.name || 'Usuário'}</p>
+                        <p className="text-sm font-semibold truncate text-gray-900 dark:text-gray-100">{user?.name || t('navigation.user_label')}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user?.email}</p>
                     </div>
                 </div>
 
-                <nav className="flex-1 px-4 space-y-1">
-                    {navigation.map((item) => {
-                        const isActive = location.pathname.startsWith(item.href);
-                        return (
-                            <Link
-                                key={item.name}
-                                to={item.href}
-                                className={`flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all ${isActive
-                                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
-                                    : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
-                                    }`}
-                            >
-                                <item.icon className={`w-5 h-5 mr-3 ${isActive ? 'text-primary-foreground' : ''}`} />
-                                {item.name}
-                            </Link>
-                        );
-                    })}
+                <nav className="flex-1 px-4 py-4 space-y-6 overflow-y-auto custom-scrollbar">
+                    {groupedNavigation.map((group) => (
+                        <div key={group.title} className="space-y-2">
+                            <h3 className="px-4 text-[10px] font-black uppercase tracking-[2px] text-gray-400 dark:text-gray-500">
+                                {group.title}
+                            </h3>
+                            <div className="space-y-1">
+                                {group.items.map((item) => {
+                                    const isActive = location.pathname.startsWith(item.href);
+                                    return (
+                                        <Link
+                                            key={item.name}
+                                            to={item.href}
+                                            className={`flex items-center px-4 py-2.5 text-sm font-semibold rounded-xl transition-all ${isActive
+                                                ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.02]'
+                                                : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 hover:scale-[1.02]'
+                                                }`}
+                                        >
+                                            <item.icon className={`w-4 h-4 mr-3 ${isActive ? 'text-primary-foreground' : 'text-gray-400'}`} />
+                                            {item.name}
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    ))}
                 </nav>
 
                 <div className="p-4 space-y-2">
@@ -76,7 +118,7 @@ export function DashboardLayout() {
                         className="flex items-center w-full px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-colors"
                     >
                         <LogOut className="w-5 h-5 mr-3" />
-                        Sair
+                        {t('navigation.logout')}
                     </button>
                 </div>
             </aside>
@@ -89,7 +131,7 @@ export function DashboardLayout() {
                     </div>
                     <button
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        aria-label={isMobileMenuOpen ? "Fechar menu" : "Abrir menu"}
+                        aria-label={isMobileMenuOpen ? t('navigation.close_menu') : t('navigation.open_menu')}
                         className="p-2 text-gray-600 dark:text-gray-300"
                     >
                         {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -109,24 +151,33 @@ export function DashboardLayout() {
                             </button>
                         </div>
 
-                        <nav className="flex-1 px-4 py-8 space-y-4">
-                            {navigation.map((item) => {
-                                const isActive = location.pathname.startsWith(item.href);
-                                return (
-                                    <Link
-                                        key={item.name}
-                                        to={item.href}
-                                        className={`flex items-center px-6 py-4 text-lg font-semibold rounded-2xl transition-all ${isActive
-                                            ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
-                                            : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-                                            }`}
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                    >
-                                        <item.icon className="w-6 h-6 mr-4" />
-                                        {item.name}
-                                    </Link>
-                                );
-                            })}
+                        <nav className="flex-1 px-6 py-8 space-y-8 overflow-y-auto">
+                            {groupedNavigation.map((group) => (
+                                <div key={group.title} className="space-y-4">
+                                    <h3 className="text-[10px] font-black uppercase tracking-[3px] text-gray-400">
+                                        {group.title}
+                                    </h3>
+                                    <div className="space-y-2">
+                                        {group.items.map((item) => {
+                                            const isActive = location.pathname.startsWith(item.href);
+                                            return (
+                                                <Link
+                                                    key={item.name}
+                                                    to={item.href}
+                                                    className={`flex items-center px-6 py-4 text-base font-bold rounded-2xl transition-all ${isActive
+                                                        ? 'bg-primary text-primary-foreground shadow-xl shadow-primary/30'
+                                                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                                        }`}
+                                                    onClick={() => setIsMobileMenuOpen(false)}
+                                                >
+                                                    <item.icon className={`w-5 h-5 mr-4 ${isActive ? 'text-primary-foreground' : 'text-gray-400'}`} />
+                                                    {item.name}
+                                                </Link>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            ))}
                         </nav>
 
                         <div className="p-6 border-t border-gray-100 dark:border-gray-800">
@@ -135,13 +186,13 @@ export function DashboardLayout() {
                                 className="flex items-center justify-center w-full px-6 py-4 text-lg font-bold text-red-500 bg-red-50 dark:bg-red-900/10 rounded-2xl"
                             >
                                 <LogOut className="w-6 h-6 mr-3" />
-                                Sair da Conta
+                                {t('navigation.logout_account')}
                             </button>
                         </div>
                     </div>
                 )}
 
-                <main className="flex-1 overflow-y-auto p-4 md:p-8">
+                <main id="main-content" className="flex-1 overflow-y-auto p-4 md:p-8 outline-none" tabIndex={-1}>
                     <Outlet />
                 </main>
             </div>

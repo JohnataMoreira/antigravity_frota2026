@@ -1,11 +1,13 @@
 import * as BackgroundFetch from 'expo-background-fetch';
 import * as TaskManager from 'expo-task-manager';
 import * as SecureStore from 'expo-secure-store';
-import { outboxService } from './outboxService';
+import { outboxService } from './OutboxService';
 
 export const SYNC_OUTBOX_TASK = 'SYNC_OUTBOX_TASK';
 
-// Define the background task
+// Define the background task - Must be called at the top level of the main bundle
+// Note: defineTask does not need to be inside an async check, but we should handle 
+// environments where TaskManager might not be fully initialized yet.
 TaskManager.defineTask(SYNC_OUTBOX_TASK, async () => {
     try {
         console.log('[BackgroundFetch] 🔄 Running background sync task...');
@@ -19,7 +21,6 @@ TaskManager.defineTask(SYNC_OUTBOX_TASK, async () => {
         }
 
         // Process the outbox
-        // Note: outboxService.processQueue already checks for network connectivity
         await outboxService.processQueue(token);
         
         console.log('[BackgroundFetch] ✅ Sync task finished.');
@@ -30,11 +31,18 @@ TaskManager.defineTask(SYNC_OUTBOX_TASK, async () => {
     }
 });
 
+
 /**
  * Register the background sync task
  */
 export async function registerBackgroundSync() {
     try {
+        const isAvailable = await TaskManager.isAvailableAsync();
+        if (!isAvailable) {
+            console.warn('[BackgroundFetch] TaskManager is not available. Skipping registration.');
+            return;
+        }
+
         const isRegistered = await TaskManager.isTaskRegisteredAsync(SYNC_OUTBOX_TASK);
         if (isRegistered) {
             console.log(`[BackgroundFetch] Task ${SYNC_OUTBOX_TASK} already registered.`);
@@ -52,3 +60,4 @@ export async function registerBackgroundSync() {
         console.error(`[BackgroundFetch] Registration failed:`, err);
     }
 }
+

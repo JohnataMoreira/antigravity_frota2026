@@ -1,0 +1,36 @@
+
+============================================================
+  SEO CHECKER - Search Engine Optimization Audit
+============================================================
+Project: C:\Projetos\Antigravity\apps\Frota2026
+Time: 2026-03-14 15:04:30
+------------------------------------------------------------
+Found 50 page files to analyze
+
+============================================================
+SEO ANALYSIS RESULTS
+============================================================
+
+Issue Summary:
+  [20] Missing Open Graph tags
+  [19] Missing meta description
+  [11] Missing <title> tag
+  [2] Image missing alt attribute
+  [1] Image has empty alt attribute
+
+Affected files (22):
+  - combustivel.html
+  - incidente.html
+  - inspecao_veiculo.html
+  - jornada_ativa.html
+  - login.html
+  ... and 17 more
+
+{
+  "script": "seo_checker",
+  "project": "C:\\Projetos\\Antigravity\\apps\\Frota2026",
+  "files_checked": 50,
+  "files_with_issues": 22,
+  "issues_found": 53,
+  "passed": false
+}

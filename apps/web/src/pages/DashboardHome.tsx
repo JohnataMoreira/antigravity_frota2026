@@ -6,23 +6,23 @@ import {
     Activity,
     Car,
     AlertTriangle,
-    DollarSign,
     MapPin,
     TrendingUp,
     AlertCircle,
 } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
-import { calculateFleetHealth, formatCurrency } from '@/lib/utils';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 import { reportsService } from '@/services/reportsService';
 type DashboardStats = any;
 const reportsApi = reportsService;
 import { LiveMap } from '@/components/LiveMap';
-import { clsx } from 'clsx';
+import { SEO } from '@/components/SEO';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Dashboard Home - Main KPI overview page
  */
 export default function DashboardHome() {
+    const { t } = useTranslation();
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [loading, setLoading] = useState(true);
 
@@ -40,60 +40,69 @@ export default function DashboardHome() {
         fetchStats();
     }, []);
 
-    const getHealthVariant = (score: number) => {
-        if (score >= 85) return 'success';
-        if (score >= 70) return 'warning';
-        return 'danger';
-    };
 
     return (
         <div className="space-y-6 animate-fade-in">
+            <SEO 
+                title="Dashboard" 
+                description="Visão geral da sua frota: veículos ativos, alertas de manutenção e estatísticas de uso." 
+            />
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-4xl font-black tracking-tighter gradient-text uppercase">
+                        {t('dashboard.operational_title')}
+                    </h1>
+                    <p className="text-muted-foreground/60 font-black uppercase tracking-[0.2em] mt-1 text-[10px]">
+                        {t('dashboard.version_label')}
+                    </p>
+                </div>
+            </div>
+
             {/* Welcome Alert */}
             <Alert
                 variant="info"
-                title="Bem-vindo ao Frota Manager!"
+                title={t('dashboard.welcome_title')}
                 icon={TrendingUp}
                 dismissible
                 onDismiss={() => console.log('dismissed')}
             >
-                Sua frota está operando com{' '}
-                <strong>{stats?.stats.availableVehicles || 0} veículos disponíveis</strong>. Continue o
+                {t('dashboard.vehicles_available', { count: stats?.stats.availableVehicles || 0 })}. Continue o
                 ótimo trabalho!
             </Alert>
 
             {/* KPI Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                 <StatCard
-                    title="Jornadas Ativas"
+                    title={t('dashboard.active_journeys')}
                     value={stats?.stats.activeJourneys || 0}
-                    description={stats?.stats.activeJourneys ? `${stats.stats.journeysWithIncidents || 0} com incidentes` : "Sem viagens no momento"}
+                    description={stats?.stats.activeJourneys ? t('dashboard.journeys_with_incidents', { count: stats.stats.journeysWithIncidents || 0 }) : t('dashboard.no_active_journeys')}
                     icon={MapPin}
                     variant="info"
                     loading={loading}
                 />
-
+ 
                 <StatCard
-                    title="Veí. Disponíveis"
+                    title={t('dashboard.available_vehicles')}
                     value={stats?.stats.availableVehicles || 0}
-                    description="Prontos para operação"
+                    description={t('dashboard.ready_for_operation')}
                     icon={Car}
                     variant="success"
                     loading={loading}
                 />
-
+ 
                 <StatCard
-                    title="Veí. em Uso"
+                    title={t('dashboard.in_use_vehicles')}
                     value={stats?.stats.inUseVehicles || 0}
-                    description="Em trânsito ou operação"
+                    description={t('dashboard.in_transit')}
                     icon={Activity}
                     variant="info"
                     loading={loading}
                 />
-
+ 
                 <StatCard
-                    title="Em Manutenção"
+                    title={t('dashboard.in_maintenance')}
                     value={stats?.stats.maintenanceVehicles || 0}
-                    description="Na oficina ou aguardando"
+                    description={t('dashboard.in_workshop')}
                     icon={AlertTriangle}
                     variant={stats && stats.stats.maintenanceVehicles > 5 ? 'danger' : 'warning'}
                     loading={loading}
@@ -105,9 +114,9 @@ export default function DashboardHome() {
                 <div className="p-4 border-b border-border flex justify-between items-center bg-muted/20">
                     <div className="flex items-center gap-2">
                         <MapPin className="text-primary w-5 h-5" />
-                        <h3 className="font-black uppercase tracking-tighter text-sm">Monitoramento em Tempo Real</h3>
+                        <h3 className="font-black uppercase tracking-tighter text-sm">{t('dashboard.live_monitoring')}</h3>
                     </div>
-                    <a href="/journeys" className="text-[10px] font-black uppercase text-primary hover:underline transition-all">Ver detalhes das rotas →</a>
+                    <a href="/journeys" className="text-[10px] font-black uppercase text-primary hover:underline transition-all">{t('dashboard.view_route_details')}</a>
                 </div>
                 <div className="h-[450px]">
                     <LiveMap />
@@ -118,7 +127,7 @@ export default function DashboardHome() {
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                 {/* Alerts Sidebar */}
                 <div className="space-y-4">
-                    <h3 className="text-h3 font-semibold">Alertas Recentes</h3>
+                    <h3 className="text-h3 font-semibold">{t('dashboard.recent_alerts')}</h3>
 
                     {loading ? (
                         <Card variant="glass">
@@ -144,7 +153,7 @@ export default function DashboardHome() {
                             ) : (
                                 <Card variant="glass" className="opacity-50">
                                     <p className="text-center text-xs font-black uppercase tracking-widest text-muted-foreground p-4">
-                                        Nenhum alerta crítico
+                                        {t('dashboard.no_critical_alerts')}
                                     </p>
                                 </Card>
                             )}
@@ -155,7 +164,7 @@ export default function DashboardHome() {
                 {/* History Chart Placeholder */}
                 <Card variant="glass" className="xl:col-span-2">
                     <div className="p-4 border-b border-border flex justify-between items-center bg-muted/20 mb-4">
-                        <h3 className="font-black uppercase tracking-tighter text-sm">Histórico de Atividade</h3>
+                        <h3 className="font-black uppercase tracking-tighter text-sm">{t('dashboard.activity_history')}</h3>
                     </div>
                     <div className="h-80 w-full">
                         <ResponsiveContainer width="100%" height="100%">

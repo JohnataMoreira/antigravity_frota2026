@@ -31,6 +31,7 @@ export const mySchema = appSchema({
                 { name: 'backend_id', type: 'string', isOptional: true },
                 { name: 'start_photo_url', type: 'string', isOptional: true },
                 { name: 'updated_at', type: 'number' },
+                { name: 'created_at', type: 'number' },
             ],
         }),
         tableSchema({
@@ -40,6 +41,7 @@ export const mySchema = appSchema({
                 { name: 'type', type: 'string' },
                 { name: 'items', type: 'string' }, // JSON string
                 { name: 'updated_at', type: 'number' },
+                { name: 'created_at', type: 'number' },
             ],
         }),
         tableSchema({
@@ -54,6 +56,7 @@ export const mySchema = appSchema({
                 { name: 'status', type: 'string' }, // PENDING, APPROVED, PAID
                 { name: 'backend_id', type: 'string', isOptional: true },
                 { name: 'updated_at', type: 'number' },
+                { name: 'created_at', type: 'number' },
             ],
         }),
         tableSchema({
@@ -69,6 +72,7 @@ export const mySchema = appSchema({
                 { name: 'completed_at', type: 'number', isOptional: true },
                 { name: 'backend_id', type: 'string', isOptional: true },
                 { name: 'updated_at', type: 'number' },
+                { name: 'created_at', type: 'number' },
             ],
         }),
         tableSchema({
@@ -83,6 +87,7 @@ export const mySchema = appSchema({
                 { name: 'file_url', type: 'string' },
                 { name: 'backend_id', type: 'string', isOptional: true },
                 { name: 'updated_at', type: 'number' },
+                { name: 'created_at', type: 'number' },
             ],
         }),
         tableSchema({

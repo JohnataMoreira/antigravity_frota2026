@@ -3,7 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../lib/axios';
 import { useAuth } from '../context/AuthContext';
 import { applyThemeColor } from '../lib/utils';
-import { Mail, Lock, User, Loader2, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, User, Loader2, ShieldCheck, CheckCircle2, ChevronRight, AlertCircle } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 export function RegisterInvite() {
     const [searchParams] = useSearchParams();
@@ -36,7 +37,9 @@ export function RegisterInvite() {
                     applyThemeColor(res.data.organization.primaryColor);
                 }
             } catch (err: any) {
-                setError(err.response?.data?.message || 'Convite inválido ou expirado.');
+                const message = err.response?.data?.message || 'Convite inválido ou expirado.';
+                setError(message);
+                toast.error(message, { id: 'invite-error' });
                 applyThemeColor(null);
             } finally {
                 setLoading(false);
@@ -52,10 +55,13 @@ export function RegisterInvite() {
 
         if (password !== confirmPassword) {
             setError('As senhas não coincidem');
+            toast.error('As senhas não coincidem');
             return;
         }
 
         setSubmitting(true);
+        const loadingToast = toast.loading('Criando sua conta...');
+        
         try {
             const res = await api.post('/auth/register-invite', {
                 token,
@@ -63,10 +69,17 @@ export function RegisterInvite() {
                 password
             });
 
-            login(res.data.access_token, res.data.user);
-            navigate('/dashboard');
+            toast.success('Cadastro concluído com sucesso!', { id: loadingToast });
+            
+            // Short delay to let the toast be seen
+            setTimeout(() => {
+                login(res.data.access_token, res.data.user);
+                navigate('/dashboard');
+            }, 800);
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Falha ao concluir cadastro');
+            const message = err.response?.data?.message || 'Falha ao concluir cadastro';
+            setError(message);
+            toast.error(message, { id: loadingToast });
         } finally {
             setSubmitting(false);
         }
@@ -75,7 +88,10 @@ export function RegisterInvite() {
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
-                <Loader2 className="w-12 h-12 text-primary animate-spin" />
+                <div className="flex flex-col items-center gap-4">
+                    <Loader2 className="w-12 h-12 text-primary animate-spin" />
+                    <p className="text-muted-foreground animate-pulse font-medium">Validando seu convite...</p>
+                </div>
             </div>
         );
     }
@@ -83,17 +99,20 @@ export function RegisterInvite() {
     if (error) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background p-4">
-                <div className="max-w-md w-full glass-card p-10 text-center space-y-6">
-                    <div className="bg-red-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto border-4 border-white shadow-xl">
-                        <User className="text-red-500" size={40} />
+                <div className="max-w-md w-full glass-card p-10 text-center space-y-6 animate-in fade-in zoom-in duration-500">
+                    <div className="bg-red-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto border-4 border-white shadow-xl ring-8 ring-red-50/50">
+                        <AlertCircle className="text-red-500" size={48} />
                     </div>
-                    <h1 className="text-3xl font-bold text-gray-800">Ops!</h1>
-                    <p className="text-muted-foreground font-medium">{error}</p>
+                    <div className="space-y-2">
+                        <h1 className="text-3xl font-black text-gray-900">Oops!</h1>
+                        <p className="text-muted-foreground font-medium leading-relaxed">{error}</p>
+                    </div>
                     <button
                         onClick={() => navigate('/login')}
-                        className="w-full py-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-2xl font-bold transition-all"
+                        className="w-full py-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-2xl font-black transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
                     >
                         Voltar para o Login
+                        <ChevronRight size={18} />
                     </button>
                 </div>
             </div>
@@ -102,108 +121,122 @@ export function RegisterInvite() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
-            <div className="absolute top-0 -left-4 w-72 h-72 bg-primary/20 rounded-full blur-3xl filter opacity-30 animate-pulse" />
-            <div className="absolute bottom-0 -right-4 w-72 h-72 bg-accent/20 rounded-full blur-3xl filter opacity-30 animate-pulse delay-1000" />
-
-            <div className="w-full max-w-md space-y-8 p-10 glass-card relative z-10 border border-border/50 shadow-2xl">
+            {/* Ambient Background Elements */}
+            <div className="absolute top-0 -left-12 w-96 h-96 bg-primary/20 rounded-full blur-[100px] filter opacity-30 animate-pulse" />
+            <div className="absolute bottom-0 -right-12 w-96 h-96 bg-accent/20 rounded-full blur-[100px] filter opacity-30 animate-pulse delay-700" />
+            
+            <div className="w-full max-w-md space-y-8 p-10 glass-card relative z-10 border border-white/40 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] animate-in fade-in slide-in-from-bottom-8 duration-700">
                 <div className="text-center space-y-4">
-                    <div className="flex justify-center mb-6">
+                    <div className="flex justify-center mb-6 scale-up-animation">
                         {inviteData?.organization?.logoUrl ? (
-                            <div className="bg-white p-4 rounded-3xl shadow-xl shadow-primary/20">
+                            <div className="bg-white p-5 rounded-[2rem] shadow-2xl shadow-primary/10 border border-gray-100">
                                 <img
                                     src={inviteData.organization.logoUrl}
                                     alt={inviteData.organization.name}
-                                    className="h-16 w-auto object-contain"
+                                    className="h-20 w-auto object-contain"
                                 />
                             </div>
                         ) : (
-                            <div className="bg-primary text-primary-foreground p-4 rounded-3xl shadow-xl shadow-primary/20">
-                                <ShieldCheck size={40} />
+                            <div className="bg-primary text-primary-foreground p-6 rounded-[2rem] shadow-2xl shadow-primary/20 ring-8 ring-primary/5">
+                                <ShieldCheck size={48} />
                             </div>
                         )}
                     </div>
-                    <h2 className="text-4xl font-black tracking-tight gradient-text">
-                        Bem-vindo!
-                    </h2>
-                    <div className="bg-primary/10 p-4 rounded-2xl border border-primary/20">
-                        <p className="text-sm font-bold text-primary flex items-center justify-center gap-2">
-                            <CheckCircle2 size={16} />
-                            Convite para {inviteData?.organization?.name}
+                    
+                    <div className="space-y-1">
+                        <h2 className="text-4xl font-black tracking-tight gradient-text">
+                            Bem-vindo!
+                        </h2>
+                        <p className="text-muted-foreground font-medium">
+                            Complete seu cadastro para começar
                         </p>
                     </div>
-                    <p className="text-muted-foreground font-medium">
-                        Complete seu cadastro para acessar a plataforma.
-                    </p>
+
+                    <div className="bg-primary/5 p-4 rounded-3xl border border-primary/10 backdrop-blur-sm">
+                        <p className="text-sm font-bold text-primary flex items-center justify-center gap-2.5">
+                            <CheckCircle2 size={18} className="text-primary" />
+                            Convite para: <span className="font-black underline decoration-primary/30 underline-offset-4">{inviteData?.organization?.name}</span>
+                        </p>
+                    </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-5">
-                    <div className="space-y-2">
-                        <label className="text-sm font-bold text-gray-700 ml-1">E-mail</label>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="space-y-2 group">
+                        <label className="text-xs font-black text-gray-500 uppercase tracking-widest ml-1 transition-colors group-focus-within:text-primary">E-mail</label>
                         <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground transition-colors group-focus-within:text-primary" />
                             <input
                                 type="email"
                                 value={inviteData?.email}
                                 disabled
-                                className="w-full pl-10 pr-4 py-3 bg-gray-100 border border-gray-200 rounded-xl outline-none font-medium text-gray-500 cursor-not-allowed"
+                                className="w-full pl-12 pr-4 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl outline-none font-bold text-gray-400 cursor-not-allowed shadow-inner"
                             />
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-bold text-gray-700 ml-1">Nome Completo</label>
+                    <div className="space-y-2 group">
+                        <label className="text-xs font-black text-gray-500 uppercase tracking-widest ml-1 transition-colors group-focus-within:text-primary">Nome Completo</label>
                         <div className="relative">
-                            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground transition-colors group-focus-within:text-primary" />
                             <input
                                 placeholder="Seu nome"
                                 value={name}
                                 onChange={e => setName(e.target.value)}
-                                className="auth-input pl-10"
+                                className="auth-input pl-12"
                                 required
+                                autoComplete="name"
                             />
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-bold text-gray-700 ml-1">Senha</label>
+                    <div className="space-y-2 group">
+                        <label className="text-xs font-black text-gray-500 uppercase tracking-widest ml-1 transition-colors group-focus-within:text-primary">Sua Senha</label>
                         <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground transition-colors group-focus-within:text-primary" />
                             <input
                                 type="password"
                                 placeholder="••••••••"
                                 value={password}
                                 onChange={e => setPassword(e.target.value)}
-                                className="auth-input pl-10"
+                                className="auth-input pl-12 text-lg tracking-widest"
                                 required
                                 minLength={6}
+                                autoComplete="new-password"
                             />
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="text-sm font-bold text-gray-700 ml-1">Confirmar Senha</label>
+                    <div className="space-y-2 group">
+                        <label className="text-xs font-black text-gray-500 uppercase tracking-widest ml-1 transition-colors group-focus-within:text-primary">Confirmar Senha</label>
                         <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground transition-colors group-focus-within:text-primary" />
                             <input
                                 type="password"
                                 placeholder="••••••••"
                                 value={confirmPassword}
                                 onChange={e => setConfirmPassword(e.target.value)}
-                                className="auth-input pl-10"
+                                className={`auth-input pl-12 text-lg tracking-widest ${confirmPassword && password !== confirmPassword ? 'border-red-300 focus:border-red-400 focus:ring-red-100' : ''}`}
                                 required
+                                autoComplete="new-password"
                             />
                         </div>
+                        {confirmPassword && password !== confirmPassword && (
+                            <p className="text-[10px] font-bold text-red-500 ml-2 animate-bounce">As senhas não coincidem</p>
+                        )}
                     </div>
 
                     <button
                         type="submit"
                         disabled={submitting}
-                        className="w-full py-5 bg-primary hover:opacity-90 text-primary-foreground rounded-2xl font-black text-lg shadow-xl shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                        className="w-full py-5 bg-primary hover:opacity-90 active:scale-[0.98] text-primary-foreground rounded-2xl font-black text-lg shadow-xl shadow-primary/25 transition-all flex items-center justify-center gap-3 group relative overflow-hidden"
                     >
                         {submitting ? (
                             <Loader2 className="animate-spin" />
                         ) : (
-                            'Concluir Meu Cadastro'
+                            <>
+                                <span>Concluir Meu Cadastro</span>
+                                <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                            </>
                         )}
                     </button>
                 </form>
@@ -212,31 +245,39 @@ export function RegisterInvite() {
             <style>{`
                 .auth-input {
                     width: 100%;
-                    padding: 0.85rem 1rem;
-                    padding-left: 3rem !important;
-                    background: rgba(0, 0, 0, 0.02);
-                    border: 1px solid rgba(0, 0, 0, 0.05);
-                    border-radius: 1.25rem;
+                    padding: 1rem 1.25rem;
+                    background: rgba(0, 0, 0, 0.03);
+                    border: 1.5px solid rgba(0, 0, 0, 0.05);
+                    border-radius: 1.5rem;
                     outline: none;
-                    transition: all 0.2s;
-                    font-weight: 500;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    font-weight: 600;
                 }
                 .auth-input:focus {
                     background: white;
-                    border-color: #2563eb;
-                    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+                    border-color: hsl(var(--primary));
+                    box-shadow: 0 0 0 5px hsla(var(--primary) / 0.1);
                 }
                 .glass-card {
-                    background: rgba(255, 255, 255, 0.9);
-                    backdrop-filter: blur(20px);
-                    border-radius: 2.5rem;
+                    background: rgba(255, 255, 255, 0.85);
+                    backdrop-filter: blur(24px);
+                    border-radius: 3rem;
                 }
                 .gradient-text {
-                    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.7) 100%);
+                    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.8) 100%);
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
+                }
+                @keyframes scale-up {
+                    from { transform: scale(0.8) translateY(10px); opacity: 0; }
+                    to { transform: scale(1) translateY(0); opacity: 1; }
+                }
+                .scale-up-animation {
+                    animation: scale-up 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
                 }
             `}</style>
         </div>
     );
 }
+
+export default RegisterInvite;

@@ -1,0 +1,333 @@
+{
+  "common": {
+    "login": "Entrar",
+    "logout": "Sair",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "loading": "Carregando...",
+    "error": "Ocorreu um erro"
+  },
+  "vehicles": {
+    "title": "Veículos",
+    "fleet_title": "Frota de Veículos",
+    "fleet_subtitle": "Gestão e monitoramento de ativos e maquinário",
+    "add_vehicle": "Adicionar Veículo",
+    "total_fleet": "Total da Frota",
+    "light_vehicles": "Veículos Leves",
+    "heavy_trucks": "Pesados / Caminhões",
+    "machinery_bikes": "Maquinário / Motos",
+    "search_placeholder": "Buscar por placa, modelo ou marca...",
+    "all_status": "Todos os Status",
+    "available": "Disponível",
+    "in_use": "Em Uso",
+    "maintenance": "Manutenção",
+    "critical_issue": "Problema Crítico",
+    "grid_view": "Visualização em Cards",
+    "list_view": "Visualização em Lista",
+    "plate": "Placa",
+    "brand_model": "Marca/Modelo",
+    "type": "Tipo",
+    "status": "Status",
+    "current_km": "KM Atual",
+    "actions": "Ações",
+    "edit_vehicle": "Editar Veículo",
+    "delete_vehicle": "Excluir Veículo",
+    "odometer": "Odômetro",
+    "start_journey": "Iniciar Jornada",
+    "no_vehicles_found": "Nenhum veículo encontrado",
+    "try_adjust_search": "Tente ajustar sua busca ou adicione um novo veículo à frota.",
+    "delete_confirm": "Tem certeza que deseja excluir este veículo?",
+    "loading_fleet": "Carregando frota...",
+    "connection_error": "Erro de Conexão",
+    "load_error": "Não foi possível carregar os veículos. Verifique o servidor."
+  },
+  "fuel": {
+    "title": "Combustível",
+    "description": "Controle de abastecimentos, consumo médio e gastos com combustível da frota.",
+    "header_title": "Abastecimentos",
+    "header_subtitle": "Monitoramento em tempo real de consumo e gastos com combustível",
+    "stats": {
+      "total_spent": "Total Gasto",
+      "total_liters": "Total Litros",
+      "avg_price": "Preço Médio / L"
+    },
+    "search_placeholder": "Buscar por placa ou motorista...",
+    "filters": {
+      "this_month": "Este Mês",
+      "more_filters": "Filtros"
+    },
+    "table": {
+      "vehicle": "Veículo",
+      "driver": "Motorista",
+      "date": "Data",
+      "km": "KM",
+      "liters": "Litros",
+      "total": "Total",
+      "type": "Tipo",
+      "payment": "Pagamento",
+      "date_at": "às"
+    },
+    "types": {
+      "GASOLINE": "Gasolina",
+      "ETHANOL": "Etanol",
+      "DIESEL": "Diesel",
+      "GNV": "GNV",
+      "OTHER": "Outro"
+    },
+    "payment": {
+      "CASH": "Dinheiro",
+      "PIX": "Pix",
+      "DEBIT_CARD": "Débito",
+      "CREDIT_CARD": "Crédito",
+      "FUEL_CARD": "Cartão Combustível",
+      "INVOICED": "Faturado",
+      "REIMBURSEMENT": "Reembolso",
+      "PREPAID_CARD": "Pré-pago",
+      "VOUCHER": "Vale",
+      "INTERNAL_TANK": "Tanque Próprio"
+    }
+  },
+  "maintenance": {
+    "title": "Manutenção",
+    "description": "Histórico de manutenções, preventivas e controle de revisões da frota.",
+    "header_title": "Gestão de Manutenção",
+    "header_subtitle": "Protocolo de segurança e durabilidade da frota",
+    "stats": {
+      "total_records": "Total de Registros",
+      "km_alerts": "Alertas de KM",
+      "in_workshop": "Veículos na Oficina",
+      "total_investment": "Investimento (Total)"
+    },
+    "tabs": {
+      "alerts": "Gestão de Alertas",
+      "catalog": "Catálogo de Serviços"
+    },
+    "search_placeholder": "Buscar por veículo ou serviço...",
+    "buttons": {
+      "new_maintenance": "Nova Manutenção",
+      "new_service": "Cadastrar Novo Serviço",
+      "complete": "Concluir"
+    },
+    "sections": {
+      "in_workshop": "Veículos na Oficina",
+      "preventive_alerts": "Alertas Preventivos",
+      "service_history": "Histórico de Serviços"
+    },
+    "workshop": {
+      "critical": "Em Manutenção Crítica"
+    },
+    "alerts": {
+      "current_km": "KM Atual:",
+      "planned_km": "Planificado:",
+      "start_maintenance": "Iniciar Manutenção"
+    },
+    "table": {
+      "vehicle": "Veículo",
+      "type": "Tipo",
+      "status": "Status",
+      "date_km": "Data / KM",
+      "action": "Ação",
+      "predicted": "PREVISTA"
+    },
+    "catalog": {
+      "preventive": "Preventiva",
+      "corrective": "Corretiva",
+      "interval": "Intervalo:",
+      "avg_time": "Tempo Médio:",
+      "days": "dias",
+      "delete": "Excluir",
+      "delete_confirm": "Deseja excluir este serviço do catálogo?",
+      "use_template": "Usar Molde",
+      "empty": "Nenhum serviço catalogado",
+      "empty_desc": "Cadastre os tipos de manutenção frequentes para agilizar o agendamento da sua frota."
+    },
+    "modal": {
+      "new": {
+        "title": "Nova Manutenção",
+        "vehicle": "Veículo",
+        "select_vehicle": "Selecione um veículo",
+        "type": "Tipo",
+        "planned_km": "Prevista para (KM)",
+        "notes": "Observações",
+        "notes_placeholder": "Detalhes do serviço planejado...",
+        "submit": "Agendar Manutenção",
+        "pending": "Agendando..."
+      },
+      "complete": {
+        "title": "Concluir Serviço",
+        "real_cost": "Custo Real",
+        "service_km": "KM do Serviço",
+        "technical_report": "Relatório Técnico",
+        "technical_report_placeholder": "Descreva o que foi realizado...",
+        "submit": "Confirmar Conclusão",
+        "pending": "Finalizando..."
+      },
+      "catalog": {
+        "title": "Novo Serviço no Catálogo",
+        "name": "Nome do Serviço",
+        "name_placeholder": "Ex: Troca de Óleo, Revisão de Freios...",
+        "description": "Descrição (Opcional)",
+        "description_placeholder": "Detalhes sobre o que este plano cobre...",
+        "vehicle_types": "Tipos de Veículo",
+        "types_CAR": "Carro",
+        "types_TRUCK": "Caminhão",
+        "types_MOTORCYCLE": "Moto",
+        "types_MACHINE": "Máquina",
+        "avg_duration": "Duração Média (Dias)",
+        "submit": "Cadastrar Serviço",
+        "pending": "Salvando..."
+      }
+    },
+    "types": {
+      "OIL": "Troca de Óleo",
+      "TIRES": "Pneus/Rodagem",
+      "INSPECTION": "Revisão Preventiva",
+      "REPAIR": "Corretiva/Reparo",
+      "OTHER": "Outros Serviços"
+    },
+    "status": {
+      "PENDING": "Pendente",
+      "COMPLETED": "Concluída",
+      "CANCELED": "Cancelada"
+    }
+  },
+  "drivers": {
+    "title": "Gestão de Equipe",
+    "description": "Administre motoristas, administradores e seus dados detalhados.",
+    "syncing": "Sincronizando equipe...",
+    "buttons": {
+      "new_employee": "Novo Funcionário",
+      "discard": "Descartar",
+      "update": "Atualizar Dados",
+      "finalize": "Finalizar Cadastro"
+    },
+    "search_placeholder": "Buscar por nome, email ou CPF...",
+    "view_modes": {
+      "grid": "Visualização em Grade",
+      "list": "Visualização em Lista"
+    },
+    "table": {
+      "employee": "Funcionário",
+      "contact_cpf": "Contato / CPF",
+      "role": "Cargo",
+      "license": "CNH",
+      "actions": "Ações"
+    },
+    "card": {
+      "license": "CNH",
+      "cpf": "CPF",
+      "phone": "Telefone"
+    },
+    "empty": {
+      "title": "Nenhum funcionário encontrado",
+      "description": "Tente buscar por outro nome, email ou CPF."
+    },
+    "roles": {
+      "ADMIN": "Administrador",
+      "DRIVER": "Motorista"
+    },
+    "contact": {
+      "no_cpf": "CPF não informado"
+    },
+    "modal": {
+      "edit_title": "Editar Cadastro",
+      "new_title": "Novo Funcionário",
+      "sections": {
+        "professional": "Dados Profissionais",
+        "location": "Localização / Endereço"
+      },
+      "form": {
+        "name": "Nome Completo",
+        "email": "Email",
+        "password": "Senha",
+        "phone": "Telefone",
+        "cpf": "CPF",
+        "birth_date": "Data de Nascimento",
+        "entry_date": "Data de Admissão",
+        "role": "Cargo",
+        "license": "CNH",
+        "zip_code": "CEP",
+        "city": "Cidade",
+        "street": "Rua / Logradouro",
+        "number": "Nº",
+        "neighborhood": "Bairro",
+        "state": "UF",
+        "complement": "Complemento"
+      }
+    },
+    "alerts": {
+      "delete_confirm": "Deseja realmente excluir este funcionário?",
+      "delete_error": "Erro ao excluir funcionário",
+      "save_error": "Erro ao salvar funcionário"
+    }
+  },
+  "navigation": {
+    "general": "Geral",
+    "dashboard": "Painel",
+    "fleet_operation": "Operação de Frota",
+    "vehicles": "Veículos",
+    "journeys": "Jornadas",
+    "maintenance": "Manutenção",
+    "tyres": "Pneus",
+    "supplies": "Suprimentos",
+    "fuel": "Abastecimentos",
+    "inventory": "Estoque",
+    "purchasing": "Compras",
+    "administrative": "Administrativo",
+    "employees": "Funcionários",
+    "financial": "Financeiro",
+    "compliance": "Conformidade",
+    "analysis": "Análise",
+    "reports": "Relatórios",
+    "logout": "Sair",
+    "logout_account": "Sair da Conta",
+    "skip_to_main": "Pular para o conteúdo principal",
+    "close_menu": "Fechar menu",
+    "open_menu": "Abrir menu",
+    "user_label": "Usuário"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "operational_title": "Dashboard Operacional",
+    "version_label": "Sistema de Gestão de Frotas v2.5",
+    "welcome_title": "Bem-vindo ao Frota Manager!",
+    "vehicles_available": "{{count}} veículos disponíveis",
+    "active_journeys": "Jornadas Ativas",
+    "journeys_with_incidents": "{{count}} com incidentes",
+    "no_active_journeys": "Sem viagens no momento",
+    "available_vehicles": "Veí. Disponíveis",
+    "ready_for_operation": "Prontos para operação",
+    "in_use_vehicles": "Veí. em Uso",
+    "in_transit": "Em trânsito ou operação",
+    "in_maintenance": "Em Manutenção",
+    "in_workshop": "Na oficina ou aguardando",
+    "live_monitoring": "Monitoramento em Tempo Real",
+    "view_route_details": "Ver detalhes das rotas →",
+    "recent_alerts": "Alertas Recentes",
+    "no_critical_alerts": "Nenhum alerta crítico",
+    "activity_history": "Histórico de Atividade"
+  },
+  "auth": {
+    "welcome_back": "Bem-vindo de volta",
+    "sign_in": "Entrar no Sistema",
+    "new_organization": "Nova Organização",
+    "fill_company_data": "Preencha os dados da sua empresa",
+    "first_name": "Nome",
+    "last_name": "Sobrenome",
+    "company": "Empresa",
+    "company_name": "Nome da Empresa",
+    "cnpj_optional": "CNPJ (Opcional)",
+    "email": "E-mail",
+    "password": "Senha",
+    "confirm_password": "Confirmar Senha",
+    "forgot_password": "Esqueceu a senha?",
+    "signing_in": "Entrando...",
+    "create_account": "Criar Conta",
+    "back_to_login": "Voltar para o Login",
+    "create_organization": "Criar Organização",
+    "or_sign_in_with": "Ou entre com",
+    "continue_with_google": "Continuar com Google"
+  }
+}

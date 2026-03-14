@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
+import { SEO } from '@/components/SEO';
 import { api } from '../../lib/axios';
 import { Fuel as FuelIcon, Search, Filter, Calendar, Zap, DollarSign, Droplets } from 'lucide-react';
 import { formatCurrency, formatKm } from '../../lib/utils';
@@ -25,6 +27,7 @@ interface FuelEntry {
 }
 
 export function FuelEntriesList() {
+    const { t, i18n } = useTranslation();
     const [search, setSearch] = useState('');
     const [dateFilter, setDateFilter] = useState('');
 
@@ -48,28 +51,32 @@ export function FuelEntriesList() {
     };
 
     const fuelTypeMap: Record<string, string> = {
-        'GASOLINE': 'Gasolina',
-        'ETHANOL': 'Etanol',
-        'DIESEL': 'Diesel',
-        'GNV': 'GNV',
-        'OTHER': 'Outro'
+        'GASOLINE': 'fuel.types.GASOLINE',
+        'ETHANOL': 'fuel.types.ETHANOL',
+        'DIESEL': 'fuel.types.DIESEL',
+        'GNV': 'fuel.types.GNV',
+        'OTHER': 'fuel.types.OTHER'
     };
 
     const paymentMethodMap: Record<string, string> = {
-        'CASH': 'Dinheiro',
-        'PIX': 'Pix',
-        'DEBIT_CARD': 'Débito',
-        'CREDIT_CARD': 'Crédito',
-        'FUEL_CARD': 'Cartão Combustível',
-        'INVOICED': 'Faturado',
-        'REIMBURSEMENT': 'Reembolso',
-        'PREPAID_CARD': 'Pré-pago',
-        'VOUCHER': 'Vale',
-        'INTERNAL_TANK': 'Tanque Próprio'
+        'CASH': 'fuel.payment.CASH',
+        'PIX': 'fuel.payment.PIX',
+        'DEBIT_CARD': 'fuel.payment.DEBIT_CARD',
+        'CREDIT_CARD': 'fuel.payment.CREDIT_CARD',
+        'FUEL_CARD': 'fuel.payment.FUEL_CARD',
+        'INVOICED': 'fuel.payment.INVOICED',
+        'REIMBURSEMENT': 'fuel.payment.REIMBURSEMENT',
+        'PREPAID_CARD': 'fuel.payment.PREPAID_CARD',
+        'VOUCHER': 'fuel.payment.VOUCHER',
+        'INTERNAL_TANK': 'fuel.payment.INTERNAL_TANK'
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 animate-fade-in">
+            <SEO
+                title={t('fuel.title')}
+                description={t('fuel.description')}
+            />
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <div className="flex items-start gap-4">
@@ -78,10 +85,10 @@ export function FuelEntriesList() {
                         </div>
                         <div>
                             <h1 className="text-4xl font-black tracking-tighter gradient-text uppercase">
-                                Abastecimentos
+                                {t('fuel.header_title')}
                             </h1>
                             <p className="text-muted-foreground/60 font-black uppercase tracking-[0.2em] mt-1 text-[10px]">
-                                Monitoramento em tempo real de consumo e gastos com combustível
+                                {t('fuel.header_subtitle')}
                             </p>
                         </div>
                     </div>
@@ -95,7 +102,7 @@ export function FuelEntriesList() {
                         <DollarSign size={24} />
                     </div>
                     <div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Total Gasto</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{t('fuel.stats.total_spent')}</p>
                         <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatCurrency(stats.totalSpent)}</p>
                     </div>
                 </div>
@@ -104,7 +111,7 @@ export function FuelEntriesList() {
                         <Droplets size={24} />
                     </div>
                     <div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Total Litros</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{t('fuel.stats.total_liters')}</p>
                         <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.totalLiters.toFixed(2)} L</p>
                     </div>
                 </div>
@@ -113,7 +120,7 @@ export function FuelEntriesList() {
                         <Zap size={24} />
                     </div>
                     <div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Preço Médio / L</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{t('fuel.stats.avg_price')}</p>
                         <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatCurrency(stats.avgPrice)}</p>
                     </div>
                 </div>
@@ -125,7 +132,7 @@ export function FuelEntriesList() {
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
                     <input
                         type="text"
-                        placeholder="Buscar por placa ou motorista..."
+                        placeholder={t('fuel.search_placeholder')}
                         className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
@@ -134,11 +141,11 @@ export function FuelEntriesList() {
                 <div className="flex gap-2">
                     <button className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all border border-transparent">
                         <Calendar size={18} />
-                        <span>Este Mês</span>
+                        <span>{t('fuel.filters.this_month')}</span>
                     </button>
                     <button className="flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-all border border-transparent">
                         <Filter size={18} />
-                        <span>Filtros</span>
+                        <span>{t('fuel.filters.more_filters')}</span>
                     </button>
                 </div>
             </div>
@@ -149,14 +156,14 @@ export function FuelEntriesList() {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800">
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Veículo</th>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Motorista</th>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Data</th>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">KM</th>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Litros</th>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Total</th>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Tipo</th>
-                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Pagamento</th>
+                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('fuel.table.vehicle')}</th>
+                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('fuel.table.driver')}</th>
+                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('fuel.table.date')}</th>
+                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">{t('fuel.table.km')}</th>
+                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">{t('fuel.table.liters')}</th>
+                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">{t('fuel.table.total')}</th>
+                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('fuel.table.type')}</th>
+                                <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase tracking-wider">{t('fuel.table.payment')}</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -183,7 +190,9 @@ export function FuelEntriesList() {
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className="text-gray-500 text-sm">
-                                            {format(new Date(entry.date), "dd/MM/yy 'às' HH:mm", { locale: ptBR })}
+                                            {format(new Date(entry.date), `dd/MM/yy '${t('fuel.table.date_at')}' HH:mm`, { 
+                                                locale: i18n.language === 'en' ? undefined : ptBR 
+                                            })}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-right font-mono text-sm text-gray-600 dark:text-gray-400">
@@ -197,12 +206,12 @@ export function FuelEntriesList() {
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className="px-2 py-1 text-[10px] font-bold uppercase rounded-md bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800">
-                                            {fuelTypeMap[entry.fuelType] || entry.fuelType}
+                                            {fuelTypeMap[entry.fuelType] ? t(fuelTypeMap[entry.fuelType]) : entry.fuelType}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className="px-2 py-1 text-[10px] font-bold uppercase rounded-md bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-                                            {paymentMethodMap[entry.paymentMethod] || entry.paymentMethod}
+                                            {paymentMethodMap[entry.paymentMethod] ? t(paymentMethodMap[entry.paymentMethod]) : entry.paymentMethod}
                                         </span>
                                     </td>
                                 </tr>

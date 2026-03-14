@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { SEO } from '@/components/SEO';
 import { api } from '../../lib/axios';
 import { Disc, Plus, Search, Filter, ArrowUpRight, AlertTriangle, TrendingDown } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
@@ -26,7 +27,11 @@ export function TyreInventory() {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8 animate-fade-in">
+            <SEO 
+                title="Gestão de Pneus" 
+                description="Controle de vida útil, sulcos e movimentação de pneus da frota." 
+            />
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Gestão de Pneus</h1>
@@ -81,7 +86,7 @@ export function TyreInventory() {
                 <Card className="bg-white/50 backdrop-blur border-none shadow-sm capitalize group hover:shadow-md transition-all">
                     <CardContent className="pt-6">
                         <div className="flex items-center justify-between mb-2">
-                            <div className="p-2 bg-purple-100 text-purple-600 rounded-lg">
+                            <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
                                 <TrendingDown size={20} />
                             </div>
                             <span className="text-[10px] font-bold text-gray-400">CPK Médio</span>
@@ -179,3 +184,4 @@ export function TyreInventory() {
         </div>
     );
 }
+

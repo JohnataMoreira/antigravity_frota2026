@@ -3,9 +3,13 @@ import { FinanceService } from './finance.service';
 import { CreateTransactionDto, ConfirmPaymentDto, TransactionFilterDto } from './dto/finance.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { GetUser } from '../auth/get-user.decorator';
+import { RolesGuard } from '../auth/roles.guard';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiTags('Financeiro')
+@ApiBearerAuth()
 @Controller('finance')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class FinanceController {
     constructor(private readonly financeService: FinanceService) { }
 

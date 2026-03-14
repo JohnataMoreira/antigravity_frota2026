@@ -224,13 +224,40 @@ docker service rm <service_name>
 
 ---
 
-## Checklist para o Antigravity (Atualizado)
+### Phase 5: Internacionalização (i18n) e SEO (Março/2026)
+
+#### 1. Implementação de Internacionalização (i18n) System-wide
+- **Desafio**: Transição de strings hardcoded em Português para um sistema multilíngue dinâmico sem quebrar a UI.
+- **Solução**: Implementação do `react-i18next` com uma estrutura centralizada de locales em `public/locales`. Centralização das traduções em arquivos JSON facilitando a manutenção.
+- **Lição**: Ao refatorar componentes para i18n, a substituição de strings simples por chamadas de função `{t('key')}` pode desestruturar o JSX se não houver um elemento pai claro ou se fragmentos forem removidos acidentalmente.
+
+#### 2. Erros de Sintaxe em Refatorações em Massa
+- **Desafio**: Introdução de erros de sintaxe (JSX) em módulos críticos como `Vehicles` e `Drivers` durante a substituição em larga escala de strings.
+- **Erro**: Falta de tags de fechamento ou remoção de fragmentos `<>` necessários para renderização condicional.
+- **Solução**: Uso rigoroso de `npm run build` e verificações visuais em cada componente refatorado antes do commit. Correção manual das estruturas JSX rompidas para garantir um único elemento raiz em blocos condicionais.
+- **Lição**: Refatorações manuais em massa são propensas a erro humano. O build local é a única barreira confiável contra regressões de sintaxe.
+
+#### 3. SEO e Metadados para IAs (GEO)
+- **Desafio**: O sistema web era um SPA (Single Page Application) com metadados estáticos, dificultando a indexação e citação por mecanismos de busca generativos.
+- **Solução**: Implementação do `React Helmet` para injeção dinâmica de Meta Tags, Open Graph e Schema.org no `App.tsx` e páginas principais.
+- **Lição**: Dashboards SaaS modernos precisam ser "AI-friendly". Metadados técnicos transformam o software em uma entidade reconhecível por agentes de busca.
+
+#### 4. Auditoria Mobile e Build Integrity
+- **Desafio**: Presença de arquivos de log gigantes e placeholders de imagem no diretório `apps/mobile` que poderiam comprometer a integridade de builds futuros.
+- **Solução**: Identificação de ativos placeholder de 68 bytes e logs de erro dispersos. Criação de um plano de estabilização mobile focado em "Clean Registry" e integridade de ativos.
+- **Lição**: O diretório de build mobile deve ser tratado com o mesmo rigor do backend. Arquivos de log não rastreados no `.gitignore` poluem o contexto e aumentam o tempo de análise de erros.
+
+---
+
+## Checklist para o Antigravity (Atualizado v3.5)
 
 - [ ] **Sempre use `<View>` e `<Text>` em projetos React Native.**
 - [ ] **Verifique se dependências nativas (`expo-location`, `expo-notifications`, etc.) estão instaladas.**
 - [ ] **Mapeie fontes de branding para a classe `sans` no Tailwind.**
 - [ ] **Trate timestamps de sincronização como Inteiros (ms).**
 - [ ] **Sincronize o `task.md` na raiz ao finalizar cada etapa.**
+- [ ] **Rode `npm run build` na web e api ANTES de qualquer push para a main.**
+- [ ] **Garanta que toda nova string inserida na Web passe pelo sistema de i18n.**
 ### Phase 19: Relatórios & BI
 - **Problema**: Gráficos Recharts não renderizavam corretamente em contêineres colapsáveis.
 - **Solução**: Utilizar `ResponsiveContainer` com altura fixa e garantir que o componente pai tenha dimensões definidas.

@@ -51,3 +51,18 @@ export class RegisterOrgDto {
     @MinLength(6)
     password!: string;
 }
+
+export class RegisterInviteDto {
+    @IsNotEmpty()
+    @IsString()
+    token!: string;
+
+    @IsNotEmpty()
+    @IsString()
+    name!: string;
+
+    @IsNotEmpty()
+    @IsString()
+    @MinLength(6)
+    password!: string;
+}

@@ -13,6 +13,7 @@ datasource db {
 
 enum Role {
   ADMIN
+  MANAGER
   DRIVER
 }
 
@@ -147,6 +148,7 @@ model Organization {
   alerts                Alert[]
   checklistTemplates    ChecklistTemplate[]
   tasks                 Task[]
+  invites               Invite[]
 }
 
 model AuditLog {
@@ -163,6 +165,11 @@ model AuditLog {
   createdAt DateTime @default(now())
 
   organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, createdAt])
+  @@index([userId])
+  @@index([entity])
+  @@index([entityId])
 }
 
 model User {
@@ -234,6 +241,7 @@ model Vehicle {
 
   @@unique([organizationId, plate])
   @@index([organizationId, status])
+  @@index([active])
 }
 
 model Journey {
@@ -273,10 +281,9 @@ model Journey {
   driver       User         @relation("DriverJourneys", fields: [driverId], references: [id])
   vehicle      Vehicle      @relation(fields: [vehicleId], references: [id])
 
-  @@index([organizationId, status])
-  @@index([driverId])
-  @@index([vehicleId])
-  @@index([startTime])
+  @@index([organizationId, status, createdAt])
+  @@index([driverId, startTime])
+  @@index([vehicleId, status])
 }
 
 model Geofence {
@@ -362,6 +369,9 @@ model FuelEntry {
   driver                User                   @relation(fields: [driverId], references: [id])
   journey               Journey?               @relation(fields: [journeyId], references: [id])
   financialTransactions FinancialTransaction[]
+
+  @@index([organizationId, date])
+  @@index([vehicleId, date])
 }
 
 model Incident {
@@ -424,6 +434,9 @@ model InventoryItem {
   updatedAt DateTime @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId])
+  @@index([sku])
 }
 
 model StockMovement {
@@ -438,6 +451,8 @@ model StockMovement {
   createdAt DateTime @default(now())
 
   item InventoryItem @relation(fields: [inventoryItemId], references: [id])
+
+  @@index([inventoryItemId])
 }
 
 model TelemetryRecord {
@@ -574,7 +589,7 @@ model FinancialTransaction {
   journey       Journey?       @relation(fields: [journeyId], references: [id])
   supplier      Supplier?      @relation(fields: [supplierId], references: [id])
 
-  @@index([organizationId, status])
+  @@index([organizationId, category, status])
   @@index([organizationId, dueDate])
   @@index([journeyId])
 }
@@ -600,7 +615,7 @@ model Attachment {
   incident     Incident?    @relation(fields: [incidentId], references: [id])
   journey      Journey?     @relation(fields: [journeyId], references: [id])
 
-  @@index([organizationId])
+  @@index([organizationId, createdAt])
   @@index([checklistId])
   @@index([incidentId])
   @@index([journeyId])
@@ -634,7 +649,7 @@ model Tyre {
   measurements TyreMeasurement[]
 
   @@unique([organizationId, identifier])
-  @@index([organizationId])
+  @@index([organizationId, status])
   @@index([vehicleId])
 }
 
@@ -657,7 +672,7 @@ model TyreMovement {
   tyre    Tyre     @relation(fields: [tyreId], references: [id])
   vehicle Vehicle? @relation(fields: [vehicleId], references: [id])
 
-  @@index([tyreId])
+  @@index([tyreId, createdAt])
   @@index([vehicleId])
 }
 
@@ -726,5 +741,22 @@ model Task {
   organization   Organization @relation(fields: [organizationId], references: [id])
   journey        Journey      @relation(fields: [journeyId], references: [id])
 
-  @@index([organizationId, journeyId])
+  @@index([organizationId, status, scheduledAt])
+  @@index([journeyId])
+}
+
+model Invite {
+  id             String   @id @default(uuid())
+  organizationId String
+  email          String
+  role           String   @default("DRIVER")
+  token          String   @unique
+  expiresAt      DateTime
+  usedAt         DateTime?
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@unique([organizationId, email])
+  @@index([token])
 }

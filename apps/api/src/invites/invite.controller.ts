@@ -1,4 +1,5 @@
 import { Controller, Get, Post, Delete, Param, Body } from '@nestjs/common';
+import { Public } from '../auth/public.decorator';
 import { InviteService } from './invite.service';
 import { GetUser } from '../auth/get-user.decorator';
 
@@ -16,7 +17,8 @@ export class InviteController {
         return this.inviteService.findAll(user.organizationId);
     }
 
-    @Get(':token')
+    @Public()
+    @Get('validate/:token')
     findByToken(@Param('token') token: string) {
         return this.inviteService.findByToken(token);
     }

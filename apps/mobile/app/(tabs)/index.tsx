@@ -51,13 +51,15 @@ function StatCard({ label, value, icon: Icon, color = "#2563EB" }: { label: stri
     );
 }
 
-function DashboardScreen({ activeJourney, activeVehicle, stats, lastJourney, lastVehicle }: { 
+function DashboardScreen({ activeJourney, activeVehicle, stats, lastJourney, lastVehicle, driverId }: { 
     activeJourney: Journey | null; 
     activeVehicle: Vehicle | null; 
     stats: any;
     lastJourney: Journey | null;
     lastVehicle: Vehicle | null;
+    driverId: string;
 }) {
+
     const { user } = useAuth();
     const router = useRouter();
     const [currentTime, setCurrentTime] = useState(new Date());
@@ -89,16 +91,22 @@ function DashboardScreen({ activeJourney, activeVehicle, stats, lastJourney, las
                         <Text className="text-slate-500 font-bold text-xs uppercase tracking-widest">{greeting()},</Text>
                         <Text className="text-2xl font-black text-[#1A1C1E]">{user?.name?.split(' ')[0] || 'Motorista'}</Text>
                     </View>
-                    <TouchableOpacity className="w-12 h-12 rounded-2xl bg-white items-center justify-center shadow-sm border border-slate-100">
-                        <Bell size={22} color="#64748B" />
-                        <View className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white" />
+                    <TouchableOpacity 
+                        className="w-12 h-12 rounded-2xl bg-white items-center justify-center shadow-sm border border-slate-100"
+                        accessibilityLabel="Notificações"
+                        aria-label="Notificações"
+                        accessibilityRole="button"
+                        accessibilityHint="Abre a lista de notificações do sistema"
+                    >
+                        <Bell size={22} color="#64748B" aria-hidden={true} />
+                        <View className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white" aria-hidden={true} />
                     </TouchableOpacity>
                 </View>
 
                 {/* Main Stats */}
                 <View className="px-5 flex-row mb-8">
                     <StatCard label="Total KM" value={stats.totalKm.toLocaleString()} icon={Gauge} color="#2563EB" />
-                    <StatCard label="Viagens" value={stats.journeyCount.toString()} icon={Route} color="#8B5CF6" />
+                    <StatCard label="Viagens" value={stats.journeyCount.toString()} icon={Route} color="#34D399" />
                     <StatCard label="Avarias" value={stats.incidentCount.toString()} icon={AlertTriangle} color="#EF4444" />
                 </View>
 
@@ -132,8 +140,12 @@ function DashboardScreen({ activeJourney, activeVehicle, stats, lastJourney, las
                             onPress={() => router.push('/(tabs)/vehicles')}
                             className="bg-[#2563EB] rounded-[32px] p-8 items-center shadow-xl shadow-blue-500/20"
                             activeOpacity={0.9}
+                            accessibilityLabel="Iniciar Jornada"
+                            aria-label="Iniciar Jornada"
+                            accessibilityRole="button"
+                            accessibilityHint="Selecione um veículo para começar uma nova jornada"
                         >
-                            <View className="w-16 h-16 bg-white/20 rounded-full items-center justify-center mb-4">
+                            <View className="w-16 h-16 bg-white/20 rounded-full items-center justify-center mb-4" aria-hidden={true}>
                                 <Truck size={32} color="white" />
                             </View>
                             <Text className="text-white text-xl font-black uppercase tracking-widest">Iniciar Jornada</Text>
@@ -149,7 +161,7 @@ function DashboardScreen({ activeJourney, activeVehicle, stats, lastJourney, las
 
                 {/* Quick Actions Grid */}
                 <View className="px-6 flex-row justify-between mb-8">
-                    <QuickAction icon={History} label="Histórico" onPress={() => router.push('/history')} color="#8B5CF6" />
+                    <QuickAction icon={History} label="Histórico" onPress={() => router.push('/history')} color="#34D399" />
                     <QuickAction icon={Wallet} label="Documentos" onPress={() => router.push('/wallet')} color="#059669" />
                     <QuickAction icon={LifeBuoy} label="Suporte" onPress={() => router.push('/support')} color="#F59E0B" />
                     <QuickAction icon={Route} label="Planejar" onPress={() => {}} color="#3B82F6" />
@@ -185,45 +197,56 @@ function DashboardScreen({ activeJourney, activeVehicle, stats, lastJourney, las
 }
 
 const EnhancedDashboard = withObservables(['driverId'], ({ driverId }) => {
-    const journeys$ = database.get<Journey>('journeys').query(Q.where('driver_id', driverId)).observe();
-    const activeJourneys$ = database.get<Journey>('journeys').query(
-        Q.where('status', 'IN_PROGRESS'),
-        Q.where('driver_id', driverId)
-    ).observe();
-    const lastCompletedJourneys$ = database.get<Journey>('journeys').query(
-        Q.where('status', 'COMPLETED'),
-        Q.where('driver_id', driverId),
-        Q.sortBy('end_time', Q.desc),
-        Q.take(1)
-    ).observe();
-    const syncQueue$ = database.get<SyncQueue>('sync_queue').query(Q.where('action_type', 'REPORT_INCIDENT')).observe();
+    try {
+        const journeys$ = database.get<Journey>('journeys').query(Q.where('driver_id', driverId)).observe();
+        const activeJourneys$ = database.get<Journey>('journeys').query(
+            Q.where('status', 'IN_PROGRESS'),
+            Q.where('driver_id', driverId)
+        ).observe();
+        const lastCompletedJourneys$ = database.get<Journey>('journeys').query(
+            Q.where('status', 'COMPLETED'),
+            Q.where('driver_id', driverId),
+            Q.sortBy('end_time', Q.desc),
+            Q.take(1)
+        ).observe();
+        const syncQueue$ = database.get<SyncQueue>('sync_queue').query(Q.where('action_type', 'REPORT_INCIDENT')).observe();
 
-    return {
-        activeJourney: activeJourneys$.pipe(
-            switchMap(journeys => journeys.length > 0 ? journeys[0].observe() : of(null))
-        ),
-        activeVehicle: activeJourneys$.pipe(
-            switchMap(journeys => journeys.length > 0 ? journeys[0].vehicle.observe() : of(null))
-        ),
-        lastJourney: lastCompletedJourneys$.pipe(
-            switchMap(journeys => journeys.length > 0 ? journeys[0].observe() : of(null))
-        ),
-        lastVehicle: lastCompletedJourneys$.pipe(
-            switchMap(journeys => journeys.length > 0 ? journeys[0].vehicle.observe() : of(null))
-        ),
-        stats: combineLatest([journeys$, syncQueue$]).pipe(
-            map(([journeys, incidents]) => {
-                const completed = journeys.filter(j => j.status === 'COMPLETED');
-                const journeyCount = completed.length;
-                const totalKm = completed.reduce((acc, j) => acc + ((j.endKm || 0) - j.startKm), 0);
-                return {
-                    journeyCount,
-                    totalKm,
-                    incidentCount: incidents.length
-                };
-            })
-        )
-    };
+        return {
+            activeJourney: activeJourneys$.pipe(
+                switchMap(journeys => journeys.length > 0 ? journeys[0].observe() : of(null))
+            ),
+            activeVehicle: activeJourneys$.pipe(
+                switchMap(journeys => journeys.length > 0 ? journeys[0].vehicle.observe() : of(null))
+            ),
+            lastJourney: lastCompletedJourneys$.pipe(
+                switchMap(journeys => journeys.length > 0 ? journeys[0].observe() : of(null))
+            ),
+            lastVehicle: lastCompletedJourneys$.pipe(
+                switchMap(journeys => journeys.length > 0 ? journeys[0].vehicle.observe() : of(null))
+            ),
+            stats: combineLatest([journeys$, syncQueue$]).pipe(
+                map(([journeys, incidents]) => {
+                    const completed = journeys.filter(j => j.status === 'COMPLETED');
+                    const journeyCount = completed.length;
+                    const totalKm = completed.reduce((acc, j) => acc + ((j.endKm || 0) - j.startKm), 0);
+                    return {
+                        journeyCount,
+                        totalKm,
+                        incidentCount: incidents.length
+                    };
+                })
+            )
+        };
+    } catch (e) {
+        console.error('[Dashboard] Observable error:', e);
+        return {
+            activeJourney: of(null),
+            activeVehicle: of(null),
+            lastJourney: of(null),
+            lastVehicle: of(null),
+            stats: of({ journeyCount: 0, totalKm: 0, incidentCount: 0 })
+        };
+    }
 })(DashboardScreen);
 
 export default function DashboardWrapper() {
@@ -231,3 +254,4 @@ export default function DashboardWrapper() {
     if (!user?.id) return <ActivityIndicator size="large" color="#2563EB" />;
     return <EnhancedDashboard driverId={user.id} />;
 }
+

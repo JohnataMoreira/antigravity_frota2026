@@ -1,8 +1,10 @@
 /// <reference types="vite/client" />
 import { useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { SEO } from '@/components/SEO';
 import { api } from '../lib/axios';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Shield, Mail, Lock, Building, User, UserCheck, Eye, EyeOff } from 'lucide-react';
 import { formatCNPJ } from '../lib/utils';
 
@@ -23,6 +25,7 @@ export function Login() {
 
     const { login } = useAuth();
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const cnpjRef = useRef<HTMLInputElement>(null);
@@ -88,6 +91,10 @@ export function Login() {
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-background p-4 relative overflow-hidden">
+            <SEO 
+                title="Login" 
+                description="Acesse sua conta Frota2026 para gerenciar sua frota de forma inteligente." 
+            />
             {/* Background Blobs */}
             <div className="absolute top-0 -left-4 w-72 h-72 bg-primary/20 rounded-full blur-3xl filter opacity-30 animate-pulse" />
             <div className="absolute bottom-0 -right-4 w-72 h-72 bg-accent/20 rounded-full blur-3xl filter opacity-30 animate-pulse delay-1000" />
@@ -98,10 +105,10 @@ export function Login() {
                         <img src="/logo.png?v=20260310" alt="Logo" className="h-[120px] w-auto object-contain drop-shadow-xl" />
                     </div>
                     <h2 className="text-4xl font-bold tracking-tight gradient-text">
-                        {isRegistering ? 'Nova Organização' : 'Entrar no Sistema'}
+                        {isRegistering ? t('auth.new_organization') : t('auth.sign_in')}
                     </h2>
                     <p className="text-muted-foreground">
-                        {isRegistering ? 'Preencha os dados da sua empresa' : 'Seja bem-vindo'}
+                        {isRegistering ? t('auth.fill_company_data') : t('auth.welcome_back')}
                     </p>
                 </div>
 
@@ -116,11 +123,11 @@ export function Login() {
                         <>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium ml-1">Nome</label>
+                                    <label className="text-sm font-medium ml-1">{t('auth.first_name')}</label>
                                     <div className="relative">
                                         <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                         <input
-                                            placeholder="Nome"
+                                            placeholder={t('auth.first_name')}
                                             value={firstName}
                                             onChange={e => setFirstName(e.target.value)}
                                             className="auth-input pl-10"
@@ -129,11 +136,11 @@ export function Login() {
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium ml-1">Sobrenome</label>
+                                    <label className="text-sm font-medium ml-1">{t('auth.last_name')}</label>
                                     <div className="relative">
                                         <UserCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                         <input
-                                            placeholder="Sobrenome"
+                                            placeholder={t('auth.last_name')}
                                             value={lastName}
                                             onChange={e => setLastName(e.target.value)}
                                             className="auth-input pl-10"
@@ -144,11 +151,11 @@ export function Login() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium ml-1">Empresa</label>
+                                <label className="text-sm font-medium ml-1">{t('auth.company')}</label>
                                 <div className="relative">
                                     <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                     <input
-                                        placeholder="Nome da Empresa"
+                                        placeholder={t('auth.company_name')}
                                         value={orgName}
                                         onChange={e => setOrgName(e.target.value)}
                                         className="auth-input pl-10"
@@ -193,7 +200,7 @@ export function Login() {
                     ) : null}
 
                     <div className="space-y-2">
-                        <label className="text-sm font-medium ml-1">E-mail</label>
+                        <label className="text-sm font-medium ml-1">{t('auth.email')}</label>
                         <div className="relative">
                             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <input
@@ -208,7 +215,7 @@ export function Login() {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-sm font-medium ml-1">Senha</label>
+                        <label className="text-sm font-medium ml-1">{t('auth.password')}</label>
                         <div className="relative">
                             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <input
@@ -232,7 +239,7 @@ export function Login() {
 
                     {isRegistering && (
                         <div className="space-y-2 text-left">
-                            <label className="text-sm font-medium ml-1">Confirmar Senha</label>
+                            <label className="text-sm font-medium ml-1">{t('auth.confirm_password')}</label>
                             <div className="relative">
                                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                 <input
@@ -259,7 +266,7 @@ export function Login() {
                         disabled={loading}
                         className="w-full py-4 px-6 bg-primary text-primary-foreground rounded-2xl font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/20 disabled:opacity-50"
                     >
-                        {loading ? 'Processando...' : (isRegistering ? 'Criar Organização' : 'Entrar')}
+                        {loading ? t('auth.signing_in') : (isRegistering ? t('auth.create_organization') : t('common.login'))}
                     </button>
 
                     <button
@@ -271,14 +278,14 @@ export function Login() {
                         }}
                         className="w-full py-4 px-6 border-2 border-primary/20 text-primary rounded-2xl font-bold text-lg hover:bg-primary/5 hover:border-primary/40 active:scale-[0.98] transition-all disabled:opacity-50"
                     >
-                        {isRegistering ? 'Voltar para o Login' : 'Criar Conta'}
+                        {isRegistering ? t('auth.back_to_login') : t('auth.create_account')}
                     </button>
 
                     {!isRegistering && (
                         <>
                             <div className="relative flex items-center gap-4 py-2">
                                 <div className="h-px w-full bg-border" />
-                                <span className="text-xs text-muted-foreground uppercase whitespace-nowrap">Ou entre com</span>
+                                <span className="text-xs text-muted-foreground uppercase whitespace-nowrap">{t('auth.or_sign_in_with')}</span>
                                 <div className="h-px w-full bg-border" />
                             </div>
 
@@ -309,7 +316,7 @@ export function Login() {
                                         fill="#EA4335"
                                     />
                                 </svg>
-                                Continuar com Google
+                                {t('auth.continue_with_google')}
                             </button>
                         </>
                     )}

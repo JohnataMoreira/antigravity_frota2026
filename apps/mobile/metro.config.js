@@ -17,18 +17,21 @@ config.resolver.nodeModulesPaths = [
     path.resolve(monorepoRoot, 'node_modules'),
 ];
 
-// Web stub path for react-native-vision-camera
+// Web stub paths for native-only modules
 const visionCameraStub = path.resolve(__dirname, 'src/stubs/vision-camera.web.js');
+const mapsStub = path.resolve(__dirname, 'src/stubs/maps.web.js');
 
-// Use resolveRequest to intercept react-native-vision-camera on web
+// Use resolveRequest to intercept native-only modules on web
 config.resolver.resolveRequest = (context, moduleName, platform) => {
-    // Redirect ALL vision-camera imports to a no-op stub on web
-    if (
-        platform === 'web' &&
-        (moduleName === 'react-native-vision-camera' ||
-            moduleName.startsWith('react-native-vision-camera/'))
-    ) {
-        return { filePath: visionCameraStub, type: 'sourceFile' };
+    if (platform === 'web') {
+        // Redirect Vision Camera
+        if (moduleName === 'react-native-vision-camera' || moduleName.startsWith('react-native-vision-camera/')) {
+            return { filePath: visionCameraStub, type: 'sourceFile' };
+        }
+        // Redirect Maps
+        if (moduleName === 'react-native-maps' || moduleName.startsWith('react-native-maps/')) {
+            return { filePath: mapsStub, type: 'sourceFile' };
+        }
     }
 
     // Redirect legacy worklets plugin to the new worklets-core plugin

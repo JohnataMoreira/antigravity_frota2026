@@ -5,6 +5,7 @@ import { database } from '../src/model/database';
 import Expense from '../src/model/Expense';
 import withObservables from '@nozbe/with-observables';
 import { Q } from '@nozbe/watermelondb';
+import Animated, { FadeInDown, Layout, FadeIn } from 'react-native-reanimated';
 
 function WalletScreen({ expenses }: { expenses: Expense[] }) {
     const router = useRouter();
@@ -28,7 +29,7 @@ function WalletScreen({ expenses }: { expenses: Expense[] }) {
     const getExpenseIcon = (type: string) => {
         switch (type) {
             case 'TOLL': return { label: 'Pedágio', icon: ArrowUpRight, color: '#2563EB', bg: '#EFF6FF' };
-            case 'PARKING': return { label: 'Estacionam.', icon: Clock, color: '#7C3AED', bg: '#F5F3FF' };
+            case 'PARKING': return { label: 'Estacionam.', icon: Clock, color: '#10B981', bg: '#F5F3FF' };
             case 'FUEL': return { label: 'Combustível', icon: TrendingUp, color: '#059669', bg: '#ECFDF5' };
             default: return { label: 'Despesa', icon: Receipt, color: '#64748B', bg: '#F8F9FA' };
         }
@@ -39,15 +40,24 @@ function WalletScreen({ expenses }: { expenses: Expense[] }) {
             <StatusBar barStyle="dark-content" />
             
             <View className="px-6 py-4 flex-row items-center border-b border-slate-100 bg-white">
-                <TouchableOpacity onPress={() => router.back()} className="w-10 h-10 rounded-xl bg-[#F8F9FA] items-center justify-center border border-slate-200 mr-4">
-                    <ChevronLeft size={20} color="#1A1C1E" />
+                <TouchableOpacity 
+                    onPress={() => router.back()} 
+                    className="w-10 h-10 rounded-xl bg-[#F8F9FA] items-center justify-center border border-slate-200"
+                    accessibilityLabel="Voltar"
+                    aria-label="Voltar"
+                    accessibilityRole="button"
+                >
+                    <ChevronLeft size={20} color="#1A1C1E" aria-hidden={true} />
                 </TouchableOpacity>
                 <Text className="text-[#1A1C1E] font-black text-lg uppercase tracking-tight">Fluxo Financeiro</Text>
             </View>
 
             <ScrollView className="flex-1" showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 24, paddingBottom: 100 }}>
                 {/* Balance Card */}
-                <View className="bg-[#1A1C1E] p-8 rounded-[40px] shadow-xl shadow-black/20 mb-10 overflow-hidden">
+                <Animated.View 
+                    entering={FadeIn.delay(100).springify()}
+                    className="bg-[#1A1C1E] p-8 rounded-[40px] shadow-xl shadow-black/20 mb-10 overflow-hidden"
+                >
                     <Text className="text-blue-500 font-black text-xs uppercase tracking-[4px] mb-2">Reembolso Pendente</Text>
                     <View className="flex-row items-baseline mb-6">
                         <Text className="text-white text-base font-bold mr-2">R$</Text>
@@ -63,11 +73,11 @@ function WalletScreen({ expenses }: { expenses: Expense[] }) {
                         </View>
                         <Text className="text-white font-bold">R$ {paidReimbursements.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</Text>
                     </View>
-                </View>
+                </Animated.View>
 
                 <View className="flex-row items-center justify-between mb-6 px-2">
                     <Text className="text-[#1A1C1E] font-black text-sm uppercase tracking-widest">Atividade Recente</Text>
-                    <TouchableOpacity>
+                    <TouchableOpacity accessibilityLabel="Ver todo o histórico financeiro" accessibilityRole="button">
                         <Text className="text-blue-600 font-bold text-xs">Ver Tudo</Text>
                     </TouchableOpacity>
                 </View>
@@ -79,18 +89,28 @@ function WalletScreen({ expenses }: { expenses: Expense[] }) {
                         <Text className="text-slate-400 text-[10px] uppercase tracking-widest text-center mt-2">Suas cobranças e reembolsos aparecerão aqui.</Text>
                     </View>
                 ) : (
-                    <View className="space-y-4">
-                        {expenses.map(expense => {
+                    <Animated.View 
+                        layout={Layout.springify()}
+                        className="space-y-4"
+                    >
+                        {expenses.map((expense, index) => {
                             const status = getStatusInfo(expense.status);
                             const type = getExpenseIcon(expense.type);
                             const Icon = type.icon;
                             const StatusIcon = status.icon;
 
                             return (
-                                <TouchableOpacity 
+                                <Animated.View 
                                     key={expense.id}
-                                    className="bg-white p-5 rounded-[32px] shadow-sm border border-slate-100 flex-row items-center"
+                                    entering={FadeInDown.delay(200 + index * 50).springify()}
+                                    layout={Layout.springify()}
                                 >
+                                    <TouchableOpacity 
+                                        activeOpacity={0.7}
+                                        className="bg-white p-5 rounded-[32px] shadow-sm border border-slate-100 flex-row items-center"
+                                        accessibilityLabel={`Despesa de ${type.label} no valor de R$ ${expense.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}. Status: ${status.label}`}
+                                        accessibilityRole="button"
+                                    >
                                     <View className="w-14 h-14 rounded-2xl items-center justify-center mr-4" style={{ backgroundColor: type.bg }}>
                                         <Icon size={24} color={type.color} />
                                     </View>
@@ -113,14 +133,19 @@ function WalletScreen({ expenses }: { expenses: Expense[] }) {
                                             </Text>
                                         </View>
                                     </View>
-                                </TouchableOpacity>
+                                    </TouchableOpacity>
+                                </Animated.View>
                             );
                         })}
-                    </View>
+                    </Animated.View>
                 )}
 
-                <TouchableOpacity className="mt-10 bg-white p-6 rounded-[32px] border border-blue-100 items-center justify-center shadow-sm">
-                    <View className="flex-row items-center">
+                <TouchableOpacity 
+                    className="mt-10 bg-white p-6 rounded-[32px] border border-blue-100 items-center justify-center shadow-sm"
+                    accessibilityLabel="Exportar relatório mensal de despesas"
+                    accessibilityRole="button"
+                >
+                    <View className="flex-row items-center" aria-hidden={true}>
                         <FileText size={18} color="#2563EB" />
                         <Text className="text-[#2563EB] font-bold ml-2">Exportar Relatório Mensal</Text>
                     </View>
@@ -145,3 +170,4 @@ const EnhancedWallet = withObservables([], () => ({
 }))(WalletScreen);
 
 export default EnhancedWallet;
+

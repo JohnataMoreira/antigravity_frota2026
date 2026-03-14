@@ -10,21 +10,20 @@ export class SyncService {
         const date = new Date(lastPulledAt);
 
         // Vehicles
-        const updatedVehicles = await this.prisma.vehicle.findMany({
+        const vehicles = await this.prisma.vehicle.findMany({
             where: {
                 organizationId,
                 updatedAt: { gt: date },
             },
             select: {
-                id: true, plate: true, model: true, brand: true, status: true, currentKm: true, updatedAt: true
+                id: true, plate: true, model: true, brand: true, status: true, currentKm: true, active: true, updatedAt: true
             }
         });
 
-        // Map to WatermelonDB format
         const vehicleChanges = {
             created: [],
-            updated: updatedVehicles,
-            deleted: [],
+            updated: vehicles.filter(v => v.active),
+            deleted: vehicles.filter(v => !v.active).map(v => v.id),
         };
 
         // Journeys (We start with limited history, maybe active only? or recent)

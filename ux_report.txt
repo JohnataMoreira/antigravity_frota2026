@@ -1,0 +1,32 @@
+
+[UX AUDIT] 93 files checked
+--------------------------------------------------
+[!] ISSUES (32):
+  - [Hick's Law] homepage.html: 66 nav items (Max 7)
+  - [Color] homepage.html: PURPLE DETECTED ('purple'). Banned by Maestro rules. Use Teal/Cyan/Emerald instead.
+  - [Cognitive Load] wallet.tsx: Form inputs without labels. Use <label> for accessibility and clarity.
+  - [Cognitive Load] index.tsx: Form inputs without labels. Use <label> for accessibility and clarity.
+  - [Cognitive Load] profile.tsx: Form inputs without labels. Use <label> for accessibility and clarity.
+  - [Cognitive Load] jornada_ativa.html: Form inputs without labels. Use <label> for accessibility and clarity.
+  - [Cognitive Load] Skeleton.tsx: Form inputs without labels. Use <label> for accessibility and clarity.
+  - [Hick's Law] index.html: 19 nav items (Max 7)
+  - [Color] index.html: PURPLE DETECTED ('magenta'). Banned by Maestro rules. Use Teal/Cyan/Emerald instead.
+  - [Animation] index.html: Scroll handler animating layout properties. Use transform/opacity for 60fps.
+[*] WARNINGS (705):
+  - [Fitts' Law] homepage.html: Small targets (< 44px)
+  - [Von Restorff] homepage.html: No primary CTA
+  - [Serial Position] homepage.html: Last nav item may not be important. Place key actions at start/end.
+  - [Reflective] homepage.html: Long-form content without brand story/values. Add 'About' or 'Why We Exist' section.
+  - [Cognitive Load] homepage.html: High visual noise detected. Many colors and borders increase cognitive load.
+  - [Typography] homepage.html: No line length constraint (45-75ch). Use max-w-prose or max-w-[65ch].
+  - [Typography] homepage.html: Heading has line-height 1.6 (>1.3). Headings should be tighter (1.1-1.3).
+  - [Typography] homepage.html: Heading has line-height 50 (>1.3). Headings should be tighter (1.1-1.3).
+  - [Typography] homepage.html: Heading has line-height 50 (>1.3). Headings should be tighter (1.1-1.3).
+  - [Typography] homepage.html: Heading has line-height 50 (>1.3). Headings should be tighter (1.1-1.3).
+  - [Typography] homepage.html: Large display text without tracking-tight. Big text needs -1% to -4% spacing.
+  - [Typography] homepage.html: Fixed font sizes without clamp(). Consider fluid typography: clamp(MIN, PREFERRED, MAX)
+  - [Typography] homepage.html: No h1 found. Each page should have one primary heading.
+  - [Typography] homepage.html: Font sizes may not follow modular scale (ratio: 2.29). Consider consistent ratio like 1.25 (Major Third).
+  - [Visual] homepage.html: Simple/Unnatural shadow detected. Consider multiple layers or Y > X offset for realism.
+[+] PASSED CHECKS: 46
+STATUS: FAIL

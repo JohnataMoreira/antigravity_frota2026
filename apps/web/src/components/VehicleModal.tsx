@@ -62,7 +62,7 @@ export function VehicleModal({ isOpen, onClose, onSave, vehicle }: VehicleModalP
                 <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/10 blur-3xl rounded-full" />
 
                 <div className="flex items-center justify-between mb-8 relative">
-                    <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent">
                         {vehicle ? 'Editar Veículo' : 'Novo Veículo'}
                     </h2>
                     <button
@@ -206,3 +206,4 @@ export function VehicleModal({ isOpen, onClose, onSave, vehicle }: VehicleModalP
         </div>
     );
 }
+

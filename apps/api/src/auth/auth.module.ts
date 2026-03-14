@@ -8,10 +8,13 @@ import { ConfigService } from '@nestjs/config';
 import { GoogleStrategy } from './google.strategy';
 import { AuditModule } from '../common/audit/audit.module';
 
+import { InviteModule } from '../invites/invite.module';
+
 @Module({
     imports: [
         PassportModule,
         AuditModule,
+        InviteModule,
         JwtModule.registerAsync({
             inject: [ConfigService],
             useFactory: (config: ConfigService) => ({
