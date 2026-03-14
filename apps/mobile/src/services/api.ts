@@ -1,11 +1,22 @@
+import { Platform } from 'react-native';
+
 // detect environment
-const isLocal = typeof window !== 'undefined' && 
-                (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+const isLocal = __DEV__;
+
+// Use your machine's local IP to allow physical device testing and stable web access
+const DEV_IP = '192.168.68.114';
 
 // Production API URL - Added /v1 for NestJS versioning
+// Android emulator uses 10.0.2.2 to access localhost, 
+// but using the machine IP is more consistent across all platforms.
+const LOCAL_API_URL = Platform.OS === 'android' 
+    ? `http://10.0.2.2:3000/api/v1` 
+    : `http://${DEV_IP}:3000/api/v1`;
+
 export const API_URL = isLocal 
-    ? 'http://localhost:3000/api/v1' 
+    ? LOCAL_API_URL 
     : 'https://frota.johnatamoreira.com.br/api/v1';
+
 
 interface LoginResponse {
     access_token: string;

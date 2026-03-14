@@ -75,15 +75,41 @@ class SyncService {
 
                 console.log('[Sync] PHASE: PULL/PUSH - Initiating...');
                 
+                const fetchWithRetry = async (url: string, options: any, retries = 3) => {
+                    for (let i = 0; i <= retries; i++) {
+                        try {
+                            const response = await fetch(url, options);
+                            if (response.ok) return response;
+                            
+                            // Don't retry on client errors (4xx) except 429
+                            if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+                                return response;
+                            }
+
+                            if (i === retries) return response;
+                            
+                            // Exponential backoff: 1.5s, 3s, 6s...
+                            const delay = Math.min(1500 * Math.pow(2, i), 10000);
+                            console.log(`[Sync] Attempt ${i + 1} failed (${response.status}). Retrying in ${delay}ms...`);
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                        } catch (err) {
+                            if (i === retries) throw err;
+                            const delay = Math.min(1500 * Math.pow(2, i), 10000);
+                            console.log(`[Sync] Network error. Attempt ${i + 1} failed. Retrying in ${delay}ms...`);
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                        }
+                    }
+                };
+
                 await synchronize({
                     database,
                     pullChanges: async ({ lastPulledAt }) => {
                         const effectivelyLastPulledAt = this.forceReset ? 0 : (lastPulledAt || 0);
-                        const response = await fetch(`${API_URL}/sync/pull?lastPulledAt=${effectivelyLastPulledAt}`, {
+                        const response = await fetchWithRetry(`${API_URL}/sync/pull?lastPulledAt=${effectivelyLastPulledAt}`, {
                             headers: { 'Authorization': `Bearer ${this.token}` }
                         });
 
-                        if (!response.ok) throw new Error(`Pull failed: ${response.status}`);
+                        if (!response || !response.ok) throw new Error(`Pull failed: ${response?.status}`);
 
                         const { changes, timestamp } = await response.json();
                         return { changes, timestamp };
@@ -91,7 +117,7 @@ class SyncService {
                     pushChanges: async ({ changes }) => {
                         if (this.forceReset) return;
 
-                        const response = await fetch(`${API_URL}/sync/push`, {
+                        const response = await fetchWithRetry(`${API_URL}/sync/push`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -100,7 +126,7 @@ class SyncService {
                             body: JSON.stringify(changes)
                         });
 
-                        if (!response.ok) throw new Error(`Push failed: ${response.status}`);
+                        if (!response || !response.ok) throw new Error(`Push failed: ${response?.status}`);
                     },
                     migrationsEnabledAtVersion: 1,
                     sendCreatedAsUpdated: true,

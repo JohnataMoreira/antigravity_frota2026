@@ -1,5 +1,6 @@
 import { Database } from '@nozbe/watermelondb'
 import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite'
+import { Platform } from 'react-native'
 
 import { mySchema } from './schema'
 import migrations from './migrations'
@@ -11,16 +12,16 @@ import Expense from './Expense'
 import Task from './Task'
 import AppDocument from './AppDocument'
 
-// First, create the adapter to the underlying database:
+// Create the adapter
 const adapter = new SQLiteAdapter({
     dbName: 'frota',
     schema: mySchema,
-    migrations, // optional migrations
-    jsi: true, /* Platform.OS === 'ios' */
+    migrations,
+    jsi: true,
     onSetUpError: error => {
-        // Database failed to load -- offer the user to reload the app or log out
+        console.error('Database setup error:', error);
     }
-})
+});
 
 // Then, make a Watermelon database from it!
 export const database = new Database({

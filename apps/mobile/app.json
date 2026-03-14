@@ -67,14 +67,21 @@
         }
       ],
       "expo-font",
-      "react-native-vision-camera"
+      "react-native-vision-camera",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/"
+        }
+      ]
     ],
     "scheme": "frota2026",
     "extra": {
       "eas": {
         "projectId": "c7098cc8-be4c-477a-a24e-bc46fd103ad2"
       },
-      "apiUrl": "https://frota.johnatamoreira.com.br/api",
+      "apiUrl": "http://192.168.68.114:3000/api",
+      "sentryDsn": "",
       "router": {
         "origin": false
       }
